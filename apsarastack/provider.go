@@ -127,6 +127,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_eips":                   dataSourceApsaraStackEips(),
 			"apsarastack_slb_listeners":          dataSourceApsaraStackSlbListeners(),
 			"apsarastack_slb_server_groups":      dataSourceApsaraStackSlbServerGroups(),
+			"apsarastack_slb_acls":               dataSourceApsaraStackSlbAcls(),
+			"apsarastack_slb_domain_extensions":  dataSourceApsaraStackSlbDomainExtensions(),
+			"apsarastack_slb_rules":              dataSourceApsaraStackSlbRules(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_disk":                   resourceApsaraStackDisk(),
@@ -149,6 +152,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_eip_association":        resourceApsaraStackEipAssociation(),
 			"apsarastack_slb_listener":           resourceApsaraStackSlbListener(),
 			"apsarastack_slb_server_group":       resourceApsaraStackSlbServerGroup(),
+			"apsarastack_slb_acl":                resourceApsaraStackSlbAcl(),
+			"apsarastack_slb_domain_extensions":  resourceApsaraStackSlbDomainExtension(),
+			"apsarastack_slb_rule":               resourceApsaraStackSlbRule(),
 		},
 
 		ConfigureFunc: providerConfigure,

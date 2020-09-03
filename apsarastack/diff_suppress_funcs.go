@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strings"
 )
 
 func vpcTypeResourceDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
@@ -22,6 +23,41 @@ func kmsDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 }
 func slbAclDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 	if status, ok := d.GetOk("acl_status"); ok && status.(string) == string(OnFlag) {
+		return false
+	}
+	return true
+}
+func slbRuleStickySessionTypeDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	listenerSync := slbRuleListenerSyncDiffSuppressFunc(k, old, new, d)
+	if session, ok := d.GetOk("sticky_session"); !listenerSync && ok && session.(string) == string(OnFlag) {
+		return false
+	}
+	return true
+}
+func slbRuleListenerSyncDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if listenerSync, ok := d.GetOk("listener_sync"); ok && listenerSync.(string) == string(OffFlag) {
+		return false
+	}
+	return true
+}
+func slbRuleCookieDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	stickSessionTypeDiff := slbRuleStickySessionTypeDiffSuppressFunc(k, old, new, d)
+	if session_type, ok := d.GetOk("sticky_session_type"); !stickSessionTypeDiff && ok && session_type.(string) == string(ServerStickySessionType) {
+		return false
+	}
+	return true
+}
+func slbRuleHealthCheckDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	listenerSync := slbRuleListenerSyncDiffSuppressFunc(k, old, new, d)
+	if health, ok := d.GetOk("health_check"); !listenerSync && ok && health.(string) == string(OnFlag) {
+		return false
+	}
+	return true
+}
+
+func slbRuleCookieTimeoutDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	stickSessionTypeDiff := slbRuleStickySessionTypeDiffSuppressFunc(k, old, new, d)
+	if session_type, ok := d.GetOk("sticky_session_type"); !stickSessionTypeDiff && ok && session_type.(string) == string(InsertStickySessionType) {
 		return false
 	}
 	return true
@@ -128,4 +164,17 @@ func ecsSecurityGroupRulePortRangeDiffSuppressFunc(k, old, new string, d *schema
 		return false
 	}
 	return true
+}
+
+func slbInternetDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if internet, ok := d.GetOkExists("internet"); ok && internet.(bool) {
+		return true
+	}
+	if internet, ok := d.GetOkExists("address_type"); ok && internet.(string) == "internet" {
+		return true
+	}
+	return false
+}
+func PostPaidDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	return strings.ToLower(d.Get("instance_charge_type").(string)) == "postpaid"
 }
