@@ -132,6 +132,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_slb_rules":                      dataSourceApsaraStackSlbRules(),
 			"apsarastack_route_tables":                   dataSourceApsaraStackRouteTables(),
 			"apsarastack_slb_master_slave_server_groups": dataSourceApsaraStackSlbMasterSlaveServerGroups(),
+			"apsarastack_slbs":                           dataSourceApsaraStackSlbs(),
+			"apsarastack_zones":                          dataSourceApsaraStackSlbZones(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_disk":                          resourceApsaraStackDisk(),
@@ -160,6 +162,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_route_table":                   resourceApsaraStackRouteTable(),
 			"apsarastack_route_table_attachment":        resourceApsaraStackRouteTableAttachment(),
 			"apsarastack_slb_master_slave_server_group": resourceApsaraStackSlbMasterSlaveServerGroup(),
+			"apsarastack_slb":                           resourceApsaraStackSlb(),
 		},
 
 		ConfigureFunc: providerConfigure,

@@ -20,6 +20,7 @@ const (
 	CDNCode        = ServiceCode("CDN")
 	SLBCode        = ServiceCode("SLB")
 	LOCATIONCode   = ServiceCode("LOCATION")
+	CONTAINCode    = ServiceCode("CS")
 )
 
 type Endpoints struct {

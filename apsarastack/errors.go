@@ -28,6 +28,7 @@ const (
 	// RAM Instance Not Found
 	RamInstanceNotFound        = "Forbidden.InstanceNotFound"
 	ApsaraStackGoClientFailure = "ApsaraStackGoClientFailure"
+	DenverdinoAliyungo         = ErrorSource("[SDK denverdino/aliyungo ERROR]")
 )
 
 var SlbIsBusy = []string{"SystemBusy", "OperationBusy", "ServiceIsStopping", "BackendServer.configuring", "ServiceIsConfiguring"}

@@ -39,6 +39,7 @@ type Config struct {
 	KmsEndpoint              string
 	LocationEndpoint         string
 	EcsEndpoint              string
+	CsEndpoint               string
 	StsEndpoint              string
 	VpcEndpoint              string
 	BssOpenApiEndpoint       string

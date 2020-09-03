@@ -16,7 +16,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/denverdino/aliyungo/cdn"
 
+	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"sync"
 
 	"fmt"
 	"net/http"
@@ -37,6 +39,7 @@ type ApsaraStackClient struct {
 	ecsconn   *ecs.Client
 	vpcconn   *vpc.Client
 	slbconn   *slb.Client
+	csconn    *cs.Client
 
 	cdnconn        *cdn.CdnClient
 	cdnconn_new    *cdn_new.Client
@@ -64,6 +67,7 @@ type ApiVersion string
 // The main version number that is being run at the moment.
 var providerVersion = "1.94.0"
 var terraformVersion = strings.TrimSuffix(schema.Provider{}.TerraformVersion, "-dev")
+var goSdkMutex = sync.RWMutex{} // The Go SDK is not thread-safe
 
 // Client for ApsaraStackClient
 func (c *Config) Client() (*ApsaraStackClient, error) {
@@ -401,4 +405,30 @@ func (client *ApsaraStackClient) WithCdnClient_new(do func(*cdn_new.Client) (int
 	}
 
 	return do(client.cdnconn_new)
+}
+func (client *ApsaraStackClient) getUserAgent() string {
+	return fmt.Sprintf("%s/%s %s/%s %s/%s", Terraform, terraformVersion, Provider, providerVersion, Module, client.config.ConfigurationSource)
+}
+func (client *ApsaraStackClient) WithCsClient(do func(*cs.Client) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the CS client if necessary
+	if client.csconn == nil {
+		csconn := cs.NewClientForAussumeRole(client.config.AccessKey, client.config.SecretKey, client.config.SecurityToken)
+		csconn.SetUserAgent(client.getUserAgent())
+		endpoint := client.config.CsEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, CONTAINCode)
+		}
+		if endpoint != "" {
+			if !strings.HasPrefix(endpoint, "http") {
+				endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "://"))
+			}
+			csconn.SetEndpoint(endpoint)
+		}
+		client.csconn = csconn
+	}
+
+	return do(client.csconn)
 }
