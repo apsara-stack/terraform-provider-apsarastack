@@ -122,6 +122,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_security_group_rules":   dataSourceApsaraStackSecurityGroupRules(),
 			"apsarastack_snapshots":              dataSourceApsaraStackSnapshots(),
 			"apsarastack_images":                 dataSourceApsaraStackImages(),
+			"apsarastack_vswitches":              dataSourceApsaraStackVSwitches(),
+			"apsarastack_vpcs":                   dataSourceApsaraStackVpcs(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_disk":                   resourceApsaraStackDisk(),
@@ -138,6 +140,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_image_share_permission": resourceApsaraStackImageSharePermission(),
 			"apsarastack_snapshot":               resourceApsaraStackSnapshot(),
 			"apsarastack_snapshot_policy":        resourceApsaraStackSnapshotPolicy(),
+			"apsarastack_vswitches":              resourceApsaraStackSwitch(),
+			"apsarastack_vpc":                    resourceApsaraStackVpc(),
 		},
 
 		ConfigureFunc: providerConfigure,
