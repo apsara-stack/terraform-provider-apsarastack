@@ -95,3 +95,13 @@ func validateCIDRNetworkAddress(v interface{}, k string) (ws []string, errors []
 
 	return
 }
+func validateForwardPort(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "any" {
+		valueConv, err := strconv.Atoi(value)
+		if err != nil || valueConv < 1 || valueConv > 65535 {
+			errors = append(errors, fmt.Errorf("%q must be a valid port between 1 and 65535 or any ", k))
+		}
+	}
+	return
+}

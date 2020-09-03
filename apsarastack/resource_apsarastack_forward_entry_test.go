@@ -1,0 +1,343 @@
+package apsarastack
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
+	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+)
+
+func TestAccApsaraStackForwardBasic(t *testing.T) {
+	var v vpc.ForwardTableEntry
+	resourceId := "apsarastack_forward_entry.default"
+
+	rand := acctest.RandInt()
+	testAccForwardEntryCheckMap["name"] = fmt.Sprintf("tf-testAccForwardEntryConfig%d", rand)
+	ra := resourceAttrInit(resourceId, testAccForwardEntryCheckMap)
+	serviceFunc := func() interface{} {
+		return &VpcService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
+	}
+	rc := resourceCheckInit(resourceId, &v, serviceFunc)
+	rac := resourceAttrCheckInit(rc, ra)
+	testAccCheck := rac.resourceAttrMapUpdateSet()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: resourceId,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckForwardEntryDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccForwardEntryConfigBasic(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(nil),
+				),
+			},
+			{
+				Config: testAccForwardEntryConfig_external_ip(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(nil),
+				),
+			},
+			{
+				Config: testAccForwardEntryConfig_external_port(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"external_port": "81",
+					}),
+				),
+			},
+			{
+				Config: testAccForwardEntryConfig_ip_protocol(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"ip_protocol": "udp",
+					}),
+				),
+			},
+			{
+				Config: testAccForwardEntryConfig_internal_ip(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"internal_ip": "172.16.0.4",
+					}),
+				),
+			},
+			{
+				Config: testAccForwardEntryConfig_internal_port(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"internal_port": "8081",
+					}),
+				),
+			},
+			{
+				Config: testAccForwardEntryConfig_name(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"name": fmt.Sprintf("tf-testAccForwardEntryConfig%d_change", rand),
+					}),
+				),
+			},
+			{
+				Config: testAccForwardEntryConfigBasic(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(testAccForwardEntryCheckMap),
+				),
+			},
+		},
+	})
+}
+
+func TestAccApsaraStackForwardMulti(t *testing.T) {
+	var v vpc.ForwardTableEntry
+	resourceId := "apsarastack_forward_entry.default.4"
+	rand := acctest.RandInt()
+	testAccForwardEntryCheckMap["name"] = fmt.Sprintf("tf-testAccForwardEntryConfig%d", rand)
+	ra := resourceAttrInit(resourceId, testAccForwardEntryCheckMap)
+	serviceFunc := func() interface{} {
+		return &VpcService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
+	}
+	rc := resourceCheckInit(resourceId, &v, serviceFunc)
+	rac := resourceAttrCheckInit(rc, ra)
+	testAccCheck := rac.resourceAttrMapUpdateSet()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: resourceId,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckForwardEntryDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccForwardEntryConfig_multi(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"external_port": "84",
+						"internal_port": "8084",
+					}),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckForwardEntryDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*connectivity.ApsaraStackClient)
+	vpcService := VpcService{client}
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "apsarastack_forward_entry" {
+			continue
+		}
+		if _, err := vpcService.DescribeForwardEntry(rs.Primary.ID); err != nil {
+			if NotFoundError(err) {
+				continue
+			}
+			return WrapError(err)
+		}
+
+		return WrapError(fmt.Errorf("Forward entry %s still exist", rs.Primary.ID))
+	}
+	return nil
+}
+
+func testAccForwardEntryConfigBasic(rand int) string {
+	config := fmt.Sprintf(`
+%s
+
+resource "apsarastack_forward_entry" "default"{
+	name = "${var.name}"
+	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
+	external_ip = "${apsarastack_eip.default.0.ip_address}"
+	external_port = "80"
+	ip_protocol = "tcp"
+	internal_ip = "172.16.0.3"
+	internal_port = "8080"
+}
+`, testAccForwardEntryConfigCommon(rand))
+	return config
+}
+
+func testAccForwardEntryConfig_external_ip(rand int) string {
+	config := fmt.Sprintf(`
+%s
+
+resource "apsarastack_forward_entry" "default"{
+	name = "${var.name}"
+	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
+	external_ip = "${apsarastack_eip.default.1.ip_address}"
+	external_port = "80"
+	ip_protocol = "tcp"
+	internal_ip = "172.16.0.3"
+	internal_port = "8080"
+}
+`, testAccForwardEntryConfigCommon(rand))
+	return config
+}
+
+func testAccForwardEntryConfig_external_port(rand int) string {
+	return fmt.Sprintf(`
+%s
+
+resource "apsarastack_forward_entry" "default"{
+	name = "${var.name}"
+	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
+	external_ip = "${apsarastack_eip.default.1.ip_address}"
+	external_port = "81"
+	ip_protocol = "tcp"
+	internal_ip = "172.16.0.3"
+	internal_port = "8080"
+}
+`, testAccForwardEntryConfigCommon(rand))
+}
+
+func testAccForwardEntryConfig_ip_protocol(rand int) string {
+	return fmt.Sprintf(`
+%s
+
+resource "apsarastack_forward_entry" "default"{
+	name = "${var.name}"
+	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
+	external_ip = "${apsarastack_eip.default.1.ip_address}"
+	external_port = "81"
+	ip_protocol = "udp"
+	internal_ip = "172.16.0.3"
+	internal_port = "8080"
+}
+`, testAccForwardEntryConfigCommon(rand))
+}
+
+func testAccForwardEntryConfig_internal_ip(rand int) string {
+	return fmt.Sprintf(`
+%s
+
+resource "apsarastack_forward_entry" "default"{
+	name = "${var.name}"
+	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
+	external_ip = "${apsarastack_eip.default.1.ip_address}"
+	external_port = "81"
+	ip_protocol = "udp"
+	internal_ip = "172.16.0.4"
+	internal_port = "8080"
+}
+`, testAccForwardEntryConfigCommon(rand))
+}
+
+func testAccForwardEntryConfig_internal_port(rand int) string {
+	return fmt.Sprintf(`
+%s
+
+resource "apsarastack_forward_entry" "default"{
+	name = "${var.name}"
+	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
+	external_ip = "${apsarastack_eip.default.1.ip_address}"
+	external_port = "81"
+	ip_protocol = "udp"
+	internal_ip = "172.16.0.4"
+	internal_port = "8081"
+}
+`, testAccForwardEntryConfigCommon(rand))
+}
+
+func testAccForwardEntryConfig_name(rand int) string {
+	return fmt.Sprintf(`
+%s
+
+resource "apsarastack_forward_entry" "default"{
+	name = "${var.name}_change"
+	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
+	external_ip = "${apsarastack_eip.default.1.ip_address}"
+	external_port = "81"
+	ip_protocol = "udp"
+	internal_ip = "172.16.0.4"
+	internal_port = "8081"
+}
+`, testAccForwardEntryConfigCommon(rand))
+}
+
+func testAccForwardEntryConfig_multi(rand int) string {
+	config := fmt.Sprintf(`
+%s
+
+resource "apsarastack_forward_entry" "default"{
+	count = 5
+	name = "${var.name}"
+	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
+	external_ip = "${apsarastack_eip.default.0.ip_address}"
+	external_port = "${80 + count.index}"
+	ip_protocol = "tcp"
+	internal_ip = "172.16.0.3"
+	internal_port = "${8080 + count.index}"
+}
+`, testAccForwardEntryConfigCommon(rand))
+	return config
+}
+
+func testAccForwardEntryConfigCommon(rand int) string {
+	return fmt.Sprintf(
+		`
+variable "name" {
+	default = "tf-testAccForwardEntryConfig%d"
+}
+
+variable "number" {
+	default = "2"
+}
+
+data "apsarastack_zones" "default" {
+	available_resource_creation= "VSwitch"
+}
+
+resource "apsarastack_vpc" "default" {
+	name = "${var.name}"
+	cidr_block = "172.16.0.0/12"
+}
+
+resource "apsarastack_vswitch" "default" {
+	vpc_id = "${apsarastack_vpc.default.id}"
+	cidr_block = "172.16.0.0/21"
+	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+	name = "${var.name}"
+}
+
+resource "apsarastack_nat_gateway" "default" {
+	vpc_id = "${apsarastack_vswitch.default.vpc_id}"
+	specification = "Small"
+	name = "${var.name}"
+}
+
+resource "apsarastack_eip" "default" {
+	count = "${var.number}"
+	name = "${var.name}"
+}
+
+resource "apsarastack_eip_association" "default" {
+	count = "${var.number}"
+	allocation_id = "${element(apsarastack_eip.default.*.id,count.index)}"
+	instance_id = "${apsarastack_nat_gateway.default.id}"
+}
+`, rand)
+}
+
+var testAccForwardEntryCheckMap = map[string]string{
+	"forward_table_id": CHECKSET,
+	"external_ip":      CHECKSET,
+	"external_port":    "80",
+	"ip_protocol":      "tcp",
+	"internal_ip":      "172.16.0.3",
+	"internal_port":    "8080",
+	"forward_entry_id": CHECKSET,
+}

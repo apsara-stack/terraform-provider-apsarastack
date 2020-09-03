@@ -210,7 +210,7 @@ func TestAccApsaraStackNetworkInterfaceBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						// There is a bug when d.Set a set parameter. The new values can not overwrite the state
-						// when a parameter is a TypeSet and Computed. https://github.com/hashicorp/terraform/issues/20504
+						// when a parameter is a TypeSet and Computed. https://github.com/hashicorp/terraform-plugin-sdk/issues/20504
 						"private_ips_count": "4",
 					}),
 				),
@@ -246,7 +246,7 @@ func TestAccApsaraStackNetworkInterfaceBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						// There is a bug when d.Set a set parameter. The new values can not overwrite the state
-						// when a parameter is a TypeSet and Computed. https://github.com/hashicorp/terraform/issues/20504
+						// when a parameter is a TypeSet and Computed. https://github.com/hashicorp/terraform-plugin-sdk/issues/20504
 						"private_ips_count": "1",
 						"description":       "tf-testAcc-eni-description_all",
 						"tags.%":            "0",
