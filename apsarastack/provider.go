@@ -138,6 +138,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_forward_entries":                dataSourceApsaraStackForwardEntries(),
 			"apsarastack_nat_gateways":                   dataSourceApsaraStackNatGateways(),
 			"apsarastack_snat_entries":                   dataSourceApsaraStackSnatEntries(),
+			"apsarastack_slb_server_certificates":        dataSourceApsaraStackSlbServerCertificates(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_disk":                                resourceApsaraStackDisk(),
@@ -172,6 +173,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_forward_entry":                       resourceApsaraStackForwardEntry(),
 			"apsarastack_nat_gateway":                         resourceApsaraStackNatGateway(),
 			"apsarastack_snat_entry":                          resourceApsaraStackSnatEntry(),
+			"apsarastack_slb_server_certificate":              resourceApsaraStackSlbServerCertificate(),
 		},
 
 		ConfigureFunc: providerConfigure,
