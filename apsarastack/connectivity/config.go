@@ -19,33 +19,81 @@ var securityCredURL = "http://100.100.100.200/latest/meta-data/ram/security-cred
 
 // Config of apsarastack
 type Config struct {
-	AccessKey                string
-	SecretKey                string
-	EcsRoleName              string
-	Region                   Region
-	RegionId                 string
-	SecurityToken            string
-	OtsInstanceName          string
-	AccountId                string
-	Protocol                 string
-	SkipRegionValidation     bool
-	ConfigurationSource      string
+	AccessKey       string
+	SecretKey       string
+	EcsRoleName     string
+	Region          Region
+	RegionId        string
+	SecurityToken   string
+	OtsInstanceName string
+	AccountId       string
+	Protocol        string
+
 	RamRoleArn               string
 	RamRoleSessionName       string
 	RamRolePolicy            string
-	SlbEndpoint              string
 	RamRoleSessionExpiration int
-	CdnEndpoint              string
-	KmsEndpoint              string
-	LocationEndpoint         string
-	EcsEndpoint              string
-	CsEndpoint               string
-	StsEndpoint              string
-	VpcEndpoint              string
-	BssOpenApiEndpoint       string
-	RamEndpoint              string
-	Insecure                 bool
-	Proxy                    string
+
+	EcsEndpoint           string
+	RdsEndpoint           string
+	SlbEndpoint           string
+	VpcEndpoint           string
+	CenEndpoint           string
+	EssEndpoint           string
+	OssEndpoint           string
+	OnsEndpoint           string
+	AlikafkaEndpoint      string
+	DnsEndpoint           string
+	RamEndpoint           string
+	CsEndpoint            string
+	CrEndpoint            string
+	CdnEndpoint           string
+	KmsEndpoint           string
+	OtsEndpoint           string
+	CmsEndpoint           string
+	PvtzEndpoint          string
+	StsEndpoint           string
+	LogEndpoint           string
+	DrdsEndpoint          string
+	DdsEndpoint           string
+	GpdbEnpoint           string
+	KVStoreEndpoint       string
+	PolarDBEndpoint       string
+	FcEndpoint            string
+	ApigatewayEndpoint    string
+	DatahubEndpoint       string
+	MnsEndpoint           string
+	LocationEndpoint      string
+	ElasticsearchEndpoint string
+	NasEndpoint           string
+	BssOpenApiEndpoint    string
+	DdoscooEndpoint       string
+	DdosbgpEndpoint       string
+	SagEndpoint           string
+	EmrEndpoint           string
+	CasEndpoint           string
+	MarketEndpoint        string
+	HBaseEndpoint         string
+	AdbEndpoint           string
+	MaxComputeEndpoint    string
+
+	edasEndpoint            string
+	SkipRegionValidation    bool
+	ConfigurationSource     string
+	CbnEndpoint             string
+	DmsEnterpriseEndpoint   string
+	WafOpenapiEndpoint      string
+	ResourcemanagerEndpoint string
+	BssopenapiEndpoint      string
+	AlidnsEndpoint          string
+	CassandraEndpoint       string
+	EciEndpoint             string
+	OosEndpoint             string
+	DcdnEndpoint            string
+	MseEndpoint             string
+	ActiontrailEndpoint     string
+	Insecure                bool
+	Proxy                   string
 }
 
 func (c *Config) loadAndValidate() error {

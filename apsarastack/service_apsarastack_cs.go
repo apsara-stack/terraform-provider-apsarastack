@@ -23,9 +23,9 @@ func (s *CsService) DescribeCsKubernetes(id string) (cluster *cs.KubernetesClust
 		return err
 	}); err != nil {
 		if IsExpectedErrors(err, []string{"ErrorClusterNotFound"}) {
-			return cluster, WrapErrorf(err, NotFoundMsg, DenverdinoAliyungo)
+			return cluster, WrapErrorf(err, NotFoundMsg, DenverdinoApsaraStackgo)
 		}
-		return cluster, WrapErrorf(err, DefaultErrorMsg, id, "DescribeKubernetesCluster", DenverdinoAliyungo)
+		return cluster, WrapErrorf(err, DefaultErrorMsg, id, "DescribeKubernetesCluster", DenverdinoApsaraStackgo)
 	}
 	if debugOn() {
 		requestMap := make(map[string]interface{})

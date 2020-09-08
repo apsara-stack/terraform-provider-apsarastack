@@ -178,3 +178,10 @@ func slbInternetDiffSuppressFunc(k, old, new string, d *schema.ResourceData) boo
 func PostPaidDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 	return strings.ToLower(d.Get("instance_charge_type").(string)) == "postpaid"
 }
+
+func PostPaidAndRenewDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if strings.ToLower(d.Get("instance_charge_type").(string)) == "prepaid" && d.Get("auto_renew").(bool) {
+		return false
+	}
+	return true
+}

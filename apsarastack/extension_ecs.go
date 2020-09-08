@@ -44,6 +44,7 @@ type DestinationResource string
 
 const (
 	InstanceTypeResource = DestinationResource("InstanceType")
+	ZoneResource         = DestinationResource("Zone")
 )
 const (
 	DiskResizeTypeOffline = DiskResizeType("offline")
