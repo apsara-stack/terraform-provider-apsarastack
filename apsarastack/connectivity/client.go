@@ -858,3 +858,30 @@ func (client *ApsaraStackClient) WithCsClient(do func(*cs.Client) (interface{}, 
 
 	return do(client.csconn)
 }
+
+func (client *ApsaraStackClient) getHttpProxyUrl() *url.URL {
+	for _, v := range []string{"HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy"} {
+		value := strings.Trim(os.Getenv(v), " ")
+		if value != "" {
+			if !regexp.MustCompile(`^http(s)?://`).MatchString(value) {
+				value = fmt.Sprintf("https://%s", value)
+			}
+			proxyUrl, err := url.Parse(value)
+			if err == nil {
+				return proxyUrl
+			}
+			break
+		}
+	}
+	return nil
+}
+
+func (client *ApsaraStackClient) WithOssBucketByName(bucketName string, do func(*oss.Bucket) (interface{}, error)) (interface{}, error) {
+	return client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+		bucket, err := client.ossconn.Bucket(bucketName)
+		if err != nil {
+			return nil, fmt.Errorf("unable to get the bucket %s: %#v", bucketName, err)
+		}
+		return do(bucket)
+	})
+}
