@@ -265,7 +265,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	domain := d.Get("domain").(string)
 	if domain != "" {
 		config.EcsEndpoint = "ecs." + domain
-
+		config.VpcEndpoint = "vpc." + domain
 		config.StsEndpoint = "sts." + domain
 
 	} else {
@@ -275,7 +275,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		for _, endpointsSetI := range endpointsSet.List() {
 			endpoints := endpointsSetI.(map[string]interface{})
 			config.EcsEndpoint = strings.TrimSpace(endpoints["ecs"].(string))
-
+			config.VpcEndpoint = strings.TrimSpace(endpoints["vpc"].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
 
 		}

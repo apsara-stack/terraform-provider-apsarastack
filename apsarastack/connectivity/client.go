@@ -143,6 +143,7 @@ func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}
 
 	return do(client.ecsconn)
 }
+
 func (client *ApsaraStackClient) WithPolarDBClient(do func(*polardb.Client) (interface{}, error)) (interface{}, error) {
 	// Initialize the PolarDB client if necessary
 	if client.polarDBconn == nil {
@@ -163,6 +164,11 @@ func (client *ApsaraStackClient) WithPolarDBClient(do func(*polardb.Client) (int
 		polarDBconn.AppendUserAgent(Terraform, terraformVersion)
 		polarDBconn.AppendUserAgent(Provider, providerVersion)
 		polarDBconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		polarDBconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			polarDBconn.SetHttpsProxy(client.config.Proxy)
+		}
+
 		client.polarDBconn = polarDBconn
 	}
 
@@ -186,6 +192,10 @@ func (client *ApsaraStackClient) WithElasticsearchClient(do func(*elasticsearch.
 		elasticsearchconn.AppendUserAgent(Terraform, terraformVersion)
 		elasticsearchconn.AppendUserAgent(Provider, providerVersion)
 		elasticsearchconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		elasticsearchconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			elasticsearchconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.elasticsearchconn = elasticsearchconn
 	}
 
@@ -209,6 +219,10 @@ func (client *ApsaraStackClient) WithEssClient(do func(*ess.Client) (interface{}
 		essconn.AppendUserAgent(Terraform, terraformVersion)
 		essconn.AppendUserAgent(Provider, providerVersion)
 		essconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		essconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			essconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.essconn = essconn
 	}
 
@@ -233,6 +247,10 @@ func (client *ApsaraStackClient) WithRkvClient(do func(*r_kvstore.Client) (inter
 		rkvconn.AppendUserAgent(Terraform, terraformVersion)
 		rkvconn.AppendUserAgent(Provider, providerVersion)
 		rkvconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		rkvconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			rkvconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.rkvconn = rkvconn
 	}
 
@@ -257,6 +275,10 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 		gpdbconn.AppendUserAgent(Terraform, terraformVersion)
 		gpdbconn.AppendUserAgent(Provider, providerVersion)
 		gpdbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		gpdbconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			gpdbconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.gpdbconn = gpdbconn
 	}
 
@@ -282,6 +304,10 @@ func (client *ApsaraStackClient) WithAdbClient(do func(*adb.Client) (interface{}
 		adbconn.AppendUserAgent(Terraform, terraformVersion)
 		adbconn.AppendUserAgent(Provider, providerVersion)
 		adbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		adbconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			adbconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.adbconn = adbconn
 	}
 
@@ -305,6 +331,10 @@ func (client *ApsaraStackClient) WithHbaseClient(do func(*hbase.Client) (interfa
 		hbaseconn.AppendUserAgent(Terraform, terraformVersion)
 		hbaseconn.AppendUserAgent(Provider, providerVersion)
 		hbaseconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		hbaseconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			hbaseconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.hbaseconn = hbaseconn
 	}
 
@@ -391,6 +421,10 @@ func (client *ApsaraStackClient) WithSlbClient(do func(*slb.Client) (interface{}
 		slbconn.AppendUserAgent(Terraform, terraformVersion)
 		slbconn.AppendUserAgent(Provider, providerVersion)
 		slbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		slbconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			slbconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.slbconn = slbconn
 	}
 
@@ -414,6 +448,10 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 		ddsconn.AppendUserAgent(Terraform, terraformVersion)
 		ddsconn.AppendUserAgent(Provider, providerVersion)
 		ddsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		ddsconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			ddsconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.ddsconn = ddsconn
 	}
 
@@ -440,6 +478,10 @@ func (client *ApsaraStackClient) describeEndpointForService(serviceCode string) 
 	locationClient.AppendUserAgent(Terraform, terraformVersion)
 	locationClient.AppendUserAgent(Provider, providerVersion)
 	locationClient.AppendUserAgent(Module, client.config.ConfigurationSource)
+	locationClient.SetHTTPSInsecure(client.config.Insecure)
+	if client.config.Proxy != "" {
+		locationClient.SetHttpsProxy(client.config.Proxy)
+	}
 	endpointsResponse, err := locationClient.DescribeEndpoints(args)
 	if err != nil {
 		return nil, fmt.Errorf("Describe %s endpoint using region: %#v got an error: %#v.", serviceCode, client.RegionId, err)
@@ -480,6 +522,7 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 	request.AppendUserAgent(Terraform, terraformVersion)
 	request.AppendUserAgent(Provider, providerVersion)
 	request.AppendUserAgent(Module, client.config.ConfigurationSource)
+	request.SetHTTPSInsecure(client.config.Insecure)
 	return request, nil
 }
 
@@ -604,6 +647,10 @@ func (client *ApsaraStackClient) GetCallerIdentity() (*sts.GetCallerIdentityResp
 	stsClient.AppendUserAgent(Terraform, terraformVersion)
 	stsClient.AppendUserAgent(Provider, providerVersion)
 	stsClient.AppendUserAgent(Module, client.config.ConfigurationSource)
+	stsClient.SetHTTPSInsecure(client.config.Insecure)
+	if client.config.Proxy != "" {
+		stsClient.SetHttpsProxy(client.config.Proxy)
+	}
 
 	identity, err := stsClient.GetCallerIdentity(args)
 	if err != nil {
@@ -748,6 +795,10 @@ func (client *ApsaraStackClient) WithRdsClient(do func(*rds.Client) (interface{}
 		rdsconn.AppendUserAgent(Terraform, terraformVersion)
 		rdsconn.AppendUserAgent(Provider, providerVersion)
 		rdsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		rdsconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			rdsconn.SetHttpsProxy(client.config.Proxy)
+		}
 		client.rdsconn = rdsconn
 	}
 
