@@ -172,7 +172,6 @@ func TestAccApsaraStackSlbServerCertificate_apsArastack_server_certificate(t *te
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheckWithRegions(t, true, connectivity.CasClassicSupportedRegions)
 			testAccPreCheck(t)
 		},
 
