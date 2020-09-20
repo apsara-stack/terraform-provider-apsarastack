@@ -33,22 +33,17 @@ func dataSourceApsaraStackInstances() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			//"resource_group_id": {  // not supported in apsarastack's ECS instance.
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//	ForceNew: true,
-			//},
 			"status": {
 				Type:     schema.TypeString,
 				Optional: true,
 				//must contain a valid status, expected Creating, Starting, Running, Stopping, Stopped
-				/*ValidateFunc: validation.StringInSlice([]string{
+				ValidateFunc: validation.StringInSlice([]string{
 					string(Running),
 					string(Stopped),
 					string(Creating),
 					string(Starting),
 					string(Stopping),
-				}, false),*/
+				}, false),
 				ForceNew: true,
 			},
 			"vpc_id": {
@@ -71,7 +66,7 @@ func dataSourceApsaraStackInstances() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			//"tags": tagsSchema(),
+			"tags": tagsSchema(),
 
 			"output_file": {
 				Type:     schema.TypeString,
@@ -134,10 +129,6 @@ func dataSourceApsaraStackInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						//"public_ip": { // not supported in apsarastack's ECS instance.
-						//	Type:     schema.TypeString,
-						//	Computed: true,
-						//},
 						"eip": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -163,10 +154,6 @@ func dataSourceApsaraStackInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						//"internet_charge_type": { // not supported in apsarastack's ECS instance.
-						//	Type:     schema.TypeString,
-						//	Computed: true,
-						//},
 						"internet_max_bandwidth_out": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -175,14 +162,9 @@ func dataSourceApsaraStackInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						//"spot_strategy": { // not supported in apsarastack's ECS instance.
-						//	Type:     schema.TypeString,
-						//	Computed: true,
-						//},
 						"disk_device_mappings": {
 							Type:     schema.TypeList,
 							Computed: true,
-							//Set:      imageDiskDeviceMappingHash,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"device": {
@@ -204,7 +186,7 @@ func dataSourceApsaraStackInstances() *schema.Resource {
 								},
 							},
 						},
-						//"tags": tagsSchema(),
+						"tags": tagsSchema(),
 					},
 				},
 			},
@@ -228,9 +210,6 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 	if v, ok := d.GetOk("vswitch_id"); ok && v.(string) != "" {
 		request.VSwitchId = v.(string)
 	}
-	//if v, ok := d.GetOk("resource_group_id"); ok && v.(string) != "" {
-	//	request.ResourceGroupId = v.(string)
-	//}
 	if v, ok := d.GetOk("availability_zone"); ok && v.(string) != "" {
 		request.ZoneId = v.(string)
 	}
@@ -255,7 +234,7 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 			return ecsClient.DescribeInstances(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instances", request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instances", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*ecs.DescribeInstancesResponse)
@@ -318,7 +297,7 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 				return ecsClient.DescribeInstanceRamRole(request)
 			})
 			if err != nil {
-				return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instances", request.GetActionName(), ApsaraStackGoClientFailure)
+				return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instances", request.GetActionName(), ApsaraStackSdkGoERROR)
 			}
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 			response, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
@@ -361,25 +340,23 @@ func instancessDescriptionAttributes(d *schema.ResourceData, instances []ecs.Ins
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":                inst.InstanceId,
-			"region_id":         inst.RegionId,
-			"availability_zone": inst.ZoneId,
-			"status":            inst.Status,
-			"name":              inst.InstanceName,
-			"instance_type":     inst.InstanceType,
-			"vpc_id":            inst.VpcAttributes.VpcId,
-			"vswitch_id":        inst.VpcAttributes.VSwitchId,
-			"image_id":          inst.ImageId,
-			"description":       inst.Description,
-			"security_groups":   inst.SecurityGroupIds.SecurityGroupId,
-			"resource_group_id": inst.ResourceGroupId,
-			"eip":               inst.EipAddress.IpAddress,
-			"key_name":          inst.KeyPairName,
-			"ram_role_name":     instanceRoleNameMap[inst.InstanceId],
-			//"spot_strategy":              inst.SpotStrategy,
-			"creation_time":        inst.CreationTime,
-			"instance_charge_type": inst.InstanceChargeType,
-			//"internet_charge_type":       inst.InternetChargeType,
+			"id":                         inst.InstanceId,
+			"region_id":                  inst.RegionId,
+			"availability_zone":          inst.ZoneId,
+			"status":                     inst.Status,
+			"name":                       inst.InstanceName,
+			"instance_type":              inst.InstanceType,
+			"vpc_id":                     inst.VpcAttributes.VpcId,
+			"vswitch_id":                 inst.VpcAttributes.VSwitchId,
+			"image_id":                   inst.ImageId,
+			"description":                inst.Description,
+			"security_groups":            inst.SecurityGroupIds.SecurityGroupId,
+			"resource_group_id":          inst.ResourceGroupId,
+			"eip":                        inst.EipAddress.IpAddress,
+			"key_name":                   inst.KeyPairName,
+			"ram_role_name":              instanceRoleNameMap[inst.InstanceId],
+			"creation_time":              inst.CreationTime,
+			"instance_charge_type":       inst.InstanceChargeType,
 			"internet_max_bandwidth_out": inst.InternetMaxBandwidthOut,
 			// Complex types get their own functions
 			"disk_device_mappings": instanceDisksMap[inst.InstanceId],
@@ -390,11 +367,6 @@ func instancessDescriptionAttributes(d *schema.ResourceData, instances []ecs.Ins
 		} else {
 			mapping["private_ip"] = inst.VpcAttributes.PrivateIpAddress.IpAddress[0]
 		}
-		//if len(inst.PublicIpAddress.IpAddress) > 0 {
-		//	mapping["public_ip"] = inst.PublicIpAddress.IpAddress[0]
-		//} else {
-		//	mapping["public_ip"] = inst.VpcAttributes.NatIpAddress
-		//}
 
 		ids = append(ids, inst.InstanceId)
 		names = append(names, inst.InstanceName)
@@ -428,7 +400,7 @@ func getInstanceDisksMappings(instanceMap map[string]string, meta interface{}) (
 			return ecsClient.DescribeDisks(request)
 		})
 		if err != nil {
-			return instanceDisks, WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instances", request.GetActionName(), ApsaraStackGoClientFailure)
+			return instanceDisks, WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instances", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*ecs.DescribeDisksResponse)

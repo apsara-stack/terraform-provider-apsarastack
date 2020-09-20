@@ -2,7 +2,6 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"os"
 	"strings"
 	"testing"
 
@@ -91,20 +90,6 @@ func TestAccApsaraStackDisksDataSource(t *testing.T) {
 		}),
 	}
 
-	resourceGroupIdConfig := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackDisksDataSourceConfigWithCommon(rand, map[string]string{
-			"instance_id": `"${apsarastack_disk_attachment.default.instance_id}"`,
-		}),
-		existChangMap: map[string]string{
-			"disks.0.instance_id":   CHECKSET,
-			"disks.0.attached_time": CHECKSET,
-			"disks.0.status":        "In_use",
-		},
-		fakeConfig: testAccCheckApsaraStackDisksDataSourceConfigWithCommon(rand, map[string]string{
-			"instance_id": `"${apsarastack_disk_attachment.default.instance_id}_fake"`,
-		}),
-	}
-
 	allConfig := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackDisksDataSourceConfigWithCommon(rand, map[string]string{
 			"ids":         `[ "${apsarastack_disk.default.id}" ]`,
@@ -130,7 +115,7 @@ func TestAccApsaraStackDisksDataSource(t *testing.T) {
 	}
 
 	disksCheckInfo.dataSourceTestCheck(t, rand, idsConfig, nameRegexConfig, typeConfig, categoryConfig, encryptedConfig,
-		tagsConfig, instanceIdConfig, resourceGroupIdConfig, allConfig)
+		tagsConfig, instanceIdConfig, allConfig)
 }
 
 func testAccCheckApsaraStackDisksDataSourceConfig(rand int, attrMap map[string]string) string {
@@ -140,18 +125,12 @@ func testAccCheckApsaraStackDisksDataSourceConfig(rand int, attrMap map[string]s
 	}
 
 	config := fmt.Sprintf(`
-variable "resource_group_id" {
-	default = "%s"
-}
-
 variable "name" {
 	default = "tf-testAccCheckApsaraStackDisksDataSource_ids-%d"
 }
-
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
-
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 	category = "cloud_efficiency"
@@ -163,11 +142,10 @@ resource "apsarastack_disk" "default" {
 		Name1 = "TerraformTest"
 	}
 }
-
 data "apsarastack_disks" "default" {
 	%s
 }
-	`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), rand, strings.Join(pairs, "\n	"))
+	`, rand, strings.Join(pairs, "\n	"))
 	return config
 }
 
@@ -179,15 +157,9 @@ func testAccCheckApsaraStackDisksDataSourceConfigWithCommon(rand int, attrMap ma
 
 	config := fmt.Sprintf(`
 %s
-
-variable "resource_group_id" {
-	default = "%s"
-}
-
 variable "name" {
 	default = "tf-testAccCheckApsaraStackDisksDataSource_ids-%d"
 }
-
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 	category = "cloud_efficiency"
@@ -198,9 +170,7 @@ resource "apsarastack_disk" "default" {
 		Name1 = "TerraformTest"
 	}
 	size = "20"
-	//resource_group_id = "${var.resource_group_id}"
 }
-
 resource "apsarastack_instance" "default" {
 	vswitch_id = "${apsarastack_vswitch.default.id}"
 	private_ip = "172.16.0.10"
@@ -210,16 +180,14 @@ resource "apsarastack_instance" "default" {
 	system_disk_category = "cloud_efficiency"
 	security_groups = ["${apsarastack_security_group.default.id}"]
 }
-
 resource "apsarastack_disk_attachment" "default" {
 	disk_id = "${apsarastack_disk.default.id}"
 	instance_id = "${apsarastack_instance.default.id}"
 }
-
 data "apsarastack_disks" "default" {
 	%s
 }
-`, EcsInstanceCommonTestCase, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), rand, strings.Join(pairs, "\n	"))
+`, EcsInstanceCommonTestCase, rand, strings.Join(pairs, "\n	"))
 	return config
 }
 
