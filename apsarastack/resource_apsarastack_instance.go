@@ -106,10 +106,10 @@ func resourceApsaraStackInstance() *schema.Resource {
 				},
 				Elem: schema.TypeString,
 			},
-			"io_optimized": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
+			//"io_optimized": {
+			//	Type:     schema.TypeString,
+			//	Optional: true,
+			//},
 			"is_outdated": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -122,7 +122,7 @@ func resourceApsaraStackInstance() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"all", "cloud", "ephemeral_ssd", "cloud_efficiency", "cloud_ssd"}, false), // "cloud_essd" and "local_disk" not supported present in Apsarastack's ecs instance
 			},
 			"system_disk_size": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  40,
 			},
@@ -271,7 +271,7 @@ func resourceApsaraStackInstanceCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return WrapError(err)
 	}
-	request.IoOptimized = "io_optimized"
+	//request.IoOptimized = "io_optimized"
 
 	if d.Get("is_outdated").(bool) == true {
 		request.IoOptimized = "none"
@@ -618,7 +618,7 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 	}
 
 	request.SystemDiskCategory = string(systemDiskCategory)
-	request.SystemDiskSize = d.Get("system_disk_size").(string)
+	request.SystemDiskSize = strconv.Itoa(d.Get("system_disk_size").(int))
 
 	if v, ok := d.GetOk("security_groups"); ok {
 		// At present, the classic network instance does not support multi sg in runInstances
