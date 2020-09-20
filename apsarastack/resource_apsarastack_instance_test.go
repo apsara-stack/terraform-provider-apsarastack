@@ -2,9 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"log"
-	"os"
 	"testing"
 
 	"strings"
@@ -13,6 +11,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
@@ -20,11 +19,6 @@ func init() {
 	resource.AddTestSweepers("apsarastack_instance", &resource.Sweeper{
 		Name: "apsarastack_instance",
 		F:    testSweepInstances,
-		// When implemented, these should be removed firstly
-		// Now, the resource apsarastack_havip_attachment has been published.
-		//Dependencies: []string{
-		//	"apsarastack_havip_attachment",
-		//},
 	})
 }
 
@@ -33,6 +27,7 @@ func testSweepInstances(region string) error {
 	if err != nil {
 		return fmt.Errorf("error getting Apsarastack client: %s", err)
 	}
+	log.Printf("[INFO] rawClient: %s", rawClient)
 	client := rawClient.(*connectivity.ApsaraStackClient)
 
 	prefixes := []string{
@@ -157,7 +152,7 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheckWithRegions(t, true, connectivity.EcsClassicSupportedRegions)
+			//testAccPreCheckWithRegions(t, true, connectivity.EcsClassicSupportedRegions)
 			testAccPreCheckWithAccountSiteType(t, DomesticSite)
 		},
 		IDRefreshName: resourceId,
@@ -167,23 +162,25 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"image_id":        "${data.apsarastack_images.default.images.0.id}",
-					"security_groups": []string{"${apsarastack_security_group.default.0.id}"},
+					"security_groups": []string{"${apsarastack_security_group.default.id}"},
 					"instance_type":   "${data.apsarastack_instance_types.default.instance_types.0.id}",
 
 					"availability_zone":    "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
 					"system_disk_category": "cloud_efficiency",
 					"instance_name":        "${var.name}",
 					"key_name":             "${apsarastack_key_pair.default.key_name}",
+					"vswitch_id":           "${apsarastack_vswitch.vsw.id}",
 
 					"security_enhancement_strategy": "Active",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"instance_name": name,
-						"key_name":      name,
-						"role_name":     NOSET,
-						"vswitch_id":    REMOVEKEY,
-						"user_data":     REMOVEKEY,
+						"instance_name":    name,
+						"key_name":         name,
+						"role_name":        NOSET,
+						"vswitch_id":       REMOVEKEY,
+						"user_data":        REMOVEKEY,
+						"system_disk_size": "40",
 					}),
 				),
 			},
@@ -192,26 +189,6 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"security_enhancement_strategy", "dry_run"},
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"auto_release_time": time.Now().Add(10 * time.Hour).Format("2006-01-02T15:04:05Z"),
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"auto_release_time": CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"auto_release_time": "",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"auto_release_time": "",
-					}),
-				),
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -225,11 +202,11 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"security_groups": []string{"${apsarastack_security_group.default.0.id}", "${apsarastack_security_group.default.1.id}"},
+					"security_groups": []string{"${apsarastack_security_group.default.id}"},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"security_groups.#": "2",
+						"security_groups.#": "1",
 					}),
 				),
 			},
@@ -253,37 +230,7 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 					}),
 				),
 			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"internet_max_bandwidth_out": "50",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"internet_max_bandwidth_out": "50",
-						"public_ip":                  CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"internet_max_bandwidth_in": "50",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"internet_max_bandwidth_in": "50",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"host_name": "hostNameExample",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"host_name": "hostNameExample",
-					}),
-				),
-			},
+
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"password": "Password123",
@@ -294,60 +241,21 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 					}),
 				),
 			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"system_disk_size": "50",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"system_disk_size": "50",
-					}),
-				),
-			}, {
-				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"foo": "foo",
-						"Bar": "Bar",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":   "2",
-						"tags.foo": "foo",
-						"tags.Bar": "Bar",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"deletion_protection": "true",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"deletion_protection": "true",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_type":              "${data.apsarastack_instance_types.default.instance_types.0.id}",
-					"security_groups":            []string{"${apsarastack_security_group.default.0.id}"},
-					"instance_name":              fmt.Sprintf("tf-testAccEcsInstanceConfigBasic%d", rand),
-					"description":                fmt.Sprintf("tf-testAccEcsInstanceConfigBasic%d", rand),
-					"internet_max_bandwidth_out": REMOVEKEY,
-					"internet_max_bandwidth_in":  REMOVEKEY,
-					"host_name":                  REMOVEKEY,
-					"password":                   REMOVEKEY,
 
+			{
+				Config: testAccConfig(map[string]interface{}{
+					"instance_type":   "${data.apsarastack_instance_types.default.instance_types.0.id}",
+					"security_groups": []string{"${apsarastack_security_group.default.id}"},
+					"instance_name":   fmt.Sprintf("tf-testAccEcsInstanceConfigBasic%d", rand),
+					"description":     fmt.Sprintf("tf-testAccEcsInstanceConfigBasic%d", rand),
+					//"internet_max_bandwidth_out": REMOVEKEY,
+					//"internet_max_bandwidth_in":  REMOVEKEY,
+					"host_name":        REMOVEKEY,
+					"password":         REMOVEKEY,
 					"system_disk_size": "70",
-					"tags":             REMOVEKEY,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-
-						"tags.%":   "0",
-						"tags.Bar": REMOVEKEY,
-						"tags.foo": REMOVEKEY,
 
 						"instance_name": fmt.Sprintf("tf-testAccEcsInstanceConfigBasic%d", rand),
 
@@ -359,17 +267,15 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 						"system_disk_category":          "cloud_efficiency",
 						"security_enhancement_strategy": "Active",
 
-						"description": fmt.Sprintf("tf-testAccEcsInstanceConfigBasic%d", rand),
-						"host_name":   CHECKSET,
-						"password":    "",
-
+						"description":      fmt.Sprintf("tf-testAccEcsInstanceConfigBasic%d", rand),
+						"host_name":        CHECKSET,
+						"password":         "",
 						"system_disk_size": "70",
 
 						"private_ip": CHECKSET,
-						"status":     "Running",
 
-						"internet_max_bandwidth_in":  "50",
-						"internet_max_bandwidth_out": "0",
+						//"internet_max_bandwidth_in":  "50",
+						//"internet_max_bandwidth_out": "0",
 					}),
 				),
 			},
@@ -404,15 +310,13 @@ func TestAccApsaraStackInstanceVpc(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"image_id":        "${data.apsarastack_images.default.images.0.id}",
-					"security_groups": []string{"${apsarastack_security_group.default.0.id}"},
+					"security_groups": []string{"${apsarastack_security_group.default.id}"},
 					"instance_type":   "${data.apsarastack_instance_types.default.instance_types.0.id}",
 
-					"availability_zone":    "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
-					"system_disk_category": "cloud_efficiency",
-					"instance_name":        "${var.name}",
-					"key_name":             "${apsarastack_key_pair.default.key_name}",
-					//"spot_strategy":                 "NoSpot",
-					//"spot_price_limit":              "0",
+					"availability_zone":             "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
+					"system_disk_category":          "cloud_efficiency",
+					"instance_name":                 "${var.name}",
+					"key_name":                      "${apsarastack_key_pair.default.key_name}",
 					"security_enhancement_strategy": "Active",
 					"user_data":                     "I_am_user_data",
 
@@ -432,26 +336,6 @@ func TestAccApsaraStackInstanceVpc(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"security_enhancement_strategy", "dry_run"},
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"auto_release_time": time.Now().Add(10 * time.Hour).Format("2006-01-02T15:04:05Z"),
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"auto_release_time": CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"auto_release_time": "",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"auto_release_time": "",
-					}),
-				),
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -475,11 +359,11 @@ func TestAccApsaraStackInstanceVpc(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"security_groups": []string{"${apsarastack_security_group.default.0.id}", "${apsarastack_security_group.default.1.id}"},
+					"security_groups": []string{"${apsarastack_security_group.default.id}"},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"security_groups.#": "2",
+						"security_groups.#": "1",
 					}),
 				),
 			},
@@ -511,20 +395,9 @@ func TestAccApsaraStackInstanceVpc(t *testing.T) {
 					testAccCheck(map[string]string{
 						"internet_max_bandwidth_out": "50",
 						"private_ip":                 CHECKSET,
-						//"public_ip":                  CHECKSET,
 					}),
 				),
 			},
-			//{
-			//	Config: testAccConfig(map[string]interface{}{
-			//		"internet_charge_type": "PayByBandwidth",
-			//	}),
-			//	Check: resource.ComposeTestCheckFunc(
-			//		testAccCheck(map[string]string{
-			//			"internet_charge_type": "PayByBandwidth",
-			//		}),
-			//	),
-			//},
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"internet_max_bandwidth_in": "50",
@@ -555,27 +428,6 @@ func TestAccApsaraStackInstanceVpc(t *testing.T) {
 					}),
 				),
 			},
-			// only burstable instances support this attribute.
-			/*{
-				Config: testAccConfig(map[string]interface{}{
-					"credit_specification": "Unlimited",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"credit_specification": "Unlimited",
-					}),
-				),
-			},*/
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"system_disk_size": "50",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"system_disk_size": "50",
-					}),
-				),
-			},
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"private_ip": "172.16.0.10",
@@ -588,42 +440,22 @@ func TestAccApsaraStackInstanceVpc(t *testing.T) {
 			},
 
 			{
-				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"foo": "foo",
-						"Bar": "Bar",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":   "2",
-						"tags.foo": "foo",
-						"tags.Bar": "Bar",
-					}),
-				),
-			},
 
-			{
 				Config: testAccConfig(map[string]interface{}{
 					"instance_type":              "${data.apsarastack_instance_types.default.instance_types.0.id}",
-					"security_groups":            []string{"${apsarastack_security_group.default.0.id}"},
+					"security_groups":            []string{"${apsarastack_security_group.default.id}"},
 					"instance_name":              name,
 					"description":                name,
 					"internet_max_bandwidth_out": REMOVEKEY,
 					"internet_max_bandwidth_in":  REMOVEKEY,
 					"host_name":                  REMOVEKEY,
 					"password":                   REMOVEKEY,
-
-					"system_disk_size": "70",
-					"private_ip":       REMOVEKEY,
-					"tags":             REMOVEKEY,
+					"system_disk_size":           "70",
+					"private_ip":                 REMOVEKEY,
+					//"tags":             REMOVEKEY,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-
-						"tags.%":   "0",
-						"tags.Bar": REMOVEKEY,
-						"tags.foo": REMOVEKEY,
 
 						"instance_name": name,
 
@@ -643,223 +475,28 @@ func TestAccApsaraStackInstanceVpc(t *testing.T) {
 						"system_disk_size": "70",
 
 						"private_ip": CHECKSET,
-						"status":     "Running",
 
 						"internet_max_bandwidth_in":  "50",
 						"internet_max_bandwidth_out": "0",
 					}),
 				),
 			},
-		},
-	})
-}
-
-func TestAccApsaraStackInstancePrepaid(t *testing.T) {
-	var v ecs.Instance
-
-	resourceId := "apsarastack_instance.default"
-	ra := resourceAttrInit(resourceId, testAccInstanceCheckMap)
-	serviceFunc := func() interface{} {
-		return &EcsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	}
-	rc := resourceCheckInit(resourceId, &v, serviceFunc)
-	rac := resourceAttrCheckInit(rc, ra)
-
-	rand := acctest.RandIntRange(1000, 9999)
-	testAccCheck := rac.resourceAttrMapUpdateSet()
-	name := fmt.Sprintf("tf-testAcc%sEcsInstanceConfigPrePaid%d", defaultRegionToTest, rand)
-	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceInstancePrePaidConfigDependence)
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-			testAccPreCheckWithAccountSiteType(t, DomesticSite)
-		},
-		IDRefreshName: resourceId,
-		Providers:     testAccProviders,
-		CheckDestroy:  rac.checkResourceDestroy(),
-		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"image_id":        "${data.apsarastack_images.default.images.0.id}",
-					"security_groups": []string{"${apsarastack_security_group.default.0.id}"},
-					"instance_type":   "${data.apsarastack_instance_types.default.instance_types.0.id}",
-
-					"availability_zone":    "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
-					"system_disk_category": "cloud_efficiency",
-					"instance_name":        "${var.name}",
-					"key_name":             "${apsarastack_key_pair.default.key_name}",
-
-					"security_enhancement_strategy": "Active",
-					"user_data":                     "I_am_user_data",
-
-					"vswitch_id": "${apsarastack_vswitch.default.id}",
-					"role_name":  "${apsarastack_ram_role.default.name}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name": name,
-						"key_name":      name,
-						"role_name":     name,
-
-						"force_delete": "false",
-					}),
-				),
-			},
-			{
-				ResourceName:      resourceId,
-				ImportState:       true,
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{"security_enhancement_strategy", "data_disks", "dry_run", "force_delete",
-					"include_data_disks"},
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"image_id": "${data.apsarastack_images.default.images.1.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"image_id": CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_groups": []string{"${apsarastack_security_group.default.0.id}", "${apsarastack_security_group.default.1.id}"},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_groups.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"force_delete": "true",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"force_delete": "true",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_name": name + "_change",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name": name + "_change",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"description": name + "_description",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"description": name + "_description",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"internet_max_bandwidth_out": "50",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"internet_max_bandwidth_out": "50",
-						"private_ip":                 CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"internet_max_bandwidth_in": "50",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"internet_max_bandwidth_in": "50",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"host_name": "hostNameExample",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"host_name": "hostNameExample",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"password": "Password123",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"password": "Password123",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"system_disk_size": "50",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"system_disk_size": "50",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"private_ip": "172.16.0.10",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"private_ip": "172.16.0.10",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"foo": "foo",
-						"bar": "bar",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":   "2",
-						"tags.foo": "foo",
-						"tags.bar": "bar",
-					}),
-				),
-			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_groups":            []string{"${apsarastack_security_group.default.0.id}"},
+					"instance_type":              "${data.apsarastack_instance_types.default.instance_types.0.id}",
+					"security_groups":            []string{"${apsarastack_security_group.default.id}"},
 					"instance_name":              name,
 					"description":                name,
 					"internet_max_bandwidth_out": REMOVEKEY,
 					"internet_max_bandwidth_in":  REMOVEKEY,
 					"host_name":                  REMOVEKEY,
 					"password":                   REMOVEKEY,
-
-					"system_disk_size": "70",
-					"private_ip":       REMOVEKEY,
-					"tags":             REMOVEKEY,
+					"system_disk_size":           "70",
+					"private_ip":                 REMOVEKEY,
+					//"tags":             REMOVEKEY,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-
-						"tags.%":   "0",
-						"tags.bar": REMOVEKEY,
-						"tags.foo": REMOVEKEY,
 
 						"instance_name": name,
 
@@ -878,7 +515,6 @@ func TestAccApsaraStackInstancePrepaid(t *testing.T) {
 						"system_disk_size": "70",
 
 						"private_ip": CHECKSET,
-						"status":     "Running",
 
 						"internet_max_bandwidth_in":  "50",
 						"internet_max_bandwidth_out": "0",
@@ -916,19 +552,17 @@ func TestAccApsaraStackInstanceDataDisks(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"image_id":        "${data.apsarastack_images.default.images.0.id}",
-					"security_groups": []string{"${apsarastack_security_group.default.0.id}"},
+					"security_groups": []string{"${apsarastack_security_group.default.id}"},
 					"instance_type":   "${data.apsarastack_instance_types.default.instance_types.0.id}",
 
-					"availability_zone":    "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
-					"system_disk_category": "cloud_efficiency",
-					"instance_name":        "${var.name}",
-					"key_name":             "${apsarastack_key_pair.default.key_name}",
-					//"spot_strategy":                 "NoSpot",
-					//"spot_price_limit":              "0",
+					"availability_zone":             "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
+					"system_disk_category":          "cloud_efficiency",
+					"instance_name":                 "${var.name}",
+					"key_name":                      "${apsarastack_key_pair.default.key_name}",
 					"security_enhancement_strategy": "Active",
 					"user_data":                     "I_am_user_data",
 
-					"instance_charge_type": "PrePaid",
+					"instance_charge_type": "PostPaid",
 					"vswitch_id":           "${apsarastack_vswitch.default.id}",
 					"role_name":            "${apsarastack_ram_role.default.name}",
 					"data_disks": []map[string]string{
@@ -965,13 +599,6 @@ func TestAccApsaraStackInstanceDataDisks(t *testing.T) {
 						"data_disks.1.description": "disk2",
 
 						"force_delete": "true",
-						//"instance_charge_type": "PrePaid",
-						//"period":               "1",
-						//"period_unit":          "Month",
-						//"renewal_status":       "Normal",
-						//"auto_renew_period":    "0",
-						//"include_data_disks":   "true",
-						//"dry_run":              "false",
 					}),
 				),
 			},
@@ -1078,25 +705,18 @@ func TestAccApsaraStackInstanceSpotInstanceLimit(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"vswitch_id":           "${apsarastack_vswitch.default.id}",
-					"image_id":             "${data.apsarastack_images.default.images.0.id}",
-					"availability_zone":    "${data.apsarastack_instance_types.special.instance_types.0.availability_zones.0}",
-					"instance_type":        "${data.apsarastack_instance_types.special.instance_types.0.id}",
-					"system_disk_category": "cloud_efficiency",
-					//"internet_charge_type":       "PayByTraffic",
+					"vswitch_id":                 "${apsarastack_vswitch.default.id}",
+					"image_id":                   "${data.apsarastack_images.default.images.0.id}",
+					"availability_zone":          "${data.apsarastack_instance_types.special.instance_types.0.availability_zones.0}",
+					"instance_type":              "${data.apsarastack_instance_types.special.instance_types.0.id}",
+					"system_disk_category":       "cloud_efficiency",
 					"internet_max_bandwidth_out": "5",
 					"security_groups":            []string{"${apsarastack_security_group.default.id}"},
 					"instance_name":              "${var.name}",
-					//"spot_strategy":              "SpotWithPriceLimit",
-					//"spot_price_limit":           "1.002",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						//"spot_strategy":                 "SpotWithPriceLimit",
-						//"spot_price_limit":              "1.002",
-						"internet_max_bandwidth_out": "5",
-						"private_ip":                 CHECKSET,
-						//"public_ip":                     CHECKSET,
+						"internet_max_bandwidth_out":    "5",
 						"user_data":                     REMOVEKEY,
 						"security_enhancement_strategy": REMOVEKEY,
 					}),
@@ -1134,15 +754,13 @@ func TestAccApsaraStackInstanceMulti(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"count":           "10",
 					"image_id":        "${data.apsarastack_images.default.images.0.id}",
-					"security_groups": []string{"${apsarastack_security_group.default.0.id}"},
+					"security_groups": []string{"${apsarastack_security_group.default.id}"},
 					"instance_type":   "${data.apsarastack_instance_types.default.instance_types.0.id}",
 
-					"availability_zone":    "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
-					"system_disk_category": "cloud_efficiency",
-					"instance_name":        "${var.name}",
-					"key_name":             "${apsarastack_key_pair.default.key_name}",
-					//"spot_strategy":                 "NoSpot",
-					//"spot_price_limit":              "0",
+					"availability_zone":             "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
+					"system_disk_category":          "cloud_efficiency",
+					"instance_name":                 "${var.name}",
+					"key_name":                      "${apsarastack_key_pair.default.key_name}",
 					"security_enhancement_strategy": "Active",
 					"user_data":                     "I_am_user_data",
 
@@ -1179,7 +797,7 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
+  availability_zone = "${data.apsarastack_instance_types.default.instance_types.availability_zones.0}"
   name              = "${var.name}"
 }
 resource "apsarastack_security_group" "default" {
@@ -1195,7 +813,7 @@ resource "apsarastack_security_group_rule" "default" {
   	policy = "accept"
   	port_range = "22/22"
   	priority = 1
-  	security_group_id = "${element(apsarastack_security_group.default.*.id,count.index)}"
+  	security_group_id = "${apsarastack_security_group.default.id}"
   	cidr_ip = "172.16.0.0/24"
 }
 
@@ -1250,7 +868,7 @@ resource "apsarastack_security_group_rule" "default" {
   	policy = "accept"
   	port_range = "22/22"
   	priority = 1
-  	security_group_id = "${element(apsarastack_security_group.default.*.id,count.index)}"
+  	security_group_id = "${apsarastack_security_group.default.id}"
   	cidr_ip = "172.16.0.0/24"
 }
 
@@ -1273,46 +891,39 @@ resource "apsarastack_key_pair" "default" {
 
 func resourceInstanceBasicConfigDependence(name string) string {
 	return fmt.Sprintf(`
+	variable "name" {
+		default = "%s"
+	   }
+	   
+	   data "apsarastack_instance_types" "default" {
+		cpu_core_count    = 1
+		memory_size       = 2
+	   }
+	   
+	   data "apsarastack_images" "default" {
+		name_regex  = "^ubuntu*"
+		owners      = "system"
+	   }
+	   
+	   resource "apsarastack_vpc" "vpc" {
+	   name       = "${var.name}"
+	   cidr_block = "172.16.0.0/12"
+	   }
+	   resource "apsarastack_vswitch" "vsw" {
+	   vpc_id            = apsarastack_vpc.vpc.id
+	   cidr_block        = "172.16.2.0/24"
+	   availability_zone = data.apsarastack_instance_types.default.instance_types.0.availability_zones.0
+	   }
+	   resource "apsarastack_security_group" "default" {
+	   name        = var.name
+	   vpc_id      = "${apsarastack_vpc.vpc.id}"
+	   }
+	   resource "apsarastack_key_pair" "default" {
+		key_name = "${var.name}"
+	}
 
-data "apsarastack_instance_types" "default" {
-  cpu_core_count    = 1
-  memory_size       = 2
-}
 
-//variable "resource_group_id" {
-//		default = "%s"
-//	}
-
-data "apsarastack_images" "default" {
-  name_regex  = "^ubuntu*"
-  owners      = "system"
-}
-
-resource "apsarastack_security_group" "default" {
-  count = "2"
-  name   = "${var.name}"
-}
-resource "apsarastack_security_group_rule" "default" {
-	count = 2
-  	type = "ingress"
-  	ip_protocol = "tcp"
-  	nic_type = "intranet"
-  	policy = "accept"
-  	port_range = "22/22"
-  	priority = 1
-  	security_group_id = "${element(apsarastack_security_group.default.*.id,count.index)}"
-  	cidr_ip = "172.16.0.0/24"
-}
-
-variable "name" {
-	default = "%s"
-}
-
-resource "apsarastack_key_pair" "default" {
-	key_name = "${var.name}"
-}
-
-`, os.Getenv("APSARASTaCK_RESOURCE_GROUP_ID"), name)
+`, name)
 }
 
 func resourceInstanceTypeConfigDependence(name string) string {
@@ -1408,40 +1019,23 @@ var testAccInstanceCheckMap = map[string]string{
 	"instance_type":     CHECKSET,
 	"security_groups.#": "1",
 
-	"availability_zone":    CHECKSET,
-	"system_disk_category": "cloud_efficiency",
-	//"credit_specification":          "",
-	//"spot_strategy":                 "NoSpot",
-	//"spot_price_limit":              "0",
+	"availability_zone":             CHECKSET,
+	"system_disk_category":          "cloud_efficiency",
 	"security_enhancement_strategy": "Active",
 	"vswitch_id":                    CHECKSET,
 	"user_data":                     "I_am_user_data",
 
-	"description": "",
-	"host_name":   CHECKSET,
-	"password":    "",
-	//"is_outdated":      NOSET,
+	"description":      "",
+	"host_name":        CHECKSET,
+	"password":         "",
 	"system_disk_size": "40",
 
 	"data_disks.#": NOSET,
-	//"volume_tags.%": "0",
-	"tags.%": NOSET,
 
 	"private_ip": CHECKSET,
-	//"public_ip":  "",
-	"status": "Running",
 
-	//"internet_charge_type":       "PayByTraffic",
 	"internet_max_bandwidth_in":  "-1",
 	"internet_max_bandwidth_out": "0",
 
-	//"instance_charge_type": "PostPaid",
-	// the attributes of below are suppressed  when the value of instance_charge_type is `PostPaid`
-	//"period":             NOSET,
-	//"period_unit":        NOSET,
-	//"renewal_status":     NOSET,
-	//"auto_renew_period":  NOSET,
 	"force_delete": NOSET,
-	//"include_data_disks": NOSET,
-	//"dry_run":            "false",
 }
