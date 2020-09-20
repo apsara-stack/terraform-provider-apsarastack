@@ -193,16 +193,16 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"security_enhancement_strategy", "dry_run"},
 			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"auto_release_time": time.Now().Add(10 * time.Hour).Format("2006-01-02T15:04:05Z"),
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"auto_release_time": CHECKSET,
-					}),
-				),
-			},
+			//{
+			//	Config: testAccConfig(map[string]interface{}{
+			//		"auto_release_time": time.Now().Add(10 * time.Hour).Format("2006-01-02T15:04:05Z"),
+			//	}),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		testAccCheck(map[string]string{
+			//			"auto_release_time": CHECKSET,
+			//		}),
+			//	),
+			//},
 			//{
 			//	Config: testAccConfig(map[string]interface{}{
 			//		"auto_release_time": "",
