@@ -2,7 +2,6 @@ package apsarastack
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -214,7 +213,7 @@ resource "apsarastack_network_interface_attachment" "default" {
 
 data "apsarastack_network_interfaces" "default"  {
 	%s
-}`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), rand, rand, strings.Join(pairs, "\n  "))
+}`, rand, rand, strings.Join(pairs, "\n  "))
 	return config
 }
 
