@@ -116,20 +116,11 @@ func resourceApsaraStackSwitchRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("cidr_block", vswitch.CidrBlock)
 	d.Set("name", vswitch.VSwitchName)
 	d.Set("description", vswitch.Description)
-	/*tags, err := vpcService.DescribeTags(d.Id(), nil, TagResourceVSwitch)
-	if err != nil {
-		return WrapError(err)
-	}
-	d.Set("tags", vpcService.tagsToMap(tags))*/
 	return nil
 }
 
 func resourceApsaraStackSwitchUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	/*vpcService := VpcService{client}
-	if err := vpcService.setInstanceTags(d, TagResourceVSwitch); err != nil {
-		return WrapError(err)
-	}*/
 	if d.IsNewResource() {
 		d.Partial(false)
 		return resourceApsaraStackSwitchRead(d, meta)

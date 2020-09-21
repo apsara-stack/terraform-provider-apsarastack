@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"os"
 	"strings"
 	"testing"
 )
@@ -112,11 +111,7 @@ variable "name" {
 resource "apsarastack_vpc" "default" {
   name = "${var.name}"
   cidr_block = "172.16.0.0/12"
-  //tags 		= {
-	//	Created = "TF"
-	//	For 	= "acceptance test"
-  //}
-  //resource_group_id = "%s"
+
 }
 
 data "apsarastack_zones" "default" {
@@ -133,7 +128,7 @@ resource "apsarastack_vswitch" "default" {
 data "apsarastack_vpcs" "default" {
   %s
 }
-//`, rand, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), strings.Join(pairs, "\n  "))
+`, rand, strings.Join(pairs, "\n  "))
 	return config
 }
 
