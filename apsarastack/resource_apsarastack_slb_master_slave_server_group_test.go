@@ -37,7 +37,6 @@ func TestAccApsaraStackSlbMasterSlaveServerGroup_vpc(t *testing.T) {
 		CheckDestroy:  rac.checkResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				//Config: testAccSlbMasterSlaveServerGroupVpc,
 				Config: testAccConfig(map[string]interface{}{
 					"load_balancer_id": "${apsarastack_slb.default.id}",
 					"name":             "${var.name}",
@@ -178,10 +177,8 @@ resource "apsarastack_instance" "default" {
     instance_name = "${var.name}"
     count = "2"
     security_groups = "${apsarastack_security_group.default.*.id}"
-    internet_charge_type = "PayByTraffic"
     internet_max_bandwidth_out = "10"
     availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-    instance_charge_type = "PostPaid"
     system_disk_category = "cloud_efficiency"
     vswitch_id = "${apsarastack_vswitch.default.id}"
 }
