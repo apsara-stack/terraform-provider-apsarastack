@@ -161,7 +161,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_image_share_permission":              resourceApsaraStackImageSharePermission(),
 			"apsarastack_snapshot":                            resourceApsaraStackSnapshot(),
 			"apsarastack_snapshot_policy":                     resourceApsaraStackSnapshotPolicy(),
-			"apsarastack_vswitches":                           resourceApsaraStackSwitch(),
+			"apsarastack_vswitch":                             resourceApsaraStackSwitch(),
 			"apsarastack_vpc":                                 resourceApsaraStackVpc(),
 			"apsarastack_eip":                                 resourceApsaraStackEip(),
 			"apsarastack_eip_association":                     resourceApsaraStackEipAssociation(),
