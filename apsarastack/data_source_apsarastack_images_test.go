@@ -22,7 +22,16 @@ func TestAccApsaraStackImagesDataSource_basic(t *testing.T) {
 			"name_regex": "^win.*-fake",
 		}),
 	}
-
+	statusConf := dataSourceTestAccConfig{
+		existConfig: testAccConfig(map[string]interface{}{
+			"owners": "system",
+			"status": "Available",
+		}),
+		fakeConfig: testAccConfig(map[string]interface{}{
+			"owners": "system",
+			"status": "UnAvailable",
+		}),
+	}
 	ownerConf := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
 			"owners": "system",
@@ -106,7 +115,7 @@ func TestAccApsaraStackImagesDataSource_basic(t *testing.T) {
 		fakeMapFunc:  fakeImagesMapFunc,
 	}
 
-	imagesCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, ownerConf, recentNameRegexconf, ownerNameRegexConf, ownerRecentConf, allConf)
+	imagesCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, statusConf, ownerConf, recentNameRegexconf, ownerNameRegexConf, ownerRecentConf, allConf)
 }
 
 func TestAccApsaraStackImagesDataSource_win(t *testing.T) {
