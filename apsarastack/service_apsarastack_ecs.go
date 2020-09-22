@@ -773,7 +773,78 @@ func (s *EcsService) InstanceStateRefreshFunc(id string, failStates []string) re
 		return object, object.Status, nil
 	}
 }
+func (s *EcsService) deleteImageforDest(d *schema.ResourceData, region string) error {
 
+	object, err := s.DescribeImageById(d.Id())
+	if err != nil {
+		if NotFoundError(err) {
+			d.SetId("")
+			return nil
+		}
+		return WrapError(err)
+	}
+	request := ecs.CreateDeleteImageRequest()
+
+	if force, ok := d.GetOk("force"); ok {
+		request.Force = requests.NewBoolean(force.(bool))
+	}
+	request.RegionId = region
+	request.ImageId = object.ImageId
+
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.DeleteImage(request)
+	})
+
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+	}
+	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	stateConf := BuildStateConf([]string{}, []string{}, d.Timeout(schema.TimeoutCreate), 3*time.Second, s.ImageStateRefreshFunc(d.Id(), []string{}))
+	if _, err := stateConf.WaitForState(); err != nil {
+		return WrapErrorf(err, IdMsg, d.Id())
+	}
+
+	return nil
+}
+func (s *EcsService) DescribeImage(id, region string) (image ecs.Image, err error) {
+	request := ecs.CreateDescribeImagesRequest()
+	request.RegionId = region
+	request.ImageId = id
+	request.Status = fmt.Sprintf("%s,%s,%s,%s,%s", "Creating", "Waiting", "Available", "UnAvailable", "CreateFailed")
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.DescribeImages(request)
+	})
+	log.Printf("[DEBUG] status %#v", raw)
+	if err != nil {
+		return
+	}
+	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	resp, _ := raw.(*ecs.DescribeImagesResponse)
+	if resp == nil || len(resp.Images.Image) < 1 {
+		return image, GetNotFoundErrorFromString(GetNotFoundMessage("Image", id))
+	}
+	return resp.Images.Image[0], nil
+}
+
+func (s *EcsService) ImageStateRefreshFuncforcopy(id string, region string, failStates []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		object, err := s.DescribeImage(id, region)
+		if err != nil {
+			if NotFoundError(err) {
+				// Set this to nil as if we didn't find anything.
+				return nil, "", nil
+			}
+			return nil, "", WrapError(err)
+		}
+
+		for _, failState := range failStates {
+			if object.Status == failState {
+				return object, object.Status, WrapError(Error(FailedToReachTargetStatus, object.Status))
+			}
+		}
+		return object, object.Status, nil
+	}
+}
 func (s *EcsService) WaitForDisk(id string, status Status, timeout int) error {
 	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
 

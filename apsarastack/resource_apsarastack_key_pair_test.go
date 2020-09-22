@@ -185,7 +185,6 @@ func TestAccApsaraStackKeyPairBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"public_key": "ssh-rsa AAAAB3Nza12345678qwertyuudsfsg",
-						//"resource_group_id": "",
 					}),
 				),
 			},
@@ -258,19 +257,17 @@ func TestAccApsaraStackKeyPairMulti(t *testing.T) {
 var testAccCheckKeyPairBasicMap = map[string]string{
 	"finger_print": CHECKSET,
 	"key_name":     CHECKSET,
-	//"resource_group_id": CHECKSET,
 }
 
 func testAccKeyPairConfigBasic(rand int) string {
 	return fmt.Sprintf(`
 resource "apsarastack_key_pair" "default" {
-	resource_group_id = "%s"
     tags = {
        Created = "TF"
        For = "acceptance test123"
     }
 }
-`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`)
 }
 
 func testAccKeyPairConfig_public_key(rand int) string {
@@ -326,7 +323,7 @@ func testAccKeyPairConfigMulti(rand int) string {
 	return fmt.Sprintf(`
 resource "apsarastack_key_pair" "default" {
 	count = 10
-	resource_group_id = "%s"
+	
 }
-`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`)
 }
