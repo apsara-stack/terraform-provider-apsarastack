@@ -31,7 +31,7 @@ func resourceApsaraStackSlbMasterSlaveServerGroup() *schema.Resource {
 
 			"name": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
 			},
 
@@ -52,19 +52,12 @@ func resourceApsaraStackSlbMasterSlaveServerGroup() *schema.Resource {
 						},
 						"weight": {
 							Type:         schema.TypeInt,
-							Optional:     true,
-							Default:      100,
+							Required:     true,
 							ValidateFunc: validation.IntBetween(0, 100),
-						},
-						"type": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Default:      string(ECS),
-							ValidateFunc: validation.StringInSlice([]string{"eni", "ecs"}, false),
 						},
 						"server_type": {
 							Type:         schema.TypeString,
-							Optional:     true,
+							Required:     true,
 							ValidateFunc: validation.StringInSlice([]string{"Master", "Slave"}, false),
 						},
 					},
@@ -128,7 +121,6 @@ func resourceApsaraStackSlbMasterSlaveServerGroupRead(d *schema.ResourceData, me
 			"server_id":   server.ServerId,
 			"port":        server.Port,
 			"weight":      server.Weight,
-			"type":        server.Type,
 			"server_type": server.ServerType,
 		}
 		servers = append(servers, s)

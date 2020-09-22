@@ -814,7 +814,6 @@ func resourceApsaraStackOssBucketLoggingUpdate(client *connectivity.ApsaraStackC
 		"bucketName":   d.Id(),
 		"targetBucket": target_bucket,
 		"targetPrefix": target_prefix,
-		"isEnable":     target_bucket != "",
 	})
 	return nil
 }
