@@ -97,10 +97,6 @@ func dataSourceApsaraStackInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"resource_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"status": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -351,16 +347,14 @@ func instancessDescriptionAttributes(d *schema.ResourceData, instances []ecs.Ins
 			"image_id":                   inst.ImageId,
 			"description":                inst.Description,
 			"security_groups":            inst.SecurityGroupIds.SecurityGroupId,
-			"resource_group_id":          inst.ResourceGroupId,
 			"eip":                        inst.EipAddress.IpAddress,
 			"key_name":                   inst.KeyPairName,
 			"ram_role_name":              instanceRoleNameMap[inst.InstanceId],
 			"creation_time":              inst.CreationTime,
 			"instance_charge_type":       inst.InstanceChargeType,
 			"internet_max_bandwidth_out": inst.InternetMaxBandwidthOut,
-			// Complex types get their own functions
-			"disk_device_mappings": instanceDisksMap[inst.InstanceId],
-			"tags":                 ecsService.tagsToMap(inst.Tags.Tag),
+			"disk_device_mappings":       instanceDisksMap[inst.InstanceId],
+			"tags":                       ecsService.tagsToMap(inst.Tags.Tag),
 		}
 		if len(inst.InnerIpAddress.IpAddress) > 0 {
 			mapping["private_ip"] = inst.InnerIpAddress.IpAddress[0]

@@ -122,7 +122,7 @@ func resourceApsaraStackInstance() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{"all", "cloud", "ephemeral_ssd", "cloud_efficiency", "cloud_ssd"}, false),
 			},
 			"system_disk_size": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  40,
 			},
@@ -608,7 +608,7 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 	}
 
 	request.SystemDiskCategory = string(systemDiskCategory)
-	request.SystemDiskSize = d.Get("system_disk_size").(string)
+	request.SystemDiskSize = strconv.Itoa(d.Get("system_disk_size").(int))
 
 	if v, ok := d.GetOk("security_groups"); ok {
 		// At present, the classic network instance does not support multi sg in runInstances
