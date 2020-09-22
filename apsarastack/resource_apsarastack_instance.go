@@ -106,10 +106,6 @@ func resourceApsaraStackInstance() *schema.Resource {
 				},
 				Elem: schema.TypeString,
 			},
-			//"io_optimized": {
-			//	Type:     schema.TypeString,
-			//	Optional: true,
-			//},
 			"is_outdated": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -613,13 +609,7 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 	if v, ok := d.GetOk("security_groups"); ok {
 		// At present, the classic network instance does not support multi sg in runInstances
 		sgs := expandStringList(v.(*schema.Set).List())
-		/*if d.Get("vswitch_id").(string) == "" && len(sgs) > 0 {
-			request.SecurityGroupId = sgs[0]
-		} else {
-			request.SecurityGroupIds = &sgs
-		}*/
 		request.SecurityGroupId = sgs[0]
-
 	}
 
 	if v := d.Get("instance_name").(string); v != "" {
