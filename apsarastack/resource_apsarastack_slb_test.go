@@ -140,31 +140,26 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"name": name,
+					"name":         name,
+					"address_type": "internet",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":               name,
-						"address_type":       "internet",
-						"master_zone_id":     CHECKSET,
-						"slave_zone_id":      CHECKSET,
-						"address_ip_version": "ipv4",
+						"name":         name,
+						"address_type": "internet",
 					}),
 				),
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"name":         name,
+					"internet":     REMOVEKEY,
 					"address_type": "intranet",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":               name,
-						"address_type":       "intranet",
-						"master_zone_id":     CHECKSET,
-						"slave_zone_id":      CHECKSET,
-						"address_ip_version": "ipv4",
-						"resource_group_id":  CHECKSET,
+						"name":         name,
+						"address_type": "intranet",
 					}),
 				),
 			},
@@ -173,7 +168,6 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"name": fmt.Sprintf("tf-testAccSlbClassicInstanceConfigSpot%d_change", rand),
@@ -184,7 +178,6 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 					}),
 				),
 			},
-
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"tags": map[string]string{
@@ -213,26 +206,14 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":           name,
-						"address_type":   "internet",
-						"master_zone_id": CHECKSET,
-						"slave_zone_id":  CHECKSET,
-						"tags.%":         REMOVEKEY,
-						"tags.tag_A1":    REMOVEKEY,
-						"tags.tag_B2":    REMOVEKEY,
-						"tags.tag_C3":    REMOVEKEY,
-						"tags.tag_D4":    REMOVEKEY,
-						"tags.tag_E5":    REMOVEKEY,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"address_ip_version": "ipv6",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"address_ip_version": "ipv6",
+						"name":         name,
+						"address_type": "internet",
+						"tags.%":       REMOVEKEY,
+						"tags.tag_A1":  REMOVEKEY,
+						"tags.tag_B2":  REMOVEKEY,
+						"tags.tag_C3":  REMOVEKEY,
+						"tags.tag_D4":  REMOVEKEY,
+						"tags.tag_E5":  REMOVEKEY,
 					}),
 				),
 			},
@@ -266,17 +247,12 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"name":              name,
-					"vswitch_id":        "${apsarastack_vswitch.default.id}",
-					"delete_protection": "on",
+					"name":       name,
+					"vswitch_id": "${apsarastack_vswitch.default.id}",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":              name,
-						"master_zone_id":    CHECKSET,
-						"slave_zone_id":     CHECKSET,
-						"delete_protection": "on",
-						"resource_group_id": CHECKSET,
+						"name": name,
 					}),
 				),
 			},
@@ -284,16 +260,6 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 				ResourceName:      resourceId,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"delete_protection": "off",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"delete_protection": "off",
-					}),
-				),
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -328,16 +294,12 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"name":              name,
-					"delete_protection": "off",
+					"name": name,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":              name,
-						"tags.%":            REMOVEKEY,
-						"master_zone_id":    CHECKSET,
-						"slave_zone_id":     CHECKSET,
-						"delete_protection": "off",
+						"name":   name,
+						"tags.%": REMOVEKEY,
 					}),
 				),
 			},
@@ -384,16 +346,13 @@ func TestAccApsaraStackSlb_vpcmulti(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":              name,
-						"tags.%":            "5",
-						"tags.tag_A1":       "value_A1",
-						"tags.tag_B2":       "value_B2",
-						"tags.tag_C3":       "value_C3",
-						"tags.tag_D4":       "value_D4",
-						"tags.tag_E5":       "value_E5",
-						"master_zone_id":    CHECKSET,
-						"slave_zone_id":     CHECKSET,
-						"resource_group_id": CHECKSET,
+						"name":        name,
+						"tags.%":      "5",
+						"tags.tag_A1": "value_A1",
+						"tags.tag_B2": "value_B2",
+						"tags.tag_C3": "value_C3",
+						"tags.tag_D4": "value_D4",
+						"tags.tag_E5": "value_E5",
 					}),
 				),
 			},

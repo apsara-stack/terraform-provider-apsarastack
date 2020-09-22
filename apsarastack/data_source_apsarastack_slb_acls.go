@@ -33,11 +33,6 @@ func dataSourceApsaraStackSlbAcls() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"resource_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			// Computed values
 			"names": {
 				Type:     schema.TypeList,
@@ -104,10 +99,6 @@ func dataSourceApsaraStackSlbAcls() *schema.Resource {
 							MinItems: 0,
 						},
 						"tags": tagsSchema(),
-						"resource_group_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 					},
 				},
 			},
@@ -119,7 +110,6 @@ func dataSourceApsaraStackSlbAclsRead(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := slb.CreateDescribeAccessControlListsRequest()
 	request.RegionId = client.RegionId
-	request.ResourceGroupId = d.Get("resource_group_id").(string)
 	tags := d.Get("tags").(map[string]interface{})
 	if tags != nil && len(tags) > 0 {
 		KeyPairsTags := make([]slb.DescribeAccessControlListsTag, 0, len(tags))
@@ -209,7 +199,6 @@ func slbAclsDescriptionAttributes(d *schema.ResourceData, acls []slb.Acl, client
 			"entry_list":        slbService.FlattenSlbAclEntryMappings(response.AclEntrys.AclEntry),
 			"related_listeners": slbService.flattenSlbRelatedListenerMappings(response.RelatedListeners.RelatedListener),
 			"tags":              aclTagsMappings(d, response.AclId, meta),
-			"resource_group_id": response.ResourceGroupId,
 		}
 
 		ids = append(ids, response.AclId)
