@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"os"
 	"strings"
 	"testing"
 )
@@ -58,7 +57,7 @@ resource "apsarastack_eip" "default" {
 }
 data "apsarastack_eips" "default" {
   %s
-}`, rand, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), strings.Join(pairs, "\n  "))
+}`, rand, strings.Join(pairs, "\n  "))
 }
 
 var existEipsMapFunc = func(rand int) map[string]string {
