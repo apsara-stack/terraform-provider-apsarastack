@@ -144,6 +144,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_slb_backend_servers":            dataSourceApsaraStackSlbBackendServers(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"apsarastack_network_interface":                   resourceApsaraStackNetworkInterface(),
+			"apsarastack_network_interface_attachment":        resourceNetworkInterfaceAttachment(),
 			"apsarastack_disk":                                resourceApsaraStackDisk(),
 			"apsarastack_disk_attachment":                     resourceApsaraStackDiskAttachment(),
 			"apsarastack_key_pair":                            resourceApsaraStackKeyPair(),

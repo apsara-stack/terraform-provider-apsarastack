@@ -79,7 +79,6 @@ func testApsaraStackNetworkInterface(region string) error {
 				break
 			}
 		}
-		// If a nat gateway name is not set successfully, it should be fetched by vpc name and deleted.
 		if skip {
 			if need, err := service.needSweepVpc(eni.VpcId, ""); err == nil {
 				skip = !need
@@ -208,8 +207,6 @@ func TestAccApsaraStackNetworkInterfaceBasic(t *testing.T) {
 				Config: testAccNetworkInterfaceConfig_private_ips_count(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						// There is a bug when d.Set a set parameter. The new values can not overwrite the state
-						// when a parameter is a TypeSet and Computed. https://github.com/hashicorp/terraform-plugin-sdk/issues/20504
 						"private_ips_count": "4",
 					}),
 				),
@@ -219,7 +216,7 @@ func TestAccApsaraStackNetworkInterfaceBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"name": fmt.Sprintf("tf-testAccNetworkInterfaceChange%d", rand),
-						// Same with last step
+
 						"private_ips.#": "4",
 					}),
 				),
@@ -244,8 +241,6 @@ func TestAccApsaraStackNetworkInterfaceBasic(t *testing.T) {
 				Config: testAccNetworkInterfaceConfig_all(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						// There is a bug when d.Set a set parameter. The new values can not overwrite the state
-						// when a parameter is a TypeSet and Computed. https://github.com/hashicorp/terraform-plugin-sdk/issues/20504
 						"private_ips_count": "1",
 						"description":       "tf-testAcc-eni-description_all",
 						"tags.%":            "0",
@@ -630,6 +625,7 @@ resource "apsarastack_network_interface" "default" {
     vswitch_id = "${apsarastack_vswitch.default.id}"
     security_groups = [ "${apsarastack_security_group.default.id}" ]
 	
+}
 `, rand)
 }
 
