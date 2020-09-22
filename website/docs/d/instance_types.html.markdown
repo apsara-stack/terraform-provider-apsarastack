@@ -44,9 +44,6 @@ The following arguments are supported:
 * `gpu_amount` - (Optional, Available in 1.69.0+) The GPU amount of an instance type.
 * `gpu_spec` - (Optional, Available in 1.69.0+) The GPU spec of an instance type.
 * `instance_type_family` - (Optional) Filter the results based on their family name. For example: 'ecs.n4'.
-* `instance_charge_type` - (Optional) Filter the results by charge type. Valid values: `PrePaid` and `PostPaid`. Default to `PostPaid`.
-* `network_type` - (Optional) Filter the results by network type. Valid values: `Classic` and `Vpc`.
-* `spot_strategy` - (Optional) Filter the results by ECS spot type. Valid values: `NoSpot`, `SpotWithPriceLimit` and `SpotAsPriceGo`. Default to `NoSpot`.
 * `eni_amount` - (Optional) Filter the result whose network interface number is no more than `eni_amount`.
 * `kubernetes_node_role` - (Optional) Filter the result which is used to create a [kubernetes cluster](https://www.terraform.io/docs/providers/apsarastack/r/cs_kubernetes.html)
  and [managed kubernetes cluster](https://www.terraform.io/docs/providers/apsarastack/r/cs_managed_kubernetes.html). Optional Values: `Master` and `Worker`.

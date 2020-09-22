@@ -76,7 +76,6 @@ func (s *EcsService) DescribeZone(id string) (zone ecs.Zone, err error) {
 func (s *EcsService) DescribeZones(d *schema.ResourceData) (zones []ecs.Zone, err error) {
 	request := ecs.CreateDescribeZonesRequest()
 	request.RegionId = s.client.RegionId
-	request.InstanceChargeType = d.Get("instance_charge_type").(string)
 	request.SpotStrategy = d.Get("spot_strategy").(string)
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeZones(request)
@@ -163,8 +162,6 @@ func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, e
 	request.InstanceId = id
 	request.DiskType = string(DiskTypeSystem)
 	request.RegionId = s.client.RegionId
-	// resource_group_id may cause failure to query the system disk of the instance, because the newly created instance may fail to query through the resource_group_id parameter, so temporarily remove this parameter.
-	// request.ResourceGroupId = rg
 	var response *ecs.DescribeDisksResponse
 	wait := incrementalWait(1*time.Second, 1*time.Second)
 	err = resource.Retry(10*time.Minute, func() *resource.RetryError {
@@ -338,22 +335,6 @@ func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta int
 		if vsw, err := vpcService.DescribeVSwitch(strings.TrimSpace(v.(string))); err == nil {
 			zoneId = vsw.ZoneId
 		}
-	}
-
-	if v, ok := d.GetOk("instance_charge_type"); ok && strings.TrimSpace(v.(string)) != "" {
-		request.InstanceChargeType = strings.TrimSpace(v.(string))
-	}
-
-	if v, ok := d.GetOk("spot_strategy"); ok && strings.TrimSpace(v.(string)) != "" {
-		request.SpotStrategy = strings.TrimSpace(v.(string))
-	}
-
-	if v, ok := d.GetOk("network_type"); ok && strings.TrimSpace(v.(string)) != "" {
-		request.NetworkCategory = strings.TrimSpace(v.(string))
-	}
-
-	if v, ok := d.GetOk("is_outdated"); ok && v.(bool) == true {
-		request.IoOptimized = string(NoneOptimized)
 	}
 
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
