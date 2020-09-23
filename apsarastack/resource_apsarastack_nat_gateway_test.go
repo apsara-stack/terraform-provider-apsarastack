@@ -20,7 +20,6 @@ func init() {
 	resource.AddTestSweepers("apsarastack_nat_gateway", &resource.Sweeper{
 		Name: "apsarastack_nat_gateway",
 		F:    testSweepNatGateways,
-		// When implemented, these should be removed firstly
 		Dependencies: []string{
 			"apsarastack_cs_cluster",
 		},
@@ -80,7 +79,6 @@ func testSweepNatGateways(region string) error {
 				break
 			}
 		}
-		// If a nat gateway name is not set successfully, it should be fetched by vpc name and deleted.
 		if skip {
 			if need, err := service.needSweepVpc(v.VpcId, ""); err == nil {
 				skip = !need
@@ -107,7 +105,6 @@ func testAccCheckNatGatewayDestroy(s *terraform.State) error {
 			continue
 		}
 
-		// Try to find the Nat gateway
 		if _, err := vpcService.DescribeNatGateway(rs.Primary.ID); err != nil {
 			if NotFoundError(err) {
 				continue
@@ -138,8 +135,6 @@ func TestAccApsaraStackNatGatewayBasic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-
-		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckNatGatewayDestroy,
@@ -171,6 +166,14 @@ func TestAccApsaraStackNatGatewayBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"description": fmt.Sprintf("tf-testAccNatGatewayConfig%d_description", rand),
+					}),
+				),
+			},
+			{
+				Config: testAccNatGatewayConfig_type(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"specification": "Middle",
 					}),
 				),
 			},

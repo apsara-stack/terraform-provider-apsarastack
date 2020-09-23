@@ -87,25 +87,6 @@ func resourceApsaraStackNatGateway() *schema.Resource {
 				MaxItems: 4,
 				Optional: true,
 			},
-			// instance_charge_type,period parameter are not supported in apsarastack nat service
-			/*"instance_charge_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{string(common.PrePaid), string(common.PostPaid)}, false),
-			},
-
-			"period": {
-				Type:             schema.TypeInt,
-				Optional:         true,
-				ForceNew:         true,
-				Default:          1,
-				DiffSuppressFunc: PostPaidDiffSuppressFunc,
-				ValidateFunc: validation.Any(
-					validation.IntBetween(1, 9),
-					validation.IntInSlice([]int{12, 24, 36})),
-			},*/
 		},
 	}
 }
@@ -118,17 +99,6 @@ func resourceApsaraStackNatGatewayCreate(d *schema.ResourceData, meta interface{
 	request.RegionId = string(client.Region)
 	request.VpcId = string(d.Get("vpc_id").(string))
 	request.Spec = string(d.Get("specification").(string))
-	/*	request.InstanceChargeType = d.Get("instance_charge_type").(string)
-		if request.InstanceChargeType == string(PrePaid) {
-			period := d.Get("period").(int)
-			request.Duration = strconv.Itoa(period)
-			request.PricingCycle = string(Month)
-			if period > 9 {
-				request.Duration = strconv.Itoa(period / 12)
-				request.PricingCycle = string(Year)
-			}
-			request.AutoPay = requests.NewBoolean(true)
-		}*/
 	request.ClientToken = buildClientToken(request.GetActionName())
 	bandwidthPackages := []vpc.CreateNatGatewayBandwidthPackage{}
 	for _, e := range d.Get("bandwidth_packages").([]interface{}) {
@@ -198,15 +168,6 @@ func resourceApsaraStackNatGatewayRead(d *schema.ResourceData, meta interface{})
 	d.Set("forward_table_ids", strings.Join(object.ForwardTableIds.ForwardTableId, ","))
 	d.Set("description", object.Description)
 	d.Set("vpc_id", object.VpcId)
-	/*	d.Set("instance_charge_type", object.InstanceChargeType)
-		if object.InstanceChargeType == "PrePaid" {
-			period, err := computePeriodByUnit(object.CreationTime, object.ExpiredTime, d.Get("period").(int), "Month")
-			if err != nil {
-				return WrapError(err)
-			}
-			d.Set("period", period)
-		}*/
-
 	bindWidthPackages, err := flattenBandWidthPackages(object.BandwidthPackageIds.BandwidthPackageId, meta, d)
 	if err != nil {
 		return WrapError(err)
