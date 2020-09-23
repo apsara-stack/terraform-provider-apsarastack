@@ -2,7 +2,6 @@ package apsarastack
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -114,6 +113,7 @@ func TestAccApsaraStackNetworkInterfacesDataSourceBasic(t *testing.T) {
 							 TF-VER = "0.11.3%d"
 						   }`, rand),
 			"vswitch_id":        `"${apsarastack_vswitch.default.id}"`,
+			"vpc_id":            `"${apsarastack_vpc.default.id}"`,
 			"private_ip":        `"192.168.0.2"`,
 			"security_group_id": `"${apsarastack_security_group.default.id}"`,
 			"type":              `"Secondary"`,
@@ -125,6 +125,7 @@ func TestAccApsaraStackNetworkInterfacesDataSourceBasic(t *testing.T) {
 			"tags": fmt.Sprintf(`{
 							 TF-VER = "0.11.3%d_fake"
 						   }`, rand),
+			"vpc_id":            `"${apsarastack_vpc.default.id}"`,
 			"vswitch_id":        `"${apsarastack_vswitch.default.id}"`,
 			"private_ip":        `"192.168.0.2"`,
 			"security_group_id": `"${apsarastack_security_group.default.id}"`,
@@ -144,9 +145,7 @@ func testAccCheckApsaraStackNetworkInterfacesDataSourceConfig(rand int, attrMap 
 	}
 
 	config := fmt.Sprintf(`
-//variable "resource_group_id" {
-//	default = "%s"
-//}
+
 
 variable "name" {
  default = "tf-testAccNetworkInterfacesBasic"
@@ -182,7 +181,7 @@ resource "apsarastack_network_interface" "default" {
 	tags = {
 		TF-VER = "0.11.3%d"
 	}
-	//resource_group_id = "${var.resource_group_id}"
+	
 }
 
 data "apsarastack_instance_types" "default" {
@@ -204,7 +203,7 @@ resource "apsarastack_instance" "default" {
     image_id             = "${data.apsarastack_images.default.images.0.image_id}"
     instance_name        = "${var.name}"
     vswitch_id = "${apsarastack_vswitch.default.id}"
-    internet_max_bandwidth_out = 10
+    
 }
 
 resource "apsarastack_network_interface_attachment" "default" {
@@ -214,7 +213,7 @@ resource "apsarastack_network_interface_attachment" "default" {
 
 data "apsarastack_network_interfaces" "default"  {
 	%s
-}`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), rand, rand, strings.Join(pairs, "\n  "))
+}`, rand, rand, strings.Join(pairs, "\n  "))
 	return config
 }
 

@@ -76,12 +76,12 @@ func resourceApsaraStackInstance() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringLenBetween(1, 200),
+				ValidateFunc: validation.IntBetween(1, 200),
 			},
 			"internet_max_bandwidth_out": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ValidateFunc: validation.StringLenBetween(0, 100),
+				ValidateFunc: validation.IntBetween(0, 100),
 			},
 			"host_name": {
 				Type:     schema.TypeString,
@@ -106,10 +106,6 @@ func resourceApsaraStackInstance() *schema.Resource {
 				},
 				Elem: schema.TypeString,
 			},
-			"io_optimized": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
 			"is_outdated": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -119,10 +115,10 @@ func resourceApsaraStackInstance() *schema.Resource {
 				Default:      DiskCloudEfficiency,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"all", "cloud", "ephemeral_ssd", "cloud_efficiency", "cloud_ssd"}, false), // "cloud_essd" and "local_disk" not supported present in Apsarastack's ecs instance
+				ValidateFunc: validation.StringInSlice([]string{"all", "cloud", "ephemeral_ssd", "cloud_efficiency", "cloud_ssd"}, false),
 			},
 			"system_disk_size": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  40,
 			},
@@ -190,11 +186,10 @@ func resourceApsaraStackInstance() *schema.Resource {
 				},
 			},
 
-			//subnet_id and vswitch_id both exists, cause compatible old version, and aws habit.
 			"subnet_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				Computed:      true, //add this schema cause subnet_id not used enter parameter, will different, so will be ForceNew
+				Computed:      true,
 				ConflictsWith: []string{"vswitch_id"},
 			},
 
@@ -258,20 +253,11 @@ func resourceApsaraStackInstanceCreate(d *schema.ResourceData, meta interface{})
 	client := meta.(*connectivity.ApsaraStackClient)
 	ecsService := EcsService{client}
 
-	// Ensure instance_type is valid
-	//zoneId, validZones, requestId, err := ecsService.DescribeAvailableResources(d, meta, InstanceTypeResource)
-	//if err != nil {
-	//	return WrapError(err)
-	//}
-	//if err := ecsService.InstanceTypeValidation(d.Get("instance_type").(string), zoneId, validZones); err != nil {
-	//	return WrapError(Error("%s. RequestId: %s", err, requestId))
-	//}
-
 	request, err := buildApsaraStackInstanceArgs(d, meta)
 	if err != nil {
 		return WrapError(err)
 	}
-	request.IoOptimized = "io_optimized"
+	//request.IoOptimized = "io_optimized"
 
 	if d.Get("is_outdated").(bool) == true {
 		request.IoOptimized = "none"
@@ -618,16 +604,12 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 	}
 
 	request.SystemDiskCategory = string(systemDiskCategory)
-	request.SystemDiskSize = d.Get("system_disk_size").(string)
+	request.SystemDiskSize = strconv.Itoa(d.Get("system_disk_size").(int))
 
 	if v, ok := d.GetOk("security_groups"); ok {
 		// At present, the classic network instance does not support multi sg in runInstances
 		sgs := expandStringList(v.(*schema.Set).List())
-		if d.Get("vswitch_id").(string) == "" && len(sgs) > 0 {
-			request.SecurityGroupId = sgs[0]
-		} else {
-			request.SecurityGroupIds = &sgs
-		}
+		request.SecurityGroupId = sgs[0]
 	}
 
 	if v := d.Get("instance_name").(string); v != "" {
@@ -984,55 +966,29 @@ func modifyInstanceType(d *schema.ResourceData, meta interface{}, run bool) (boo
 			return update, nil
 		}
 
-		// There should use the old instance charge type to decide API method because of instance_charge_type will be updated at last step
-		oldCharge, _ := d.GetChange("instance_charge_type")
-		if oldCharge.(string) == string(PrePaid) {
-			request := ecs.CreateModifyPrepayInstanceSpecRequest()
-			request.InstanceId = d.Id()
-			request.InstanceType = d.Get("instance_type").(string)
+		//An instance that was successfully modified once cannot be modified again within 5 minutes.
+		request := ecs.CreateModifyInstanceSpecRequest()
+		request.InstanceId = d.Id()
+		request.InstanceType = d.Get("instance_type").(string)
+		request.ClientToken = buildClientToken(request.GetActionName())
 
-			err := resource.Retry(6*time.Minute, func() *resource.RetryError {
-				raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-					return ecsClient.ModifyPrepayInstanceSpec(request)
-				})
-				if err != nil {
-					if IsExpectedErrors(err, []string{Throttling}) {
-						time.Sleep(5 * time.Second)
-						return resource.RetryableError(err)
-					}
-					return resource.NonRetryableError(err)
-				}
-				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				return nil
+		err := resource.Retry(6*time.Minute, func() *resource.RetryError {
+			args := *request
+			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+				return ecsClient.ModifyInstanceSpec(&args)
 			})
 			if err != nil {
-				return update, WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-			}
-		} else {
-			//An instance that was successfully modified once cannot be modified again within 5 minutes.
-			request := ecs.CreateModifyInstanceSpecRequest()
-			request.InstanceId = d.Id()
-			request.InstanceType = d.Get("instance_type").(string)
-			request.ClientToken = buildClientToken(request.GetActionName())
-
-			err := resource.Retry(6*time.Minute, func() *resource.RetryError {
-				args := *request
-				raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-					return ecsClient.ModifyInstanceSpec(&args)
-				})
-				if err != nil {
-					if IsExpectedErrors(err, []string{Throttling}) {
-						time.Sleep(10 * time.Second)
-						return resource.RetryableError(err)
-					}
-					return resource.NonRetryableError(err)
+				if IsExpectedErrors(err, []string{Throttling}) {
+					time.Sleep(10 * time.Second)
+					return resource.RetryableError(err)
 				}
-				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				return nil
-			})
-			if err != nil {
-				return update, WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+				return resource.NonRetryableError(err)
 			}
+			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+			return nil
+		})
+		if err != nil {
+			return update, WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		// Ensure instance's type has been replaced successfully.
@@ -1121,7 +1077,6 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 			}
 
 			if instance.InternetMaxBandwidthOut == d.Get("internet_max_bandwidth_out").(int) &&
-				//instance.InternetChargeType == d.Get("internet_charge_type").(string) &&
 				instance.InternetMaxBandwidthIn == d.Get("internet_max_bandwidth_in").(int) {
 				break
 			}
