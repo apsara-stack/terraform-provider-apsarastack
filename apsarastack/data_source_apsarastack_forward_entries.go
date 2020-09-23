@@ -45,7 +45,6 @@ func dataSourceApsaraStackForwardEntries() *schema.Resource {
 				ForceNew: true,
 			},
 
-			// Computed values
 			"entries": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -180,7 +179,6 @@ func ForwardEntriesDecriptionAttributes(d *schema.ResourceData, entries []vpc.Fo
 		return WrapError(err)
 	}
 
-	// create a json file in current directory and write data source to it.
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
