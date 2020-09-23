@@ -73,7 +73,6 @@ The following attributes are exported in addition to the arguments listed above:
   * `security_groups` - List of security group IDs the instance belongs to.
   * `key_name` - Key pair the instance is using.
   * `creation_time` - Instance creation time.
-  * `instance_charge_type` - Instance charge type.
   * `internet_max_bandwidth_out` - Max output bandwidth for internet.
   * `disk_device_mappings` - Description of the attached disks.
     * `device` - Device information of the created disk: such as /dev/xvdb.

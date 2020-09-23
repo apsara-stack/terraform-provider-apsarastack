@@ -2,7 +2,6 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"os"
 	"strings"
 	"testing"
 
@@ -170,15 +169,9 @@ func testAccCheckApsaraStackInstancesDataSourceConfig(rand int, attrMap map[stri
 
 	config := fmt.Sprintf(`
 	%s
-
-	//variable "resource_group_id" {
-	//	default = "%s"
-	//}
-
 	variable "name" {
 		default = "tf-testAccCheckApsaraStackInstancesDataSource%d"
 	}
-
 	resource "apsarastack_instance" "default" {
 		availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
 		vswitch_id = "${apsarastack_vswitch.default.id}"
@@ -188,7 +181,6 @@ func testAccCheckApsaraStackInstancesDataSourceConfig(rand int, attrMap map[stri
 		instance_name = "${var.name}"
 		system_disk_category = "cloud_efficiency"
 		security_groups = ["${apsarastack_security_group.default.id}"]
-		//resource_group_id = "${var.resource_group_id}"
 		role_name = "${apsarastack_ram_role.default.name}"
 		data_disks {
 				name  = "${var.name}-disk1"
@@ -210,7 +202,6 @@ func testAccCheckApsaraStackInstancesDataSourceConfig(rand int, attrMap map[stri
 			usage4 = "test"
 			usage5 = "test"
 			usage6 = "test"
-
 		}
 	}
 	
@@ -235,10 +226,9 @@ func testAccCheckApsaraStackInstancesDataSourceConfig(rand int, attrMap map[stri
 	  description = "this is a test"
 	  force = true
 	}
-
 	data "apsarastack_instances" "default" {
 		%s
-	}`, EcsInstanceCommonNoZonesTestCase, os.Getenv("APSARASTaCK_RESOURCE_GROUP_ID"), rand, strings.Join(pairs, "\n  "))
+	}`, EcsInstanceCommonNoZonesTestCase, rand, strings.Join(pairs, "\n  "))
 	return config
 }
 
@@ -250,15 +240,9 @@ func testAccCheckApsaraStackInstancesDataSourceConfigWithTag(rand int, attrMap m
 
 	config := fmt.Sprintf(`
 	%s
-
-	variable "resource_group_id" {
-		default = "%s"
-	}
-
 	variable "name" {
 		default = "tf-testAccCheckApsaraStackInstancesDataSource%d"
 	}
-
 	resource "apsarastack_instance" "default" {
 		availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
 		vswitch_id = "${apsarastack_vswitch.default.id}"
@@ -288,14 +272,12 @@ func testAccCheckApsaraStackInstancesDataSourceConfigWithTag(rand int, attrMap m
 			usage4 = "test"
 			usage5 = "test"
 			usage6 = "test"
-
 		}
 	}
-
 	data "apsarastack_instances" "default" {
 		%s
 		%s
-	}`, EcsInstanceCommonNoZonesTestCase, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), rand, strings.Join(pairs, "\n  "), tags)
+	}`, EcsInstanceCommonNoZonesTestCase, rand, strings.Join(pairs, "\n  "), tags)
 	return config
 }
 

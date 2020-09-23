@@ -35,8 +35,6 @@ The following arguments are supported:
 
 * `zone_id` - (Optional, ForceNew) The Zone to launch the instance.
 * `generation` - (Optional) The generation of the instance type family, Valid values: `ecs-1`, `ecs-2`, `ecs-3` and `ecs-4`. For more information, see [Instance type families](https://www.alibabacloud.com/help/doc-detail/25378.htm). 
-* `instance_charge_type` - (Optional, ForceNew) Valid values are `PrePaid`, `PostPaid`, Default to `PostPaid`.
-* `spot_strategy` - (Optional, ForceNew) Filter the results by ECS spot type. Valid values: `NoSpot`, `SpotWithPriceLimit` and `SpotAsPriceGo`. Default to `NoSpot`.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
@@ -44,8 +42,7 @@ The following arguments are supported:
 The following attributes are exported in addition to the arguments listed above:
 
 * `ids` - A list of instance type family IDs.
-* `instance_types` - A list of image type families. Each element contains the following attributes:
-  * `id` - ID of the instance type family.
-  * `generation` - The generation of the instance type family.
-  * `zone_ids` - A list of Zone to launch the instance.
+* `id` - ID of the instance type family.
+* `generation` - The generation of the instance type family.
+* `zone_ids` - A list of Zone to launch the instance.
  
