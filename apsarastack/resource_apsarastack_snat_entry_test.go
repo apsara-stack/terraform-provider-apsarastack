@@ -21,10 +21,7 @@ func testAccCheckSnatEntryDestroy(s *terraform.State) error {
 			continue
 		}
 
-		// Try to find the Snat entry
 		_, err := vpcService.DescribeSnatEntry(rs.Primary.ID)
-
-		//this special deal cause the DescribeSnatEntry can't find the records would be throw "cant find the snatTable error"
 		if err != nil {
 			if NotFoundError(err) {
 				continue
@@ -57,19 +54,16 @@ func TestAccApsaraStackSnatEntryBasic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 
-		// module name
 		IDRefreshName: "apsarastack_snat_entry.default",
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckSnatEntryDestroy,
 		Steps: []resource.TestStep{
-			//{
-			//	Config: testAccSnatEntryConfigBasic(rand),
-			//	Check: resource.ComposeTestCheckFunc(
-			//		testAccCheck(map[string]string{
-			//			"snat_entry_name": fmt.Sprintf("tf-testAccSnatEntryConfig%d", rand),
-			//		}),
-			//	),
-			//},
+			{
+				Config: testAccSnatEntryConfigBasic(rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{}),
+				),
+			},
 			{
 				ResourceName:      resourceId,
 				ImportState:       true,
@@ -81,14 +75,6 @@ func TestAccApsaraStackSnatEntryBasic(t *testing.T) {
 					testAccCheck(nil),
 				),
 			},
-			//{
-			//	Config: testAccSnatEntryConfig_snatname(rand),
-			//	Check: resource.ComposeTestCheckFunc(
-			//		testAccCheck(map[string]string{
-			//			"snat_entry_name": fmt.Sprintf("tf-testAccSnatEntryConfig%d-update", rand),
-			//		}),
-			//	),
-			//},
 		},
 	})
 
@@ -113,7 +99,6 @@ func TestAccApsaraStackSnatEntryMulti(t *testing.T) {
 			testAccPreCheck(t)
 		},
 
-		// module name
 		IDRefreshName: "apsarastack_snat_entry.default.9",
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckSnatEntryDestroy,
@@ -173,7 +158,7 @@ resource "apsarastack_snat_entry" "default"{
 	snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
 	source_vswitch_id = "${apsarastack_vswitch.default.id}"
 	snat_ip = "${apsarastack_eip.default.ip_address}"
-    //snat_entry_name = "${var.name}"
+  
 }
 
 resource "apsarastack_snat_entry" "ecs"{
@@ -229,64 +214,7 @@ resource "apsarastack_snat_entry" "default"{
 	snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
 	source_vswitch_id = "${apsarastack_vswitch.default.id}"
 	snat_ip = "${apsarastack_eip.default.ip_address}"
-    //snat_entry_name = "${var.name}"
-}
 
-resource "apsarastack_snat_entry" "ecs"{
-	depends_on = [apsarastack_eip_association.default, apsarastack_nat_gateway.default]
-	snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
-	source_cidr = "172.16.0.10/32"
-	snat_ip = "${apsarastack_eip.default.ip_address}"
-}
-
-`, rand)
-}
-
-func testAccSnatEntryConfig_snatname(rand int) string {
-	return fmt.Sprintf(
-		`
-variable "name" {
-	default = "tf-testAccSnatEntryConfig%d"
-}
-data "apsarastack_zones" "default" {
-	available_resource_creation= "VSwitch"
-}
-
-resource "apsarastack_vpc" "default" {
-	name = "${var.name}"
-	cidr_block = "172.16.0.0/12"
-}
-
-resource "apsarastack_vswitch" "default" {
-	vpc_id = "${apsarastack_vpc.default.id}"
-	cidr_block = "172.16.0.0/21"
-	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
-	name = "${var.name}"
-}
-
-resource "apsarastack_nat_gateway" "default" {
-	depends_on = [apsarastack_vpc.default]
-	vpc_id = "${apsarastack_vswitch.default.vpc_id}"
-	specification = "Small"
-	name = "${var.name}"
-}
-
-resource "apsarastack_eip" "default" {
-	name = "${var.name}"
-}
-
-resource "apsarastack_eip_association" "default" {
-	depends_on = [apsarastack_eip.default, apsarastack_nat_gateway.default]
-	allocation_id = "${apsarastack_eip.default.id}"
-	instance_id = "${apsarastack_nat_gateway.default.id}"
-}
-
-resource "apsarastack_snat_entry" "default"{
-	depends_on = [apsarastack_eip_association.default, apsarastack_nat_gateway.default]
-	snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
-	source_vswitch_id = "${apsarastack_vswitch.default.id}"
-	snat_ip = "${apsarastack_eip.default.ip_address}"
-    //snat_entry_name = "${var.name}-update"
 }
 
 resource "apsarastack_snat_entry" "ecs"{
@@ -346,7 +274,7 @@ resource "apsarastack_snat_entry" "default"{
 	snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
 	source_vswitch_id = "${element(apsarastack_vswitch.default.*.id, count.index)}"
 	snat_ip = "${apsarastack_eip.default.ip_address}"
-    //snat_entry_name = "${var.name}"
+
 }
 
 resource "apsarastack_snat_entry" "ecs"{

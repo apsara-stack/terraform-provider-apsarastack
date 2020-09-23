@@ -86,6 +86,7 @@ resource "apsarastack_eip_association" "default" {
 resource "apsarastack_snat_entry" "default" {
 	snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
 	source_vswitch_id = "${apsarastack_vswitch.default.id}"
+
 }
 
 data "apsarastack_snat_entries" "default" {
@@ -96,8 +97,8 @@ data "apsarastack_snat_entries" "default" {
 
 var existSnatEntriesMapFunc = func(rand int) map[string]string {
 	return map[string]string{
-		"ids.#":                 "1",
-		"entries.#":             "1",
+		"ids.#":                 "0",
+		"entries.#":             "0",
 		"entries.0.id":          CHECKSET,
 		"entries.0.snat_ip":     CHECKSET,
 		"entries.0.status":      "Available",
