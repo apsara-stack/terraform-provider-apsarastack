@@ -2,19 +2,15 @@ package apsarastack
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 )
 
 func TestAccApsaraStackRouteTablesDataSourceBasic(t *testing.T) {
 	preCheck := func() {
 		testAccPreCheck(t)
-		testAccPreCheckWithRegions(t, false, connectivity.RouteTableNoSupportedRegions)
 	}
 	rand := acctest.RandInt()
 
@@ -67,27 +63,22 @@ func TestAccApsaraStackRouteTablesDataSourceBasic(t *testing.T) {
 	resourceGroupIdConfig := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackRouteTablesDataSourceConfigBaisc(rand, map[string]string{
 			"name_regex": `"${apsarastack_route_table.default.name}"`,
-			// The resource route tables do not support resource_group_id, so it was set empty.
-			"resource_group_id": `""`,
 		}),
 		fakeConfig: testAccCheckApsaraStackRouteTablesDataSourceConfigBaisc(rand, map[string]string{
-			"name_regex":        `"${apsarastack_route_table.default.name}"`,
-			"resource_group_id": fmt.Sprintf(`"%s_fake"`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID")),
+			"name_regex": `"${apsarastack_route_table.default.name}"`,
 		}),
 	}
 
 	allConfig := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackRouteTablesDataSourceConfigBaisc(rand, map[string]string{
-			"name_regex":        `"${apsarastack_route_table.default.name}"`,
-			"vpc_id":            `"${apsarastack_vpc.default.id}"`,
-			"ids":               `[ "${apsarastack_route_table.default.id}" ]`,
-			"resource_group_id": `""`,
+			"name_regex": `"${apsarastack_route_table.default.name}"`,
+			"vpc_id":     `"${apsarastack_vpc.default.id}"`,
+			"ids":        `[ "${apsarastack_route_table.default.id}" ]`,
 		}),
 		fakeConfig: testAccCheckApsaraStackRouteTablesDataSourceConfigBaisc(rand, map[string]string{
-			"name_regex":        `"${apsarastack_route_table.default.name}_fake"`,
-			"vpc_id":            `"${apsarastack_vpc.default.id}"`,
-			"ids":               `[ "${apsarastack_route_table.default.id}" ]`,
-			"resource_group_id": `""`,
+			"name_regex": `"${apsarastack_route_table.default.name}_fake"`,
+			"vpc_id":     `"${apsarastack_vpc.default.id}"`,
+			"ids":        `[ "${apsarastack_route_table.default.id}" ]`,
 		}),
 	}
 
