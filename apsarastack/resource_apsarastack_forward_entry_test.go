@@ -30,8 +30,6 @@ func TestAccApsaraStackForwardBasic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-
-		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckForwardEntryDestroy,
@@ -116,7 +114,6 @@ func TestAccApsaraStackForwardMulti(t *testing.T) {
 			testAccPreCheck(t)
 		},
 
-		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckForwardEntryDestroy,
