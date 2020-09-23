@@ -134,10 +134,6 @@ func TestAccApsaraStackRouteTableAttachmentBasic(t *testing.T) {
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheckWithRegions(t, false, connectivity.RouteTableNoSupportedRegions)
-		},
-		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckRouteTableAttachmentDestroy,
@@ -170,10 +166,7 @@ func TestAccApsaraStackRouteTableAttachmentMulti(t *testing.T) {
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheckWithRegions(t, false, connectivity.RouteTableNoSupportedRegions)
-		},
-		// module name
+
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckRouteTableAttachmentDestroy,
@@ -241,7 +234,7 @@ resource "apsarastack_vpc" "default" {
 }
 
 resource "apsarastack_vswitch" "default" {
-  count = "${var.number}"
+ count = "${var.number}"
   vpc_id = "${ apsarastack_vpc.default.id }"
   cidr_block = "172.16.${count.index}.0/24"
   availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
