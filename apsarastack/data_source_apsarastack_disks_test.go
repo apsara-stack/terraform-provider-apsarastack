@@ -125,12 +125,15 @@ func testAccCheckApsaraStackDisksDataSourceConfig(rand int, attrMap map[string]s
 	}
 
 	config := fmt.Sprintf(`
+
 variable "name" {
 	default = "tf-testAccCheckApsaraStackDisksDataSource_ids-%d"
 }
+
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 	category = "cloud_efficiency"
@@ -142,6 +145,7 @@ resource "apsarastack_disk" "default" {
 		Name1 = "TerraformTest"
 	}
 }
+
 data "apsarastack_disks" "default" {
 	%s
 }
@@ -157,9 +161,11 @@ func testAccCheckApsaraStackDisksDataSourceConfigWithCommon(rand int, attrMap ma
 
 	config := fmt.Sprintf(`
 %s
+
 variable "name" {
 	default = "tf-testAccCheckApsaraStackDisksDataSource_ids-%d"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 	category = "cloud_efficiency"
@@ -171,6 +177,7 @@ resource "apsarastack_disk" "default" {
 	}
 	size = "20"
 }
+
 resource "apsarastack_instance" "default" {
 	vswitch_id = "${apsarastack_vswitch.default.id}"
 	private_ip = "172.16.0.10"
@@ -180,10 +187,12 @@ resource "apsarastack_instance" "default" {
 	system_disk_category = "cloud_efficiency"
 	security_groups = ["${apsarastack_security_group.default.id}"]
 }
+
 resource "apsarastack_disk_attachment" "default" {
 	disk_id = "${apsarastack_disk.default.id}"
 	instance_id = "${apsarastack_instance.default.id}"
 }
+
 data "apsarastack_disks" "default" {
 	%s
 }
