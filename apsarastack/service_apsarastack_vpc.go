@@ -27,7 +27,7 @@ func (s *VpcService) DescribeEip(id string) (eip vpc.EipAddress, err error) {
 		return vpcClient.DescribeEipAddresses(request)
 	})
 	if err != nil {
-		return eip, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return eip, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*vpc.DescribeEipAddressesResponse)
@@ -68,9 +68,9 @@ func (s *VpcService) DescribeNatGateway(id string) (nat vpc.NatGateway, err erro
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{"InvalidNatGatewayId.NotFound"}) {
-				return WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+				return WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 			}
-			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeNatGatewaysResponse)
@@ -95,9 +95,9 @@ func (s *VpcService) DescribeVpc(id string) (v vpc.Vpc, err error) {
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{"InvalidVpcID.NotFound", "Forbidden.VpcNotFound"}) {
-				return WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+				return WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 			}
-			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeVpcsResponse)
@@ -143,9 +143,9 @@ func (s *VpcService) DescribeVSwitch(id string) (v vpc.DescribeVSwitchAttributes
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{"InvalidVswitchID.NotFound"}) {
-				return WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+				return WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 			}
-			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeVSwitchAttributesResponse)
@@ -205,9 +205,9 @@ func (s *VpcService) DescribeSnatEntry(id string) (snat vpc.SnatTableEntry, err 
 		//so judge the snatEntries length priority
 		if err != nil {
 			if IsExpectedErrors(err, []string{"InvalidSnatTableId.NotFound", "InvalidSnatEntryId.NotFound"}) {
-				return snat, WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+				return snat, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 			}
-			return snat, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return snat, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
@@ -256,7 +256,7 @@ func (s *VpcService) DescribeForwardEntry(id string) (entry vpc.ForwardTableEntr
 			if IsExpectedErrors(err, []string{"InvalidForwardEntryId.NotFound", "InvalidForwardTableId.NotFound"}) {
 				return WrapErrorf(Error(GetNotFoundMessage("ForwardEntry", id)), NotFoundMsg, ProviderERROR)
 			}
-			return WrapErrorf(err, DefaultErrorMsg, "ForwardEntry", request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, "ForwardEntry", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeForwardTableEntriesResponse)
@@ -282,7 +282,7 @@ func (s *VpcService) QueryRouteTableById(routeTableId string) (rt vpc.RouteTable
 			return vpcClient.DescribeRouteTables(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, routeTableId, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, routeTableId, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeRouteTablesResponse)
@@ -318,7 +318,7 @@ func (s *VpcService) DescribeRouteEntry(id string) (*vpc.RouteEntry, error) {
 			raw = response
 			return err
 		}); err != nil {
-			return v, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return v, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeRouteTablesResponse)
@@ -363,7 +363,7 @@ func (s *VpcService) DescribeRouterInterface(id, regionId string) (ri vpc.Router
 			return vpcClient.DescribeRouterInterfaces(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeRouterInterfacesResponse)
@@ -413,7 +413,7 @@ func (s *VpcService) DescribeCenInstanceGrant(id string) (rule vpc.CbnGrantRule,
 			return vpcClient.DescribeGrantRulesToCen(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeGrantRulesToCenResponse)
@@ -474,7 +474,7 @@ func (s *VpcService) DescribeCommonBandwidthPackage(id string) (v vpc.CommonBand
 			return vpcClient.DescribeCommonBandwidthPackages(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeCommonBandwidthPackagesResponse)
@@ -522,7 +522,7 @@ func (s *VpcService) DescribeRouteTable(id string) (v vpc.RouterTableListType, e
 			return vpcClient.DescribeRouteTableList(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.DescribeRouteTableListResponse)
@@ -758,7 +758,7 @@ func (s *VpcService) DeactivateRouterInterface(interfaceId string) error {
 		return vpcClient.DeactivateRouterInterface(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "RouterInterface", request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, "RouterInterface", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	return nil
@@ -772,7 +772,7 @@ func (s *VpcService) ActivateRouterInterface(interfaceId string) error {
 		return vpcClient.ActivateRouterInterface(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "RouterInterface", request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, "RouterInterface", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	return nil
@@ -947,9 +947,9 @@ func (s *VpcService) DescribeNetworkAcl(id string) (networkAcl vpc.NetworkAcl, e
 	})
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidNetworkAcl.NotFound"}) {
-			return networkAcl, WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+			return networkAcl, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return networkAcl, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return networkAcl, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	response, _ := raw.(*vpc.DescribeNetworkAclsResponse)
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -1081,7 +1081,7 @@ func (s *VpcService) DescribeTags(resourceId string, resourceTags map[string]int
 		return nil
 	})
 	if err != nil {
-		err = WrapErrorf(err, DefaultErrorMsg, resourceId, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, resourceId, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	response, _ := raw.(*vpc.ListTagResourcesResponse)
@@ -1124,7 +1124,7 @@ func (s *VpcService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 				return nil
 			})
 			if err != nil {
-				return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+				return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 			}
 		}
 
@@ -1152,7 +1152,7 @@ func (s *VpcService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 				return nil
 			})
 			if err != nil {
-				return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+				return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 			}
 		}
 
