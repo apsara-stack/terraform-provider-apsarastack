@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_vpcs"
 sidebar_current: "docs-apsarastack-datasource-vpcs"
 description: |-
-    Provides a list of VPCs owned by an Alibaba Cloud account.
+    Provides a list of VPCs owned by an ApsaraStack Cloud account.
 ---
 
 # apsarastack\_vpcs
