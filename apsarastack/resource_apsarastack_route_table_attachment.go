@@ -108,7 +108,7 @@ func resourceAliyunRouteTableAttachmentDelete(d *schema.ResourceData, meta inter
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.UnassociateRouteTable(&args)
 		})
-		//Waiting for unassociate the route table
+
 		if err != nil {
 			if IsExpectedErrors(err, []string{"TaskConflict"}) {
 				return resource.RetryableError(err)

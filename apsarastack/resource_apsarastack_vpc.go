@@ -60,11 +60,7 @@ func resourceApsaraStackVpc() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"router_table_id": {
-				Type:       schema.TypeString,
-				Computed:   true,
-				Deprecated: "Attribute router_table_id has been deprecated and replaced with route_table_id.",
-			},
+
 			"route_table_id": {
 				Type:     schema.TypeString,
 				Computed: true,

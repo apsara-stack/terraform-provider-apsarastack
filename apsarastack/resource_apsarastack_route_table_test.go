@@ -20,7 +20,6 @@ func init() {
 	resource.AddTestSweepers("apsarastack_route_table", &resource.Sweeper{
 		Name: "apsarastack_route_table",
 		F:    testSweepRouteTable,
-		// When implemented, these should be removed firstly
 		Dependencies: []string{
 			"apsarastack_route_table_attachment",
 		},
@@ -34,7 +33,7 @@ func testSweepRouteTable(region string) error {
 	}
 	rawClient, err := sharedClientForRegion(region)
 	if err != nil {
-		return fmt.Errorf("error getting ApsataStack client: %s", err)
+		return fmt.Errorf("error getting ApsaraStack client: %s", err)
 	}
 	client := rawClient.(*connectivity.ApsaraStackClient)
 
@@ -137,10 +136,6 @@ func TestAccApsaraStackRouteTableBasic(t *testing.T) {
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheckWithRegions(t, false, connectivity.RouteTableNoSupportedRegions)
-		},
-		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckRouteTableDestroy,
@@ -201,7 +196,7 @@ func TestAccApsaraStackRouteTableBasic(t *testing.T) {
 func TestAccApsaraStackRouteTableMulti(t *testing.T) {
 	var v vpc.RouterTableListType
 	rand := acctest.RandIntRange(1000, 9999)
-	resourceId := "apsarastack_route_table.default.4"
+	resourceId := "apsarastack_route_table.default"
 	ra := resourceAttrInit(resourceId, map[string]string{
 		"vpc_id":      CHECKSET,
 		"name":        fmt.Sprintf("tf-testAccRouteTable%d", rand),
@@ -215,10 +210,6 @@ func TestAccApsaraStackRouteTableMulti(t *testing.T) {
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 
 	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheckWithRegions(t, false, connectivity.RouteTableNoSupportedRegions)
-		},
-		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckRouteTableDestroy,
