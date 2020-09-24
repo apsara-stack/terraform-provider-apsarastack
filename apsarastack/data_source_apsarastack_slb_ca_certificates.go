@@ -56,18 +56,6 @@ func dataSourceApsaraStackSlbCACertificates() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						//"common_name": {
-						//	Type:     schema.TypeString,
-						//	Computed: true,
-						//},
-						//"expired_time": {
-						//	Type:     schema.TypeString,
-						//	Computed: true,
-						//},
-						//"expired_timestamp": {
-						//	Type:     schema.TypeInt,
-						//	Computed: true,
-						//},
 						"created_time": {
 							Type:     schema.TypeString,
 							Computed: true,
