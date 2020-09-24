@@ -267,10 +267,10 @@ func testAccDiskConfig_basic() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
 resource "apsarastack_disk" "default" {
-	availability_zone = "${data.apsarastack_zones.default.zones.1.id}"
+	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "50"
-	
 }
 `)
 }
@@ -280,10 +280,11 @@ func testAccDiskConfig_size() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "70"
-	
 }
 `)
 }
@@ -293,14 +294,16 @@ func testAccDiskConfig_name() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
+
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "70"
 	name = "${var.name}"
-	
 }
 `)
 }
@@ -310,15 +313,17 @@ func testAccDiskConfig_description() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
+
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "70"
 	name = "${var.name}"
 	description = "${var.name}_description"
-	
 }
 `)
 }
@@ -328,9 +333,12 @@ func testAccDiskConfig_tags() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
+
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "70"
@@ -343,7 +351,6 @@ resource "apsarastack_disk" "default" {
 		Name2 = "Name2"
 		name3 = "name3"
 			}
-	
 }
 `)
 }
@@ -353,9 +360,12 @@ func testAccDiskConfig_delete_auto_snapshot() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
+
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "70"
@@ -369,7 +379,6 @@ resource "apsarastack_disk" "default" {
 		name3 = "name3"
 			}
 	delete_auto_snapshot = "true"
-	
 }
 `)
 }
@@ -379,9 +388,12 @@ func testAccDiskConfig_delete_with_instance() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
+
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "70"
@@ -396,7 +408,6 @@ resource "apsarastack_disk" "default" {
 			}
 	delete_auto_snapshot = "true"
 	delete_with_instance = "true"
-	
 }
 `)
 }
@@ -406,9 +417,12 @@ func testAccDiskConfig_enable_auto_snapshot() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
+
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "70"
@@ -424,7 +438,6 @@ resource "apsarastack_disk" "default" {
 	delete_auto_snapshot = "true"
 	delete_with_instance = "true"
 	enable_auto_snapshot = "true"
-	
 }
 `)
 }
@@ -434,9 +447,11 @@ func testAccDiskConfig_all() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "70"
@@ -447,7 +462,6 @@ resource "apsarastack_disk" "default" {
 	delete_auto_snapshot = "false"
 	delete_with_instance = "false"
 	enable_auto_snapshot = "false"
-	
 }
 `)
 }
@@ -457,9 +471,11 @@ func testAccDiskConfig_multi() string {
 data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
+
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
 resource "apsarastack_disk" "default" {
 	count = "5"
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
@@ -468,7 +484,6 @@ resource "apsarastack_disk" "default" {
 	description = "nothing"
 	category = "cloud_efficiency"
 	encrypted = "false"
-	
 }
 `)
 }
