@@ -9,9 +9,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
-func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
+func dataSourceApsaraStackSlbCACertificates() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackSlbServerCertificatesRead,
+		Read: dataSourceApsaraStackSlbCACertificatesRead,
 
 		Schema: map[string]*schema.Schema{
 			"output_file": {
@@ -26,22 +26,17 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 				ForceNew: true,
 				MinItems: 1,
 			},
-			"tags": tagsSchema(),
 			"name_regex": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.ValidateRegexp,
 				ForceNew:     true,
 			},
+			"tags": tagsSchema(),
 			"names": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"resource_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 			},
 			// Computed values
 			"certificates": {
@@ -61,6 +56,18 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						//"common_name": {
+						//	Type:     schema.TypeString,
+						//	Computed: true,
+						//},
+						//"expired_time": {
+						//	Type:     schema.TypeString,
+						//	Computed: true,
+						//},
+						//"expired_timestamp": {
+						//	Type:     schema.TypeInt,
+						//	Computed: true,
+						//},
 						"created_time": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -69,10 +76,9 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"resource_group_id": {
+						"region_id": {
 							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
+							Computed: true,
 						},
 						"tags": tagsSchema(),
 					},
@@ -82,7 +88,64 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 	}
 }
 
-func severCertificateTagsMappings(d *schema.ResourceData, id string, meta interface{}) map[string]string {
+func dataSourceApsaraStackSlbCACertificatesRead(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*connectivity.ApsaraStackClient)
+
+	request := slb.CreateDescribeCACertificatesRequest()
+	tags := d.Get("tags").(map[string]interface{})
+	if tags != nil && len(tags) > 0 {
+		Tags := make([]slb.DescribeCACertificatesTag, 0, len(tags))
+		for k, v := range tags {
+			certificatesTag := slb.DescribeCACertificatesTag{
+				Key:   k,
+				Value: v.(string),
+			}
+			Tags = append(Tags, certificatesTag)
+		}
+		request.Tag = &Tags
+	}
+	request.RegionId = client.RegionId
+	idsMap := make(map[string]string)
+	if v, ok := d.GetOk("ids"); ok {
+		for _, vv := range v.([]interface{}) {
+			idsMap[Trim(vv.(string))] = Trim(vv.(string))
+		}
+	}
+	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+		return slbClient.DescribeCACertificates(request)
+	})
+	if err != nil {
+		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_slb_ca_certificates", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	response, _ := raw.(*slb.DescribeCACertificatesResponse)
+	var filteredTemp []slb.CACertificate
+	nameRegex, ok := d.GetOk("name_regex")
+	if (ok && nameRegex.(string) != "") || (len(idsMap) > 0) {
+		var r *regexp.Regexp
+		if nameRegex != "" {
+			r = regexp.MustCompile(nameRegex.(string))
+		}
+		for _, certificate := range response.CACertificates.CACertificate {
+			if r != nil && !r.MatchString(certificate.CACertificateName) {
+				continue
+			}
+			if len(idsMap) > 0 {
+				if _, ok := idsMap[certificate.CACertificateId]; !ok {
+					continue
+				}
+			}
+
+			filteredTemp = append(filteredTemp, certificate)
+		}
+	} else {
+		filteredTemp = response.CACertificates.CACertificate
+	}
+
+	return slbCACertificatesDescriptionAttributes(d, filteredTemp, meta)
+}
+
+func caCertificateTagsMappings(d *schema.ResourceData, id string, meta interface{}) map[string]string {
 	client := meta.(*connectivity.ApsaraStackClient)
 	slbService := SlbService{client}
 	tags, err := slbService.DescribeTags(id, nil, TagResourceCertificate)
@@ -94,65 +157,7 @@ func severCertificateTagsMappings(d *schema.ResourceData, id string, meta interf
 	return slbTagsToMap(tags)
 }
 
-func dataSourceApsaraStackSlbServerCertificatesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
-
-	request := slb.CreateDescribeServerCertificatesRequest()
-	request.RegionId = client.RegionId
-	tags := d.Get("tags").(map[string]interface{})
-	if tags != nil && len(tags) > 0 {
-		Tags := make([]slb.DescribeServerCertificatesTag, 0, len(tags))
-		for k, v := range tags {
-			certificatesTag := slb.DescribeServerCertificatesTag{
-				Key:   k,
-				Value: v.(string),
-			}
-			Tags = append(Tags, certificatesTag)
-		}
-		request.Tag = &Tags
-	}
-	idsMap := make(map[string]string)
-	if v, ok := d.GetOk("ids"); ok {
-		for _, vv := range v.([]interface{}) {
-			idsMap[Trim(vv.(string))] = Trim(vv.(string))
-		}
-	}
-
-	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
-		return slbClient.DescribeServerCertificates(request)
-	})
-	if err != nil {
-		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_slb_server_certificates", request.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	response, _ := raw.(*slb.DescribeServerCertificatesResponse)
-	var filteredTemp []slb.ServerCertificate
-	nameRegex, ok := d.GetOk("name_regex")
-	if (ok && nameRegex.(string) != "") || (len(idsMap) > 0) {
-		var r *regexp.Regexp
-		if nameRegex != "" {
-			r = regexp.MustCompile(nameRegex.(string))
-		}
-		for _, certificate := range response.ServerCertificates.ServerCertificate {
-			if r != nil && !r.MatchString(certificate.ServerCertificateName) {
-				continue
-			}
-			if len(idsMap) > 0 {
-				if _, ok := idsMap[certificate.ServerCertificateId]; !ok {
-					continue
-				}
-			}
-
-			filteredTemp = append(filteredTemp, certificate)
-		}
-	} else {
-		filteredTemp = response.ServerCertificates.ServerCertificate
-	}
-
-	return slbServerCertificatesDescriptionAttributes(d, filteredTemp, meta)
-}
-
-func slbServerCertificatesDescriptionAttributes(d *schema.ResourceData, certificates []slb.ServerCertificate, meta interface{}) error {
+func slbCACertificatesDescriptionAttributes(d *schema.ResourceData, certificates []slb.CACertificate, meta interface{}) error {
 	var ids []string
 	var names []string
 	var s []map[string]interface{}
@@ -160,16 +165,16 @@ func slbServerCertificatesDescriptionAttributes(d *schema.ResourceData, certific
 	for _, certificate := range certificates {
 
 		mapping := map[string]interface{}{
-			"id":                certificate.ServerCertificateId,
-			"name":              certificate.ServerCertificateName,
+			"id":                certificate.CACertificateId,
+			"name":              certificate.CACertificateName,
 			"fingerprint":       certificate.Fingerprint,
 			"created_time":      certificate.CreateTime,
 			"created_timestamp": certificate.CreateTimeStamp,
-			"resource_group_id": certificate.ResourceGroupId,
-			"tags":              severCertificateTagsMappings(d, certificate.ServerCertificateId, meta),
+			"region_id":         certificate.RegionId,
+			"tags":              caCertificateTagsMappings(d, certificate.CACertificateId, meta),
 		}
-		ids = append(ids, certificate.ServerCertificateId)
-		names = append(names, certificate.ServerCertificateName)
+		ids = append(ids, certificate.CACertificateId)
+		names = append(names, certificate.CACertificateName)
 		s = append(s, mapping)
 	}
 
