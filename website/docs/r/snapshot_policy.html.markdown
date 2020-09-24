@@ -7,12 +7,6 @@ description: |-
   Provides an ECS snapshot policy resource.
 ---
 
-# apsarastack\_snapshot\_policy
-
-Provides an ECS snapshot policy resource.
-
-For information about snapshot policy and how to use it, see [Snapshot](https://www.alibabacloud.com/help/doc-detail/25460.html).
-
 ## Example Usage
 
 ```
@@ -47,10 +41,3 @@ The following attributes are exported:
 
 * `id` - The snapshot policy ID.
 
-## Import
-
-Snapshot can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_snapshot.snapshot s-abc1234567890000
-```

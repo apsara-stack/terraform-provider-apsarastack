@@ -14,11 +14,6 @@ This data source provides a list of VSwitches owned by an Alibaba Cloud account.
 ## Example Usage
 
 ```
-variable "name" {
-  default = "vswitchDatasourceName"
-}
-data "apsarastack_zones" "default" {}
-
 resource "apsarastack_vpc" "vpc" {
   cidr_block = "172.16.0.0/16"
   name       = "${var.name}"
@@ -28,7 +23,7 @@ resource "apsarastack_vswitch" "vswitch" {
   name              = "${var.name}"
   cidr_block        = "172.16.0.0/24"
   vpc_id            = "${apsarastack_vpc.vpc.id}"
-  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  availability_zone = "${var.availability_zone}"
 }
 
 data "apsarastack_vswitches" "default" {
@@ -45,10 +40,8 @@ The following arguments are supported:
 * `name_regex` - (Optional) A regex string to filter results by name.
 * `is_default` - (Optional, type: bool) Indicate whether the VSwitch is created by the system.
 * `vpc_id` - (Optional) ID of the VPC that owns the VSwitch.
-<!--* `tags` - (Optional, Available in v1.55.3+) A mapping of tags to assign to the resource.-->
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 * `ids` - (Optional, Available in 1.52.0+) A list of VSwitch IDs.
-<!--* `resource_group_id` - (Optional, ForceNew, Available in 1.60.0+) The Id of resource group which VSWitch belongs.-->
 
 ## Attributes Reference
 

@@ -24,7 +24,7 @@ resource "apsarastack_security_group" "ecs_sg" {
 }
 
 resource "apsarastack_disk" "ecs_disk" {
-  availability_zone = "cn-beijing-a"
+  availability_zone = "${var.availability_zone}"
   size              = "50"
 
   tags = {
@@ -34,8 +34,8 @@ resource "apsarastack_disk" "ecs_disk" {
 
 resource "apsarastack_instance" "ecs_instance" {
   image_id              = "ubuntu_18_04_64_20G_alibase_20190624.vhd"
-  instance_type         = "ecs.n4.small"
-  availability_zone     = "cn-beijing-a"
+  instance_type         = "${var.instance_type}"
+  availability_zone     = "${var.availability_zone}"
   security_groups       = ["${apsarastack_security_group.ecs_sg.id}"]
   instance_name         = "Hello"
 
