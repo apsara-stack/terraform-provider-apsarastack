@@ -4,12 +4,12 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_slb_zones"
 sidebar_current: "docs-apsarastack-datasource-slb-zones"
 description: |-
-    Provides a list of availability zones for SLB that can be used by an Alibaba Cloud account.
+    Provides a list of availability zones for SLB that can be used by an ApsaraStack Cloud account.
 ---
 
 # apsarastack\_slb\_zones
 
-This data source provides availability zones for SLB that can be accessed by an Alibaba Cloud account within the region configured in the provider.
+This data source provides availability zones for SLB that can be accessed by an ApsaraStack Cloud account within the region configured in the provider.
 
 -> **NOTE:** Available in v1.73.0+.
 

@@ -42,8 +42,6 @@ func dataSourceApsaraStackNatGateways() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
-			// Computed values
 			"gateways": {
 				Type:     schema.TypeList,
 				Computed: true,

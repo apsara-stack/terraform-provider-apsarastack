@@ -150,7 +150,6 @@ resource "apsarastack_instance" "default" {
   image_id = "${data.apsarastack_images.default.images.0.id}"
 
   instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-  internet_charge_type = "PayByTraffic"
   system_disk_category = "cloud_efficiency"
 
   security_groups = ["${apsarastack_security_group.default.id}"]
@@ -160,7 +159,6 @@ resource "apsarastack_instance" "default" {
   count = "2"
   internet_max_bandwidth_out = "10"
   availability_zone          = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-  instance_charge_type       = "PostPaid"
 }
 
 resource "apsarastack_slb_master_slave_server_group" "default" {

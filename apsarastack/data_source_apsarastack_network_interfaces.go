@@ -28,6 +28,10 @@ func dataSourceApsaraStackNetworkInterfaces() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.ValidateRegexp,
 			},
+			"vpc_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"vswitch_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -73,6 +77,10 @@ func dataSourceApsaraStackNetworkInterfaces() *schema.Resource {
 							Computed: true,
 						},
 						"vswitch_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"vpc_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -134,6 +142,9 @@ func dataSourceApsarastackNetworkInterfacesRead(d *schema.ResourceData, meta int
 	if networkInterfaceIds, ok := d.GetOk("ids"); ok {
 		ids := expandStringList(networkInterfaceIds.(*schema.Set).List())
 		request.NetworkInterfaceId = &ids
+	}
+	if vpcId, ok := d.GetOk("vpc_id"); ok {
+		request.VpcId = vpcId.(string)
 	}
 
 	if vswitchId, ok := d.GetOk("vswitch_id"); ok {
@@ -225,6 +236,7 @@ func networkInterfaceDescriptionAttributes(d *schema.ResourceData, enis []ecs.Ne
 			"id":              eni.NetworkInterfaceId,
 			"name":            eni.NetworkInterfaceName,
 			"status":          eni.Status,
+			"vpc_id":          eni.VpcId,
 			"vswitch_id":      eni.VSwitchId,
 			"zone_id":         eni.ZoneId,
 			"public_ip":       eni.AssociatedPublicIp.PublicIpAddress,

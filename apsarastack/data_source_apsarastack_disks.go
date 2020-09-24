@@ -33,13 +33,15 @@ func dataSourceApsaraStackDisks() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"system", "data"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"all", "system", "data"}, false),
+				Default:      DiskTypeAll,
 			},
 			"category": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"cloud", "cloud_efficiency", "ephemeral_ssd", "cloud_ssd"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"cloud", "cloud_efficiency", "cloud_ssd"}, false),
+				Default:      DiskAll,
 			},
 
 			"instance_id": {
