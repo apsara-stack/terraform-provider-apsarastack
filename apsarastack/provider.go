@@ -77,7 +77,7 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				DefaultFunc: schema.EnvDefaultFunc("AS_INSECURE", nil),
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", nil),
 				Description: descriptions["insecure"],
 			},
 			"assume_role": assumeRoleSchema(),
@@ -103,11 +103,13 @@ func Provider() terraform.ResourceProvider {
 			"proxy": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_PROXY", nil),
 				Description: descriptions["proxy"],
 			},
 			"domain": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DOMAIN", nil),
 				Description: descriptions["domain"],
 			},
 		},
