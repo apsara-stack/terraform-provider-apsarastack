@@ -45,11 +45,6 @@ func resourceApsaraStackSnatEntry() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: strings.Fields("source_vswitch_id"),
 			},
-			//snat_entry_name is not supported in apsarastack snat service
-			/*"snat_entry_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},*/
 			"snat_entry_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -71,9 +66,6 @@ func resourceApsaraStackSnatEntryCreate(d *schema.ResourceData, meta interface{}
 		request.SourceCIDR = v.(string)
 	}
 
-	/*if v, ok := d.GetOk("snat_entry_name"); ok {
-		request.SnatEntryName = v.(string)
-	}*/
 	if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		ar := request
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -103,7 +95,6 @@ func resourceApsaraStackSnatEntryCreate(d *schema.ResourceData, meta interface{}
 func resourceApsaraStackSnatEntryRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
-	// compatible with previous id which in under 1.37.0
 	if strings.HasPrefix(d.Id(), "snat-") {
 		d.SetId(fmt.Sprintf("%s%s%s", d.Get("snat_table_id").(string), COLON_SEPARATED, d.Id()))
 	}
@@ -126,13 +117,12 @@ func resourceApsaraStackSnatEntryRead(d *schema.ResourceData, meta interface{}) 
 	}
 	d.Set("snat_ip", object.SnatIp)
 	d.Set("snat_entry_id", object.SnatEntryId)
-	//d.Set("snat_entry_name", object.SnatEntryName)
 
 	return nil
 }
 
 func resourceApsaraStackSnatEntryUpdate(d *schema.ResourceData, meta interface{}) error {
-	// compatible with previous id which in under 1.37.0
+
 	if strings.HasPrefix(d.Id(), "snat-") {
 		d.SetId(fmt.Sprintf("%s%s%s", d.Get("snat_table_id").(string), COLON_SEPARATED, d.Id()))
 	}
@@ -154,11 +144,6 @@ func resourceApsaraStackSnatEntryUpdate(d *schema.ResourceData, meta interface{}
 		request.SnatIp = d.Get("snat_ip").(string)
 	}
 
-	/*if d.HasChange("snat_entry_name") {
-		update = true
-		request.SnatEntryName = d.Get("snat_entry_name").(string)
-	}*/
-
 	if update {
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifySnatEntry(request)
@@ -177,7 +162,7 @@ func resourceApsaraStackSnatEntryUpdate(d *schema.ResourceData, meta interface{}
 func resourceApsaraStackSnatEntryDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
-	// compatible with previous id which in under 1.37.0
+
 	if strings.HasPrefix(d.Id(), "snat-") {
 		d.SetId(fmt.Sprintf("%s%s%s", d.Get("snat_table_id").(string), COLON_SEPARATED, d.Id()))
 	}

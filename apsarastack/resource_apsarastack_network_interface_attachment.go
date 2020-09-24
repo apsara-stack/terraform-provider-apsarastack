@@ -12,7 +12,7 @@ import (
 
 func resourceNetworkInterfaceAttachment() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceNetworkInterfaceAttachmentCreate,
+		Create: resourceApsaraStackNetworkInterfaceAttachmentCreate,
 		Read:   resourceApsaraStackNetworkInterfaceAttachmentRead,
 		Delete: resourceApsaraStackNetworkInterfaceAttachmentDelete,
 
@@ -35,7 +35,7 @@ func resourceNetworkInterfaceAttachment() *schema.Resource {
 	}
 }
 
-func resourceNetworkInterfaceAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackNetworkInterfaceAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ecsService := EcsService{client}
 
@@ -61,7 +61,7 @@ func resourceNetworkInterfaceAttachmentCreate(d *schema.ResourceData, meta inter
 		return nil
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_netWork_interface_attachment", request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_network_interface_attachment", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	d.SetId(eniId + COLON_SEPARATED + instanceId)
 	if err = ecsService.WaitForNetworkInterface(eniId, InUse, DefaultTimeout); err != nil {
@@ -125,7 +125,7 @@ func resourceApsaraStackNetworkInterfaceAttachmentDelete(d *schema.ResourceData,
 		return nil
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	return WrapError(ecsService.WaitForNetworkInterface(eniId, Available, DefaultTimeoutMedium))
 }

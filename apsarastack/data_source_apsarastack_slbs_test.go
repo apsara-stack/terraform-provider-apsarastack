@@ -100,7 +100,6 @@ func TestAccApsaraStackSlbsDataSource(t *testing.T) {
 			"network_type":             `"vpc"`,
 			"tags":                     `{tag_f = 6}`,
 			"master_availability_zone": `"${data.apsarastack_zones.default.zones.0.id}"`,
-			"resource_group_id":        fmt.Sprintf(`"%s"`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID")),
 		}),
 		fakeConfig: testAccCheckApsaraStackSlbDataSourceConfig(rand, map[string]string{
 			"name_regex":               `"${apsarastack_slb.default.name}_fake"`,
@@ -110,7 +109,6 @@ func TestAccApsaraStackSlbsDataSource(t *testing.T) {
 			"network_type":             `"vpc"`,
 			"tags":                     `{tag_f = 6}`,
 			"master_availability_zone": `"${data.apsarastack_zones.default.zones.0.id}"`,
-			"resource_group_id":        fmt.Sprintf(`"%s"`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID")),
 		}),
 	}
 
@@ -120,7 +118,7 @@ func TestAccApsaraStackSlbsDataSource(t *testing.T) {
 			"ids.#":                           "1",
 			"names.#":                         "1",
 			"slbs.0.id":                       CHECKSET,
-			"slbs.0.name":                     fmt.Sprintf("tf-testAccCheckAlicloudSlbsDataSourceBasic-%d", rand),
+			"slbs.0.name":                     fmt.Sprintf("tf-testAccCheckApsaraStackSlbsDataSourceBasic-%d", rand),
 			"slbs.0.region_id":                CHECKSET,
 			"slbs.0.master_availability_zone": CHECKSET,
 			"slbs.0.slave_availability_zone":  CHECKSET,
@@ -161,7 +159,7 @@ func testAccCheckApsaraStackSlbDataSourceConfig(rand int, attrMap map[string]str
 
 	config := fmt.Sprintf(`
 variable "name" {
-	default = "tf-testAccCheckAlicloudSlbsDataSourceBasic-%d"
+	default = "tf-testAccCheckApsaraStackSlbsDataSourceBasic-%d"
 }
 
 data "apsarastack_zones" "default" {
@@ -194,12 +192,11 @@ resource "apsarastack_slb" "default" {
     tag_g = 7
     tag_h = 8
   }
-  resource_group_id = "%s"
 }
 
 data "apsarastack_slbs" "default" {
   %s
 }
-`, rand, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), strings.Join(pairs, "\n  "))
+`, rand, strings.Join(pairs, "\n  "))
 	return config
 }

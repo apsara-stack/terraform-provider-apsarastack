@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_disks
 
-This data source provides the disks of the current Alibaba Cloud user.
+This data source provides the disks of the current Apsara Stack Cloud user.
 
 ## Example Usage
 

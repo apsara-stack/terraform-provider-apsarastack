@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"os"
 	"strings"
 	"testing"
 )
@@ -38,28 +37,14 @@ func TestAccApsaraStackSlbAclsDataSource_basic(t *testing.T) {
 		}),
 	}
 
-	resourceGroupIdConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSlbAclsDataSourceConfig(rand, map[string]string{
-			"ids":               `["${apsarastack_slb_acl.default.id}"]`,
-			"resource_group_id": `""`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSlbAclsDataSourceConfig(rand, map[string]string{
-			"ids":               `["${apsarastack_slb_acl.default.id}_fake"]`,
-			"resource_group_id": fmt.Sprintf(`"%s_fake"`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID")),
-		}),
-	}
-
 	allConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackSlbAclsDataSourceConfig(rand, map[string]string{
 			"ids":        `["${apsarastack_slb_acl.default.id}"]`,
 			"name_regex": `"${apsarastack_slb_acl.default.name}"`,
-			// The resource route tables do not support resource_group_id, so it was set empty.
-			"resource_group_id": `""`,
 		}),
 		fakeConfig: testAccCheckApsaraStackSlbAclsDataSourceConfig(rand, map[string]string{
-			"ids":               `["${apsarastack_slb_acl.default.id}_fake"]`,
-			"name_regex":        `"${apsarastack_slb_acl.default.name}"`,
-			"resource_group_id": `""`,
+			"ids":        `["${apsarastack_slb_acl.default.id}_fake"]`,
+			"name_regex": `"${apsarastack_slb_acl.default.name}"`,
 		}),
 	}
 
@@ -69,7 +54,6 @@ func TestAccApsaraStackSlbAclsDataSource_basic(t *testing.T) {
 			"ids.#":                      "1",
 			"names.#":                    "1",
 			"acls.0.id":                  CHECKSET,
-			"acls.0.resource_group_id":   CHECKSET,
 			"acls.0.name":                fmt.Sprintf("tf-testAccSlbAclDataSourceBisic-%d", rand),
 			"acls.0.ip_version":          "ipv4",
 			"acls.0.entry_list.#":        "2",
@@ -94,7 +78,7 @@ func TestAccApsaraStackSlbAclsDataSource_basic(t *testing.T) {
 		fakeMapFunc:  fakeDnsRecordsMapFunc,
 	}
 
-	slbaclsCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, tagsConf, idsConf, resourceGroupIdConf, allConf)
+	slbaclsCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, tagsConf, idsConf, allConf)
 }
 
 func testAccCheckApsaraStackSlbAclsDataSourceConfig(rand int, attrMap map[string]string) string {
