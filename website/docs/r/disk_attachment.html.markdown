@@ -18,11 +18,6 @@ Basic usage
 ```
 # Create a new ECS disk-attachment and use it attach one disk to a new instance.
 
-resource "apsarastack_security_group" "ecs_sg" {
-  name        = "terraform-test-group"
-  description = "New security group"
-}
-
 resource "apsarastack_disk" "ecs_disk" {
   availability_zone = "${var.availability_zone}"
   size              = "50"
