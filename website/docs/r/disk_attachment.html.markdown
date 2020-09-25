@@ -31,7 +31,7 @@ resource "apsarastack_instance" "ecs_instance" {
   image_id              = "ubuntu_18_04_64_20G_alibase_20190624.vhd"
   instance_type         = "${var.instance_type}"
   availability_zone     = "${var.availability_zone}"
-  security_groups       = ["${apsarastack_security_group.ecs_sg.id}"]
+  security_groups       = ["${var.security_groups}"]
   instance_name         = "Hello"
 
   tags = {
