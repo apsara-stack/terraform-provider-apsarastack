@@ -20,7 +20,7 @@ resource "apsarastack_instance" "instance" {
   image_id              = "23h4hvh3-23423v4h-dasas8"
   instance_type        = "ecs.n4.large"
   system_disk_category = "cloud_efficiency"
-  security_groups      = apsarastack_security_group.group.*.id
+  security_groups      = "${var.security_groups}"
   instance_name        = "apsarainstance"
   vswitch_id           = "vsw-abc1345"
 }
