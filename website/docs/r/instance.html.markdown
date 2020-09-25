@@ -15,11 +15,6 @@ Provides a ECS instance resource.
 
 ```
 # Create a new ECS instance for a VPC
-resource "apsarastack_security_group" "group" {
-  name        = "tf_test_foo"
-  description = "foo"
-  vpc_id      = "${apsarastack_vpc.vpc.id}"
-}
 
 resource "apsarastack_instance" "instance" {
   image_id              = "23h4hvh3-23423v4h-dasas8"
