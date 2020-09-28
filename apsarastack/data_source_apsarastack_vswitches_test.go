@@ -79,7 +79,6 @@ func TestAccApsaraStackVSwitchesDataSourceBasic(t *testing.T) {
 			"is_default": `"false"`,
 			"vpc_id":     `"${apsarastack_vpc.default.id}"`,
 			"zone_id":    `"${data.apsarastack_zones.default.zones.0.id}"`,
-			//"resource_group_id": `""`,
 		}),
 		fakeConfig: testAccCheckApsaraStackVSwitchesDataSourceConfig(rand, map[string]string{
 			"name_regex": `"${apsarastack_vswitch.default.name}"`,
@@ -88,7 +87,6 @@ func TestAccApsaraStackVSwitchesDataSourceBasic(t *testing.T) {
 			"is_default": `"false"`,
 			"vpc_id":     `"${apsarastack_vpc.default.id}"`,
 			"zone_id":    `"${data.apsarastack_zones.default.zones.0.id}_fake"`,
-			//"resource_group_id": `""`,
 		}),
 	}
 

@@ -117,7 +117,6 @@ func dataSourceApsaraStackVpcs() *schema.Resource {
 }
 func dataSourceApsaraStackVpcsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	//vpcService := VpcService{client}
 
 	request := vpc.CreateDescribeVpcsRequest()
 	request.RegionId = string(client.Region)

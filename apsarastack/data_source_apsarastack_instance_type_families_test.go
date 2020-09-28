@@ -30,30 +30,14 @@ func TestAccApsaraStackInstanceTypeFamiliesDataSource(t *testing.T) {
 		}),
 	}
 
-	instanceChargeTypeConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"instance_charge_type": "PrePaid",
-		}),
-	}
-
-	spotStrategyConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"spot_strategy": "SpotAsPriceGo",
-		}),
-	}
-
 	allConf := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
-			"zone_id":              "${data.apsarastack_zones.default.zones.0.id}",
-			"generation":           "ecs-3",
-			"instance_charge_type": "PrePaid",
-			"spot_strategy":        "SpotAsPriceGo",
+			"zone_id":    "${data.apsarastack_zones.default.zones.0.id}",
+			"generation": "ecs-3",
 		}),
 		fakeConfig: testAccConfig(map[string]interface{}{
-			"zone_id":              "${data.apsarastack_zones.default.zones.0.id}-F",
-			"generation":           "ecs-3",
-			"instance_charge_type": "PrePaid",
-			"spot_strategy":        "SpotAsPriceGo",
+			"zone_id":    "${data.apsarastack_zones.default.zones.0.id}-F",
+			"generation": "ecs-3",
 		}),
 	}
 
@@ -82,7 +66,7 @@ func TestAccApsaraStackInstanceTypeFamiliesDataSource(t *testing.T) {
 		fakeMapFunc:  fakeInstanceTypeFamiliesMapFunc,
 	}
 
-	instanceTypeFamiliesCheckInfo.dataSourceTestCheck(t, rand, zoneIdConf, generationConf, instanceChargeTypeConf, spotStrategyConf, allConf)
+	instanceTypeFamiliesCheckInfo.dataSourceTestCheck(t, rand, zoneIdConf, generationConf, allConf)
 }
 
 func dataSourceInstanceTypeFamiliesConfigDependence(name string) string {

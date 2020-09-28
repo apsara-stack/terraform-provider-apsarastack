@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_slb_master_slave_server_group"
 sidebar_current: "docs-apsarastack-resource-slb-master-slave-server-group"
 description: |-
-  Provides a Load Banlancer Master Slave Server Group resource.
+  Provides a Load Balancer Master Slave Server Group resource.
 ---
 
 # apsarastack\_slb\_master\_slave\_server\_group
@@ -75,10 +75,8 @@ resource "apsarastack_instance" "instance" {
   instance_name              = "${var.name}"
   count                      = "2"
   security_groups            = ["${apsarastack_security_group.group.id}"]
-  internet_charge_type       = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone          = "${data.apsarastack_zones.default.zones.0.id}"
-  instance_charge_type       = "PostPaid"
   system_disk_category       = "cloud_efficiency"
   vswitch_id                 = "${apsarastack_vswitch.main.id}"
 }
@@ -138,7 +136,6 @@ The servers mapping supports the following:
 * `server_ids` - (Required) A list backend server ID (ECS instance ID).
 * `port` - (Required) The port used by the backend server. Valid value range: [1-65535].
 * `weight` - (Optional) Weight of the backend server. Valid value range: [0-100]. Default to 100.
-* `type` - (Optional, Available in 1.51.0+) Type of the backend server. Valid value ecs, eni. Default to eni.
 * `server_type` - (Optional) The server type of the backend server. Valid value Master, Slave.
 * `is_backup` - (Removed from v1.63.0) Determine if the server is executing. Valid value 0, 1. 
 

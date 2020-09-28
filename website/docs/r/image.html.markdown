@@ -11,14 +11,6 @@ description: |-
 
 Creates a custom image. You can then use a custom image to create ECS instances (RunInstances) or change the system disk for an existing instance (ReplaceSystemDisk).
 
--> **NOTE:**  If you want to create a template from an ECS instance, you can specify the instance ID (InstanceId) to create a custom image. You must make sure that the status of the specified instance is Running or Stopped. After a successful invocation, each disk of the specified instance has a new snapshot created.
-
--> **NOTE:**  If you want to create a custom image based on the system disk of your ECS instance, you can specify one of the system disk snapshots (SnapshotId) to create a custom image. However, the specified snapshot cannot be created on or before July 15, 2013.
-
--> **NOTE:**  If you want to combine snapshots of multiple disks into an image template, you can specify DiskDeviceMapping to create a custom image.
-
--> **NOTE:**  Available in 1.64.0+
-
 ## Example Usage
 
 ```
@@ -26,7 +18,6 @@ resource "apsarastack_image" "default" {
   instance_id        = "i-bp1g6zv0ce8oghu7k***"
   image_name         = "test-image"
   description        = "test-image"
-  resource_group_id  = "rg-bp67acfmxazb4ph***"
   tags = {
     FinanceDept = "FinanceDeptJoshua"
   }
@@ -42,7 +33,6 @@ The following arguments are supported:
 * `description` - (Optional) The description of the image. It must be 2 to 256 characters in length and must not start with http:// or https://. Default value: null.
 * `snapshot_id` - (Optional, ForceNew, Conflict with `instance_id ` and `disk_device_mapping `) Specifies a snapshot that is used to create a custom image.
 * `tags` - (Optional) The tag value of an image. The value of N ranges from 1 to 20.
-* `resource_group_id` - (Optional, ForceNew) The ID of the enterprise resource group to which a custom image belongs
 * `disk_device_mapping` - (Optional, ForceNew, Conflict with `snapshot_id ` and `instance_id `) Description of the system with disks and snapshots under the image.
   * `size` - (Optional, ForceNew) Specifies the size of a disk in the combined custom image, in GiB. Value range: 5 to 2000.
   * `snapshot_id` - (Optional, ForceNew) Specifies a snapshot that is used to create a combined custom image.
@@ -63,11 +53,4 @@ The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/d
  The following attributes are exported:
  
 * `id` - ID of the image.
-
- ## Import
  
- image can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_image.default m-uf66871ape***yg1q***
-```

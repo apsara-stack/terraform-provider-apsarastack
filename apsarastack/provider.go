@@ -77,7 +77,7 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				DefaultFunc: schema.EnvDefaultFunc("AS_INSECURE", nil),
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", nil),
 				Description: descriptions["insecure"],
 			},
 			"assume_role": assumeRoleSchema(),
@@ -103,11 +103,13 @@ func Provider() terraform.ResourceProvider {
 			"proxy": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_PROXY", nil),
 				Description: descriptions["proxy"],
 			},
 			"domain": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DOMAIN", nil),
 				Description: descriptions["domain"],
 			},
 		},
@@ -143,7 +145,13 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_db_instances":                   dataSourceApsaraStackDBInstances(),
 			"apsarastack_db_zones":                       dataSourceApsaraStackDBZones(),
 			"apsarastack_slb_server_certificates":        dataSourceApsaraStackSlbServerCertificates(),
+			"apsarastack_slb_ca_certificates":            dataSourceApsaraStackSlbCACertificates(),
 			"apsarastack_slb_backend_servers":            dataSourceApsaraStackSlbBackendServers(),
+			"apsarastack_zones":                          dataSourceApsaraStackZones(),
+			"apsarastack_oss_buckets":                    dataSourceApsaraStackOssBuckets(),
+			"apsarastack_oss_bucket_objects":             dataSourceApsaraStackOssBucketObjects(),
+			"apsarastack_ess_scaling_groups":             dataSourceApsaraStackEssScalingGroups(),
+			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 
@@ -161,10 +169,13 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_launch_template":                     resourceApsaraStackLaunchTemplate(),
 			"apsarastack_reserved_instance":                   resourceApsaraStackReservedInstance(),
 			"apsarastack_image":                               resourceApsaraStackImage(),
+			"apsarastack_image_export":                        resourceApsaraStackImageExport(),
+			"apsarastack_image_copy":                          resourceApsaraStackImageCopy(),
+			"apsarastack_image_import":                        resourceApsaraStackImageImport(),
 			"apsarastack_image_share_permission":              resourceApsaraStackImageSharePermission(),
 			"apsarastack_snapshot":                            resourceApsaraStackSnapshot(),
 			"apsarastack_snapshot_policy":                     resourceApsaraStackSnapshotPolicy(),
-			"apsarastack_vswitches":                           resourceApsaraStackSwitch(),
+			"apsarastack_vswitch":                             resourceApsaraStackSwitch(),
 			"apsarastack_vpc":                                 resourceApsaraStackVpc(),
 			"apsarastack_eip":                                 resourceApsaraStackEip(),
 			"apsarastack_eip_association":                     resourceApsaraStackEipAssociation(),
@@ -184,7 +195,14 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_nat_gateway":                         resourceApsaraStackNatGateway(),
 			"apsarastack_snat_entry":                          resourceApsaraStackSnatEntry(),
 			"apsarastack_db_instance":                         resourceApsaraStackDBInstance(),
+			"apsarastack_slb_server_certificate":              resourceApsaraStackSlbServerCertificate(),
+			"apsarastack_slb_ca_certificate":                  resourceApsaraStackSlbCACertificate(),
 			"apsarastack_slb_backend_server":                  resourceApsaraStackSlbBackendServer(),
+			"apsarastack_oss_bucket":                          resourceApsaraStackOssBucket(),
+			"apsarastack_oss_bucket_object":                   resourceApsaraStackOssBucketObject(),
+			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
+			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
+			"apsarastack_ess_scaling_rule":                    resourceApsaraStackEssScalingRule(),
 		},
 
 		ConfigureFunc: providerConfigure,
@@ -271,7 +289,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	domain := d.Get("domain").(string)
 	if domain != "" {
 		config.EcsEndpoint = "ecs." + domain
-
+		config.VpcEndpoint = "vpc." + domain
 		config.StsEndpoint = "sts." + domain
 
 	} else {
@@ -281,7 +299,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		for _, endpointsSetI := range endpointsSet.List() {
 			endpoints := endpointsSetI.(map[string]interface{})
 			config.EcsEndpoint = strings.TrimSpace(endpoints["ecs"].(string))
-
+			config.VpcEndpoint = strings.TrimSpace(endpoints["vpc"].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
 
 		}

@@ -95,7 +95,6 @@ func slbBackendServersDescriptionAttributes(d *schema.ResourceData, backendServe
 		mapping := map[string]interface{}{
 			"id":     backendServer.ServerId,
 			"weight": backendServer.Weight,
-			//"server_type": backendServer.Type,
 		}
 
 		ids = append(ids, backendServer.ServerId)

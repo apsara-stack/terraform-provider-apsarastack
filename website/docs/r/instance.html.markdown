@@ -11,34 +11,18 @@ description: |-
 
 Provides a ECS instance resource.
 
--> **NOTE:** You can launch an ECS instance for a VPC network via specifying parameter `vswitch_id`. One instance can only belong to one VSwitch.
-
--> **NOTE:** If a VSwitchId is specified for creating an instance, SecurityGroupId and VSwitchId must belong to one VPC.
-
--> **NOTE:** Several instance types have outdated in some regions and availability zones, such as `ecs.t1.*`, `ecs.s2.*`, `ecs.n1.*` and so on. If you want to keep them, you should set `is_outdated` to true. For more about the upgraded instance type, refer to `apsarastack_instance_types` datasource.
-
--> **NOTE:** At present, 'PrePaid' instance cannot be deleted and must wait it to be outdated and release it automatically.
-
--> **NOTE:** The resource supports modifying instance charge type from 'PrePaid' to 'PostPaid' from version 1.9.6.
- However, at present, this modification has some limitation about CPU core count in one month, so strongly recommand that `Don't modify instance charge type frequentlly in one month`.
-
 ## Example Usage
 
 ```
 # Create a new ECS instance for a VPC
-resource "apsarastack_security_group" "group" {
-  name        = "tf_test_foo"
-  description = "foo"
-  vpc_id      = "${apsarastack_vpc.vpc.id}"
-}
 
 resource "apsarastack_instance" "instance" {
   image_id              = "23h4hvh3-23423v4h-dasas8"
-    instance_type        = "ecs.n4.large"
-    system_disk_category = "cloud_efficiency"
-    security_groups      = apsarastack_security_group.group.*.id
-    instance_name        = "apsarainstance"
-    vswitch_id           = "vsw-abc1345"
+  instance_type        = "ecs.n4.large"
+  system_disk_category = "cloud_efficiency"
+  security_groups      = "${var.security_groups}"
+  instance_name        = "apsarainstance"
+  vswitch_id           = "vsw-abc1345"
 }
 
 # Create a new ECS instance for VPC
@@ -60,7 +44,6 @@ The following arguments are supported:
 
 * `image_id` - (Required) The Image to use for the instance. ECS instance's image can be replaced via changing 'image_id'. When it is changed, the instance will reboot to make the change take effect.
 * `instance_type` - (Required) The type of instance to start. When it is changed, the instance will reboot to make the change take effect.
-* `io_optimized` - (Deprecated) It has been deprecated on instance resource. All the launched apsarastack instances will be I/O optimized.
 * `security_groups` - (Required)  A list of security group ids to associate with.
 * `availability_zone` - (Optional) The Zone to start the instance in. It is ignored and will be computed when set `vswitch_id`.
 * `instance_name` - (Optional) The name of the ECS. This instance_name can have a string of 2 to 128 characters, must contain only alphanumeric characters or hyphens, such as "-",".","_", and must not begin or end with a hyphen, and must not begin with http:// or https://. If not specified, 
@@ -78,7 +61,6 @@ On other OSs such as Linux, the host name can contain a maximum of 30 characters
 * `kms_encrypted_password` - (Optional, Available in 1.57.1+) An KMS encrypts password used to an instance. If the `password` is filled in, this field will be ignored. When it is changed, the instance will reboot to make the change take effect.
 * `kms_encryption_context` - (Optional, MapString, Available in 1.57.1+) An KMS encryption context used to decrypt `kms_encrypted_password` before creating or updating an instance with `kms_encrypted_password`. See [Encryption Context](https://www.alibabacloud.com/help/doc-detail/42975.htm). It is valid when `kms_encrypted_password` is set. When it is changed, the instance will reboot to make the change take effect.
 * `vswitch_id` - (Optional) The virtual switch ID to launch in VPC. This parameter must be set unless you can create classic network instances. When it is changed, the instance will reboot to make the change take effect.
-* `instance_charge_type` - (Optional) Valid values are `PrePaid`, `PostPaid`, The default is `PostPaid`.
 * `tags` - (Optional) A mapping of tags to assign to the resource.
     - Key: It can be up to 64 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It cannot be a null string.
     - Value: It can be up to 128 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It can be a null string.
@@ -113,21 +95,7 @@ On other OSs such as Linux, the host name can contain a maximum of 30 characters
     * `delete_with_instance` - (Optional, ForceNew) Delete this data disk when the instance is destroyed. It only works on cloud, cloud_efficiency, cloud_essd, cloud_ssd disk. If the category of this data disk was ephemeral_ssd, please don't set this param.
 
         Default to true
-    * `description` - (Optional, ForceNew) The description of the data disk.
-
--> **NOTE:** System disk category `cloud` has been outdated and it only can be used none I/O Optimized ECS instances. Recommend `cloud_efficiency` and `cloud_ssd` disk.
-
--> **NOTE:** From version 1.5.0, instance's charge type can be changed to "PrePaid" by specifying `period` and `period_unit`, but it is irreversible.
-
--> **NOTE:** From version 1.5.0, instance's private IP address can be specified when creating VPC network instance.
-
--> **NOTE:** From version 1.5.0, instance's vswitch and private IP can be changed in the same availability zone. When they are changed, the instance will reboot to make the change take effect.
-
--> **NOTE:** From version 1.7.0, setting "internet_max_bandwidth_out" larger than 0 can allocate a public IP for an instance.
- Setting "internet_max_bandwidth_out" to 0 can release allocated public IP for VPC instance(For Classic instnace, its public IP cannot be release once it allocated, even thougth its bandwidth out is 0).
- However, at present, 'PrePaid' instance cannot narrow its max bandwidth out when its 'internet_charge_type' is "PayByBandwidth".
-
--> **NOTE:** From version 1.7.0, instance's type can be changed. When it is changed, the instance will reboot to make the change take effect.
+    
 
 ### Timeouts
 
@@ -148,10 +116,3 @@ The following attributes are exported:
 * `status` - The instance status.
 * `private_ip` - The instance private ip.
 
-## Import
-
-Instance can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_instance.example i-abc12345678
-```

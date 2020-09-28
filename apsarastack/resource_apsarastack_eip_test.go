@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"log"
-	"os"
 	"testing"
 
 	"strings"
@@ -303,7 +302,7 @@ func testAccCheckEipConfigBasic(rand int) string {
 resource "apsarastack_eip" "default" {
 	bandwidth = "5"
 }
-`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`)
 }
 
 func testAccCheckEipConfig_bandwidth(rand int) string {
@@ -311,7 +310,7 @@ func testAccCheckEipConfig_bandwidth(rand int) string {
 resource "apsarastack_eip" "default" {
      bandwidth = "10"
 }
-`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`)
 }
 
 func testAccCheckEipConfig_name(rand int) string {
@@ -323,7 +322,7 @@ resource "apsarastack_eip" "default" {
 	bandwidth = "10"
 	name = "${var.name}"
 }
-`, rand, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand)
 }
 
 func testAccCheckEipConfig_description(rand int) string {
@@ -336,7 +335,7 @@ resource "apsarastack_eip" "default" {
 	name = "${var.name}"
     description = "${var.name}_description"
 }
-`, rand, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand)
 }
 
 func testAccCheckEipConfig_all(rand int) string {
@@ -349,7 +348,7 @@ resource "apsarastack_eip" "default" {
 	name = "${var.name}_all"
     description = "${var.name}_description_all"
 }
-`, rand, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand)
 }
 
 func testAccCheckEipConfig_multi(rand int) string {
@@ -358,8 +357,7 @@ resource "apsarastack_eip" "default" {
     count = 10
 	bandwidth = "5"
 }
-`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
-
+`)
 }
 
 var testAccCheckEipCheckMap = map[string]string{

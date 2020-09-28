@@ -68,7 +68,7 @@ func resourceApsaraStackSlbBackendServersCreate(d *schema.ResourceData, meta int
 		return slbClient.AddBackendServers(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "alicloud_slb_backend_servers", request.GetActionName(), ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_slb_backend_servers", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*slb.AddBackendServersResponse)

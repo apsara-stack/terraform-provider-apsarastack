@@ -40,15 +40,6 @@ The following arguments are supported:
 * `vswitch_id` - (Optional) ID of the VSwitch linked to the instances.
 * `availability_zone` - (Optional) Availability zone where instances are located.
 * `ram_role_name` - (Optional, ForceNew, Available in 1.69.0+) The RAM role name which the instance attaches.
-* `tags` - (Optional) A map of tags assigned to the ECS instances. It must be in the format:
-  ```
-  data "apsarastack_instances" "taggedInstances" {
-    tags = {
-      tagKey1 = "tagValue1",
-      tagKey2 = "tagValue2"
-    }
-  }
-  ```
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
@@ -70,15 +61,13 @@ The following attributes are exported in addition to the arguments listed above:
   * `image_id` - Image ID the instance is using.
   * `private_ip` - Instance private IP address.
   * `eip` - EIP address the VPC instance is using.
-  * `security_groups` - List of security group IDs the instance belongs to.
+  * `security_group` - List of security group IDs the instance belongs to.
   * `key_name` - Key pair the instance is using.
   * `creation_time` - Instance creation time.
-  * `instance_charge_type` - Instance charge type.
   * `internet_max_bandwidth_out` - Max output bandwidth for internet.
   * `disk_device_mappings` - Description of the attached disks.
     * `device` - Device information of the created disk: such as /dev/xvdb.
     * `size` - Size of the created disk.
     * `category` - Cloud disk category.
     * `type` - Cloud disk type: system disk or data disk.
-  * `tags` - A map of tags assigned to the ECS instance.
-  * `ram_role_name` - The Ram role name.
+ * `ram_role_name` - The Ram role name.
