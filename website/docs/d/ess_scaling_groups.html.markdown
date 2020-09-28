@@ -42,8 +42,6 @@ The following attributes are exported in addition to the arguments listed above:
   * `id` - ID of the scaling group.
   * `name` - Name of the scaling group.
   * `active_scaling_configuration` -Active scaling configuration for scaling group.
-  * `launch_template_id` - Active launch template ID for scaling group.
-  * `launch_template_version` - Version of active launch template.
   * `region_id` - Region ID the scaling group belongs to.
   * `min_size` - The minimum number of ECS instances.
   * `max_size` - The maximum number of ECS instances.
