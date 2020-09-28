@@ -77,7 +77,7 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
-				DefaultFunc: schema.EnvDefaultFunc("AS_INSECURE", nil),
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", nil),
 				Description: descriptions["insecure"],
 			},
 			"assume_role": assumeRoleSchema(),
@@ -103,11 +103,13 @@ func Provider() terraform.ResourceProvider {
 			"proxy": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_PROXY", nil),
 				Description: descriptions["proxy"],
 			},
 			"domain": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DOMAIN", nil),
 				Description: descriptions["domain"],
 			},
 		},
@@ -146,6 +148,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_zones":                          dataSourceApsaraStackZones(),
 			"apsarastack_oss_buckets":                    dataSourceApsaraStackOssBuckets(),
 			"apsarastack_oss_bucket_objects":             dataSourceApsaraStackOssBucketObjects(),
+			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 			"apsarastack_ess_lifecycle_hooks":            dataSourceApsaraStackEssLifecycleHooks(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -193,6 +196,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_bucket":                          resourceApsaraStackOssBucket(),
 			"apsarastack_oss_bucket_object":                   resourceApsaraStackOssBucketObject(),
 			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
+      "apsarastack_ess_scaling_rule":                    resourceApsaraStackEssScalingRule(),
 		},
 
 		ConfigureFunc: providerConfigure,

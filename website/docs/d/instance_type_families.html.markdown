@@ -34,7 +34,7 @@ output "instance_ids" {
 The following arguments are supported:
 
 * `zone_id` - (Optional, ForceNew) The Zone to launch the instance.
-* `generation` - (Optional) The generation of the instance type family, Valid values: `ecs-1`, `ecs-2`, `ecs-3` and `ecs-4`. For more information, see [Instance type families](https://www.alibabacloud.com/help/doc-detail/25378.htm). 
+* `generation` - (Optional) The generation of the instance type family,
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference

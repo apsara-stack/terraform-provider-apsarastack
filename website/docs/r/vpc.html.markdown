@@ -20,7 +20,7 @@ Basic Usage
 ```
 resource "apsarastack_vpc" "vpc" {
   name       = "tf_test_foo"
-  cidr_block = "172.16.0.0/12"
+  cidr_block = "${var.cidr_block}"
 }
 ```
 
@@ -36,12 +36,8 @@ The following arguments are supported:
 * `cidr_block` - (Required, ForceNew) The CIDR block for the VPC.
 * `name` - (Optional) The name of the VPC. Defaults to null.
 * `description` - (Optional) The VPC description. Defaults to null.
- <!-- * `resource_group_id` - (Optional, ForceNew, Available in 1.40.0+) The Id of resource group which the VPC belongs.
-* `tags` - (Optional, Available in v1.55.3+) A mapping of tags to assign to the resource. -->
 
 ### Timeouts
-
--> **NOTE:** Available in 1.79.0+.
 
 The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/docs/configuration-0-11/resources.html#timeouts) for certain actions:
 
@@ -57,7 +53,6 @@ The following attributes are exported:
 * `name` - The name of the VPC.
 * `description` - The description of the VPC.
 * `router_id` - The ID of the router created by default on VPC creation.
-<!--* `route_table_id` - The route table ID of the router created by default on VPC creation.-->
 
 ## Import
 
