@@ -34,10 +34,8 @@ The following arguments are supported:
 * `name_regex` - (Optional) A regex string to filter VPCs by name.
 * `is_default` - (Optional, type: bool) Indicate whether the VPC is the default one in the specified region.
 * `vswitch_id` - (Optional) Filter results by the specified VSwitch.
-<!--* `tags` - (Optional, Available in v1.55.3+) A mapping of tags to assign to the resource.-->
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 * `ids` - (Optional, Available in 1.52.0+) A list of VPC IDs.
-<!--* `resource_group_id` - (Optional, ForceNew, Available in 1.60.0+) The Id of resource group which VPC belongs.-->
 
 ## Attributes Reference
 
@@ -57,5 +55,4 @@ The following attributes are exported in addition to the arguments listed above:
   * `description` - Description of the VPC
   * `is_default` - Whether the VPC is the default VPC in the region.
   * `creation_time` - Time of creation.
-  <!--* `tags` - A map of tags assigned to the VPC.-->
-  
+ 

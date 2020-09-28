@@ -31,7 +31,6 @@ The following arguments are supported:
 * `name_regex` - (Optional) A regex string to filter results by disk name.
 * `type` - (Optional) Disk type. Possible values: `system` and `data`.
 * `category` - (Optional) Disk category. Possible values: `cloud` (basic cloud disk), `cloud_efficiency` (ultra cloud disk), `ephemeral_ssd` (local SSD cloud disk), `cloud_ssd` (SSD cloud disk), and `cloud_essd` (ESSD cloud disk).
-* `encrypted` - (Optional) Indicate whether the disk is encrypted or not. Possible values: `on` and `off`.
 * `instance_id` - (Optional) Filter the results by the specified ECS instance ID.
 * `tags` - (Optional) A map of tags assigned to the disks. It must be in the format:
   ```
