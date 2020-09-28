@@ -114,6 +114,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
+			"apsarastack_ess_scaling_configurations":     dataSourceApsaraStackEssScalingConfigurations(),
 			"apsarastack_instances":                      dataSourceApsaraStackInstances(),
 			"apsarastack_disks":                          dataSourceApsaraStackDisks(),
 			"apsarastack_key_pairs":                      dataSourceApsaraStackKeyPairs(),
@@ -133,6 +134,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_slb_domain_extensions":          dataSourceApsaraStackSlbDomainExtensions(),
 			"apsarastack_slb_rules":                      dataSourceApsaraStackSlbRules(),
 			"apsarastack_route_tables":                   dataSourceApsaraStackRouteTables(),
+			"apsarastack_route_entries":                  dataSourceApsaraStackRouteEntries(),
 			"apsarastack_slb_master_slave_server_groups": dataSourceApsaraStackSlbMasterSlaveServerGroups(),
 			"apsarastack_slbs":                           dataSourceApsaraStackSlbs(),
 			"apsarastack_slb_zones":                      dataSourceApsaraStackSlbZones(),
@@ -152,6 +154,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
+
+			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
 			"apsarastack_network_interface":                   resourceApsaraStackNetworkInterface(),
 			"apsarastack_network_interface_attachment":        resourceNetworkInterfaceAttachment(),
 			"apsarastack_disk":                                resourceApsaraStackDisk(),
@@ -182,6 +186,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_slb_rule":                            resourceApsaraStackSlbRule(),
 			"apsarastack_route_table":                         resourceApsaraStackRouteTable(),
 			"apsarastack_route_table_attachment":              resourceApsaraStackRouteTableAttachment(),
+			"apsarastack_route_entry":                         resourceApsaraStackRouteEntry(),
 			"apsarastack_slb_master_slave_server_group":       resourceApsaraStackSlbMasterSlaveServerGroup(),
 			"apsarastack_slb":                                 resourceApsaraStackSlb(),
 			"apsarastack_common_bandwidth_package":            resourceApsaraStackCommonBandwidthPackage(),
