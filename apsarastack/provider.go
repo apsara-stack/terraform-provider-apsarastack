@@ -147,6 +147,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_buckets":                    dataSourceApsaraStackOssBuckets(),
 			"apsarastack_oss_bucket_objects":             dataSourceApsaraStackOssBucketObjects(),
 			"apsarastack_ess_lifecycle_hooks":            dataSourceApsaraStackEssLifecycleHooks(),
+			"apsarastack_ess_scaling_groups":             dataSourceApsaraStackEssScalingGroups(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_network_interface":                   resourceApsaraStackNetworkInterface(),
@@ -193,6 +194,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_bucket":                          resourceApsaraStackOssBucket(),
 			"apsarastack_oss_bucket_object":                   resourceApsaraStackOssBucketObject(),
 			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
+			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
 		},
 
 		ConfigureFunc: providerConfigure,
