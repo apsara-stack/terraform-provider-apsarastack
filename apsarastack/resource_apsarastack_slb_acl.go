@@ -28,12 +28,6 @@ func resourceApsaraStackSlbAcl() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"resource_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
 			"ip_version": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -69,9 +63,6 @@ func resourceApsaraStackSlbAclCreate(d *schema.ResourceData, meta interface{}) e
 
 	request := slb.CreateCreateAccessControlListRequest()
 	request.RegionId = client.RegionId
-	if v := d.Get("resource_group_id").(string); v != "" {
-		request.ResourceGroupId = v
-	}
 	request.AclName = strings.TrimSpace(d.Get("name").(string))
 	request.AddressIPVersion = d.Get("ip_version").(string)
 
@@ -107,7 +98,6 @@ func resourceApsaraStackSlbAclRead(d *schema.ResourceData, meta interface{}) err
 		return WrapError(err)
 	}
 	d.Set("name", object.AclName)
-	d.Set("resource_group_id", object.ResourceGroupId)
 	d.Set("ip_version", object.AddressIPVersion)
 
 	if err := d.Set("entry_list", slbService.FlattenSlbAclEntryMappings(object.AclEntrys.AclEntry)); err != nil {

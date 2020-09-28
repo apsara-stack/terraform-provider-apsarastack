@@ -61,23 +61,6 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"common_name": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"subject_alternative_names": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"expired_time": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"expired_timestamp": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
 						"created_time": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -176,22 +159,14 @@ func slbServerCertificatesDescriptionAttributes(d *schema.ResourceData, certific
 
 	for _, certificate := range certificates {
 
-		var subjectAlternativeNames []string
-		if certificate.SubjectAlternativeNames.SubjectAlternativeName != nil {
-			subjectAlternativeNames = certificate.SubjectAlternativeNames.SubjectAlternativeName
-		}
 		mapping := map[string]interface{}{
-			"id":                        certificate.ServerCertificateId,
-			"name":                      certificate.ServerCertificateName,
-			"fingerprint":               certificate.Fingerprint,
-			"common_name":               certificate.CommonName,
-			"subject_alternative_names": subjectAlternativeNames,
-			"expired_time":              certificate.ExpireTime,
-			"expired_timestamp":         certificate.ExpireTimeStamp,
-			"created_time":              certificate.CreateTime,
-			"created_timestamp":         certificate.CreateTimeStamp,
-			"resource_group_id":         certificate.ResourceGroupId,
-			"tags":                      severCertificateTagsMappings(d, certificate.ServerCertificateId, meta),
+			"id":                certificate.ServerCertificateId,
+			"name":              certificate.ServerCertificateName,
+			"fingerprint":       certificate.Fingerprint,
+			"created_time":      certificate.CreateTime,
+			"created_timestamp": certificate.CreateTimeStamp,
+			"resource_group_id": certificate.ResourceGroupId,
+			"tags":              severCertificateTagsMappings(d, certificate.ServerCertificateId, meta),
 		}
 		ids = append(ids, certificate.ServerCertificateId)
 		names = append(names, certificate.ServerCertificateName)

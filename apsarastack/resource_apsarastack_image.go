@@ -51,7 +51,8 @@ func resourceApsaraStackImage() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(2, 128),
-			}, "disk_device_mapping": {
+			},
+			"disk_device_mapping": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				ForceNew:      true,

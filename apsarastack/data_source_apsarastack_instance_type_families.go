@@ -3,8 +3,6 @@ package apsarastack
 import (
 	"sort"
 
-	"github.com/denverdino/aliyungo/common"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -26,21 +24,6 @@ func dataSourceApsaraStackInstanceTypeFamilies() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
-			},
-			"instance_charge_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  PostPaid,
-				// %q must contain a valid InstanceChargeType, expected common.PrePaid, common.PostPaid
-				ValidateFunc: validation.StringInSlice([]string{string(common.PrePaid), string(common.PostPaid)}, false),
-			},
-			"spot_strategy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      NoSpot,
-				ValidateFunc: validation.StringInSlice([]string{"NoSpot", "SpotAsPriceGo", "SpotWithPriceLimit"}, false),
 			},
 			"output_file": {
 				Type:     schema.TypeString,

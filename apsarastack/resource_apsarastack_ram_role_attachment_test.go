@@ -65,22 +65,18 @@ func testAccRamRoleAttachmentConfig(common string, rand int) string {
 	variable "name" {
 		default = "tf-testAcc%sRamRoleAttachmentConfig-%d"
 	}
-
 	resource "apsarastack_instance" "default" {
 		vswitch_id = "${apsarastack_vswitch.default.id}"
 		image_id = "${data.apsarastack_images.default.images.0.id}"
-
 		# series III
 		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
 		instance_name = "${var.name}"
 		system_disk_category = "cloud_efficiency"
 		count = 2
-
 		internet_charge_type = "PayByTraffic"
 		internet_max_bandwidth_out = 5
 		security_groups = ["${apsarastack_security_group.default.id}"]
 	}
-
 	resource "apsarastack_ram_role" "default" {
 	  name = "${var.name}"
 	  document = <<EOF
@@ -102,7 +98,6 @@ func testAccRamRoleAttachmentConfig(common string, rand int) string {
 	  description = "this is a test"
 	  force = true
 	}
-
 	resource "apsarastack_ram_role_attachment" "default" {
 	  role_name = "${apsarastack_ram_role.default.name}"
 	  instance_ids = "${apsarastack_instance.default.*.id}"

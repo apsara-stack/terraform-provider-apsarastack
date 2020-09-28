@@ -14,7 +14,7 @@ Requirements
 ------------
 
 -	[Terraform](https://www.terraform.io/downloads.html) 0.12.x
--	[Go](https://golang.org/doc/install) 1.11 (to build the provider plugin)
+-	[Go](https://golang.org/doc/install) 1.13 (to build the provider plugin)
 -   [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports):
     ```
     go get golang.org/x/tools/cmd/goimports
@@ -23,17 +23,17 @@ Requirements
 Building The Provider
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-apsarastack`
+Clone repository to: `$GOPATH/src/github.com/aliyun/terraform-provider-apsarastack`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/terraform-providers; cd $GOPATH/src/github.com/terraform-providers
-$ git clone git@github.com:terraform-providers/terraform-provider-apsarastack
+$ mkdir -p $GOPATH/src/github.com/aliyun; cd $GOPATH/src/github.com/aliyun
+$ git clone git@github.com:aliyun/terraform-provider-apsarastack
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/terraform-providers/terraform-provider-apsarastack
+$ cd $GOPATH/src/github.com/aliyun/terraform-provider-apsarastack
 $ make build
 ```
 
@@ -44,7 +44,7 @@ Using the provider
 Developing the Provider
 ---------------------------
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.11+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
+If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.13+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
 
 To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
@@ -55,7 +55,7 @@ $ $GOPATH/bin/terraform-provider-apsarastack
 ...
 ```
 
-Running `make dev` or `make devlinux` or `devwin` will only build the specified developing provider which matchs the local system.
+Running `make dev` or `make devlinux` or `devwin` will only build the specified developing provider which matches the local system.
 And then, it will unarchive the provider binary and then replace the local provider plugin.
 
 In order to test the provider, you can simply run `make test`.
@@ -76,7 +76,7 @@ $ make testacc
 Before making a release, the resources and data sources are tested automatically with acceptance tests (the tests are located in the apsarastack/*_test.go files).
 You can run them by entering the following instructions in a terminal:
 ```
-cd $GOPATH/src/github.com/terraform-providers/terraform-provider-apsarastack
+cd $GOPATH/src/github.com/aliyun/terraform-provider-apsarastack
 export APSARASTACK_ACCESS_KEY=xxx
 export APSARASTACK_SECRET_KEY=xxx
 export APSARASTACK_REGION=xxx

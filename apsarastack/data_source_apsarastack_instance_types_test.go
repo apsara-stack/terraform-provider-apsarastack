@@ -237,7 +237,6 @@ provider "apsarastack" {
 data "apsarastack_instance_types" "gpu" {
 	sorted_by = "Price"
 	instance_type_family = "ecs.gn5"
-	instance_charge_type = "PrePaid"
 }
 `
 const testAccCheckApsaraStackInstanceTypesDataSourceGpuK8SMaster = `

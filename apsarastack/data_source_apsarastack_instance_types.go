@@ -65,19 +65,6 @@ func dataSourceApsaraStackInstanceTypes() *schema.Resource {
 				// %q must contain a valid InstanceChargeType, expected common.PrePaid, common.PostPaid
 				ValidateFunc: validation.StringInSlice([]string{string(common.PrePaid), string(common.PostPaid)}, false),
 			},
-			"network_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Vpc", "Classic"}, false),
-			},
-			"spot_strategy": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      NoSpot,
-				ValidateFunc: validation.StringInSlice([]string{"NoSpot", "SpotAsPriceGo", "SpotWithPriceLimit"}, false),
-			},
 			"eni_amount": {
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -91,10 +78,6 @@ func dataSourceApsaraStackInstanceTypes() *schema.Resource {
 					string(KubernetesNodeMaster),
 					string(KubernetesNodeWorker),
 				}, false),
-			},
-			"is_outdated": {
-				Type:     schema.TypeBool,
-				Optional: true,
 			},
 			"sorted_by": {
 				Type:     schema.TypeString,
