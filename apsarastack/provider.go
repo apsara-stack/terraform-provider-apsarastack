@@ -112,6 +112,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
+			"apsarastack_ess_scaling_configurations":     dataSourceApsaraStackEssScalingConfigurations(),
 			"apsarastack_instances":                      dataSourceApsaraStackInstances(),
 			"apsarastack_disks":                          dataSourceApsaraStackDisks(),
 			"apsarastack_key_pairs":                      dataSourceApsaraStackKeyPairs(),
@@ -144,6 +145,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_slb_backend_servers":            dataSourceApsaraStackSlbBackendServers(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
+
+			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
+			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
 			"apsarastack_network_interface":                   resourceApsaraStackNetworkInterface(),
 			"apsarastack_network_interface_attachment":        resourceNetworkInterfaceAttachment(),
 			"apsarastack_disk":                                resourceApsaraStackDisk(),
