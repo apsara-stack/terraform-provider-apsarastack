@@ -45,9 +45,7 @@ The following arguments are supported:
 * `gpu_spec` - (Optional, Available in 1.69.0+) The GPU spec of an instance type.
 * `instance_type_family` - (Optional) Filter the results based on their family name. For example: 'ecs.n4'.
 * `eni_amount` - (Optional) Filter the result whose network interface number is no more than `eni_amount`.
-* `kubernetes_node_role` - (Optional) Filter the result which is used to create a [kubernetes cluster](https://www.terraform.io/docs/providers/apsarastack/r/cs_kubernetes.html)
- and [managed kubernetes cluster](https://www.terraform.io/docs/providers/apsarastack/r/cs_managed_kubernetes.html). Optional Values: `Master` and `Worker`.
-* `is_outdated` - (Optional, type: bool) If true, outdated instance types are included in the results. Default to false.
+* `kubernetes_node_role` - (Optional) Filter the result which is used to create a kubernetes cluster Optional Values: `Master` and `Worker`.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference

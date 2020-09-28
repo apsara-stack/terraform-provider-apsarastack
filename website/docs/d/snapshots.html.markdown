@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_snapshots
 
-Use this data source to get a list of snapshot according to the specified filters in an Alibaba Cloud account.
+Use this data source to get a list of snapshot according to the specified filters in an Apsara Stack Cloud account.
 
 For information about snapshot and how to use it, see [Snapshot](https://www.alibabacloud.com/help/doc-detail/25460.html).
 

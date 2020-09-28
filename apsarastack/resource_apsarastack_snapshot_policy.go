@@ -29,7 +29,7 @@ func resourceApsaraStackSnapshotPolicy() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(2, 128),
 			},
 			"repeat_weekdays": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeSet,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
