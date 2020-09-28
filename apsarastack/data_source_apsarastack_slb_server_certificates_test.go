@@ -59,8 +59,6 @@ func TestAccApsaraStackSlbServerCertificatesDataSource_basic(t *testing.T) {
 			"certificates.0.id":                         CHECKSET,
 			"certificates.0.name":                       fmt.Sprintf("tf-testAccSlbServerCertificatesDataSourceBasic-%d", rand),
 			"certificates.0.fingerprint":                CHECKSET,
-			"certificates.0.common_name":                CHECKSET,
-			"certificates.0.expired_timestamp":          CHECKSET,
 			"certificates.0.created_time":               CHECKSET,
 			"certificates.0.created_timestamp":          CHECKSET,
 			"certificates.0.is_apsarastack_certificate": CHECKSET,
@@ -113,6 +111,6 @@ resource "apsarastack_slb_server_certificate" "default" {
 data "apsarastack_slb_server_certificates" "default" {
   %s
 }
-`, rand, os.Getenv("APSARASTaCK_RESOURCE_GROUP_ID"), strings.Join(pairs, "\n  "))
+`, rand, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), strings.Join(pairs, "\n  "))
 	return config
 }
