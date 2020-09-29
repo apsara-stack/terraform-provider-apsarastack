@@ -40,10 +40,6 @@ The following attributes are exported in addition to the arguments listed above:
   * `id` - Server certificate ID.
   * `name` - Server certificate name.
   * `fingerprint` - Server certificate fingerprint.
-  * `common_name` - Server certificate common name.
-  * `subject_alternative_names` - Server certificate subject alternative name list.
-  * `expired_time` - Server certificate expired time.
-  * `expired_timestamp` - Server certificate expired timestamp.
   * `created_time` - Server certificate created time.
   * `created_timestamp` - Server certificate created timestamp.
   * `resource_group_id` - The Id of resource group which the slb server certificates belongs.
