@@ -278,6 +278,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if domain != "" {
 		config.EcsEndpoint = "ecs." + domain
 		config.VpcEndpoint = "vpc." + domain
+		config.SlbEndpoint = "slb." + domain
+		config.OssEndpoint = "oss." + domain
 		config.StsEndpoint = "sts." + domain
 
 	} else {
@@ -289,6 +291,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.EcsEndpoint = strings.TrimSpace(endpoints["ecs"].(string))
 			config.VpcEndpoint = strings.TrimSpace(endpoints["vpc"].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
+			config.OssEndpoint = strings.TrimSpace(endpoints["oss."].(string))
+			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
 
 		}
 	}
