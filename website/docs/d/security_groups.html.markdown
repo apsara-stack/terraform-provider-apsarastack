@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_security\_groups
 
-This data source provides a list of Security Groups in an Alibaba Cloud account according to the specified filters.
+This data source provides a list of Security Groups in an ApsaraStack account according to the specified filters.
 
 ## Example Usage
 
@@ -17,7 +17,6 @@ This data source provides a list of Security Groups in an Alibaba Cloud account 
 # Filter security groups and print the results into a file
 data "apsarastack_security_groups" "sec_groups_ds" {
   name_regex  = "^web-"
-  output_file = "web_access.json"
 }
 
 # In conjunction with a VPC
