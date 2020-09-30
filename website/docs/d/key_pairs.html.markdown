@@ -49,5 +49,4 @@ The following attributes are exported in addition to the arguments listed above:
     * `vswitch_id` - The ID of the VSwitch attached to the ECS instance.
     * `public_ip` - The public IP address or EIP of the ECS instance.
     * `private_ip` - The private IP address of the ECS instance.
-    * `resource_group_id` - The Id of resource group.
-    * `tags` - (Optional, Available in v1.66.0+) A mapping of tags to assign to the resource.
+  * `tags` - (Optional, Available in v1.66.0+) A mapping of tags to assign to the resource.
