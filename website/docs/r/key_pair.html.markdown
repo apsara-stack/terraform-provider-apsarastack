@@ -1,6 +1,6 @@
 ---
 subcategory: "ECS"
-layout: "ApsaraStack"
+layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_cloud_key_pair"
 sidebar_current: "docs-apsarastack-resource-key-pair"
 description: |-
@@ -46,11 +46,3 @@ The following arguments are supported:
 
 * `key_name` - The name of the key pair.
 * `fingerprint` The finger print of the key pair.
-
-## Import
-
-Key pair can be imported using the name, e.g.
-
-```
-$ terraform import apsarastack_key_pair.example my_public_key
-```

@@ -100,10 +100,6 @@ func dataSourceApsaraStackSecurityGroupRules() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						//"description": {//has been removed for Apsarastack
-						//	Type:     schema.TypeString,
-						//	Computed: true,
-						//},
 					},
 				},
 			},
