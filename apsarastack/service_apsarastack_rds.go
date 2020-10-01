@@ -536,30 +536,21 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 	if v, ok := d.GetOk("preferred_backup_period"); ok && v.(*schema.Set).Len() > 0 {
 		periodList := expandStringList(v.(*schema.Set).List())
 		backupPeriod = fmt.Sprintf("%s", strings.Join(periodList[:], COMMA_SEPARATED))
-	} else {
-		periodList := expandStringList(d.Get("backup_period").(*schema.Set).List())
-		backupPeriod = fmt.Sprintf("%s", strings.Join(periodList[:], COMMA_SEPARATED))
 	}
 
 	backupTime := "02:00Z-03:00Z"
 	if v, ok := d.GetOk("preferred_backup_time"); ok && v.(string) != "02:00Z-03:00Z" {
-		backupTime = v.(string)
-	} else if v, ok := d.GetOk("backup_time"); ok && v.(string) != "" {
 		backupTime = v.(string)
 	}
 
 	retentionPeriod := "7"
 	if v, ok := d.GetOk("backup_retention_period"); ok && v.(int) != 7 {
 		retentionPeriod = strconv.Itoa(v.(int))
-	} else if v, ok := d.GetOk("retention_period"); ok && v.(int) != 0 {
-		retentionPeriod = strconv.Itoa(v.(int))
 	}
 
 	logBackupRetentionPeriod := ""
 	if v, ok := d.GetOk("log_backup_retention_period"); ok && v.(int) != 0 {
 		logBackupRetentionPeriod = strconv.Itoa(v.(int))
-	} else {
-		logBackupRetentionPeriod = strconv.Itoa(d.Get("log_retention_period").(int))
 	}
 
 	localLogRetentionHours := ""
