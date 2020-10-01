@@ -200,7 +200,7 @@ func resourceApsaraStackEssScalingConfigurationCreate(d *schema.ResourceData, me
 		d.SetId(response.ScalingConfigurationId)
 		return nil
 	}); err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "alicloud_ess_scalingconfiguration", request.GetActionName(), ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ess_scalingconfiguration", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 
 	return resourceApsaraStackEssScalingConfigurationUpdate(d, meta)
