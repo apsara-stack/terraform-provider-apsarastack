@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strconv"
 	"strings"
 )
 
@@ -183,5 +184,32 @@ func PostPaidAndRenewDiffSuppressFunc(k, old, new string, d *schema.ResourceData
 	if strings.ToLower(d.Get("instance_charge_type").(string)) == "prepaid" && d.Get("auto_renew").(bool) {
 		return false
 	}
+	return true
+}
+
+func logRetentionPeriodDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if d.Get("enable_backup_log").(bool) {
+		return false
+	}
+	if v, err := strconv.Atoi(new); err != nil && v > d.Get("backup_retention_period").(int) {
+		return false
+	}
+	return true
+}
+func enableBackupLogDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if d.Get("enable_backup_log").(bool) {
+		return false
+	}
+
+	return true
+}
+func archiveBackupPeriodDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if d.Get("enable_backup_log").(bool) {
+		return false
+	}
+	if v, err := strconv.Atoi(new); err != nil && v+730 >= d.Get("backup_retention_period").(int) {
+		return false
+	}
+
 	return true
 }
