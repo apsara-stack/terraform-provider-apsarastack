@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"log"
 	"strings"
 
 	"github.com/denverdino/aliyungo/common"
@@ -77,9 +78,11 @@ func resourceApsaraStackSlbCreate(d *schema.ResourceData, meta interface{}) erro
 	request.RegionId = client.RegionId
 	request.LoadBalancerName = d.Get("name").(string)
 	request.AddressType = strings.ToLower(string(Intranet))
-	request.InternetChargeType = strings.ToLower(string(PayByTraffic))
 	request.ClientToken = buildClientToken(request.GetActionName())
 
+	if v, ok := d.GetOk("name"); ok && v.(string) != "" {
+		request.LoadBalancerName = strings.ToLower(v.(string))
+	}
 	if v, ok := d.GetOk("address_type"); ok && v.(string) != "" {
 		request.AddressType = strings.ToLower(v.(string))
 	}
@@ -107,11 +110,12 @@ func resourceApsaraStackSlbCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 		request.AutoPay = requests.NewBoolean(true)
 	}
+
 	var raw interface{}
 
 	invoker := Invoker{}
 	invoker.AddCatcher(Catcher{"OperationFailed.TokenIsProcessing", 10, 5})
-
+	log.Printf("[DEBUG] slb request %v", request)
 	if err := invoker.Run(func() error {
 		resp, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.CreateLoadBalancer(request)

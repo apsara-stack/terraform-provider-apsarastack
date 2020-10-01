@@ -17,9 +17,8 @@ Provides a ECS disk resource.
 
 ```
 # Create a new ECS disk.
-resource "apsarastack_disk" "ecs_disk" {
-  # cn-beijing
-  availability_zone = "cn-beijing-b"
+resource "apsarastack_disk" "ecs_disk" { 
+  availability_zone = "${var.availability_zone}"
   name              = "New-disk"
   description       = "Hello ecs disk."
   category          = "cloud_efficiency"
