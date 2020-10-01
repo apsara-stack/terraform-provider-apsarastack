@@ -153,9 +153,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ess_scaling_groups":             dataSourceApsaraStackEssScalingGroups(),
 			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 			"apsarastack_router_interfaces":              dataSourceApsaraStackRouterInterfaces(),
+			"apsarastack_ess_scheduled_tasks":            dataSourceApsaraStackEssScheduledTasks(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
-
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
 			"apsarastack_network_interface":                   resourceApsaraStackNetworkInterface(),
 			"apsarastack_network_interface_attachment":        resourceNetworkInterfaceAttachment(),
@@ -206,8 +206,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ess_scaling_rule":                    resourceApsaraStackEssScalingRule(),
 			"apsarastack_router_interface":                    resourceApsaraStackRouterInterface(),
 			"apsarastack_router_interface_connection":         resourceApsaraStackRouterInterfaceConnection(),
+			"apsarastack_ess_scheduled_task":                  resourceApsaraStackEssScheduledTask(),
+			"apsarastack_ess_scalinggroup_vserver_groups":     resourceApsaraStackEssScalingGroupVserverGroups(),
 		},
-
 		ConfigureFunc: providerConfigure,
 	}
 }
@@ -293,6 +294,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	if domain != "" {
 		config.EcsEndpoint = "ecs." + domain
 		config.VpcEndpoint = "vpc." + domain
+		config.SlbEndpoint = "slb." + domain
+		config.OssEndpoint = "oss." + domain
 		config.StsEndpoint = "sts." + domain
 
 	} else {
@@ -304,6 +307,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.EcsEndpoint = strings.TrimSpace(endpoints["ecs"].(string))
 			config.VpcEndpoint = strings.TrimSpace(endpoints["vpc"].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
+			config.OssEndpoint = strings.TrimSpace(endpoints["oss."].(string))
+			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
 
 		}
 	}

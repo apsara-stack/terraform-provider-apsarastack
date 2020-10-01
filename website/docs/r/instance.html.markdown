@@ -17,11 +17,11 @@ Provides a ECS instance resource.
 # Create a new ECS instance for a VPC
 
 resource "apsarastack_instance" "instance" {
-  image_id              = "23h4hvh3-23423v4h-dasas8"
-  instance_type        = "ecs.n4.large"
+  image_id              = "${var.image_id}"
+  instance_type        = "${var.instance_type}"
   system_disk_category = "cloud_efficiency"
-  security_groups      = "${var.security_groups}"
-  instance_name        = "apsarainstance"
+  security_groups      = ["${var.security_groups}"]
+  instance_name        = "${var.image_id}"
   vswitch_id           = "vsw-abc1345"
 }
 
