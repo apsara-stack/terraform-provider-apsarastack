@@ -196,6 +196,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_nat_gateway":                         resourceApsaraStackNatGateway(),
 			"apsarastack_snat_entry":                          resourceApsaraStackSnatEntry(),
 			"apsarastack_db_instance":                         resourceApsaraStackDBInstance(),
+			"apsarastack_db_account":                          resourceApsaraStackDBAccount(),
+			"apsarastack_db_account_privilege":                resourceApsaraStackDBAccountPrivilege(),
+			"apsarastack_db_backup_policy":                    resourceApsaraStackDBBackupPolicy(),
+			"apsarastack_db_connection":                       resourceApsaraStackDBConnection(),
+			"apsarastack_db_database":                         resourceApsaraStackDBDatabase(),
 			"apsarastack_slb_server_certificate":              resourceApsaraStackSlbServerCertificate(),
 			"apsarastack_slb_ca_certificate":                  resourceApsaraStackSlbCACertificate(),
 			"apsarastack_slb_backend_server":                  resourceApsaraStackSlbBackendServer(),
@@ -297,6 +302,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.SlbEndpoint = "slb." + domain
 		config.OssEndpoint = "oss." + domain
 		config.StsEndpoint = "sts." + domain
+		config.RdsEndpoint = "rds." + domain
 
 	} else {
 
@@ -307,6 +313,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.EcsEndpoint = strings.TrimSpace(endpoints["ecs"].(string))
 			config.VpcEndpoint = strings.TrimSpace(endpoints["vpc"].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
+			config.RdsEndpoint = strings.TrimSpace(endpoints["rds"].(string))
 			config.OssEndpoint = strings.TrimSpace(endpoints["oss."].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
 

@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strconv"
 	"strings"
 )
 
@@ -198,4 +199,31 @@ func routerInterfaceVBRTypeDiffSuppressFunc(k, old, new string, d *schema.Resour
 		return true
 	}
 	return false
+}
+
+func logRetentionPeriodDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if d.Get("enable_backup_log").(bool) {
+		return false
+	}
+	if v, err := strconv.Atoi(new); err != nil && v > d.Get("backup_retention_period").(int) {
+		return false
+	}
+	return true
+}
+func enableBackupLogDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if d.Get("enable_backup_log").(bool) {
+		return false
+	}
+
+	return true
+}
+func archiveBackupPeriodDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if d.Get("enable_backup_log").(bool) {
+		return false
+	}
+	if v, err := strconv.Atoi(new); err != nil && v+730 >= d.Get("backup_retention_period").(int) {
+		return false
+	}
+
+	return true
 }
