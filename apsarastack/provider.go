@@ -152,10 +152,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_bucket_objects":             dataSourceApsaraStackOssBucketObjects(),
 			"apsarastack_ess_scaling_groups":             dataSourceApsaraStackEssScalingGroups(),
 			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
+			"apsarastack_router_interfaces":              dataSourceApsaraStackRouterInterfaces(),
 			"apsarastack_ess_scheduled_tasks":            dataSourceApsaraStackEssScheduledTasks(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
-
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
 			"apsarastack_network_interface":                   resourceApsaraStackNetworkInterface(),
 			"apsarastack_network_interface_attachment":        resourceNetworkInterfaceAttachment(),
@@ -209,10 +209,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
 			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
 			"apsarastack_ess_scaling_rule":                    resourceApsaraStackEssScalingRule(),
+			"apsarastack_router_interface":                    resourceApsaraStackRouterInterface(),
+			"apsarastack_router_interface_connection":         resourceApsaraStackRouterInterfaceConnection(),
 			"apsarastack_ess_scheduled_task":                  resourceApsaraStackEssScheduledTask(),
 			"apsarastack_ess_scalinggroup_vserver_groups":     resourceApsaraStackEssScalingGroupVserverGroups(),
 		},
-
 		ConfigureFunc: providerConfigure,
 	}
 }
