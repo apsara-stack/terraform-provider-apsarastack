@@ -185,3 +185,17 @@ func PostPaidAndRenewDiffSuppressFunc(k, old, new string, d *schema.ResourceData
 	}
 	return true
 }
+
+func routerInterfaceAcceptsideDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	return d.Get("role").(string) == string(AcceptingSide)
+}
+
+func routerInterfaceVBRTypeDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if d.Get("role").(string) == string(AcceptingSide) {
+		return true
+	}
+	if d.Get("router_type").(string) == string(VRouter) {
+		return true
+	}
+	return false
+}
