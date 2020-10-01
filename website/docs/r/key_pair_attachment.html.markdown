@@ -1,6 +1,6 @@
 ---
 subcategory: "ECS"
-layout: "ApsaraStack"
+layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_key_pair_attachment"
 sidebar_current: "docs-apsarastack-resource-key-pair-attachment"
 description: |-
