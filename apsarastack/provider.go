@@ -316,7 +316,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.OssEndpoint = strings.TrimSpace(endpoints["oss."].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
 
-
 		}
 	}
 
