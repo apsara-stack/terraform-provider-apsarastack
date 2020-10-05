@@ -201,6 +201,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_db_backup_policy":                    resourceApsaraStackDBBackupPolicy(),
 			"apsarastack_db_connection":                       resourceApsaraStackDBConnection(),
 			"apsarastack_db_database":                         resourceApsaraStackDBDatabase(),
+			"apsarastack_db_read_write_splitting_connection":  resourceApsaraStackDBReadWriteSplittingConnection(),
 			"apsarastack_slb_server_certificate":              resourceApsaraStackSlbServerCertificate(),
 			"apsarastack_slb_ca_certificate":                  resourceApsaraStackSlbCACertificate(),
 			"apsarastack_slb_backend_server":                  resourceApsaraStackSlbBackendServer(),
