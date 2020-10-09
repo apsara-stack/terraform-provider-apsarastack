@@ -11,8 +11,6 @@ description: |-
 
 Provides an apsarastack ECS Elastic Network Interface Attachment as a resource to attach ENI to or detach ENI from ECS Instances.
 
-For information about Elastic Network Interface and how to use it, see [Elastic Network Interface](https://www.alibabacloud.com/help/doc-detail/58496.html).
-
 ## Example Usage
 
 Bacis Usage
@@ -55,11 +53,3 @@ The following argument are supported:
 In addition to all arguments above, the following attributes are exported:
 
 * `id` - The ID of the resource, formatted as `<network_interface_id>:<instance_id>`.
-
-## Import
-
-Network Interfaces Attachment resource can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_network_interface.eni eni-abc123456789000:i-abc123456789000
-```

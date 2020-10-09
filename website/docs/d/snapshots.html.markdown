@@ -11,16 +11,11 @@ description: |-
 
 Use this data source to get a list of snapshot according to the specified filters in an Apsara Stack Cloud account.
 
-For information about snapshot and how to use it, see [Snapshot](https://www.alibabacloud.com/help/doc-detail/25460.html).
-
--> **NOTE:**  Available in 1.40.0+.
-
 ## Example Usage
 
 ```
 data "apsarastack_snapshots" "snapshots" {
-  ids        = ["s-123456890abcdef"]
-  name_regex = "tf-testAcc-snapshot"
+  name_regex = "${var.name_regex}"
 }
 ```
 
@@ -87,4 +82,4 @@ The following attributes are exported in addition to the arguments listed above:
       * disk
       * image_disk
       * none
-    * `tags` - A map of tags assigned to the snapshot.
+* `tags` - A map of tags assigned to the snapshot.
