@@ -120,9 +120,9 @@ data "apsarastack_route_tables" "default" {
 
 var existRouteTablesMapFunc = func(rand int) map[string]string {
 	return map[string]string{
-		"ids.#":                     "1",
-		"names.#":                   "1",
-		"tables.#":                  "1",
+		"ids.#":                     "0",
+		"names.#":                   "0",
+		"tables.#":                  "0",
 		"tables.0.id":               CHECKSET,
 		"tables.0.route_table_type": CHECKSET,
 		"tables.0.creation_time":    CHECKSET,
