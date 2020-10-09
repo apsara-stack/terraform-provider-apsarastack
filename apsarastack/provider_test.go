@@ -48,8 +48,16 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatal("APSARASTACK_SECRET_KEY must be set for acceptance tests")
 	}
 	if v := os.Getenv("APSARASTACK_REGION"); v == "" {
-		log.Println("[INFO] Test: Using cn-beijing as test region")
-		os.Setenv("APSARASTACK_REGION", "cn-beijing")
+		t.Fatal("APSARASTACK_REGION must be set for acceptance tests")
+	}
+	if v := os.Getenv("APSARASTACK_INSECURE"); v == "" {
+		t.Fatal("APSARASTACK_INSECURE must be set for acceptance tests")
+	}
+	if v := os.Getenv("APSARASTACK_PROXY"); v == "" {
+		t.Fatal("APSARASTACK_PROXY must be set for acceptance tests")
+	}
+	if v := os.Getenv("APSARASTACK_DOMAIN"); v == "" {
+		t.Fatal("APSARASTACK_DOMAIN must be set for acceptance tests")
 	}
 }
 
@@ -73,7 +81,6 @@ func testAccPreCheckWithRegions(t *testing.T, supported bool, regions []connecti
 	}
 	if v := os.Getenv("APSARASTACK_REGION"); v == "" {
 		log.Println("[INFO] Test: Using cn-beijing as test region")
-		os.Setenv("APSARASTACK_REGION", "cn-beijing")
 	}
 	region := os.Getenv("APSARASTACK_REGION")
 	find := false

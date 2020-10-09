@@ -3,6 +3,7 @@ package apsarastack
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -15,7 +16,8 @@ func TestMain(m *testing.M) {
 
 // functions for a given region
 func sharedClientForRegion(region string) (interface{}, error) {
-	var accessKey, secretKey string
+	var accessKey, secretKey, proxy, domain string
+	var insecure bool
 	if accessKey = os.Getenv("APSARASTACK_ACCESS_KEY"); accessKey == "" {
 		return nil, fmt.Errorf("empty APSARASTACK_ACCESS_KEY")
 	}
@@ -23,12 +25,23 @@ func sharedClientForRegion(region string) (interface{}, error) {
 	if secretKey = os.Getenv("APSARASTACK_SECRET_KEY"); secretKey == "" {
 		return nil, fmt.Errorf("empty APSARASTACK_SECRET_KEY")
 	}
+	insecure, _ = strconv.ParseBool(os.Getenv("APSARASTACK_INSECURE"))
+
+	if proxy = os.Getenv("APSARASTACK_PROXY"); proxy == "" {
+		return nil, fmt.Errorf("empty APSARASTACK_PROXY")
+	}
+	if domain = os.Getenv("APSARASTACK_DOMAIN"); domain == "" {
+		return nil, fmt.Errorf("empty APSARASTACK_DOMAIN")
+	}
 
 	conf := connectivity.Config{
 		Region:    connectivity.Region(region),
 		RegionId:  region,
 		AccessKey: accessKey,
 		SecretKey: secretKey,
+		Proxy:     proxy,
+		Insecure:  insecure,
+		Domain:    domain,
 		Protocol:  "HTTPS",
 	}
 	if accountId := os.Getenv("APSARASTACK_ACCOUNT_ID"); accountId != "" {

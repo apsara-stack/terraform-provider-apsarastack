@@ -94,6 +94,7 @@ type Config struct {
 	ActiontrailEndpoint     string
 	Insecure                bool
 	Proxy                   string
+	Domain                  string
 }
 
 func (c *Config) loadAndValidate() error {
