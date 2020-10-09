@@ -11,7 +11,7 @@ description: |-
 
 ```
 resource "apsarastack_snapshot_policy" "sp" {
-  name            = "tf-testAcc-sp"
+  name            = "${var.name}"
   repeat_weekdays = ["1", "2", "3"]
   retention_days  = -1
   time_points     = ["1", "22", "23"]

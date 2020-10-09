@@ -11,8 +11,6 @@ description: |-
 
 Provides an ECS Launch Template resource.
 
-For information about Launch Template and how to use it, see [Launch Template](https://www.alibabacloud.com/help/doc-detail/73916.html).
-
 ## Example Usage
 
 ```
@@ -162,10 +160,4 @@ The following attributes are exported:
 
 * `id` - The Launch Template ID.
 
-## Import
 
-Launch Template can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_launch_template.lt lt-abc1234567890000
-```

@@ -11,8 +11,6 @@ description: |-
 
 Provides an ECS snapshot resource.
 
-For information about snapshot and how to use it, see [Snapshot](https://apsarastackdocument.oss-cn-hangzhou.aliyuncs.com/01_ApsaraStackEnterprise/V3.11.0-intl-en/Alibaba%20Cloud%20Apsara%20Stack%20Enterprise%202001%2C%20Internal_%20V3.11.0%20Developer%20Guide%20-%20Cloud%20Essentials%20and%20Security%2020200513.pdf?spm=a3c0i.214467.3807842930.7.61e76bdb1JWVyX&file=Alibaba%20Cloud%20Apsara%20Stack%20Enterprise%202001%2C%20Internal_%20V3.11.0%20Developer%20Guide%20-%20Cloud%20Essentials%20and%20Security%2020200513.pdf).
-
 ## Example Usage
 
 ```
@@ -37,10 +35,6 @@ The following arguments are supported:
 
 ### Timeouts
 
--> **NOTE:** Available in 1.51.0+.
-
-The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/docs/configuration-0-11/resources.html#timeouts) for certain actions:
-
 * `create` - (Defaults to 2 mins) Used when creating the snapshot (until it reaches the initial `SnapshotCreatingAccomplished` status). 
 * `delete` - (Defaults to 2 mins) Used when terminating the snapshot. 
 
@@ -49,11 +43,3 @@ The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/d
 The following attributes are exported:
 
 * `id` - The snapshot ID.
-
-## Import
-
-Snapshot can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_snapshot.snapshot s-abc1234567890000
-```
