@@ -10,27 +10,6 @@ func TestAccApsaraStackSlbZonesDataSource_basic(t *testing.T) {
 	rand := acctest.RandInt()
 	resourceId := "data.apsarastack_slb_zones.default"
 
-	testAccConfig := dataSourceTestAccConfigFunc(resourceId, "", dataSourceslbZonesConfigDependence)
-
-	addressTypeConfig := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"available_slb_address_type": "Vpc",
-		}),
-	}
-
-	ipVersionConfig := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"available_slb_address_ip_version": "ipv4",
-		}),
-	}
-
-	allConfig := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"available_slb_address_type":       "Vpc",
-			"available_slb_address_ip_version": "ipv4",
-		}),
-	}
-
 	var existSlbZonesMapFunc = func(rand int) map[string]string {
 		return map[string]string{
 			"ids.#":                        CHECKSET,
@@ -52,7 +31,7 @@ func TestAccApsaraStackSlbZonesDataSource_basic(t *testing.T) {
 		fakeMapFunc:  fakeSlbZonesMapFunc,
 	}
 
-	slbZonesCheckInfo.dataSourceTestCheck(t, rand, addressTypeConfig, ipVersionConfig, allConfig)
+	slbZonesCheckInfo.dataSourceTestCheck(t, rand)
 }
 
 func dataSourceslbZonesConfigDependence(name string) string {

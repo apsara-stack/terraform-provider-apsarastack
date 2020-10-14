@@ -56,7 +56,7 @@ func dataSourceApsaraStackSlbZones() *schema.Resource {
 func dataSourceApsaraStackSlbZonesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	slaveZones := make(map[string][]string)
-
+	localName := make(map[string][]string)
 	request := slb.CreateDescribeZonesRequest()
 	request.RegionId = client.RegionId
 
@@ -67,17 +67,21 @@ func dataSourceApsaraStackSlbZonesRead(d *schema.ResourceData, meta interface{})
 		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_slb_zones", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+
 	response, _ := raw.(*slb.DescribeZonesResponse)
 
 	for _, zone := range response.Zones.Zone {
+		slaveIds := []string{}
 		for _, slavezone := range zone.SlaveZones.SlaveZone {
-			slaveIds := slaveZones[slavezone.ZoneId]
+
 			slaveIds = append(slaveIds, slavezone.ZoneId)
 			if len(slaveIds) > 0 {
 				sort.Strings(slaveIds)
 			}
-			slaveZones[slavezone.ZoneId] = slaveIds
+
 		}
+		localName[zone.ZoneId] = []string{zone.LocalName}
+		slaveZones[zone.ZoneId] = slaveIds
 	}
 
 	var ids []string
@@ -93,6 +97,9 @@ func dataSourceApsaraStackSlbZonesRead(d *schema.ResourceData, meta interface{})
 		mapping := map[string]interface{}{"id": zoneId}
 		if len(slaveZones) > 0 {
 			mapping["slb_slave_zone_ids"] = slaveZones[zoneId]
+		}
+		if len(localName) > 0 {
+			mapping["local_name"] = localName[zoneId]
 		}
 		if !d.Get("enable_details").(bool) {
 			s = append(s, mapping)
