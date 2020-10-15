@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -126,6 +127,17 @@ func validateDBConnectionPort(v interface{}, k string) (ws []string, errors []er
 		if port < 3001 || len(value) > 3999 {
 			errors = append(errors, fmt.Errorf("%q cannot be less than 3001 and larger than 3999.", k))
 		}
+	}
+	return
+}
+
+func validateOnsGroupId(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if !(strings.HasPrefix(value, "GID-") || strings.HasPrefix(value, "GID_")) {
+		errors = append(errors, fmt.Errorf("%q is invalid, it must start with 'GID-' or 'GID_'", k))
+	}
+	if reg := regexp.MustCompile(`^[\w\-]{7,64}$`); !reg.MatchString(value) {
+		errors = append(errors, fmt.Errorf("%q length is limited to 7-64 and only characters such as letters, digits, '_' and '-' are allowed", k))
 	}
 	return
 }
