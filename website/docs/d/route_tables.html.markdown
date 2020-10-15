@@ -4,14 +4,13 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_route_tables"
 sidebar_current: "docs-apsarastack-datasource-route-tables"
 description: |-
-    Provides a list of Route Tables owned by an Alibaba Cloud account.
+    Provides a list of Route Tables owned by an Apsarastack Cloud account.
 ---
 
 # apsarastack\_route\_tables
 
-This data source provides a list of Route Tables owned by an Alibaba Cloud account.
+This data source provides a list of Route Tables owned by an Apsarastack Cloud account.
 
--> **NOTE:** Available in 1.36.0+.
 
 ## Example Usage
 
@@ -49,7 +48,6 @@ The following arguments are supported:
 * `vpc_id` - (Optional) Vpc id of the route table.
 * `tags` - (Optional, Available in v1.55.3+) A mapping of tags to assign to the resource.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
-* `resource_group_id` - (Optional, ForceNew, Available in 1.60.0+) The Id of resource group which route tables belongs.
 
 ## Attributes Reference
 
@@ -64,5 +62,4 @@ The following attributes are exported in addition to the arguments listed above:
   * `name` - Name of the route table.
   * `description` - The description of the route table instance.
   * `creation_time` - Time of creation.
-  * `resource_group_id` - The Id of resource group which route tables belongs.
-
+  

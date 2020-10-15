@@ -67,7 +67,6 @@ The following arguments are supported:
 * `snat_table_id` - (Required, ForceNew) The value can get from `apsarastack_nat_gateway` Attributes "snat_table_ids".
 * `source_vswitch_id` - (Optional, ForceNew) The vswitch ID.
 * `source_cidr` - (Optional, ForceNew, Available in 1.71.1+) The private network segment of Ecs. This parameter and the `source_vswitch_id` parameter are mutually exclusive and cannot appear at the same time.
-<!--* `snat_entry_name` - (Optional, Available in 1.71.2+) The name of snat entry.-->
 * `snat_ip` - (Required) The SNAT ip address, the ip must along bandwidth package public ip which `apsarastack_nat_gateway` argument `bandwidth_packages`.
 
 ## Attributes Reference
@@ -77,10 +76,4 @@ The following attributes are exported:
 * `id` - The ID of the snat entry. The value formats as `<snat_table_id>:<snat_entry_id>`
 * `snat_entry_id` - The id of the snat entry on the server.
 
-## Import
 
-Snat Entry can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_snat_entry.foo stb-1aece3:snat-232ce2
-```
