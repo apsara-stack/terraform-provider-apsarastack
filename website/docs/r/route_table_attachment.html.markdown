@@ -13,7 +13,6 @@ Provides an apsarastack Route Table Attachment resource for associating Route Ta
 
 -> **NOTE:** Terraform will auto build route table attachment while it uses `apsarastack_route_table_attachment` to build a route table attachment resource.
 
-For information about route table and how to use it, see [What is Route Table](https://www.alibabacloud.com/help/doc-detail/87057.htm).
 
 ## Example Usage
 
@@ -60,12 +59,4 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The ID of the route table attachment id and formates as `<route_table_id>:<vswitch_id>`.
-
-## Import
-
-The route table attachemnt can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_route_table_attachment.foo vtb-abc123456:vsw-abc123456
-```
 
