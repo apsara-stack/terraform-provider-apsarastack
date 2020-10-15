@@ -154,6 +154,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 			"apsarastack_router_interfaces":              dataSourceApsaraStackRouterInterfaces(),
 			"apsarastack_ess_scheduled_tasks":            dataSourceApsaraStackEssScheduledTasks(),
+			"apsarastack_ons_instances":                  dataSourceApsaraStackOnsInstances(),
+			"apsarastack_ons_topics":                     dataSourceApsaraStackOnsTopics(),
+			"apsarastack_ons_groups":                     dataSourceApsaraStackOnsGroups(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -215,6 +218,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_router_interface_connection":         resourceApsaraStackRouterInterfaceConnection(),
 			"apsarastack_ess_scheduled_task":                  resourceApsaraStackEssScheduledTask(),
 			"apsarastack_ess_scalinggroup_vserver_groups":     resourceApsaraStackEssScalingGroupVserverGroups(),
+			"apsarastack_ons_instance":                        resourceApsaraStackOnsInstance(),
+			"apsarastack_ons_topic":                           resourceApsaraStackOnsTopic(),
+			"apsarastack_ons_group":                           resourceApsaraStackOnsGroup(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -305,6 +311,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.OssEndpoint = "oss." + domain
 		config.StsEndpoint = "sts." + domain
 		config.RdsEndpoint = "rds." + domain
+		config.OnsEndpoint = "ons." + domain
 
 	} else {
 
@@ -318,6 +325,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.RdsEndpoint = strings.TrimSpace(endpoints["rds"].(string))
 			config.OssEndpoint = strings.TrimSpace(endpoints["oss."].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
+			config.OnsEndpoint = strings.TrimSpace(endpoints["ons"].(string))
 
 		}
 	}
