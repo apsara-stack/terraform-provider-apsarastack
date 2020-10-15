@@ -4,14 +4,14 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_nat_gateways"
 sidebar_current: "docs-apsarastack-datasource-nat-gateways"
 description: |-
-    Provides a list of Nat Gateways owned by an Apsara Stack Cloud account.
+    Provides a list of Nat Gateways owned by an Apsarastack Cloud account.
 ---
 
 # apsarastack\_nat\_gateways
 
-This data source provides a list of Nat Gateways owned by an Apsara Stack Cloud account.
+This data source provides a list of Nat Gateways owned by an Apsarastack Cloud account.
 
--> **NOTE:** Available in 1.37.0+.
+
 
 ## Example Usage
 
@@ -48,7 +48,7 @@ The following arguments are supported:
 
 * `ids` - (Optional) A list of NAT gateways IDs.
 * `name_regex` - (Optional) A regex string to filter nat gateways by name.
-<!--* `vpc_id` - (Optional) The ID of the VPC.-->
+* `vpc_id` - (Optional) The ID of the VPC.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
@@ -66,5 +66,4 @@ The following attributes are exported in addition to the arguments listed above:
   * `status` - The status of the NAT gateway.
   * `snat_table_id` - The snat table id.
   * `forward_table_id` - The forward table id. 
-  <!--* `vpc_id` - The ID of the VPC.-->
 
