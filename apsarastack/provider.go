@@ -157,6 +157,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ons_instances":                  dataSourceApsaraStackOnsInstances(),
 			"apsarastack_ons_topics":                     dataSourceApsaraStackOnsTopics(),
 			"apsarastack_ons_groups":                     dataSourceApsaraStackOnsGroups(),
+			"apsarastack_kms_aliases":                    dataSourceApsaraStackKmsAliases(),
+			"apsarastack_kms_ciphertext":                 dataSourceApsaraStackKmsCiphertext(),
+			"apsarastack_kms_keys":                       dataSourceApsaraStackKmsKeys(),
+			"apsarastack_kms_secrets":                    dataSourceApsaraStackKmsSecrets(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -221,6 +225,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ons_instance":                        resourceApsaraStackOnsInstance(),
 			"apsarastack_ons_topic":                           resourceApsaraStackOnsTopic(),
 			"apsarastack_ons_group":                           resourceApsaraStackOnsGroup(),
+			"apsarastack_kms_alias":                           resourceApsaraStackKmsAlias(),
+			"apsarastack_kms_ciphertext":                      resourceApsaraStackKmsCiphertext(),
+			"apsarastack_kms_key":                             resourceApsaraStackKmsKey(),
+			"apsarastack_kms_secret":                          resourceApsaraStackKmsSecret(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -312,6 +320,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.StsEndpoint = "sts." + domain
 		config.RdsEndpoint = "rds." + domain
 		config.OnsEndpoint = "ons." + domain
+		config.KmsEndpoint = "kms." + domain
 
 	} else {
 
@@ -326,6 +335,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.OssEndpoint = strings.TrimSpace(endpoints["oss."].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
 			config.OnsEndpoint = strings.TrimSpace(endpoints["ons"].(string))
+			config.KmsEndpoint = strings.TrimSpace(endpoints["kms"].(string))
 
 		}
 	}
