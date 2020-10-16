@@ -229,6 +229,12 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kms_ciphertext":                      resourceApsaraStackKmsCiphertext(),
 			"apsarastack_kms_key":                             resourceApsaraStackKmsKey(),
 			"apsarastack_kms_secret":                          resourceApsaraStackKmsSecret(),
+			"apsarastack_log_project":                         resourceApsaraStackLogProject(),
+			"apsarastack_log_store":                           resourceApsaraStackLogStore(),
+			"apsarastack_log_store_index":                     resourceApsaraStackLogStoreIndex(),
+			"apsarastack_log_machine_group":                   resourceApsaraStackLogMachineGroup(),
+			"apsarastack_logtail_attachment":                  resourceApsaraStackLogtailAttachment(),
+			"apsarastack_logtail_config":                      resourceApsaraStackLogtailConfig(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -321,6 +327,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.RdsEndpoint = "rds." + domain
 		config.OnsEndpoint = "ons." + domain
 		config.KmsEndpoint = "kms." + domain
+		config.LogEndpoint = "log." + domain
 
 	} else {
 
@@ -336,6 +343,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
 			config.OnsEndpoint = strings.TrimSpace(endpoints["ons"].(string))
 			config.KmsEndpoint = strings.TrimSpace(endpoints["kms"].(string))
+			config.LogEndpoint = strings.TrimSpace(endpoints["log"].(string))
 
 		}
 	}
