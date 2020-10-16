@@ -161,6 +161,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kms_ciphertext":                 dataSourceApsaraStackKmsCiphertext(),
 			"apsarastack_kms_keys":                       dataSourceApsaraStackKmsKeys(),
 			"apsarastack_kms_secrets":                    dataSourceApsaraStackKmsSecrets(),
+			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
+			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
+			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -235,6 +238,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_log_machine_group":                   resourceApsaraStackLogMachineGroup(),
 			"apsarastack_logtail_attachment":                  resourceApsaraStackLogtailAttachment(),
 			"apsarastack_logtail_config":                      resourceApsaraStackLogtailConfig(),
+			"apsarastack_dns_record":                          resourceApsaraStackDnsRecord(),
+			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
+			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
+			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -328,6 +335,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.OnsEndpoint = "ons." + domain
 		config.KmsEndpoint = "kms." + domain
 		config.LogEndpoint = "log." + domain
+		config.DnsEndpoint = "dns." + domain
 
 	} else {
 
@@ -344,6 +352,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.OnsEndpoint = strings.TrimSpace(endpoints["ons"].(string))
 			config.KmsEndpoint = strings.TrimSpace(endpoints["kms"].(string))
 			config.LogEndpoint = strings.TrimSpace(endpoints["log"].(string))
+			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
 
 		}
 	}
