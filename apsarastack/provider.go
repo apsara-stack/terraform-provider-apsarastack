@@ -181,6 +181,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_cr_ee_sync_rules":               dataSourceApsaraStackCrEESyncRules(),
 			"apsarastack_cr_namespaces":                  dataSourceApsaraStackCRNamespaces(),
 			"apsarastack_cr_repos":                       dataSourceApsaraStackCRRepos(),
+			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
+			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
+			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -261,6 +264,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_cr_ee_sync_rule":                     resourceApsaraStackCrEESyncRule(),
 			"apsarastack_cr_namespace":                        resourceApsaraStackCRNamespace(),
 			"apsarastack_cr_repo":                             resourceApsaraStackCRRepo(),
+			"apsarastack_dns_record":                          resourceApsaraStackDnsRecord(),
+			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
+			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
+			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -358,6 +365,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.LogEndpoint = "log." + domain
 		config.CrEndpoint = "cr." + domain
 		config.EssEndpoint = "ess." + domain
+		config.DnsEndpoint = "dns." + domain
 
 	} else {
 
@@ -376,6 +384,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.SlbEndpoint = strings.TrimSpace(endpoints["slb"].(string))
 			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
 			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
+			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
 
 		}
 	}
