@@ -28,6 +28,16 @@ func slbAclDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 	}
 	return true
 }
+func dnsValueDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	switch d.Get("type") {
+	case "NS", "MX", "CNAME", "SRV":
+		new = strings.TrimSuffix(strings.TrimSpace(new), ".")
+	}
+	return old == new
+}
+func dnsPriorityDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	return d.Get("type").(string) != "MX"
+}
 func slbRuleStickySessionTypeDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 	listenerSync := slbRuleListenerSyncDiffSuppressFunc(k, old, new, d)
 	if session, ok := d.GetOk("sticky_session"); !listenerSync && ok && session.(string) == string(OnFlag) {

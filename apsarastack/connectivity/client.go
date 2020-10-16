@@ -5,6 +5,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/adb"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/bssopenapi"
 	cdn_new "github.com/aliyun/alibaba-cloud-sdk-go/services/cdn"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
@@ -76,6 +77,7 @@ type ApsaraStackClient struct {
 	onsconn           *ons.Client
 	logconn           *sls.Client
 	logpopconn        *slsPop.Client
+	dnsconn           *alidns.Client
 }
 
 const (
@@ -965,4 +967,27 @@ func (client *ApsaraStackClient) WithLogPopClient(do func(*slsPop.Client) (inter
 	}
 
 	return do(client.logpopconn)
+}
+func (client *ApsaraStackClient) WithDnsClient(do func(*alidns.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the DNS client if necessary
+	if client.dnsconn == nil {
+		endpoint := client.config.DnsEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, DNSCode)
+		}
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(DNSCode), endpoint)
+		}
+
+		dnsconn, err := alidns.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the DNS client: %#v", err)
+		}
+		dnsconn.AppendUserAgent(Terraform, terraformVersion)
+		dnsconn.AppendUserAgent(Provider, providerVersion)
+		dnsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		client.dnsconn = dnsconn
+	}
+
+	return do(client.dnsconn)
 }
