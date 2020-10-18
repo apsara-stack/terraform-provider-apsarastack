@@ -237,6 +237,8 @@ func buildApsaraStackVpcArgs(d *schema.ResourceData, meta interface{}) *vpc.Crea
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateCreateVpcRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.CidrBlock = d.Get("cidr_block").(string)
 
 	if v := d.Get("name").(string); v != "" {
