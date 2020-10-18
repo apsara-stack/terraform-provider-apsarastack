@@ -14,7 +14,7 @@ Provides an Apsarastack EIP Association resource for associating Elastic IP to E
 -> **NOTE:** `apsarastack_eip_association` is useful in scenarios where EIPs are either
  pre-existing or distributed to customers or users and therefore cannot be changed.
 
--> **NOTE:** From version 1.7.1, the resource support to associate EIP to SLB Instance or Nat Gateway.
+-> **NOTE:** The resource support to associate EIP to SLB Instance or Nat Gateway.
 
 -> **NOTE:** One EIP can only be associated with ECS or SLB instance which in the VPC.
 
@@ -62,7 +62,8 @@ resource "apsarastack_instance" "ecs_instance" {
   }
 }
 
-resource "apsarastack_eip" "eip" {}
+resource "apsarastack_eip" "eip" {
+}
 
 resource "apsarastack_eip_association" "eip_asso" {
   allocation_id = "${apsarastack_eip.eip.id}"
@@ -76,10 +77,6 @@ resource "apsarastack_security_group" "group" {
 }
 ```
 
-## Module Support
-
-You can use the existing [eip module](https://registry.terraform.io/modules/terraform-apsarastack-modules/eip/apsarastack) 
-to create several EIP instances and associate them with other resources one-click, like ECS instances, SLB, Nat Gateway and so on.
 
 ## Argument Reference
 
@@ -87,8 +84,7 @@ The following arguments are supported:
 
 * `allocation_id` - (Required, ForcesNew) The allocation EIP ID.
 * `instance_id` - (Required, ForcesNew) The ID of the ECS or SLB instance or Nat Gateway.
-* `instance_type` - (Optional, ForceNew, Available in 1.46.0+) The type of cloud product that the eip instance to bind.
-<!--* `private_ip_address` - (Optional, ForceNew, Available in 1.52.2+) The private IP address in the network segment of the vswitch which has been assigned.-->
+* `instance_type` - (Optional, ForceNew) The type of cloud product that the eip instance to bind.
 
 
 ## Attributes Reference

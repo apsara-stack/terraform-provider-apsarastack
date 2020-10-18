@@ -1,7 +1,7 @@
 ---
 subcategory: "VPC"
 layout: "apsarastack"
-page_title: "Alicloud: apsarastack_router_interface_connection"
+page_title: "Apsarastack: apsarastack_router_interface_connection"
 sidebar_current: "docs-apsarastack-resource-router-interface-connection"
 description: |-
   Provides a VPC router interface connection resource to connect two VPCs.
@@ -98,12 +98,4 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - Router interface ID. The value is equal to "interface_id".
-
-## Import
-
-The router interface connection can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_router_interface_connection.foo ri-abc123456
-```
 

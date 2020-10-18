@@ -13,9 +13,6 @@ Provides a route table resource to add customized route tables.
 
 -> **NOTE:** Terraform will auto build route table instance while it uses `apsarastack_route_table` to build a route table resource.
 
-Currently, customized route tables are available in most regions apart from China (Beijing), China (Hangzhou), and China (Shenzhen) regions.
-For information about route table and how to use it, see [What is Route Table](https://www.alibabacloud.com/help/doc-detail/87057.htm).
-
 ## Example Usage
 
 Basic Usage
@@ -48,12 +45,5 @@ The following attributes are exported:
 
 * `id` - The ID of the route table instance id.
 
-## Import
-
-The route table can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_route_table.foo vtb-abc123456
-```
 
 

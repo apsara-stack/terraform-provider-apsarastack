@@ -35,13 +35,6 @@ func resourceApsaraStackSlbServerCertificate() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"resource_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-			"tags": tagsSchema(),
 		},
 	}
 }
@@ -90,12 +83,6 @@ func resourceApsaraStackSlbServerCertificateCreate(d *schema.ResourceData, meta 
 func resourceApsaraStackSlbServerCertificateRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	slbService := SlbService{client}
-	tags, err := slbService.DescribeTags(d.Id(), nil, TagResourceCertificate)
-	if err != nil {
-		return WrapError(err)
-	}
-	d.Set("tags", slbService.tagsToMap(tags))
-
 	serverCertificate, err := slbService.DescribeSlbServerCertificate(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
@@ -108,21 +95,11 @@ func resourceApsaraStackSlbServerCertificateRead(d *schema.ResourceData, meta in
 	if err := d.Set("name", serverCertificate.ServerCertificateName); err != nil {
 		return WrapError(err)
 	}
-	if serverCertificate.ResourceGroupId != "" {
-		if err := d.Set("resource_group_id", serverCertificate.ResourceGroupId); err != nil {
-			return WrapError(err)
-		}
-	}
-
 	return nil
 }
 
 func resourceApsaraStackSlbServerCertificateUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	slbService := SlbService{client}
-	if err := slbService.setInstanceTags(d, TagResourceCertificate); err != nil {
-		return WrapError(err)
-	}
 	if d.IsNewResource() {
 		d.Partial(false)
 		return resourceApsaraStackSlbServerCertificateRead(d, meta)
