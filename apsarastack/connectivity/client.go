@@ -390,17 +390,21 @@ func (client *ApsaraStackClient) WithVpcClient(do func(*vpc.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(VPCCode), endpoint)
 		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		vpcconn, err := vpc.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the VPC client: %#v", err)
 		}
-
+		vpcconn.Domain = endpoint
 		vpcconn.AppendUserAgent(Terraform, terraformVersion)
 		vpcconn.AppendUserAgent(Provider, providerVersion)
 		vpcconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		vpcconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
 			vpcconn.SetHttpsProxy(client.config.Proxy)
+			vpcconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.vpcconn = vpcconn
 	}
