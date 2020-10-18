@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_router\_interfaces
 
-This data source provides information about [router interfaces](https://www.alibabacloud.com/help/doc-detail/52412.htm)
+This data source provides information about router interfaces
 that connect VPCs together.
 
 ## Example Usage

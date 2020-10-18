@@ -11,7 +11,6 @@ description: |-
 
 This data source provides a list of Forward Entries owned by an Apsara Stack Cloud account.
 
--> **NOTE:** Available in 1.37.0+.
 
 ## Example Usage
 
@@ -89,6 +88,5 @@ The following attributes are exported in addition to the arguments listed above:
   * `ip_protocol` - The protocol type.
   * `internal_ip` - The private IP address.
   * `internal_port` - The private port.
-<!--* `name` - The forward entry name.-->
   * `status` - The status of the Forward Entry.
 
