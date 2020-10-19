@@ -38,6 +38,8 @@ func resourceApsaraStackCommonBandwidthPackageAttachmentCreate(d *schema.Resourc
 	vpcService := VpcService{client}
 	request := vpc.CreateAddCommonBandwidthPackageIpRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.BandwidthPackageId = Trim(d.Get("bandwidth_package_id").(string))
 	request.IpInstanceId = Trim(d.Get("instance_id").(string))
 	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {

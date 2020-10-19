@@ -70,7 +70,9 @@ func dataSourceApsaraStackRouteEntries() *schema.Resource {
 func dataSourceApsaraStackRouteEntriesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeRouteTablesRequest()
-	request.RegionId = string(client.Region)
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	request.RouteTableId = d.Get("route_table_id").(string)

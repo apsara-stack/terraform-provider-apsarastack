@@ -81,6 +81,8 @@ func resourceNetworkInterfaceCreate(d *schema.ResourceData, meta interface{}) er
 	ecsService := EcsService{client}
 	request := ecs.CreateCreateNetworkInterfaceRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.VSwitchId = d.Get("vswitch_id").(string)
 	groups := d.Get("security_groups").(*schema.Set).List()
 
