@@ -21,7 +21,6 @@ import (
 )
 
 // DescribePrice invokes the ecs.DescribePrice API synchronously
-// api document: https://help.aliyun.com/api/ecs/describeprice.html
 func (client *Client) DescribePrice(request *DescribePriceRequest) (response *DescribePriceResponse, err error) {
 	response = CreateDescribePriceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribePrice(request *DescribePriceRequest) (response *De
 }
 
 // DescribePriceWithChan invokes the ecs.DescribePrice API asynchronously
-// api document: https://help.aliyun.com/api/ecs/describeprice.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribePriceWithChan(request *DescribePriceRequest) (<-chan *DescribePriceResponse, <-chan error) {
 	responseChan := make(chan *DescribePriceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribePriceWithChan(request *DescribePriceRequest) (<-ch
 }
 
 // DescribePriceWithCallback invokes the ecs.DescribePrice API asynchronously
-// api document: https://help.aliyun.com/api/ecs/describeprice.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribePriceWithCallback(request *DescribePriceRequest, callback func(response *DescribePriceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -83,10 +78,13 @@ type DescribePriceRequest struct {
 	PriceUnit                  string           `position:"Query" name:"PriceUnit"`
 	Period                     requests.Integer `position:"Query" name:"Period"`
 	DataDisk1PerformanceLevel  string           `position:"Query" name:"DataDisk.1.PerformanceLevel"`
+	AssuranceTimes             string           `position:"Query" name:"AssuranceTimes"`
 	OwnerId                    requests.Integer `position:"Query" name:"OwnerId"`
+	InstanceCpuCoreCount       requests.Integer `position:"Query" name:"InstanceCpuCoreCount"`
 	InternetChargeType         string           `position:"Query" name:"InternetChargeType"`
 	InstanceNetworkType        string           `position:"Query" name:"InstanceNetworkType"`
 	InstanceAmount             requests.Integer `position:"Query" name:"InstanceAmount"`
+	InstanceTypeList           *[]string        `position:"Query" name:"InstanceTypeList"  type:"Repeated"`
 	DataDisk3PerformanceLevel  string           `position:"Query" name:"DataDisk.3.PerformanceLevel"`
 	ImageId                    string           `position:"Query" name:"ImageId"`
 	IoOptimized                string           `position:"Query" name:"IoOptimized"`
