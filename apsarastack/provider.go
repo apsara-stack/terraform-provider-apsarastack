@@ -89,7 +89,7 @@ func Provider() terraform.ResourceProvider {
 			"protocol": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "HTTPS",
+				Default:      "HTTP",
 				Description:  descriptions["protocol"],
 				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
 			},
@@ -328,9 +328,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.VpcEndpoint = strings.TrimSpace(endpoints["vpc"].(string))
 			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
 			config.RdsEndpoint = strings.TrimSpace(endpoints["rds"].(string))
-			config.OssEndpoint = strings.TrimSpace(endpoints["oss."].(string))
-			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
-			config.StsEndpoint = strings.TrimSpace(endpoints["cr."].(string))
+			config.OssEndpoint = strings.TrimSpace(endpoints["oss"].(string))
+			config.StsEndpoint = strings.TrimSpace(endpoints["slb"].(string))
+			config.StsEndpoint = strings.TrimSpace(endpoints["cr"].(string))
 
 		}
 	}
