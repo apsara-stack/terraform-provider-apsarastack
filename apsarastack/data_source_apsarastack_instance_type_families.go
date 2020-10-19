@@ -65,6 +65,8 @@ func dataSourceApsaraStackInstanceTypeFamiliesRead(d *schema.ResourceData, meta 
 	ecsService := EcsService{client}
 	request := ecs.CreateDescribeInstanceTypeFamiliesRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	if v, ok := d.GetOk("generation"); ok {
 		request.Generation = v.(string)
 	}

@@ -228,6 +228,8 @@ func dataSourceApsaraStackInstanceTypesRead(d *schema.ResourceData, meta interfa
 	gpuSpec := d.Get("gpu_spec").(string)
 
 	req := ecs.CreateDescribeInstanceTypesRequest()
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	req.InstanceTypeFamily = family
 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

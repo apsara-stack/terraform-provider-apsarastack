@@ -87,6 +87,8 @@ func dataSourceApsaraStackSecurityGroupsRead(d *schema.ResourceData, meta interf
 	ecsService := EcsService{client}
 
 	request := ecs.CreateDescribeSecurityGroupsRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.RegionId = client.RegionId
 	request.VpcId = d.Get("vpc_id").(string)
 	request.PageNumber = requests.NewInteger(1)

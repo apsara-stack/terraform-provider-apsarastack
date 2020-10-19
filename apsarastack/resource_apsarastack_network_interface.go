@@ -166,6 +166,8 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 	request := ecs.CreateModifyNetworkInterfaceAttributeRequest()
 	request.NetworkInterfaceId = d.Id()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	if !d.IsNewResource() && d.HasChange("description") {
 		request.Description = d.Get("description").(string)
 		attributeUpdate = true
@@ -207,6 +209,8 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 			unAssignIpList := expandStringList(unAssignIps.List())
 			unAssignPrivateIpAddressesRequest := ecs.CreateUnassignPrivateIpAddressesRequest()
 			unAssignPrivateIpAddressesRequest.RegionId = client.RegionId
+			unAssignPrivateIpAddressesRequest.Headers = map[string]string{"RegionId": client.RegionId}
+			unAssignPrivateIpAddressesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 			unAssignPrivateIpAddressesRequest.NetworkInterfaceId = d.Id()
 			unAssignPrivateIpAddressesRequest.PrivateIpAddress = &unAssignIpList
 			err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
@@ -232,6 +236,8 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 			assignIpList := expandStringList(assignIps.List())
 			assignPrivateIpAddressesRequest := ecs.CreateAssignPrivateIpAddressesRequest()
 			assignPrivateIpAddressesRequest.RegionId = client.RegionId
+			assignPrivateIpAddressesRequest.Headers = map[string]string{"RegionId": client.RegionId}
+			assignPrivateIpAddressesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 			assignPrivateIpAddressesRequest.NetworkInterfaceId = d.Id()
 			assignPrivateIpAddressesRequest.PrivateIpAddress = &assignIpList
 			err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
@@ -267,6 +273,8 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 			if diff > 0 {
 				assignPrivateIpAddressesRequest := ecs.CreateAssignPrivateIpAddressesRequest()
 				assignPrivateIpAddressesRequest.RegionId = client.RegionId
+				assignPrivateIpAddressesRequest.Headers = map[string]string{"RegionId": client.RegionId}
+				assignPrivateIpAddressesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 				assignPrivateIpAddressesRequest.NetworkInterfaceId = d.Id()
 				assignPrivateIpAddressesRequest.SecondaryPrivateIpAddressCount = requests.NewInteger(diff)
 				err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
@@ -293,6 +301,8 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 				unAssignIps := privateIpList[:diff]
 				unAssignPrivateIpAddressesRequest := ecs.CreateUnassignPrivateIpAddressesRequest()
 				unAssignPrivateIpAddressesRequest.RegionId = client.RegionId
+				unAssignPrivateIpAddressesRequest.Headers = map[string]string{"RegionId": client.RegionId}
+				unAssignPrivateIpAddressesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 				err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
 					unAssignPrivateIpAddressesRequest.NetworkInterfaceId = d.Id()
 					unAssignPrivateIpAddressesRequest.PrivateIpAddress = &unAssignIps
@@ -340,6 +350,8 @@ func resourceNetworkInterfaceDelete(d *schema.ResourceData, meta interface{}) er
 	request := ecs.CreateDeleteNetworkInterfaceRequest()
 	request.RegionId = client.RegionId
 	request.NetworkInterfaceId = d.Id()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 
 	err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
