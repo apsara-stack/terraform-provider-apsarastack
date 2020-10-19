@@ -42,6 +42,8 @@ func testSweepRouteTableAttachment(region string) error {
 	var routeTables []vpc.RouterTableListType
 	req := vpc.CreateDescribeRouteTableListRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -85,6 +87,8 @@ func testSweepRouteTableAttachment(region string) error {
 			}
 			log.Printf("[INFO] Unassociating Route Table: %s (%s)", name, id)
 			req := vpc.CreateUnassociateRouteTableRequest()
+			req.Headers = map[string]string{"RegionId": client.RegionId}
+			req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 			req.RouteTableId = id
 			req.VSwitchId = vswitch
 			_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {

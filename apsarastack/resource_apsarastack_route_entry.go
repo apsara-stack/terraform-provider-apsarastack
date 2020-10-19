@@ -187,6 +187,7 @@ func resourceApsaraStackRouteEntryDelete(d *schema.ResourceData, meta interface{
 func buildApsaraStackRouteEntryDeleteArgs(d *schema.ResourceData, meta interface{}) (*vpc.DeleteRouteEntryRequest, error) {
 
 	request := vpc.CreateDeleteRouteEntryRequest()
+
 	request.RouteTableId = d.Get("route_table_id").(string)
 	request.DestinationCidrBlock = d.Get("destination_cidrblock").(string)
 

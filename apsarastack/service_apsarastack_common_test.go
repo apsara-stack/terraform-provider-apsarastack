@@ -619,6 +619,7 @@ func (s *VpcService) sweepVpc(id string) error {
 	}
 	log.Printf("[DEBUG] Deleting Vpc %s ...", id)
 	request := vpc.CreateDeleteVpcRequest()
+
 	request.VpcId = id
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeleteVpc(request)
@@ -633,6 +634,9 @@ func (s *VpcService) sweepVSwitch(id string) error {
 	}
 	log.Printf("[DEBUG] Deleting Vswitch %s ...", id)
 	request := vpc.CreateDeleteVSwitchRequest()
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
+
 	request.VSwitchId = id
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeleteVSwitch(request)
@@ -650,6 +654,7 @@ func (s *VpcService) sweepNatGateway(id string) error {
 
 	log.Printf("[INFO] Deleting Nat Gateway %s ...", id)
 	request := vpc.CreateDeleteNatGatewayRequest()
+
 	request.NatGatewayId = id
 	request.Force = requests.NewBoolean(true)
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {

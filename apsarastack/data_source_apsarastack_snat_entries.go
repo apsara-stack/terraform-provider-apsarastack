@@ -60,6 +60,8 @@ func dataSourceApsaraStackSnatEntriesRead(d *schema.ResourceData, meta interface
 
 	request := vpc.CreateDescribeSnatTableEntriesRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	request.SnatTableId = d.Get("snat_table_id").(string)
