@@ -53,6 +53,8 @@ func resourceApsaraStackDiskAttachmentCreate(d *schema.ResourceData, meta interf
 	request := ecs.CreateAttachDiskRequest()
 	request.RegionId = client.RegionId
 	request.InstanceId = instanceID
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.DiskId = diskID
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -84,6 +86,8 @@ func resourceApsaraStackDiskAttachmentCreate(d *schema.ResourceData, meta interf
 	if newDisk.DeleteAutoSnapshot != oldDisk.DeleteAutoSnapshot {
 		request := ecs.CreateModifyDiskAttributeRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 		request.DiskId = diskID
 		request.DeleteAutoSnapshot = requests.NewBoolean(oldDisk.DeleteAutoSnapshot)
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -130,6 +134,8 @@ func resourceApsaraStackDiskAttachmentDelete(d *schema.ResourceData, meta interf
 	}
 	request := ecs.CreateDetachDiskRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.InstanceId = parts[1]
 	request.DiskId = parts[0]
 

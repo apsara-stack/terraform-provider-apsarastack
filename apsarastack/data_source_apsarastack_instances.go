@@ -195,6 +195,8 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 
 	request := ecs.CreateDescribeInstancesRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.Status = d.Get("status").(string)
 
 	if v, ok := d.GetOk("ids"); ok && len(v.([]interface{})) > 0 {
@@ -284,6 +286,8 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 	for index := 0; index < len(instanceIds); index += 100 {
 		// DescribeInstanceRamRole parameter InstanceIds supports at most 100 items once
 		request := ecs.CreateDescribeInstanceRamRoleRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 		request.InstanceIds = convertListToJsonString(convertListStringToListInterface(instanceIds[index:IntMin(index+100, len(instanceIds))]))
 		request.RamRoleName = d.Get("ram_role_name").(string)
 		request.PageSize = requests.NewInteger(PageSizeLarge)
@@ -385,6 +389,8 @@ func instancessDescriptionAttributes(d *schema.ResourceData, instances []ecs.Ins
 func getInstanceDisksMappings(instanceMap map[string]string, meta interface{}) (map[string][]map[string]interface{}, error) {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateDescribeDisksRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.PageSize = requests.NewInteger(PageSizeXLarge)
 	request.PageNumber = requests.NewInteger(1)
 	instanceDisks := make(map[string][]map[string]interface{})

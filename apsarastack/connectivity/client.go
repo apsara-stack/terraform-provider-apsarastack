@@ -135,12 +135,14 @@ func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}
 		//if _, err := ecsconn.DescribeRegions(ecs.CreateDescribeRegionsRequest()); err != nil {
 		//	return nil, err
 		//}
+		ecsconn.Domain = endpoint
 		ecsconn.AppendUserAgent(Terraform, terraformVersion)
 		ecsconn.AppendUserAgent(Provider, providerVersion)
 		ecsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ecsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
 			ecsconn.SetHttpsProxy(client.config.Proxy)
+			ecsconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.ecsconn = ecsconn
 	}

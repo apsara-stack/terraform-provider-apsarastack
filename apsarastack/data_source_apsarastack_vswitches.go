@@ -201,6 +201,8 @@ func VSwitchesDecriptionAttributes(d *schema.ResourceData, vsws []vpc.VSwitch, m
 	var names []string
 	var s []map[string]interface{}
 	request := ecs.CreateDescribeInstancesRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 
 	for _, vsw := range vsws {
 		mapping := map[string]interface{}{

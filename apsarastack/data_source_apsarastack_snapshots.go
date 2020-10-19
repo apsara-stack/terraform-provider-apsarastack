@@ -140,6 +140,8 @@ func dataSourceApsaraStackSnapshots() *schema.Resource {
 func dataSourceApsaraStackSnapshotsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateDescribeSnapshotsRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.RegionId = client.RegionId
 
 	if instanceId, ok := d.GetOk("instance_id"); ok {
