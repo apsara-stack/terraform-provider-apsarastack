@@ -164,6 +164,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
 			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
 			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
+			"apsarastack_kvstore_instances":              dataSourceApsaraStackKVStoreInstances(),
+			"apsarastack_kvstore_zones":                  dataSourceApsaraStackKVStoreZones(),
+			"apsarastack_kvstore_instance_classes":       dataSourceApsaraStackKVStoreInstanceClasses(),
+			"apsarastack_kvstore_instance_engines":       dataSourceApsaraStackKVStoreInstanceEngines(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -242,6 +246,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
 			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
 			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
+			"apsarastack_kvstore_instance":                    resourceApsaraStackKVStoreInstance(),
+			"apsarastack_kvstore_backup_policy":               resourceApsaraStackKVStoreBackupPolicy(),
+			"apsarastack_kvstore_account":                     resourceApsaraStackKVstoreAccount(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -336,6 +343,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.KmsEndpoint = "kms." + domain
 		config.LogEndpoint = "log." + domain
 		config.DnsEndpoint = "dns." + domain
+		config.KVStoreEndpoint = "kvstore."
 
 	} else {
 
@@ -353,7 +361,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.KmsEndpoint = strings.TrimSpace(endpoints["kms"].(string))
 			config.LogEndpoint = strings.TrimSpace(endpoints["log"].(string))
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
-
+			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
 		}
 	}
 
