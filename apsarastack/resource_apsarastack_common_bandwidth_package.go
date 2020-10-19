@@ -163,7 +163,9 @@ func resourceApsaraStackCommonBandwidthPackageUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("bandwidth") {
 		request := vpc.CreateModifyCommonBandwidthPackageSpecRequest()
-		request.RegionId = string(client.Region)
+		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 		request.BandwidthPackageId = d.Id()
 		request.Bandwidth = strconv.Itoa(d.Get("bandwidth").(int))
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -186,6 +188,8 @@ func resourceApsaraStackCommonBandwidthPackageDelete(d *schema.ResourceData, met
 
 	request := vpc.CreateDeleteCommonBandwidthPackageRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.BandwidthPackageId = d.Id()
 	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeleteCommonBandwidthPackage(request)

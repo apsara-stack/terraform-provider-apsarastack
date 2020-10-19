@@ -367,6 +367,8 @@ func getPackage(packageId string, meta interface{}, d *schema.ResourceData) (pac
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeBandwidthPackagesRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.NatGatewayId = d.Id()
 	request.BandwidthPackageId = packageId
 
