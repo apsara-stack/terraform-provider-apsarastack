@@ -148,6 +148,9 @@ func resourceApsaraStackRouterInterfaceConnectionCreate(d *schema.ResourceData, 
 	if object.Role == string(InitiatingSide) {
 		connectRequest := vpc.CreateConnectRouterInterfaceRequest()
 		connectRequest.RegionId = client.RegionId
+		connectRequest.Headers = map[string]string{"RegionId": client.RegionId}
+		connectRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
 		connectRequest.RouterInterfaceId = interfaceId
 		if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
 			raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
