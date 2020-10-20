@@ -217,17 +217,21 @@ func (client *ApsaraStackClient) WithEssClient(do func(*ess.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ESSCode), endpoint)
 		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		essconn, err := ess.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ESS client: %#v", err)
 		}
-
+		essconn.Domain = endpoint
 		essconn.AppendUserAgent(Terraform, terraformVersion)
 		essconn.AppendUserAgent(Provider, providerVersion)
 		essconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		essconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
 			essconn.SetHttpsProxy(client.config.Proxy)
+			essconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.essconn = essconn
 	}
