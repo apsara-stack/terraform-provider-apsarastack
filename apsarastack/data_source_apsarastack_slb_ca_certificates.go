@@ -80,6 +80,8 @@ func dataSourceApsaraStackSlbCACertificatesRead(d *schema.ResourceData, meta int
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := slb.CreateDescribeCACertificatesRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	tags := d.Get("tags").(map[string]interface{})
 	if tags != nil && len(tags) > 0 {
 		Tags := make([]slb.DescribeCACertificatesTag, 0, len(tags))

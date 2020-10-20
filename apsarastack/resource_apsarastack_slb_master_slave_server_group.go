@@ -78,6 +78,8 @@ func resourceApsaraStackSlbMasterSlaveServerGroupCreate(d *schema.ResourceData, 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := slb.CreateCreateMasterSlaveServerGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 	if v, ok := d.GetOk("name"); ok {
 		request.MasterSlaveServerGroupName = v.(string)
@@ -157,6 +159,8 @@ func resourceApsaraStackSlbMasterSlaveServerGroupDelete(d *schema.ResourceData, 
 
 	request := slb.CreateDeleteMasterSlaveServerGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	request.MasterSlaveServerGroupId = d.Id()
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {

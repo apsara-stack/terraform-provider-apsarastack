@@ -40,6 +40,8 @@ func resourceApsaraStackSlbCACertificateCreate(d *schema.ResourceData, meta inte
 
 	request := slb.CreateUploadCACertificateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 
 	if val, ok := d.GetOk("name"); ok && val.(string) != "" {
 		request.CACertificateName = val.(string)
@@ -104,6 +106,8 @@ func resourceApsaraStackSlbCACertificateUpdate(d *schema.ResourceData, meta inte
 	if d.HasChange("name") {
 		request := slb.CreateSetCACertificateNameRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 		request.CACertificateId = d.Id()
 		request.CACertificateName = d.Get("name").(string)
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -124,6 +128,8 @@ func resourceApsaraStackSlbCACertificateDelete(d *schema.ResourceData, meta inte
 
 	request := slb.CreateDeleteCACertificateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	request.CACertificateId = d.Id()
 
 	err := resource.Retry(2*time.Minute, func() *resource.RetryError {

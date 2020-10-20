@@ -427,13 +427,14 @@ func (client *ApsaraStackClient) WithSlbClient(do func(*slb.Client) (interface{}
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the SLB client: %#v", err)
 		}
-
+		slbconn.Domain = endpoint
 		slbconn.AppendUserAgent(Terraform, terraformVersion)
 		slbconn.AppendUserAgent(Provider, providerVersion)
 		slbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		slbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
 			slbconn.SetHttpsProxy(client.config.Proxy)
+			slbconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.slbconn = slbconn
 	}
