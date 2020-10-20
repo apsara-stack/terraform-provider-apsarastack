@@ -59,6 +59,8 @@ func dataSourceApsaraStackSlbDomainExtensionsRead(d *schema.ResourceData, meta i
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := slb.CreateDescribeDomainExtensionsRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 	request.ListenerPort = requests.NewInteger(d.Get("frontend_port").(int))
 
