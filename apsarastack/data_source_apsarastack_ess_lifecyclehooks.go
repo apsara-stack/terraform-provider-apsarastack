@@ -86,6 +86,8 @@ func dataSourceApsaraStackEssLifecycleHooksRead(d *schema.ResourceData, meta int
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateDescribeLifecycleHooksRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 
