@@ -134,6 +134,8 @@ func dataSourceApsaraStackEssScalingConfigurationsRead(d *schema.ResourceData, m
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateDescribeScalingConfigurationsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 

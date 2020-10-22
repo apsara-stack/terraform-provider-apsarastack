@@ -151,6 +151,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_buckets":                    dataSourceApsaraStackOssBuckets(),
 			"apsarastack_oss_bucket_objects":             dataSourceApsaraStackOssBucketObjects(),
 			"apsarastack_ess_scaling_groups":             dataSourceApsaraStackEssScalingGroups(),
+			"apsarastack_ess_lifecycle_hooks":            dataSourceApsaraStackEssLifecycleHooks(),
+			"apsarastack_ess_notifications":              dataSourceApsaraStackEssNotifications(),
 			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 			"apsarastack_router_interfaces":              dataSourceApsaraStackRouterInterfaces(),
 			"apsarastack_ess_scheduled_tasks":            dataSourceApsaraStackEssScheduledTasks(),
@@ -215,6 +217,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_bucket":                          resourceApsaraStackOssBucket(),
 			"apsarastack_oss_bucket_object":                   resourceApsaraStackOssBucketObject(),
 			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
+			"apsarastack_ess_notification":                    resourceApsaraStackEssNotification(),
 			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
 			"apsarastack_ess_scaling_rule":                    resourceApsaraStackEssScalingRule(),
 			"apsarastack_router_interface":                    resourceApsaraStackRouterInterface(),
@@ -317,6 +320,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.StsEndpoint = "sts." + domain
 		config.RdsEndpoint = "rds." + domain
 		config.CrEndpoint = "cr." + domain
+		config.EssEndpoint = "ess." + domain
 
 	} else {
 
@@ -331,6 +335,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.OssEndpoint = strings.TrimSpace(endpoints["oss"].(string))
 			config.SlbEndpoint = strings.TrimSpace(endpoints["slb"].(string))
 			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
+			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 
 		}
 	}
