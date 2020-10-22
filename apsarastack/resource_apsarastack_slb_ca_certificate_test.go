@@ -99,18 +99,7 @@ func TestAccApsaraStackSlbCACertificate_basic(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"ca_certificate": ca_certificate,
-					"tags": map[string]string{
-						"Created": "TF",
-						"For":     "acceptance test123",
-					},
 				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "2",
-						"tags.Created": "TF",
-						"tags.For":     "acceptance test123",
-					}),
-				),
 			},
 			{
 				ResourceName:            resourceId,
@@ -125,37 +114,6 @@ func TestAccApsaraStackSlbCACertificate_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"name": "tf-testAccSlbCACertificateUpdate",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"Created": "TF1",
-						"For":     "acceptance test1231",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "2",
-						"tags.Created": "TF1",
-						"tags.For":     "acceptance test1231",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"Created": "TF",
-						"For":     "acceptance test123",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"name":         name,
-						"tags.%":       "2",
-						"tags.Created": "TF",
-						"tags.For":     "acceptance test123",
 					}),
 				),
 			},

@@ -77,18 +77,7 @@ func dataSourceApsaraStackSlbServerCertificatesRead(d *schema.ResourceData, meta
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
-	tags := d.Get("tags").(map[string]interface{})
-	if tags != nil && len(tags) > 0 {
-		Tags := make([]slb.DescribeServerCertificatesTag, 0, len(tags))
-		for k, v := range tags {
-			certificatesTag := slb.DescribeServerCertificatesTag{
-				Key:   k,
-				Value: v.(string),
-			}
-			Tags = append(Tags, certificatesTag)
-		}
-		request.Tag = &Tags
-	}
+
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {
 		for _, vv := range v.([]interface{}) {
