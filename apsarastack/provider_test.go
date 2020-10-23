@@ -57,7 +57,7 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatal("APSARASTACK_PROXY must be set for acceptance tests")
 	}
 	if v := os.Getenv("APSARASTACK_DOMAIN"); v == "" {
-		t.Fatal("APSARASTACK_DOMAIN must be set for acceptance tests")
+		//t.Fatal("APSARASTACK_DOMAIN must be set for acceptance tests")
 	}
 }
 

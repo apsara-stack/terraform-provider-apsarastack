@@ -222,7 +222,7 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 			},
 			"server_certificate_id": {
 				Type:             schema.TypeString,
-				Required:         true,
+				Optional:         true,
 				DiffSuppressFunc: sslCertificateIdDiffSuppressFunc,
 			},
 
