@@ -29,7 +29,6 @@ func resourceApsaraStackSlbCACertificate() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"tags": tagsSchema(),
 		},
 	}
 }
@@ -70,11 +69,6 @@ func resourceApsaraStackSlbCACertificateCreate(d *schema.ResourceData, meta inte
 func resourceApsaraStackSlbCACertificateRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	slbService := SlbService{client}
-	tags, err := slbService.DescribeTags(d.Id(), nil, TagResourceCertificate)
-	if err != nil {
-		return WrapError(err)
-	}
-	d.Set("tags", slbService.tagsToMap(tags))
 
 	object, err := slbService.DescribeSlbCACertificate(d.Id())
 	if err != nil {
@@ -95,14 +89,6 @@ func resourceApsaraStackSlbCACertificateRead(d *schema.ResourceData, meta interf
 
 func resourceApsaraStackSlbCACertificateUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	slbService := SlbService{client}
-	if err := slbService.setInstanceTags(d, TagResourceCertificate); err != nil {
-		return WrapError(err)
-	}
-	if d.IsNewResource() {
-		d.Partial(false)
-		return resourceApsaraStackSlbCACertificateRead(d, meta)
-	}
 	if d.HasChange("name") {
 		request := slb.CreateSetCACertificateNameRequest()
 		request.RegionId = client.RegionId
