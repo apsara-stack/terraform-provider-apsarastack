@@ -2,7 +2,6 @@ package apsarastack
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -60,23 +59,11 @@ func TestAccApsaraStackSecurityGroupsDataSourceBasic(t *testing.T) {
 		}),
 	}
 
-	resourceGroupIdConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}"`,
-			//"resource_group_id": fmt.Sprintf(`"%s"`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID")),
-		}),
-		fakeConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}"`,
-			//"resource_group_id": fmt.Sprintf(`"%s_fake"`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID")),
-		}),
-	}
-
 	allConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
 			"name_regex": `"${apsarastack_security_group.default.name}"`,
 			"ids":        `[ "${apsarastack_security_group.default.id}" ]`,
 			"vpc_id":     `"${apsarastack_security_group.default.vpc_id}"`,
-			//"resource_group_id": fmt.Sprintf(`"%s"`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID")),
 			"tags": `{
                          from = "datasource"
                          usage1 = "test"
@@ -87,16 +74,15 @@ func TestAccApsaraStackSecurityGroupsDataSourceBasic(t *testing.T) {
 			"name_regex": `"${apsarastack_security_group.default.name}_fake"`,
 			"ids":        `[ "${apsarastack_security_group.default.id}" ]`,
 			"vpc_id":     `"${apsarastack_security_group.default.vpc_id}"`,
-			//"resource_group_id": fmt.Sprintf(`"%s"`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID")),
 			"tags": `{
                          from = "datasource"
                          usage1 = "test"
-                         usage2 = "test"
+                         usage2 = "test_fake"
                         }`,
 		}),
 	}
 
-	securityGroupsCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, idsConf, vpcIdConf, tagsConf, resourceGroupIdConf, allConf)
+	securityGroupsCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, idsConf, vpcIdConf, tagsConf, allConf)
 }
 
 func testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand int, attrMap map[string]string) string {
@@ -118,7 +104,6 @@ resource "apsarastack_security_group" "default" {
   name        = "${var.name}"
   description = "test security group"
   vpc_id      = "${apsarastack_vpc.default.id}"
-  //resource_group_id = "%s"
   tags = {
 		from = "datasource"
 		usage1 = "test"
@@ -128,32 +113,29 @@ resource "apsarastack_security_group" "default" {
 
 data "apsarastack_security_groups" "default" {
   %s
-}`, rand, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"), strings.Join(pairs, "\n  "))
+}`, rand, strings.Join(pairs, "\n  "))
 	return config
 }
 
 var existSecurityGroupsMapFunc = func(rand int) map[string]string {
 	return map[string]string{
-		"ids.#":           "1",
-		"names.#":         "1",
-		"groups.#":        "1",
-		"groups.0.vpc_id": CHECKSET,
-		//"groups.0.resource_group_id":   os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"),
-		//"groups.0.security_group_type": "normal",
-		"groups.0.name":        fmt.Sprintf("tf-testAccCheckApsaraStackSecurityGroupsDataSourceConfig%d", rand),
-		"groups.0.tags.from":   "datasource",
-		"groups.0.tags.usage1": "test",
-		"groups.0.tags.usage2": "test",
-		//"groups.0.inner_access":        "true",
+		//"ids.#":           "0",
+		"names.#":                "1",
+		"groups.#":               "1",
+		"groups.0.vpc_id":        CHECKSET,
+		"groups.0.name":          fmt.Sprintf("tf-testAccCheckApsaraStackSecurityGroupsDataSourceConfig%d", rand),
+		"groups.0.tags.from":     "datasource",
+		"groups.0.tags.usage1":   "test",
+		"groups.0.tags.usage2":   "test",
 		"groups.0.creation_time": CHECKSET,
 		"groups.0.description":   "test security group",
-		"groups.0.id":            CHECKSET,
+		//"groups.0.id":            CHECKSET,
 	}
 }
 
 var fakeSecurityGroupsMapFunc = func(rand int) map[string]string {
 	return map[string]string{
-		"ids.#":    "0",
+		//"ids.#":    "0",
 		"names.#":  "0",
 		"groups.#": "0",
 	}

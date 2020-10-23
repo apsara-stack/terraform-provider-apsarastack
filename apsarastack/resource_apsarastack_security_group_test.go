@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"fmt"
 	"log"
-	"os"
 	"testing"
 
 	"strings"
@@ -154,7 +153,6 @@ func TestAccApsaraStackSecurityGroupBasic(t *testing.T) {
 				Config: testAccCheckSecurityGroupConfigInnerAccess(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"inner_access":        "true",
 						"inner_access_policy": "Accept",
 					}),
 				),
@@ -238,8 +236,6 @@ resource "apsarastack_vpc" "default" {
 
 resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
-  resource_group_id = "%s"
-  inner_access = false
   name = "${var.name}"
   description = "${var.name}_describe"
   tags = {
@@ -247,7 +243,7 @@ resource "apsarastack_security_group" "default" {
         Test = "Test"
   }
 }
-`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`)
 }
 
 func testAccCheckSecurityGroupConfigInnerAccess() string {
@@ -264,7 +260,6 @@ resource "apsarastack_vpc" "default" {
 
 resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
-  resource_group_id = "%s"
   inner_access_policy = "Accept"
   name = "${var.name}"
   description = "${var.name}_describe"
@@ -272,7 +267,7 @@ resource "apsarastack_security_group" "default" {
 		foo  = "foo"
         Test = "Test"
   }
-}`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+}`)
 }
 
 func testAccCheckSecurityGroupConfigName() string {
@@ -290,15 +285,13 @@ resource "apsarastack_vpc" "default" {
 
 resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
-  resource_group_id = "%s"
-  inner_access = true
   name = "${var.name}_change"
   description = "${var.name}_describe"
   tags = {
 		foo  = "foo"
         Test = "Test"
   }
-}`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+}`)
 }
 
 func testAccCheckSecurityGroupConfigDescribe() string {
@@ -316,15 +309,13 @@ resource "apsarastack_vpc" "default" {
 
 resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
-  resource_group_id = "%s"
-  inner_access = true
   name = "${var.name}_change"
   description = "${var.name}_describe_change"
   tags = {
 		foo  = "foo"
         Test = "Test"
   }
-}`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+}`)
 }
 func testAccCheckSecurityGroupConfigTags() string {
 	return fmt.Sprintf(`
@@ -341,14 +332,12 @@ resource "apsarastack_vpc" "default" {
 
 resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
-  resource_group_id = "%s"
-  inner_access = true
   name = "${var.name}_change"
   description = "${var.name}_describe_change"
   tags = {
 		foo  = "foo"
   }
-}`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+}`)
 }
 
 func testAccCheckSecurityGroupConfigAll() string {
@@ -365,15 +354,14 @@ resource "apsarastack_vpc" "default" {
 
 resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
-  resource_group_id = "%s"
-  inner_access_policy = "Drop"
+  inner_access_policy = "Accept"
   name = "${var.name}"
   description = "${var.name}_describe"
   tags = {
 		foo  = "foo"
         Test = "Test"
   }
-}`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+}`)
 }
 
 func testAccCheckSecurityGroupConfigMulti() string {
@@ -392,25 +380,20 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_security_group" "default" {
   count = 10
   vpc_id = "${apsarastack_vpc.default.id}"
-  resource_group_id = "%s"
-  inner_access = false
   name = "${var.name}"
   description = "${var.name}_describe"
   tags = {
 		foo  = "foo"
         Test = "Test"
   }
-}`, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+}`)
 }
 
 var testAccCheckSecurityBasicMap = map[string]string{
 	"vpc_id":              CHECKSET,
-	"resource_group_id":   os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"),
-	"inner_access":        "false",
-	"inner_access_policy": "Drop",
+	"inner_access_policy": "Accept",
 	"name":                "tf-testAccCheckSecurityGroupName",
 	"description":         "tf-testAccCheckSecurityGroupName_describe",
-	"security_group_type": "normal",
 	"tags.%":              "2",
 	"tags.foo":            "foo",
 	"tags.Test":           "Test",
