@@ -44,6 +44,8 @@ func resourceApsaraStackEssNotificationCreate(d *schema.ResourceData, meta inter
 
 	request := ess.CreateCreateNotificationConfigurationRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	request.ScalingGroupId = d.Get("scaling_group_id").(string)
 	request.NotificationArn = d.Get("notification_arn").(string)
 	if v, ok := d.GetOk("notification_types"); ok {
@@ -91,6 +93,8 @@ func resourceApsaraStackEssNotificationUpdate(d *schema.ResourceData, meta inter
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateModifyNotificationConfigurationRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	parts := strings.SplitN(d.Id(), ":", 2)
 	request.ScalingGroupId = parts[0]
 	request.NotificationArn = parts[1]
@@ -122,6 +126,8 @@ func resourceApsaraStackEssNotificationDelete(d *schema.ResourceData, meta inter
 	essService := EssService{client}
 	request := ess.CreateDeleteNotificationConfigurationRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	parts := strings.SplitN(d.Id(), ":", 2)
 
 	request.ScalingGroupId = parts[0]

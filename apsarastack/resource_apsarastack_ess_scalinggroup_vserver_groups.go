@@ -245,6 +245,8 @@ func attachVserverGroups(d *schema.ResourceData, client *connectivity.ApsaraStac
 		}
 		request := ess.CreateAttachVServerGroupsRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 		request.ScalingGroupId = d.Id()
 		request.ForceAttach = requests.NewBoolean(force)
 		request.VServerGroup = &attachScalingGroupVserverGroups
@@ -281,6 +283,8 @@ func detachVserverGroups(d *schema.ResourceData, client *connectivity.ApsaraStac
 		}
 		request := ess.CreateDetachVServerGroupsRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 		request.ScalingGroupId = d.Id()
 		request.ForceDetach = requests.NewBoolean(force)
 		request.VServerGroup = &detachScalingGroupVserverGroups
