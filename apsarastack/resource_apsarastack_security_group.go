@@ -76,7 +76,7 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 		return ecsClient.CreateSecurityGroup(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_security_group", request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_security_group", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*ecs.CreateSecurityGroupResponse)
@@ -111,7 +111,7 @@ func resourceApsaraStackSecurityGroupRead(d *schema.ResourceData, meta interface
 		return ecsClient.DescribeSecurityGroups(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*ecs.DescribeSecurityGroupsResponse)
@@ -134,7 +134,7 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 		d.SetPartial("tags")
 	}
 
-	if d.HasChange("inner_access_policy") /*|| d.HasChange("inner_access") || d.IsNewResource() && d.Get("security_group_type").(string) != "enterprise" */ {
+	if d.HasChange("inner_access_policy") {
 		policy := GroupInnerAccept
 		if v, ok := d.GetOk("inner_access_policy"); ok && v.(string) != "" {
 			policy = GroupInnerAccessPolicy(v.(string))
@@ -149,7 +149,7 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 			return ecsClient.ModifySecurityGroupPolicy(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		d.SetPartial("inner_access_policy")
@@ -178,7 +178,7 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 			return ecsClient.ModifySecurityGroupAttribute(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		d.SetPartial("name")
