@@ -43,6 +43,8 @@ func testSweepCommonBandwidthPackage(region string) error {
 	var commonBandwidthPackages []vpc.CommonBandwidthPackage
 	req := vpc.CreateDescribeCommonBandwidthPackagesRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -85,6 +87,8 @@ func testSweepCommonBandwidthPackage(region string) error {
 		}
 		log.Printf("[INFO] Deleting Common Bandwidth Package: %s (%s)", name, id)
 		req := vpc.CreateDeleteCommonBandwidthPackageRequest()
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 		req.BandwidthPackageId = id
 		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteCommonBandwidthPackage(req)

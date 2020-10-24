@@ -13,20 +13,20 @@ func TestAccApsaraStackDBZonesDataSource_basic(t *testing.T) {
 
 	multiConfig := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
-			"multi": "true",
+			"multi": "false",
 		}),
 	}
 
 	chargeTypeConfig := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
-			"instance_charge_type": "PrePaid",
+			"instance_charge_type": "PostPaid",
 		}),
 	}
 
 	allconfig := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
-			"multi":                "true",
-			"instance_charge_type": "PrePaid",
+			"multi":                "false",
+			"instance_charge_type": "PostPaid",
 		}),
 	}
 

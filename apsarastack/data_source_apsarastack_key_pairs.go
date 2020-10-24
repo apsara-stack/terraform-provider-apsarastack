@@ -89,6 +89,8 @@ func dataSourceApsaraStackKeyPairsRead(d *schema.ResourceData, meta interface{})
 	}
 	request := ecs.CreateDescribeKeyPairsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	if fingerPrint, ok := d.GetOk("finger_print"); ok {
 		request.KeyPairFingerPrint = fingerPrint.(string)
 	}
@@ -147,6 +149,8 @@ func dataSourceApsaraStackKeyPairsRead(d *schema.ResourceData, meta interface{})
 	describeInstancesRequest := ecs.CreateDescribeInstancesRequest()
 	describeInstancesRequest.PageNumber = requests.NewInteger(1)
 	describeInstancesRequest.PageSize = requests.NewInteger(PageSizeLarge)
+	describeInstancesRequest.Headers = map[string]string{"RegionId": client.RegionId}
+	describeInstancesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

@@ -65,6 +65,8 @@ func resourceApsaraStackEssScalingRuleCreate(d *schema.ResourceData, meta interf
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.CreateScalingRule(request)
 	})
@@ -121,6 +123,8 @@ func resourceApsaraStackEssScalingRuleDelete(d *schema.ResourceData, meta interf
 	request := ess.CreateDeleteScalingRuleRequest()
 	request.ScalingRuleId = d.Id()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteScalingRule(request)
 	})
@@ -146,6 +150,8 @@ func resourceApsaraStackEssScalingRuleUpdate(d *schema.ResourceData, meta interf
 	request := ess.CreateModifyScalingRuleRequest()
 	request.ScalingRuleId = d.Id()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	if d.HasChange("scaling_rule_name") {
 		request.ScalingRuleName = d.Get("scaling_rule_name").(string)
 	}
@@ -170,7 +176,11 @@ func resourceApsaraStackEssScalingRuleUpdate(d *schema.ResourceData, meta interf
 }
 
 func buildApsaraStackEssScalingRuleArgs(d *schema.ResourceData, meta interface{}) (*ess.CreateScalingRuleRequest, error) {
+	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateCreateScalingRuleRequest()
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	// common params
 	request.ScalingGroupId = d.Get("scaling_group_id").(string)
 

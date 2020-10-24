@@ -89,7 +89,7 @@ func Provider() terraform.ResourceProvider {
 			"protocol": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "HTTPS",
+				Default:      "HTTP",
 				Description:  descriptions["protocol"],
 				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
 			},
@@ -151,6 +151,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_buckets":                    dataSourceApsaraStackOssBuckets(),
 			"apsarastack_oss_bucket_objects":             dataSourceApsaraStackOssBucketObjects(),
 			"apsarastack_ess_scaling_groups":             dataSourceApsaraStackEssScalingGroups(),
+			"apsarastack_ess_lifecycle_hooks":            dataSourceApsaraStackEssLifecycleHooks(),
+			"apsarastack_ess_notifications":              dataSourceApsaraStackEssNotifications(),
 			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 			"apsarastack_router_interfaces":              dataSourceApsaraStackRouterInterfaces(),
 			"apsarastack_ess_scheduled_tasks":            dataSourceApsaraStackEssScheduledTasks(),
@@ -161,6 +163,12 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kms_ciphertext":                 dataSourceApsaraStackKmsCiphertext(),
 			"apsarastack_kms_keys":                       dataSourceApsaraStackKmsKeys(),
 			"apsarastack_kms_secrets":                    dataSourceApsaraStackKmsSecrets(),
+			"apsarastack_cr_ee_instances":                dataSourceApsaraStackCrEEInstances(),
+			"apsarastack_cr_ee_namespaces":               dataSourceApsaraStackCrEENamespaces(),
+			"apsarastack_cr_ee_repos":                    dataSourceApsaraStackCrEERepos(),
+			"apsarastack_cr_ee_sync_rules":               dataSourceApsaraStackCrEESyncRules(),
+			"apsarastack_cr_namespaces":                  dataSourceApsaraStackCRNamespaces(),
+			"apsarastack_cr_repos":                       dataSourceApsaraStackCRRepos(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -216,6 +224,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_bucket":                          resourceApsaraStackOssBucket(),
 			"apsarastack_oss_bucket_object":                   resourceApsaraStackOssBucketObject(),
 			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
+			"apsarastack_ess_notification":                    resourceApsaraStackEssNotification(),
 			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
 			"apsarastack_ess_scaling_rule":                    resourceApsaraStackEssScalingRule(),
 			"apsarastack_router_interface":                    resourceApsaraStackRouterInterface(),
@@ -235,6 +244,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_log_machine_group":                   resourceApsaraStackLogMachineGroup(),
 			"apsarastack_logtail_attachment":                  resourceApsaraStackLogtailAttachment(),
 			"apsarastack_logtail_config":                      resourceApsaraStackLogtailConfig(),
+			"apsarastack_cr_ee_namespace":                     resourceApsaraStackCrEENamespace(),
+			"apsarastack_cr_ee_repo":                          resourceApsaraStackCrEERepo(),
+			"apsarastack_cr_ee_sync_rule":                     resourceApsaraStackCrEESyncRule(),
+			"apsarastack_cr_namespace":                        resourceApsaraStackCRNamespace(),
+			"apsarastack_cr_repo":                             resourceApsaraStackCRRepo(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -328,6 +342,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.OnsEndpoint = "ons." + domain
 		config.KmsEndpoint = "kms." + domain
 		config.LogEndpoint = "log." + domain
+		config.CrEndpoint = "cr." + domain
+		config.EssEndpoint = "ess." + domain
 
 	} else {
 
@@ -344,6 +360,10 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.OnsEndpoint = strings.TrimSpace(endpoints["ons"].(string))
 			config.KmsEndpoint = strings.TrimSpace(endpoints["kms"].(string))
 			config.LogEndpoint = strings.TrimSpace(endpoints["log"].(string))
+			config.OssEndpoint = strings.TrimSpace(endpoints["oss"].(string))
+			config.SlbEndpoint = strings.TrimSpace(endpoints["slb"].(string))
+			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
+			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 
 		}
 	}

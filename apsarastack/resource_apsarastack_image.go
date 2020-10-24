@@ -24,7 +24,7 @@ func resourceApsaraStackImage() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
@@ -118,6 +118,8 @@ func resourceApsaraStackImageCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	request := ecs.CreateCreateImageRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	if instanceId, ok := d.GetOk("instance_id"); ok {
 		request.InstanceId = instanceId.(string)
 	}

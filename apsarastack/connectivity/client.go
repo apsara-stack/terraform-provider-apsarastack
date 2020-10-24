@@ -7,6 +7,8 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/adb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/bssopenapi"
 	cdn_new "github.com/aliyun/alibaba-cloud-sdk-go/services/cdn"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr_ee"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/elasticsearch"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
@@ -76,6 +78,8 @@ type ApsaraStackClient struct {
 	onsconn           *ons.Client
 	logconn           *sls.Client
 	logpopconn        *slsPop.Client
+	creeconn          *cr_ee.Client
+	crconn            *cr.Client
 }
 
 const (
@@ -137,12 +141,14 @@ func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}
 		//if _, err := ecsconn.DescribeRegions(ecs.CreateDescribeRegionsRequest()); err != nil {
 		//	return nil, err
 		//}
+		ecsconn.Domain = endpoint
 		ecsconn.AppendUserAgent(Terraform, terraformVersion)
 		ecsconn.AppendUserAgent(Provider, providerVersion)
 		ecsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ecsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
 			ecsconn.SetHttpsProxy(client.config.Proxy)
+			ecsconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.ecsconn = ecsconn
 	}
@@ -217,17 +223,21 @@ func (client *ApsaraStackClient) WithEssClient(do func(*ess.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ESSCode), endpoint)
 		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		essconn, err := ess.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ESS client: %#v", err)
 		}
-
+		essconn.Domain = endpoint
 		essconn.AppendUserAgent(Terraform, terraformVersion)
 		essconn.AppendUserAgent(Provider, providerVersion)
 		essconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		essconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
 			essconn.SetHttpsProxy(client.config.Proxy)
+			essconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.essconn = essconn
 	}
@@ -392,17 +402,21 @@ func (client *ApsaraStackClient) WithVpcClient(do func(*vpc.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(VPCCode), endpoint)
 		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		vpcconn, err := vpc.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the VPC client: %#v", err)
 		}
-
+		vpcconn.Domain = endpoint
 		vpcconn.AppendUserAgent(Terraform, terraformVersion)
 		vpcconn.AppendUserAgent(Provider, providerVersion)
 		vpcconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		vpcconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
 			vpcconn.SetHttpsProxy(client.config.Proxy)
+			vpcconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.vpcconn = vpcconn
 	}
@@ -423,13 +437,14 @@ func (client *ApsaraStackClient) WithSlbClient(do func(*slb.Client) (interface{}
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the SLB client: %#v", err)
 		}
-
+		slbconn.Domain = endpoint
 		slbconn.AppendUserAgent(Terraform, terraformVersion)
 		slbconn.AppendUserAgent(Provider, providerVersion)
 		slbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		slbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
 			slbconn.SetHttpsProxy(client.config.Proxy)
+			slbconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.slbconn = slbconn
 	}
@@ -504,7 +519,11 @@ func (client *ApsaraStackClient) describeEndpointForService(serviceCode string) 
 
 func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema string, apiVersion ApiVersion) (*requests.CommonRequest, error) {
 	request := requests.NewCommonRequest()
-	endpoint := loadEndpoint(client.RegionId, ServiceCode(strings.ToUpper(product)))
+	endpoint := client.config.SlbEndpoint
+	if endpoint == "" {
+		endpoint = loadEndpoint(client.RegionId, ServiceCode(strings.ToUpper(product)))
+	}
+
 	if endpoint == "" {
 		endpointItem, err := client.describeEndpointForService(serviceCode)
 		if err != nil {
@@ -701,7 +720,7 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 
 	// Initialize the OSS client if necessary
 	if client.ossconn == nil {
-		schma := "https"
+		schma := "http"
 		endpoint := client.config.OssEndpoint
 		if endpoint == "" {
 			endpoint = loadEndpoint(client.config.RegionId, OSSCode)
@@ -713,7 +732,7 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 					// HTTP or HTTPS
 					schma = strings.ToLower(endpointItem.Protocols.Protocols[0])
 					for _, p := range endpointItem.Protocols.Protocols {
-						if strings.ToLower(p) == "https" {
+						if strings.ToLower(p) == "http" {
 							schma = strings.ToLower(p)
 							break
 						}
@@ -731,6 +750,9 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 		clientOptions := []oss.ClientOption{oss.UserAgent(client.getUserAgent()),
 			oss.SecurityToken(client.config.SecurityToken)}
 		proxy, err := client.getHttpProxy()
+		if client.config.Proxy != "" {
+			clientOptions = append(clientOptions, oss.Proxy(client.config.Proxy))
+		}
 		if proxy != nil {
 			skip, err := client.skipProxy(endpoint)
 			if err != nil {
@@ -740,6 +762,7 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 				clientOptions = append(clientOptions, oss.Proxy(proxy.String()))
 			}
 		}
+		clientOptions = append(clientOptions, oss.UseCname(false))
 
 		ossconn, err := oss.New(endpoint, client.config.AccessKey, client.config.SecretKey, clientOptions...)
 		if err != nil {
@@ -965,4 +988,56 @@ func (client *ApsaraStackClient) WithLogPopClient(do func(*slsPop.Client) (inter
 	}
 
 	return do(client.logpopconn)
+}
+
+func (client *ApsaraStackClient) WithCrEEClient(do func(*cr_ee.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the CR EE client if necessary
+	if client.creeconn == nil {
+		endpoint := client.config.CrEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, CRCode)
+			if endpoint == "" {
+				endpoint = fmt.Sprintf("cr.%s.aliyuncs.com", client.config.RegionId)
+			}
+		}
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(CRCode), endpoint)
+		}
+		creeconn, err := cr_ee.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the CR EE client: %#v", err)
+		}
+		creeconn.AppendUserAgent(Terraform, terraformVersion)
+		creeconn.AppendUserAgent(Provider, providerVersion)
+		creeconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		client.creeconn = creeconn
+	}
+
+	return do(client.creeconn)
+}
+
+func (client *ApsaraStackClient) WithCrClient(do func(*cr.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the CR client if necessary
+	if client.crconn == nil {
+		endpoint := client.config.CrEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, CRCode)
+			if endpoint == "" {
+				endpoint = fmt.Sprintf("cr.%s.aliyuncs.com", client.config.RegionId)
+			}
+		}
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(CRCode), endpoint)
+		}
+		crconn, err := cr.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the CR client: %#v", err)
+		}
+		crconn.AppendUserAgent(Terraform, terraformVersion)
+		crconn.AppendUserAgent(Provider, providerVersion)
+		crconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		client.crconn = crconn
+	}
+
+	return do(client.crconn)
 }

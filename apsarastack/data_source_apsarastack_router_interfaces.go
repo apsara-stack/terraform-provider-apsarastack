@@ -163,7 +163,9 @@ func dataSourceApsaraStackRouterInterfacesRead(d *schema.ResourceData, meta inte
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := vpc.CreateDescribeRouterInterfacesRequest()
-	request.RegionId = string(client.Region)
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	var filters []vpc.DescribeRouterInterfacesFilter

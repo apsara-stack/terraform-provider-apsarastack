@@ -49,6 +49,9 @@ func testSweepVpcs(region string) error {
 	var vpcs []vpc.Vpc
 	request := vpc.CreateDescribeVpcsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	invoker := NewInvoker()

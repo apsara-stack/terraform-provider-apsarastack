@@ -34,6 +34,8 @@ const tags_max_page_size = 50
 func (s *SlbService) BuildSlbCommonRequest() (*requests.CommonRequest, error) {
 	// Get product code from the built request
 	slbReq := slb.CreateCreateLoadBalancerRequest()
+	slbReq.Headers = map[string]string{"RegionId": s.client.RegionId}
+	slbReq.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	req, err := s.client.NewCommonRequest(slbReq.GetProduct(), slbReq.GetLocationServiceCode(), strings.ToUpper(string(Https)), connectivity.ApiVersion20140515)
 	if err != nil {
 		err = WrapError(err)
@@ -46,6 +48,8 @@ func (s *SlbService) DescribeSlb(id string) (*slb.DescribeLoadBalancerAttributeR
 	response := &slb.DescribeLoadBalancerAttributeResponse{}
 	request := slb.CreateDescribeLoadBalancerAttributeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.LoadBalancerId = id
 	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeLoadBalancerAttribute(request)
@@ -70,6 +74,8 @@ func (s *SlbService) DescribeSlbRule(id string) (*slb.DescribeRuleAttributeRespo
 	response := &slb.DescribeRuleAttributeResponse{}
 	request := slb.CreateDescribeRuleAttributeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.RuleId = id
 	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeRuleAttribute(request)
@@ -92,6 +98,8 @@ func (s *SlbService) DescribeSlbServerGroup(id string) (*slb.DescribeVServerGrou
 	response := &slb.DescribeVServerGroupAttributeResponse{}
 	request := slb.CreateDescribeVServerGroupAttributeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.VServerGroupId = id
 	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeVServerGroupAttribute(request)
@@ -114,6 +122,8 @@ func (s *SlbService) DescribeSlbMasterSlaveServerGroup(id string) (*slb.Describe
 	response := &slb.DescribeMasterSlaveServerGroupAttributeResponse{}
 	request := slb.CreateDescribeMasterSlaveServerGroupAttributeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.MasterSlaveServerGroupId = id
 	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeMasterSlaveServerGroupAttribute(request)
@@ -136,6 +146,8 @@ func (s *SlbService) DescribeSlbBackendServer(id string) (*slb.DescribeLoadBalan
 	response := &slb.DescribeLoadBalancerAttributeResponse{}
 	request := slb.CreateDescribeLoadBalancerAttributeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.LoadBalancerId = id
 	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeLoadBalancerAttribute(request)
@@ -204,6 +216,8 @@ func (s *SlbService) DescribeSlbAcl(id string) (*slb.DescribeAccessControlListAt
 	response := &slb.DescribeAccessControlListAttributeResponse{}
 	request := slb.CreateDescribeAccessControlListAttributeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.AclId = id
 
 	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -401,6 +415,8 @@ RETRY:
 func (s *SlbService) slbRemoveAccessControlListEntryPerTime(list []interface{}, id string) error {
 	request := slb.CreateRemoveAccessControlListEntryRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.AclId = id
 	b, err := json.Marshal(list)
 	if err != nil {
@@ -447,6 +463,8 @@ func (s *SlbService) SlbRemoveAccessControlListEntry(list []interface{}, aclId s
 func (s *SlbService) slbAddAccessControlListEntryPerTime(list []interface{}, id string) error {
 	request := slb.CreateAddAccessControlListEntryRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.AclId = id
 	b, err := json.Marshal(list)
 	if err != nil {
@@ -523,6 +541,8 @@ func (s *SlbService) DescribeSlbCACertificate(id string) (*slb.CACertificate, er
 	certificate := &slb.CACertificate{}
 	request := slb.CreateDescribeCACertificatesRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.CACertificateId = id
 	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeCACertificates(request)
@@ -625,6 +645,8 @@ func toSlbTagsString(tags []Tag) string {
 func (s *SlbService) DescribeDomainExtensionAttribute(domainExtensionId string) (*slb.DescribeDomainExtensionAttributeResponse, error) {
 	response := &slb.DescribeDomainExtensionAttributeResponse{}
 	request := slb.CreateDescribeDomainExtensionAttributeRequest()
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.DomainExtensionId = domainExtensionId
 	var raw interface{}
 	var err error
@@ -687,10 +709,15 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 			tagKey = append(tagKey, v.Key)
 		}
 		request := slb.CreateUntagResourcesRequest()
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 		request.ResourceId = &[]string{d.Id()}
 		request.ResourceType = string(resourceType)
 		request.TagKey = &tagKey
 		request.RegionId = s.client.RegionId
+
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 
 		wait := incrementalWait(1*time.Second, 1*time.Second)
 		err := resource.Retry(10*time.Minute, func() *resource.RetryError {
@@ -716,10 +743,14 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 	if len(create) > 0 {
 		request := slb.CreateTagResourcesRequest()
 		request.ResourceId = &[]string{d.Id()}
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 		request.Tag = &create
 		request.ResourceType = string(resourceType)
 		request.RegionId = s.client.RegionId
 
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 		wait := incrementalWait(1*time.Second, 1*time.Second)
 		err := resource.Retry(10*time.Minute, func() *resource.RetryError {
 			raw, err := s.client.WithSlbClient(func(client *slb.Client) (interface{}, error) {
@@ -804,6 +835,8 @@ func (s *SlbService) tagsFromMap(m map[string]interface{}) []slb.TagResourcesTag
 func (s *SlbService) DescribeTags(resourceId string, resourceTags map[string]interface{}, resourceType TagResourceType) (tags []slb.TagResource, err error) {
 	request := slb.CreateListTagResourcesRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.ResourceType = string(resourceType)
 	request.ResourceId = &[]string{resourceId}
 	if resourceTags != nil && len(resourceTags) > 0 {
