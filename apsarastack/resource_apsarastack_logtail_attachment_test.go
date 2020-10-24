@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform/helper/acctest"
 )
 
 func TestAccApsaraStackLogtailAttachmentBasic(t *testing.T) {
