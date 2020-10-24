@@ -56,6 +56,8 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 
 	request := ecs.CreateCreateSecurityGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 
 	if v := d.Get("name").(string); v != "" {
 		request.SecurityGroupName = v
@@ -101,6 +103,8 @@ func resourceApsaraStackSecurityGroupRead(d *schema.ResourceData, meta interface
 
 	request := ecs.CreateDescribeSecurityGroupsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.SecurityGroupId = d.Id()
 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

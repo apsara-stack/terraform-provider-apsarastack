@@ -26,7 +26,6 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 				ForceNew: true,
 				MinItems: 1,
 			},
-			"tags": tagsSchema(),
 			"name_regex": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -37,11 +36,6 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"resource_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
 			},
 			// Computed values
 			"certificates": {
@@ -69,12 +63,6 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"resource_group_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
-						"tags": tagsSchema(),
 					},
 				},
 			},
@@ -82,35 +70,14 @@ func dataSourceApsaraStackSlbServerCertificates() *schema.Resource {
 	}
 }
 
-func severCertificateTagsMappings(d *schema.ResourceData, id string, meta interface{}) map[string]string {
-	client := meta.(*connectivity.ApsaraStackClient)
-	slbService := SlbService{client}
-	tags, err := slbService.DescribeTags(id, nil, TagResourceCertificate)
-
-	if err != nil {
-		return nil
-	}
-
-	return slbTagsToMap(tags)
-}
-
 func dataSourceApsaraStackSlbServerCertificatesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := slb.CreateDescribeServerCertificatesRequest()
 	request.RegionId = client.RegionId
-	tags := d.Get("tags").(map[string]interface{})
-	if tags != nil && len(tags) > 0 {
-		Tags := make([]slb.DescribeServerCertificatesTag, 0, len(tags))
-		for k, v := range tags {
-			certificatesTag := slb.DescribeServerCertificatesTag{
-				Key:   k,
-				Value: v.(string),
-			}
-			Tags = append(Tags, certificatesTag)
-		}
-		request.Tag = &Tags
-	}
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {
 		for _, vv := range v.([]interface{}) {
@@ -165,8 +132,6 @@ func slbServerCertificatesDescriptionAttributes(d *schema.ResourceData, certific
 			"fingerprint":       certificate.Fingerprint,
 			"created_time":      certificate.CreateTime,
 			"created_timestamp": certificate.CreateTimeStamp,
-			"resource_group_id": certificate.ResourceGroupId,
-			"tags":              severCertificateTagsMappings(d, certificate.ServerCertificateId, meta),
 		}
 		ids = append(ids, certificate.ServerCertificateId)
 		names = append(names, certificate.ServerCertificateName)

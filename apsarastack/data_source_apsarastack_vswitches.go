@@ -110,7 +110,9 @@ func dataSourceApsaraStackVSwitchesRead(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := vpc.CreateDescribeVSwitchesRequest()
-	request.RegionId = string(client.Region)
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	// API DescribeVSwitches has some limitations
 	// If there is no vpc_id, setting PageSizeSmall can avoid ServiceUnavailable Error
 	request.PageSize = requests.NewInteger(PageSizeSmall)
@@ -199,6 +201,8 @@ func VSwitchesDecriptionAttributes(d *schema.ResourceData, vsws []vpc.VSwitch, m
 	var names []string
 	var s []map[string]interface{}
 	request := ecs.CreateDescribeInstancesRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 
 	for _, vsw := range vsws {
 		mapping := map[string]interface{}{

@@ -57,7 +57,7 @@ func testAccPreCheck(t *testing.T) {
 		t.Fatal("APSARASTACK_PROXY must be set for acceptance tests")
 	}
 	if v := os.Getenv("APSARASTACK_DOMAIN"); v == "" {
-		t.Fatal("APSARASTACK_DOMAIN must be set for acceptance tests")
+		//t.Fatal("APSARASTACK_DOMAIN must be set for acceptance tests")
 	}
 }
 
@@ -193,6 +193,8 @@ func testAccPreCheckWithNoDefaultVpc(t *testing.T) {
 	}
 	client := rawClient.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeVpcsRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.RegionId = string(client.Region)
 	request.PageSize = requests.NewInteger(PageSizeSmall)
 	request.PageNumber = requests.NewInteger(1)
@@ -223,6 +225,8 @@ func testAccPreCheckWithNoDefaultVswitch(t *testing.T) {
 	client := rawClient.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeVSwitchesRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.PageSize = requests.NewInteger(PageSizeSmall)
 	request.PageNumber = requests.NewInteger(1)
 	request.IsDefault = requests.NewBoolean(true)

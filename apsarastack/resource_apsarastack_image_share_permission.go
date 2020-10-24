@@ -36,6 +36,8 @@ func resourceApsaraStackImageSharePermissionCreate(d *schema.ResourceData, meta 
 	accountId := d.Get("account_id").(string)
 	request := ecs.CreateModifyImageSharePermissionRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	request.ImageId = imageId
 	accountSli := []string{accountId}
 	request.AddAccount = &accountSli
@@ -71,6 +73,8 @@ func resourceApsaraStackImageSharePermissionDelete(d *schema.ResourceData, meta 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateModifyImageSharePermissionRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 	parts, err := ParseResourceId(d.Id(), 2)
 	request.ImageId = parts[0]
 	accountSli := []string{parts[1]}

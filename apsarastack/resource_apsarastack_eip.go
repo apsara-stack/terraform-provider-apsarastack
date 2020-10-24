@@ -54,6 +54,8 @@ func resourceApsaraStackEipCreate(d *schema.ResourceData, meta interface{}) erro
 
 	request := vpc.CreateAllocateEipAddressRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.Bandwidth = strconv.Itoa(d.Get("bandwidth").(int))
 	request.ClientToken = buildClientToken(request.GetActionName())
 
@@ -100,6 +102,8 @@ func resourceApsaraStackEipUpdate(d *schema.ResourceData, meta interface{}) erro
 	update := false
 	request := vpc.CreateModifyEipAddressAttributeRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.AllocationId = d.Id()
 
 	if d.HasChange("bandwidth") && !d.IsNewResource() {
@@ -133,6 +137,8 @@ func resourceApsaraStackEipDelete(d *schema.ResourceData, meta interface{}) erro
 	request := vpc.CreateReleaseEipAddressRequest()
 	request.AllocationId = d.Id()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ReleaseEipAddress(request)

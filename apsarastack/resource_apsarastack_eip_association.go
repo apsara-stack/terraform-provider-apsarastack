@@ -45,6 +45,8 @@ func resourceApsaraStackEipAssociationCreate(d *schema.ResourceData, meta interf
 
 	request := vpc.CreateAssociateEipAddressRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.AllocationId = Trim(d.Get("allocation_id").(string))
 	request.InstanceId = Trim(d.Get("instance_id").(string))
 	request.InstanceType = EcsInstance
@@ -120,6 +122,8 @@ func resourceApsaraStackEipAssociationDelete(d *schema.ResourceData, meta interf
 
 	request := vpc.CreateUnassociateEipAddressRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.AllocationId = allocationId
 	request.InstanceId = instanceId
 	request.InstanceType = EcsInstance

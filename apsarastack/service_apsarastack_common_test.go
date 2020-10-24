@@ -619,6 +619,7 @@ func (s *VpcService) sweepVpc(id string) error {
 	}
 	log.Printf("[DEBUG] Deleting Vpc %s ...", id)
 	request := vpc.CreateDeleteVpcRequest()
+
 	request.VpcId = id
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeleteVpc(request)
@@ -633,6 +634,9 @@ func (s *VpcService) sweepVSwitch(id string) error {
 	}
 	log.Printf("[DEBUG] Deleting Vswitch %s ...", id)
 	request := vpc.CreateDeleteVSwitchRequest()
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
+
 	request.VSwitchId = id
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeleteVSwitch(request)
@@ -650,6 +654,7 @@ func (s *VpcService) sweepNatGateway(id string) error {
 
 	log.Printf("[INFO] Deleting Nat Gateway %s ...", id)
 	request := vpc.CreateDeleteNatGatewayRequest()
+
 	request.NatGatewayId = id
 	request.Force = requests.NewBoolean(true)
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -683,6 +688,8 @@ func (s *SlbService) sweepSlb(id string) error {
 	}
 	log.Printf("[DEBUG] Set SLB DeleteProtection to off before deleting %s ...", id)
 	request := slb.CreateSetLoadBalancerDeleteProtectionRequest()
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	request.LoadBalancerId = id
 	request.DeleteProtection = "off"
 	_, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -693,6 +700,8 @@ func (s *SlbService) sweepSlb(id string) error {
 	}
 	log.Printf("[DEBUG] Deleting SLB %s ...", id)
 	delRequest := slb.CreateDeleteLoadBalancerRequest()
+	delRequest.Headers = map[string]string{"RegionId": s.client.RegionId}
+	delRequest.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
 	delRequest.LoadBalancerId = id
 	_, err = s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DeleteLoadBalancer(delRequest)

@@ -62,6 +62,9 @@ func testSweepVSwitches(region string) error {
 	var vswitches []vpc.VSwitch
 	req := vpc.CreateDescribeVSwitchesRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
 	// API DescribeVSwitches has some limitations
 	// If there is no vpc_id, setting PageSizeSmall can avoid ServiceUnavailable Error
 	req.PageSize = requests.NewInteger(PageSizeSmall)

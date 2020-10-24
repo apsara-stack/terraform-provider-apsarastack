@@ -56,6 +56,8 @@ func dataSourceApsaraStackEssNotificationsRead(d *schema.ResourceData, meta inte
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateDescribeNotificationConfigurationsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
 	if scalingGroupId, ok := d.GetOk("scaling_group_id"); ok && scalingGroupId.(string) != "" {
 		request.ScalingGroupId = scalingGroupId.(string)
 	}
