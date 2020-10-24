@@ -882,6 +882,9 @@ func (client *ApsaraStackClient) WithCsClient(do func(*cs.Client) (interface{}, 
 			}
 			csconn.SetEndpoint(endpoint)
 		}
+		if client.config.Proxy != "" {
+			os.Setenv("http_proxy", client.config.Proxy)
+		}
 		client.csconn = csconn
 	}
 
@@ -951,8 +954,12 @@ func (client *ApsaraStackClient) WithLogClient(do func(*sls.Client) (interface{}
 				endpoint = fmt.Sprintf("%s.log.aliyuncs.com", client.config.RegionId)
 			}
 		}
-		if !strings.HasPrefix(endpoint, "http") {
-			endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "://"))
+
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
+		if client.config.Proxy != "" {
+			os.Setenv("http_proxy", client.config.Proxy)
 		}
 		client.logconn = &sls.Client{
 			AccessKeyID:     client.config.AccessKey,
@@ -1029,10 +1036,15 @@ func (client *ApsaraStackClient) WithCrClient(do func(*cr.Client) (interface{}, 
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(CRCode), endpoint)
 		}
+
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		crconn, err := cr.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the CR client: %#v", err)
 		}
+		crconn.Domain = endpoint
 		crconn.AppendUserAgent(Terraform, terraformVersion)
 		crconn.AppendUserAgent(Provider, providerVersion)
 		crconn.AppendUserAgent(Module, client.config.ConfigurationSource)
