@@ -431,6 +431,8 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeSlb)) {
 		request := slb.CreateDescribeAvailableResourceRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 		if ipVersion, ok := d.GetOk("available_slb_address_ip_version"); ok {
 			request.AddressIPVersion = ipVersion.(string)
 		}

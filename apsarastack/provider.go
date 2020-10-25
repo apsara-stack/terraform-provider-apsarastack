@@ -156,6 +156,13 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 			"apsarastack_router_interfaces":              dataSourceApsaraStackRouterInterfaces(),
 			"apsarastack_ess_scheduled_tasks":            dataSourceApsaraStackEssScheduledTasks(),
+			"apsarastack_ons_instances":                  dataSourceApsaraStackOnsInstances(),
+			"apsarastack_ons_topics":                     dataSourceApsaraStackOnsTopics(),
+			"apsarastack_ons_groups":                     dataSourceApsaraStackOnsGroups(),
+			"apsarastack_kms_aliases":                    dataSourceApsaraStackKmsAliases(),
+			"apsarastack_kms_ciphertext":                 dataSourceApsaraStackKmsCiphertext(),
+			"apsarastack_kms_keys":                       dataSourceApsaraStackKmsKeys(),
+			"apsarastack_kms_secrets":                    dataSourceApsaraStackKmsSecrets(),
 			"apsarastack_cr_ee_instances":                dataSourceApsaraStackCrEEInstances(),
 			"apsarastack_cr_ee_namespaces":               dataSourceApsaraStackCrEENamespaces(),
 			"apsarastack_cr_ee_repos":                    dataSourceApsaraStackCrEERepos(),
@@ -224,6 +231,19 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_router_interface_connection":         resourceApsaraStackRouterInterfaceConnection(),
 			"apsarastack_ess_scheduled_task":                  resourceApsaraStackEssScheduledTask(),
 			"apsarastack_ess_scalinggroup_vserver_groups":     resourceApsaraStackEssScalingGroupVserverGroups(),
+			"apsarastack_ons_instance":                        resourceApsaraStackOnsInstance(),
+			"apsarastack_ons_topic":                           resourceApsaraStackOnsTopic(),
+			"apsarastack_ons_group":                           resourceApsaraStackOnsGroup(),
+			"apsarastack_kms_alias":                           resourceApsaraStackKmsAlias(),
+			"apsarastack_kms_ciphertext":                      resourceApsaraStackKmsCiphertext(),
+			"apsarastack_kms_key":                             resourceApsaraStackKmsKey(),
+			"apsarastack_kms_secret":                          resourceApsaraStackKmsSecret(),
+			"apsarastack_log_project":                         resourceApsaraStackLogProject(),
+			"apsarastack_log_store":                           resourceApsaraStackLogStore(),
+			"apsarastack_log_store_index":                     resourceApsaraStackLogStoreIndex(),
+			"apsarastack_log_machine_group":                   resourceApsaraStackLogMachineGroup(),
+			"apsarastack_logtail_attachment":                  resourceApsaraStackLogtailAttachment(),
+			"apsarastack_logtail_config":                      resourceApsaraStackLogtailConfig(),
 			"apsarastack_cr_ee_namespace":                     resourceApsaraStackCrEENamespace(),
 			"apsarastack_cr_ee_repo":                          resourceApsaraStackCrEERepo(),
 			"apsarastack_cr_ee_sync_rule":                     resourceApsaraStackCrEESyncRule(),
@@ -319,6 +339,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.OssEndpoint = "oss." + domain
 		config.StsEndpoint = "sts." + domain
 		config.RdsEndpoint = "rds." + domain
+		config.OnsEndpoint = "ons." + domain
+		config.KmsEndpoint = "kms." + domain
+		config.LogEndpoint = "log." + domain
 		config.CrEndpoint = "cr." + domain
 		config.EssEndpoint = "ess." + domain
 
@@ -333,6 +356,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
 			config.RdsEndpoint = strings.TrimSpace(endpoints["rds"].(string))
 			config.OssEndpoint = strings.TrimSpace(endpoints["oss"].(string))
+			config.OnsEndpoint = strings.TrimSpace(endpoints["ons"].(string))
+			config.KmsEndpoint = strings.TrimSpace(endpoints["kms"].(string))
+			config.LogEndpoint = strings.TrimSpace(endpoints["log"].(string))
 			config.SlbEndpoint = strings.TrimSpace(endpoints["slb"].(string))
 			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
 			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))

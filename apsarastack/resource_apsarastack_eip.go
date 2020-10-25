@@ -54,6 +54,8 @@ func resourceApsaraStackEipCreate(d *schema.ResourceData, meta interface{}) erro
 
 	request := vpc.CreateAllocateEipAddressRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.Bandwidth = strconv.Itoa(d.Get("bandwidth").(int))
 	request.ClientToken = buildClientToken(request.GetActionName())
 

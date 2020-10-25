@@ -60,6 +60,8 @@ func resourceApsaraStackForwardEntryCreate(d *schema.ResourceData, meta interfac
 
 	request := vpc.CreateCreateForwardEntryRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.ForwardTableId = d.Get("forward_table_id").(string)
 	request.ExternalIp = d.Get("external_ip").(string)
 	request.ExternalPort = d.Get("external_port").(string)
@@ -85,6 +87,7 @@ func resourceApsaraStackForwardEntryCreate(d *schema.ResourceData, meta interfac
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*vpc.CreateForwardEntryResponse)
+
 	d.SetId(request.ForwardTableId + COLON_SEPARATED + response.ForwardEntryId)
 	if err := vpcService.WaitForForwardEntry(d.Id(), Available, DefaultTimeoutMedium); err != nil {
 		return WrapError(err)
@@ -131,6 +134,8 @@ func resourceApsaraStackForwardEntryUpdate(d *schema.ResourceData, meta interfac
 	}
 	request := vpc.CreateModifyForwardEntryRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.ForwardEntryId = parts[1]
 	request.ForwardTableId = parts[0]
 
@@ -179,6 +184,8 @@ func resourceApsaraStackForwardEntryDelete(d *schema.ResourceData, meta interfac
 	vpcService := VpcService{client}
 	request := vpc.CreateDeleteForwardEntryRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.ForwardTableId = parts[0]
 	request.ForwardEntryId = parts[1]
 

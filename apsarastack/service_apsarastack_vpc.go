@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"fmt"
 	"log"
 	"regexp"
 	"time"
@@ -365,6 +366,9 @@ func (s *VpcService) DescribeRouteEntry(id string) (*vpc.RouteEntry, error) {
 func (s *VpcService) DescribeRouterInterface(id, regionId string) (ri vpc.RouterInterfaceType, err error) {
 	request := vpc.CreateDescribeRouterInterfacesRequest()
 	request.RegionId = regionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
+
 	values := []string{id}
 	filter := []vpc.DescribeRouterInterfacesFilter{
 		{
@@ -408,6 +412,7 @@ func (s *VpcService) DescribeRouterInterfaceConnection(id, regionId string) (ri 
 
 func (s *VpcService) DescribeCenInstanceGrant(id string) (rule vpc.CbnGrantRule, err error) {
 	request := vpc.CreateDescribeGrantRulesToCenRequest()
+
 	parts, err := ParseResourceId(id, 3)
 	if err != nil {
 		return rule, WrapError(err)
@@ -471,7 +476,7 @@ func (s *VpcService) WaitForCenInstanceGrant(id string, status Status, timeout i
 				return WrapError(err)
 			}
 		}
-		if object.CenInstanceId == instanceId && string(object.CenOwnerId) == ownerId && status != Deleted {
+		if object.CenInstanceId == instanceId && fmt.Sprint(object.CenOwnerId) == ownerId && status != Deleted {
 			break
 		}
 		if time.Now().After(deadline) {

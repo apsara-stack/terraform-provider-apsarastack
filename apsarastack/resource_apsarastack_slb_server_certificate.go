@@ -44,6 +44,8 @@ func resourceApsaraStackSlbServerCertificateCreate(d *schema.ResourceData, meta 
 
 	request := slb.CreateUploadServerCertificateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 
 	if val, ok := d.GetOk("name"); ok && val != "" {
 		request.ServerCertificateName = val.(string)
@@ -107,6 +109,8 @@ func resourceApsaraStackSlbServerCertificateUpdate(d *schema.ResourceData, meta 
 	if !d.IsNewResource() && d.HasChange("name") {
 		request := slb.CreateSetServerCertificateNameRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 		request.ServerCertificateId = d.Id()
 		request.ServerCertificateName = d.Get("name").(string)
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -126,6 +130,8 @@ func resourceApsaraStackSlbServerCertificateDelete(d *schema.ResourceData, meta 
 
 	request := slb.CreateDeleteServerCertificateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	request.ServerCertificateId = d.Id()
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {

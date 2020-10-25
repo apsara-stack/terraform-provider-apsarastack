@@ -31,6 +31,8 @@ func testSweepSlbAcl(region string) error {
 
 	req := slb.CreateDescribeAccessControlListsRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeAccessControlLists(req)
 	})
@@ -58,6 +60,8 @@ func testSweepSlbAcl(region string) error {
 		log.Printf("[INFO] Deleting Slb Acl : %s (%s)", name, id)
 		req := slb.CreateDeleteAccessControlListRequest()
 		req.AclId = id
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 		_, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DeleteAccessControlList(req)
 		})

@@ -90,6 +90,8 @@ func resourceApsaraStackCommonBandwidthPackageAttachmentDelete(d *schema.Resourc
 	bandwidthPackageId, ipInstanceId := parts[0], parts[1]
 
 	request := vpc.CreateRemoveCommonBandwidthPackageIpRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.BandwidthPackageId = bandwidthPackageId
 	request.IpInstanceId = ipInstanceId
 

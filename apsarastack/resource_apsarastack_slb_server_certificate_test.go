@@ -32,6 +32,8 @@ func testSweepSlbServerCertificate(region string) error {
 
 	req := slb.CreateDescribeServerCertificatesRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeServerCertificates(req)
 	})
@@ -57,6 +59,8 @@ func testSweepSlbServerCertificate(region string) error {
 		log.Printf("[INFO] Deleting Slb Server Certificate : %s (%s)", name, id)
 
 		req := slb.CreateDeleteServerCertificateRequest()
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 		req.ServerCertificateId = id
 		_, error := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DeleteServerCertificate(req)
