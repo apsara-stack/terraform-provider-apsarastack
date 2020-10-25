@@ -51,15 +51,6 @@ func TestAccApsaraStackDisksDataSource(t *testing.T) {
 		}),
 	}
 
-	encryptedConfig := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackDisksDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_disk.default.name}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackDisksDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_disk.default.name}"`,
-		}),
-	}
-
 	tagsConfig := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackDisksDataSourceConfig(rand, map[string]string{
 			"name_regex": `"${apsarastack_disk.default.name}"`,
@@ -114,7 +105,7 @@ func TestAccApsaraStackDisksDataSource(t *testing.T) {
 		}),
 	}
 
-	disksCheckInfo.dataSourceTestCheck(t, rand, idsConfig, nameRegexConfig, typeConfig, categoryConfig, encryptedConfig,
+	disksCheckInfo.dataSourceTestCheck(t, rand, idsConfig, nameRegexConfig, typeConfig, categoryConfig,
 		tagsConfig, instanceIdConfig, allConfig)
 }
 
