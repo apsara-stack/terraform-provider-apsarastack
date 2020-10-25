@@ -33,6 +33,12 @@ func sharedClientForRegion(region string) (interface{}, error) {
 	if domain = os.Getenv("APSARASTACK_DOMAIN"); domain == "" {
 		return nil, fmt.Errorf("empty APSARASTACK_DOMAIN")
 	}
+	if ossEndpoint := os.Getenv("OSS_ENDPOINT"); ossEndpoint == "" {
+		return nil, fmt.Errorf("empty OSS_ENDPOINT")
+	}
+	if domain = os.Getenv("APSARASTACK_DOMAIN"); domain == "" {
+		//return nil, fmt.Errorf("empty APSARASTACK_DOMAIN")
+	}
 
 	conf := connectivity.Config{
 		Region:    connectivity.Region(region),
