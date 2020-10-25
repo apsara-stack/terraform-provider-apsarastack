@@ -41,7 +41,7 @@ The following arguments are supported:
 * `router_type` - (Required, ForceNew) Router Type. Optional value: VRouter, VBR. Accepting side router interface type only be VRouter.
 * `router_id` - (Required, ForceNew) The Router ID.
 * `role` - (Required, ForceNew) The role the router interface plays. Optional value: `InitiatingSide`, `AcceptingSide`.
-* `specification` - (Optional) Specification of router interfaces. It is valid when `role` is `InitiatingSide`. Accepting side's role is default to set as 'Negative'. For more about the specification, refer to [Router interface specification](https://www.alibabacloud.com/help/doc-detail/36037.htm).
+* `specification` - (Optional) Specification of router interfaces. It is valid when `role` is `InitiatingSide`. Accepting side's role is default to set as 'Negative'.
 * `opposite_access_point_id` - (Optional) The ID of the access point of the peer router interface.
 * `name` - (Optional) Name of the router interface. Length must be 2-80 characters long. Only Chinese characters, English letters, numbers, period (.), underline (_), or dash (-) are permitted.
                                                     If it is not specified, the default value is interface ID. The name cannot start with http:// and https://.
