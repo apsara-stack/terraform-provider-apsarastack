@@ -53,6 +53,8 @@ func resourceApsaraStackCRNamespaceCreate(d *schema.ResourceData, meta interface
 	}
 
 	request := cr.CreateCreateNamespaceRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
 	request.SetContent(serialized)
 
 	raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
@@ -82,6 +84,8 @@ func resourceApsaraStackCRNamespaceUpdate(d *schema.ResourceData, meta interface
 		}
 		request := cr.CreateUpdateNamespaceRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
 		request.SetContent(serialized)
 		request.Namespace = d.Get("name").(string)
 
