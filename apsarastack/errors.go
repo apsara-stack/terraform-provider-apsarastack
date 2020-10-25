@@ -29,6 +29,8 @@ const (
 	RamInstanceNotFound        = "Forbidden.InstanceNotFound"
 	ApsaraStackGoClientFailure = "ApsaraStackGoClientFailure"
 	DenverdinoApsaraStackgo    = ErrorSource("[SDK denverdino/aliyungo ERROR]")
+	ThrottlingUser             = "Throttling.User"
+	LogClientTimeout           = "Client.Timeout exceeded while awaiting headers"
 )
 
 var SlbIsBusy = []string{"SystemBusy", "OperationBusy", "ServiceIsStopping", "BackendServer.configuring", "ServiceIsConfiguring"}
@@ -219,9 +221,10 @@ func GetTimeoutMessage(product, status string) string {
 type ErrorSource string
 
 const (
-	ApsaraStackSdkGoERROR = ErrorSource("[SDK alibaba-cloud-sdk-go ERROR]")
-	ProviderERROR         = ErrorSource("[Provider ERROR]")
-	ApsaraStackOssGoSdk   = ErrorSource("[SDK aliyun-oss-go-sdk ERROR]")
+	ApsaraStackSdkGoERROR    = ErrorSource("[SDK alibaba-cloud-sdk-go ERROR]")
+	ProviderERROR            = ErrorSource("[Provider ERROR]")
+	ApsaraStackOssGoSdk      = ErrorSource("[SDK aliyun-oss-go-sdk ERROR]")
+	ApsaraStackLogGoSdkERROR = ErrorSource("[SDK aliyun-log-go-sdk ERROR]")
 )
 
 // ComplexError is a format error which including origin error, extra error message, error occurred file and line
