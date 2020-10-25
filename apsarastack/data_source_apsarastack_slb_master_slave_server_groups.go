@@ -91,6 +91,8 @@ func dataSourceApsaraStackSlbMasterSlaveServerGroupsRead(d *schema.ResourceData,
 
 	request := slb.CreateDescribeMasterSlaveServerGroupsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 
 	idsMap := make(map[string]string)
@@ -148,6 +150,8 @@ func slbMasterSlaveServerGroupsDescriptionAttributes(d *schema.ResourceData, ser
 		}
 
 		request := slb.CreateDescribeMasterSlaveServerGroupAttributeRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 		request.MasterSlaveServerGroupId = serverGroup.MasterSlaveServerGroupId
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DescribeMasterSlaveServerGroupAttribute(request)

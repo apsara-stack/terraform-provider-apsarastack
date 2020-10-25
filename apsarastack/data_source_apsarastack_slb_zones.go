@@ -59,6 +59,8 @@ func dataSourceApsaraStackSlbZonesRead(d *schema.ResourceData, meta interface{})
 	localName := make(map[string][]string)
 	request := slb.CreateDescribeZonesRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 
 	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeZones(request)

@@ -57,6 +57,8 @@ func resourceApsaraStackSlbDomainExtensionCreate(d *schema.ResourceData, meta in
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := slb.CreateCreateDomainExtensionRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 	request.ListenerPort = requests.NewInteger(d.Get("frontend_port").(int))
 	request.Domain = d.Get("domain").(string)
@@ -108,8 +110,11 @@ func resourceApsaraStackSlbDomainExtensionRead(d *schema.ResourceData, meta inte
 }
 
 func resourceApsaraStackSlbDomainExtensionUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*connectivity.ApsaraStackClient)
 	if d.HasChange("server_certificate_id") {
 		request := slb.CreateSetDomainExtensionAttributeRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 		request.DomainExtensionId = d.Id()
 		request.ServerCertificateId = d.Get("server_certificate_id").(string)
 		client := meta.(*connectivity.ApsaraStackClient)

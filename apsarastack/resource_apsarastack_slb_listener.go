@@ -222,7 +222,7 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 			},
 			"server_certificate_id": {
 				Type:             schema.TypeString,
-				Required:         true,
+				Optional:         true,
 				DiffSuppressFunc: sslCertificateIdDiffSuppressFunc,
 			},
 
@@ -349,6 +349,8 @@ func resourceApsaraStackSlbListenerCreate(d *schema.ResourceData, meta interface
 
 	startLoadBalancerListenerRequest := slb.CreateStartLoadBalancerListenerRequest()
 	startLoadBalancerListenerRequest.RegionId = client.RegionId
+	startLoadBalancerListenerRequest.Headers = map[string]string{"RegionId": client.RegionId}
+	startLoadBalancerListenerRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	startLoadBalancerListenerRequest.LoadBalancerId = lb_id
 	startLoadBalancerListenerRequest.ListenerPort = requests.NewInteger(frontend)
 	startLoadBalancerListenerRequest.ListenerProtocol = protocol
@@ -667,6 +669,8 @@ func resourceApsaraStackSlbListenerDelete(d *schema.ResourceData, meta interface
 	}
 	request := slb.CreateDeleteLoadBalancerListenerRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
 	request.LoadBalancerId = lbId
 	request.ListenerPort = requests.NewInteger(port)
 	request.ListenerProtocol = protocol
