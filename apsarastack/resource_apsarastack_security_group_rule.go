@@ -125,15 +125,19 @@ func resourceApsaraStackSecurityGroupRuleCreate(d *schema.ResourceData, meta int
 			return WrapError(fmt.Errorf("Either 'cidr_ip' or 'source_security_group_id' must be specified."))
 		}
 	}
-
 	request, err := buildApsaraStackSGRuleRequest(d, meta)
 	if err != nil {
 		return WrapError(err)
 	}
-
+	var cidr_ip string
+	if ip, ok := d.GetOk("cidr_ip"); ok {
+		cidr_ip = ip.(string)
+	} else {
+		cidr_ip = d.Get("source_security_group_id").(string)
+	}
 	if direction == string(DirectionIngress) {
 		request.ApiName = "AuthorizeSecurityGroup"
-		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 	} else {
@@ -146,12 +150,7 @@ func resourceApsaraStackSecurityGroupRuleCreate(d *schema.ResourceData, meta int
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_security_group_rule", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 
-	var cidr_ip string
-	if ip, ok := d.GetOk("cidr_ip"); ok {
-		cidr_ip = ip.(string)
-	} else {
-		cidr_ip = d.Get("source_security_group_id").(string)
-	}
+
 	d.SetId(sgId + ":" + direction + ":" + ptl + ":" + port + ":" + nicType + ":" + cidr_ip + ":" + policy + ":" + strconv.Itoa(priority))
 
 	return resourceApsaraStackSecurityGroupRuleRead(d, meta)
@@ -182,7 +181,7 @@ func resourceApsaraStackSecurityGroupRuleRead(d *schema.ResourceData, meta inter
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
-			return nil
+			//return nil
 		}
 		return WrapError(err)
 	}
@@ -324,10 +323,11 @@ func buildApsaraStackSGRuleRequest(d *schema.ResourceData, meta interface{}) (*r
 	ecsService := EcsService{client}
 	// Get product code from the built request
 	ruleReq := ecs.CreateModifySecurityGroupRuleRequest()
-	request, err := client.NewCommonRequest(ruleReq.GetProduct(), ruleReq.GetLocationServiceCode(), strings.ToUpper(string(Https)), connectivity.ApiVersion20140526)
+	request, err := client.NewCommonRequest(ruleReq.GetProduct(), ruleReq.GetLocationServiceCode(), strings.ToUpper(string(Http)), connectivity.ApiVersion20140526)
 	if err != nil {
 		return request, WrapError(err)
 	}
+
 
 	direction := d.Get("type").(string)
 
@@ -347,6 +347,9 @@ func buildApsaraStackSGRuleRequest(d *schema.ResourceData, meta interface{}) (*r
 
 	if v, ok := d.GetOk("policy"); ok {
 		request.QueryParams["Policy"] = v.(string)
+	}
+	if v, ok := d.GetOk("nic_type"); ok {
+		request.QueryParams["NicType"] = v.(string)
 	}
 
 	if v, ok := d.GetOk("priority"); ok {
