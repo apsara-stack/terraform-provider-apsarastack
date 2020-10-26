@@ -520,10 +520,10 @@ func (client *ApsaraStackClient) describeEndpointForService(serviceCode string) 
 func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema string, apiVersion ApiVersion) (*requests.CommonRequest, error) {
 	request := requests.NewCommonRequest()
 	var endpoint string
-	if strings.ToUpper(product)=="SLB"{
+	if strings.ToUpper(product) == "SLB" {
 		endpoint = client.config.SlbEndpoint
 	}
-	if strings.ToUpper(product)=="ECS"{
+	if strings.ToUpper(product) == "ECS" {
 		endpoint = client.config.EcsEndpoint
 	}
 
@@ -551,7 +551,7 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 	request.RegionId = client.RegionId
 	request.Product = product
 	request.Scheme = schema
-	request.QueryParams= map[string]string{"Product":product,"Version":string(apiVersion)}
+	request.QueryParams = map[string]string{"Product": product, "Version": string(apiVersion)}
 
 	request.AppendUserAgent(Terraform, terraformVersion)
 	request.AppendUserAgent(Provider, providerVersion)

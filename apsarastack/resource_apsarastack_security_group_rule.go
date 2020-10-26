@@ -137,7 +137,7 @@ func resourceApsaraStackSecurityGroupRuleCreate(d *schema.ResourceData, meta int
 	}
 	if direction == string(DirectionIngress) {
 		request.ApiName = "AuthorizeSecurityGroup"
-			_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		_, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 	} else {
@@ -149,7 +149,6 @@ func resourceApsaraStackSecurityGroupRuleCreate(d *schema.ResourceData, meta int
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_security_group_rule", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-
 
 	d.SetId(sgId + ":" + direction + ":" + ptl + ":" + port + ":" + nicType + ":" + cidr_ip + ":" + policy + ":" + strconv.Itoa(priority))
 
@@ -327,7 +326,6 @@ func buildApsaraStackSGRuleRequest(d *schema.ResourceData, meta interface{}) (*r
 	if err != nil {
 		return request, WrapError(err)
 	}
-
 
 	direction := d.Get("type").(string)
 

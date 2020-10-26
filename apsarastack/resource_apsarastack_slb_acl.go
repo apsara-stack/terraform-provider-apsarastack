@@ -63,9 +63,9 @@ func resourceApsaraStackSlbAclCreate(d *schema.ResourceData, meta interface{}) e
 
 	request := slb.CreateCreateAccessControlListRequest()
 	request.RegionId = client.RegionId
-	request.Headers["RegionId"] =  client.RegionId
+	request.Headers["RegionId"] = client.RegionId
 	request.QueryParams["AccessKeySecret"] = client.SecretKey
-	request.QueryParams["Product"]= "Slb"
+	request.QueryParams["Product"] = "Slb"
 	request.AclName = strings.TrimSpace(d.Get("name").(string))
 	request.AddressIPVersion = d.Get("ip_version").(string)
 
