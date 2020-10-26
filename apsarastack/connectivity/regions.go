@@ -56,4 +56,4 @@ var HttpHttpsHealthCheckMehtodSupportedRegions = []Region{Hangzhou, Beijing, Sha
 var OssVersioningSupportedRegions = []Region{APSouth1}
 var OssSseSupportedRegions = []Region{Qingdao, Hangzhou, Beijing, Shanghai, Shenzhen, Hongkong, APNorthEast1, APSouth1, USEast1}
 var CRNoSupportedRegions = []Region{Beijing, Hangzhou, Qingdao, Huhehaote, Zhangjiakou}
-var KmsSkippedRegions =[]Region{}
+var KmsSkippedRegions = []Region{}
