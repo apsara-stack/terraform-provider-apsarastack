@@ -2,7 +2,6 @@ package apsarastack
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -58,13 +57,13 @@ resource "apsarastack_common_bandwidth_package" "default" {
   bandwidth = "2"
   name = "${var.name}"
   description = "${var.name}_description"
-  resource_group_id = "%s"
+
 }
 
 data "apsarastack_common_bandwidth_packages" "default"  {
   %s
 }
-`, rand, os.Getenv("APSARASTaCK_RESOURCE_GROUP_ID"), strings.Join(pairs, "\n  "))
+`, rand, strings.Join(pairs, "\n  "))
 	return config
 }
 
