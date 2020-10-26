@@ -329,7 +329,6 @@ func (s *EcsService) DescribeSecurityGroupRule(id string) (rule ecs.Permission, 
 					cidr = ru.DestGroupId
 				}
 			}
-
 			if cidr == cidr_ip && strings.ToLower(string(ru.Policy)) == policy && ru.Priority == strconv.Itoa(priority) {
 				return ru, nil
 			}

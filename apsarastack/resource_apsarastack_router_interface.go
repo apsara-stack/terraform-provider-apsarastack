@@ -125,7 +125,7 @@ func resourceApsaraStackRouterInterfaceCreate(d *schema.ResourceData, meta inter
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
 	request, err := buildApsaraStackRouterInterfaceCreateArgs(d, meta)
-	request.Headers= map[string]string{"RegionId":client.RegionId}
+	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	if err != nil {
 		return WrapError(err)

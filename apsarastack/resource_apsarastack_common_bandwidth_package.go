@@ -52,12 +52,12 @@ func resourceApsaraStackCommonBandwidthPackage() *schema.Resource {
 				Default:      100,
 				ValidateFunc: validation.IntBetween(10, 100),
 			},
-			"resource_group_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
+			//"resource_group_id": {
+			//	Type:     schema.TypeString,
+			//	Optional: true,
+			//	ForceNew: true,
+			//	Computed: true,
+			//},
 		},
 	}
 }
@@ -74,7 +74,6 @@ func resourceApsaraStackCommonBandwidthPackageCreate(d *schema.ResourceData, met
 	request.Bandwidth = requests.NewInteger(d.Get("bandwidth").(int))
 	request.Name = d.Get("name").(string)
 	request.Description = d.Get("description").(string)
-	request.ResourceGroupId = d.Get("resource_group_id").(string)
 	request.InternetChargeType = d.Get("internet_charge_type").(string)
 	request.Ratio = requests.NewInteger(d.Get("ratio").(int))
 
@@ -129,7 +128,6 @@ func resourceApsaraStackCommonBandwidthPackageRead(d *schema.ResourceData, meta 
 	d.Set("description", object.Description)
 	d.Set("internet_charge_type", object.InternetChargeType)
 	d.Set("ratio", object.Ratio)
-	d.Set("resource_group_id", object.ResourceGroupId)
 	return nil
 }
 

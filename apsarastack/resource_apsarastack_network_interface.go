@@ -103,7 +103,7 @@ func resourceNetworkInterfaceCreate(d *schema.ResourceData, meta interface{}) er
 		return ecsClient.CreateNetworkInterface(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_network_interface", request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_network_interface", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	object := raw.(*ecs.CreateNetworkInterfaceResponse)

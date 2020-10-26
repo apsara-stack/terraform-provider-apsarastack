@@ -54,7 +54,7 @@ func testAccCheckApsaraStackKeyPairsDataSourceConfig(attrMap map[string]string) 
 
 	config := fmt.Sprintf(`
 resource "apsarastack_key_pair" "default" {
-	key_name = "tf-testAcc-key-pair-datasource"
+	key_name = "tf-key"
     tags = {
       Created = "TF"
        For     = "acceptance test"
@@ -72,7 +72,7 @@ var existKeyPairsMapFunc = func(rand int) map[string]string {
 		"ids.#":                    "1",
 		"key_pairs.#":              "1",
 		"key_pairs.0.id":           CHECKSET,
-		"key_pairs.0.key_name":     "tf-testAcc-key-pair-datasource",
+		"key_pairs.0.key_name":     "tf-key",
 		"key_pairs.0.instances.#":  "0",
 		"key_pairs.0.tags.%":       "2",
 		"key_pairs.0.tags.Created": "TF",

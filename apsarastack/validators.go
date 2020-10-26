@@ -1,9 +1,11 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"net"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -128,4 +130,35 @@ func validateDBConnectionPort(v interface{}, k string) (ws []string, errors []er
 		}
 	}
 	return
+}
+
+func validateOnsGroupId(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if !(strings.HasPrefix(value, "GID-") || strings.HasPrefix(value, "GID_")) {
+		errors = append(errors, fmt.Errorf("%q is invalid, it must start with 'GID-' or 'GID_'", k))
+	}
+	if reg := regexp.MustCompile(`^[\w\-]{7,64}$`); !reg.MatchString(value) {
+		errors = append(errors, fmt.Errorf("%q length is limited to 7-64 and only characters such as letters, digits, '_' and '-' are allowed", k))
+	}
+	return
+}
+func normalizeJsonString(jsonString interface{}) (string, error) {
+	var j interface{}
+
+	if jsonString == nil || jsonString.(string) == "" {
+		return "", nil
+	}
+
+	s := jsonString.(string)
+
+	err := json.Unmarshal([]byte(s), &j)
+	if err != nil {
+		return s, err
+	}
+
+	// The error is intentionally ignored here to allow empty policies to passthrough validation.
+	// This covers any interpolated values
+	bytes, _ := json.Marshal(j)
+
+	return string(bytes[:]), nil
 }
