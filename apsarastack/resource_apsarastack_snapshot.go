@@ -68,7 +68,7 @@ func resourceApsaraStackSnapshotCreate(d *schema.ResourceData, meta interface{})
 		return ecsClient.CreateSnapshot(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultDebugMsg, "apsarastack_snapshot", request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultDebugMsg, "apsarastack_snapshot", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response := raw.(*ecs.CreateSnapshotResponse)

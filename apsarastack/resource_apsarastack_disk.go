@@ -45,7 +45,7 @@ func resourceApsaraStackDisk() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"cloud", "cloud_efficiency", "cloud_ssd"}, false),
-				Default:      DiskCloud,
+				Default:      DiskCloudEfficiency,
 			},
 
 			"size": {

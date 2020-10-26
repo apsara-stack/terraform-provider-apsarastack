@@ -98,11 +98,6 @@ func dataSourceApsaraStackCommonBandwidthPackages() *schema.Resource {
 							},
 							MinItems: 0,
 						},
-						"resource_group_id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							ForceNew: true,
-						},
 					},
 				},
 			},
@@ -197,7 +192,6 @@ func CommonBandwidthPackagesDecriptionAttributes(d *schema.ResourceData, cbwps [
 			"isp":                 cbwp.ISP,
 			"name":                cbwp.Name,
 			"creation_time":       cbwp.CreationTime,
-			"resource_group_id":   cbwp.ResourceGroupId,
 			"public_ip_addresses": vpcService.FlattenPublicIpAddressesMappings(cbwp.PublicIpAddresses.PublicIpAddresse),
 		}
 		names = append(names, cbwp.Name)
