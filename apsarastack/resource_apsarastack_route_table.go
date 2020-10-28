@@ -45,6 +45,8 @@ func resourceAliyunRouteTableCreate(d *schema.ResourceData, meta interface{}) er
 
 	request := vpc.CreateCreateRouteTableRequest()
 	request.RegionId = client.RegionId
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 
@@ -100,6 +102,8 @@ func resourceAliyunRouteTableUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	request := vpc.CreateModifyRouteTableAttributesRequest()
 	request.RegionId = client.RegionId
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.RouteTableId = d.Id()
@@ -128,6 +132,8 @@ func resourceAliyunRouteTableDelete(d *schema.ResourceData, meta interface{}) er
 	routeTableService := VpcService{client}
 	request := vpc.CreateDeleteRouteTableRequest()
 	request.RegionId = client.RegionId
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.RouteTableId = d.Id()

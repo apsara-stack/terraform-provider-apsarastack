@@ -25,6 +25,8 @@ func (s *VpcService) DescribeEip(id string) (eip vpc.EipAddress, err error) {
 	request.RegionId = string(s.client.Region)
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 	request.AllocationId = id
 	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DescribeEipAddresses(request)
@@ -65,6 +67,8 @@ func (s *VpcService) DescribeNatGateway(id string) (nat vpc.NatGateway, err erro
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.NatGatewayId = id
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
@@ -94,6 +98,8 @@ func (s *VpcService) DescribeVpc(id string) (v vpc.Vpc, err error) {
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.VpcId = id
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
@@ -144,6 +150,8 @@ func (s *VpcService) DescribeVSwitch(id string) (v vpc.DescribeVSwitchAttributes
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.VSwitchId = id
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
@@ -198,6 +206,8 @@ func (s *VpcService) DescribeSnatEntry(id string) (snat vpc.SnatTableEntry, err 
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.SnatTableId = parts[0]
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 
 	for {
@@ -257,6 +267,8 @@ func (s *VpcService) DescribeForwardEntry(id string) (entry vpc.ForwardTableEntr
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.ForwardTableId = forwardTableId
 	request.ForwardEntryId = forwardEntryId
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
@@ -290,6 +302,8 @@ func (s *VpcService) QueryRouteTableById(routeTableId string) (rt vpc.RouteTable
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.RouteTableId = routeTableId
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
@@ -324,6 +338,8 @@ func (s *VpcService) DescribeRouteEntry(id string) (*vpc.RouteEntry, error) {
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.RouteTableId = rtId
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	invoker := NewInvoker()
 	for {
@@ -368,6 +384,8 @@ func (s *VpcService) DescribeRouterInterface(id, regionId string) (ri vpc.Router
 	request.RegionId = regionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	values := []string{id}
 	filter := []vpc.DescribeRouterInterfacesFilter{
@@ -429,6 +447,8 @@ func (s *VpcService) DescribeCenInstanceGrant(id string) (rule vpc.CbnGrantRule,
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.InstanceId = instanceId
 	request.InstanceType = instanceType
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
@@ -493,6 +513,9 @@ func (s *VpcService) DescribeCommonBandwidthPackage(id string) (v vpc.CommonBand
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.BandwidthPackageId = id
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
+
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
 		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -542,6 +565,8 @@ func (s *VpcService) DescribeRouteTable(id string) (v vpc.RouterTableListType, e
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.RouteTableId = id
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
@@ -783,6 +808,9 @@ func (s *VpcService) DeactivateRouterInterface(interfaceId string) error {
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.RouterInterfaceId = interfaceId
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
+
 	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeactivateRouterInterface(request)
 	})
@@ -796,6 +824,9 @@ func (s *VpcService) DeactivateRouterInterface(interfaceId string) error {
 func (s *VpcService) ActivateRouterInterface(interfaceId string) error {
 	request := vpc.CreateActivateRouterInterfaceRequest()
 	request.RegionId = s.client.RegionId
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.RouterInterfaceId = interfaceId
@@ -972,6 +1003,9 @@ func (s *VpcService) DescribeNetworkAcl(id string) (networkAcl vpc.NetworkAcl, e
 	request := vpc.CreateDescribeNetworkAclsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
+
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.NetworkAclId = id
 
@@ -1083,6 +1117,9 @@ func (s *VpcService) WaitForNetworkAclAttachment(id string, resource []vpc.Resou
 func (s *VpcService) DescribeTags(resourceId string, resourceTags map[string]interface{}, resourceType TagResourceType) (tags []vpc.TagResource, err error) {
 	request := vpc.CreateListTagResourcesRequest()
 	request.RegionId = s.client.RegionId
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
 	request.ResourceType = string(resourceType)
@@ -1143,6 +1180,8 @@ func (s *VpcService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 			request.RegionId = s.client.RegionId
 			request.Headers = map[string]string{"RegionId": s.client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
+			request.QueryParams["Department"] = s.client.Department
+			request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 			wait := incrementalWait(2*time.Second, 1*time.Second)
 			err := resource.Retry(10*time.Minute, func() *resource.RetryError {
@@ -1173,6 +1212,8 @@ func (s *VpcService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 			request.RegionId = s.client.RegionId
 			request.Headers = map[string]string{"RegionId": s.client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
+			request.QueryParams["Department"] = s.client.Department
+			request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 			wait := incrementalWait(2*time.Second, 1*time.Second)
 			err := resource.Retry(10*time.Minute, func() *resource.RetryError {

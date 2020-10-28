@@ -13,6 +13,10 @@ func (c *CrService) ListCrEEInstances(pageNo int, pageSize int) (*cr_ee.ListInst
 	response := &cr_ee.ListInstanceResponse{}
 	request := cr_ee.CreateListInstanceRequest()
 	request.RegionId = c.client.RegionId
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.PageNo = requests.NewInteger(pageNo)
 	request.PageSize = requests.NewInteger(pageSize)
 	action := request.GetActionName()
@@ -36,6 +40,10 @@ func (c *CrService) DescribeCrEEInstance(instanceId string) (*cr_ee.GetInstanceR
 	response := &cr_ee.GetInstanceResponse{}
 	request := cr_ee.CreateGetInstanceRequest()
 	request.RegionId = c.client.RegionId
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.InstanceId = instanceId
 	resource := instanceId
 	action := request.GetActionName()
@@ -61,6 +69,10 @@ func (c *CrService) DescribeCrEEInstance(instanceId string) (*cr_ee.GetInstanceR
 func (c *CrService) GetCrEEInstanceUsage(instanceId string) (*cr_ee.GetInstanceUsageResponse, error) {
 	response := &cr_ee.GetInstanceUsageResponse{}
 	request := cr_ee.CreateGetInstanceUsageRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	resource := instanceId
@@ -87,6 +99,10 @@ func (c *CrService) GetCrEEInstanceUsage(instanceId string) (*cr_ee.GetInstanceU
 func (c *CrService) ListCrEEInstanceEndpoint(instanceId string) (*cr_ee.ListInstanceEndpointResponse, error) {
 	response := &cr_ee.ListInstanceEndpointResponse{}
 	request := cr_ee.CreateListInstanceEndpointRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	resource := instanceId
@@ -113,6 +129,10 @@ func (c *CrService) ListCrEEInstanceEndpoint(instanceId string) (*cr_ee.ListInst
 func (c *CrService) ListCrEENamespaces(instanceId string, pageNo int, pageSize int) (*cr_ee.ListNamespaceResponse, error) {
 	response := &cr_ee.ListNamespaceResponse{}
 	request := cr_ee.CreateListNamespaceRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	request.PageNo = requests.NewInteger(pageNo)
@@ -141,6 +161,10 @@ func (c *CrService) DescribeCrEENamespace(id string) (*cr_ee.GetNamespaceRespons
 	namespaceName := strRet[1]
 	response := &cr_ee.GetNamespaceResponse{}
 	request := cr_ee.CreateGetNamespaceRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	request.NamespaceName = namespaceName
@@ -168,6 +192,10 @@ func (c *CrService) DescribeCrEENamespace(id string) (*cr_ee.GetNamespaceRespons
 func (c *CrService) DeleteCrEENamespace(instanceId string, namespaceName string) (*cr_ee.DeleteNamespaceResponse, error) {
 	response := &cr_ee.DeleteNamespaceResponse{}
 	request := cr_ee.CreateDeleteNamespaceRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	request.NamespaceName = namespaceName
@@ -221,6 +249,10 @@ func (c *CrService) WaitForCrEENamespace(instanceId string, namespaceName string
 func (c *CrService) ListCrEERepos(instanceId string, namespace string, pageNo int, pageSize int) (*cr_ee.ListRepositoryResponse, error) {
 	response := &cr_ee.ListRepositoryResponse{}
 	request := cr_ee.CreateListRepositoryRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	request.RepoNamespaceName = namespace
@@ -252,6 +284,10 @@ func (c *CrService) DescribeCrEERepo(id string) (*cr_ee.GetRepositoryResponse, e
 	repo := strRet[2]
 	response := &cr_ee.GetRepositoryResponse{}
 	request := cr_ee.CreateGetRepositoryRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	request.RepoNamespaceName = namespace
@@ -281,6 +317,10 @@ func (c *CrService) DescribeCrEERepo(id string) (*cr_ee.GetRepositoryResponse, e
 func (c *CrService) DeleteCrEERepo(instanceId, namespace, repo, repoId string) (*cr_ee.DeleteRepositoryResponse, error) {
 	response := &cr_ee.DeleteRepositoryResponse{}
 	request := cr_ee.CreateDeleteRepositoryRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	request.RepoId = repoId
@@ -333,6 +373,10 @@ func (c *CrService) WaitForCrEERepo(instanceId string, namespace string, repo st
 func (c *CrService) ListCrEERepoTags(instanceId string, repoId string, pageNo int, pageSize int) (*cr_ee.ListRepoTagResponse, error) {
 	response := &cr_ee.ListRepoTagResponse{}
 	request := cr_ee.CreateListRepoTagRequest()
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = c.client.Department
+	request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 	request.RegionId = c.client.RegionId
 	request.InstanceId = instanceId
 	request.RepoId = repoId
@@ -366,6 +410,10 @@ func (c *CrService) DescribeCrEESyncRule(id string) (*cr_ee.SyncRulesItem, error
 	for {
 		response := &cr_ee.ListRepoSyncRuleResponse{}
 		request := cr_ee.CreateListRepoSyncRuleRequest()
+		request.Headers = map[string]string{"RegionId": c.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+		request.QueryParams["Department"] = c.client.Department
+		request.QueryParams["ResourceGroup"] = c.client.ResourceGroup
 		request.RegionId = c.client.RegionId
 		request.InstanceId = instanceId
 		request.NamespaceName = namespace
