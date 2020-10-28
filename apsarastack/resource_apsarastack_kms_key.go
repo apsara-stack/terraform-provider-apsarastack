@@ -125,6 +125,11 @@ func resourceApsaraStackKmsKeyCreate(d *schema.ResourceData, meta interface{}) e
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := kms.CreateCreateKeyRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	if v, ok := d.GetOk("automatic_rotation"); ok {
 		request.EnableAutomaticRotation = requests.NewBoolean(convertAutomaticRotationRequest(v.(string)))
 	}
@@ -154,6 +159,11 @@ func resourceApsaraStackKmsKeyCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	addDebug(request.GetActionName(), raw)
 	response, _ := raw.(*kms.CreateKeyResponse)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	d.SetId(fmt.Sprintf("%v", response.KeyMetadata.KeyId))
 
 	return resourceApsaraStackKmsKeyRead(d, meta)
@@ -195,6 +205,11 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 
 	if d.HasChange("description") {
 		request := kms.CreateUpdateKeyDescriptionRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 		request.KeyId = d.Id()
 		request.Description = d.Get("description").(string)
 		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
@@ -208,6 +223,11 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 	update := false
 	request := kms.CreateUpdateRotationPolicyRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.KeyId = d.Id()
 	if d.HasChange("automatic_rotation") {
 		update = true
@@ -249,6 +269,11 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 		if object.KeyState != target {
 			if target == "Disabled" {
 				request := kms.CreateDisableKeyRequest()
+				request.Headers = map[string]string{"RegionId": client.RegionId}
+				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+				request.QueryParams["Department"] = client.Department
+				request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 				request.KeyId = d.Id()
 				raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 					return kmsClient.DisableKey(request)
@@ -262,6 +287,11 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 			}
 			if target == "Enabled" {
 				request := kms.CreateEnableKeyRequest()
+				request.Headers = map[string]string{"RegionId": client.RegionId}
+				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+				request.QueryParams["Department"] = client.Department
+				request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 				request.KeyId = d.Id()
 				raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 					return kmsClient.EnableKey(request)
@@ -281,6 +311,11 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 func resourceApsaraStackKmsKeyDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := kms.CreateScheduleKeyDeletionRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.KeyId = d.Id()
 	if v, ok := d.GetOk("pending_window_in_days"); ok {
 		request.PendingWindowInDays = requests.NewInteger(v.(int))

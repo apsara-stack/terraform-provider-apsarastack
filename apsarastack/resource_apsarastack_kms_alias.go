@@ -33,6 +33,11 @@ func resourceApsaraStackKmsAliasCreate(d *schema.ResourceData, meta interface{})
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := kms.CreateCreateAliasRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.AliasName = d.Get("alias_name").(string)
 	request.KeyId = d.Get("key_id").(string)
 	raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
@@ -66,6 +71,11 @@ func resourceApsaraStackKmsAliasUpdate(d *schema.ResourceData, meta interface{})
 	client := meta.(*connectivity.ApsaraStackClient)
 	if d.HasChange("key_id") {
 		request := kms.CreateUpdateAliasRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 		request.AliasName = d.Id()
 		request.KeyId = d.Get("key_id").(string)
 		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
@@ -81,6 +91,11 @@ func resourceApsaraStackKmsAliasUpdate(d *schema.ResourceData, meta interface{})
 func resourceApsaraStackKmsAliasDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := kms.CreateDeleteAliasRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.AliasName = d.Id()
 	raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 		return kmsClient.DeleteAlias(request)

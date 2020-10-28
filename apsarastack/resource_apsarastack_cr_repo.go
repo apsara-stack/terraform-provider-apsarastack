@@ -93,6 +93,10 @@ func resourceApsaraStackCRRepoCreate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	request := cr.CreateCreateRepoRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RegionId = client.RegionId
 	request.SetContent(serialized)
 
@@ -122,6 +126,10 @@ func resourceApsaraStackCRRepoUpdate(d *schema.ResourceData, meta interface{}) e
 			return WrapError(err)
 		}
 		request := cr.CreateUpdateRepoRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.RegionId = client.RegionId
 		request.SetContent(serialized)
 		request.RepoName = d.Get("name").(string)
@@ -183,6 +191,10 @@ func resourceApsaraStackCRRepoDelete(d *schema.ResourceData, meta interface{}) e
 
 	request := cr.CreateDeleteRepoRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RepoNamespace = repoNamespace
 	request.RepoName = repoName
 

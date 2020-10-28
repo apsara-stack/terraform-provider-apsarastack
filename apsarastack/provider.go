@@ -112,6 +112,18 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DOMAIN", nil),
 				Description: descriptions["domain"],
 			},
+			"department": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DEPARTMENT", nil),
+				Description: descriptions["department"],
+			},
+			"resource_group": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP", nil),
+				Description: descriptions["resource_group"],
+			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configurations":     dataSourceApsaraStackEssScalingConfigurations(),
@@ -287,6 +299,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Protocol:             d.Get("protocol").(string),
 		Insecure:             d.Get("insecure").(bool),
 		Proxy:                d.Get("proxy").(string),
+		Department:           d.Get("department").(string),
+		ResourceGroup:        d.Get("resource_group").(string),
 	}
 	token := getProviderConfig(d.Get("security_token").(string), "sts_token")
 	config.SecurityToken = strings.TrimSpace(token)

@@ -41,6 +41,9 @@ func (s *RdsService) DescribeDBInstance(id string) (*rds.DBInstanceAttribute, er
 	instance := &rds.DBInstanceAttribute{}
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.RegionId = s.client.RegionId
+
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds"}
 	request.DBInstanceId = id
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeDBInstanceAttribute(request)

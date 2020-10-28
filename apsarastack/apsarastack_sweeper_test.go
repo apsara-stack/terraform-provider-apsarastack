@@ -34,7 +34,10 @@ func sharedClientForRegion(region string) (interface{}, error) {
 		return nil, fmt.Errorf("empty APSARASTACK_DOMAIN")
 	}
 	if ossEndpoint := os.Getenv("OSS_ENDPOINT"); ossEndpoint == "" {
-		return nil, fmt.Errorf("empty OSS_ENDPOINT")
+		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
+	}
+	if rdsEndpoint := os.Getenv("RDS_ENDPOINT"); rdsEndpoint == "" {
+		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
 	if domain = os.Getenv("APSARASTACK_DOMAIN"); domain == "" {
 		//return nil, fmt.Errorf("empty APSARASTACK_DOMAIN")
