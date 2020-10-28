@@ -11,8 +11,6 @@ description: |-
 
 This data source provides the domain extensions associated with a server load balancer listener.
 
--> **NOTE:** Available in 1.60.0+
-
 ## Example Usage
 ```
 data "apsarastack_slb_domain_extensions" "foo" {

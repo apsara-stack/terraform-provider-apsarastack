@@ -11,8 +11,6 @@ description: |-
 
 Add a group of backend servers (ECS or ENI instance) to the Server Load Balancer or remove them from it.
 
--> **NOTE:** Available in 1.53.0+
-
 ## Example Usage
 
 ```
@@ -105,11 +103,3 @@ The servers mapping supports the following:
 The following attributes are exported:
 
 * `id` - The ID of the resource and the value same as load balancer id.
-
-## Import
-
-Load balancer backend server can be imported using the load balancer id.
-
-```
-$ terraform import apsarastack_slb_backend_server.example lb-abc123456
-```

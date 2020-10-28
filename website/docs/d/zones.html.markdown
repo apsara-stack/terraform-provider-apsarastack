@@ -1,14 +1,14 @@
 ---
-layout: "alicloud"
-page_title: "Alicloud: alicloud_zones"
-sidebar_current: "docs-alicloud-datasource-zones"
+layout: "apsarastack"
+page_title: "Apsarastack: apsarastack"
+sidebar_current: "docs-apsarastack-datasource-zones"
 description: |-
-    Provides a list of availability zones that can be used by an Alibaba Cloud account.
+    Provides a list of availability zones that can be used by an Apsarastack Cloud account.
 ---
 
-# alicloud\_zones
+# apsarastack\_zones
 
-This data source provides availability zones that can be accessed by an Alibaba Cloud account within the region configured in the provider.
+This data source provides availability zones that can be accessed by an Apsarastack Cloud account within the region configured in the provider.
 
 
 -> **NOTE:** If one zone is sold out, it will not be exported.
@@ -17,14 +17,14 @@ This data source provides availability zones that can be accessed by an Alibaba 
 
 ```
 # Declare the data source
-data "alicloud_zones" "zones_ds" {
+data "apsarastack_zones" "zones_ds" {
   available_instance_type = "ecs.n4.large"
   available_disk_category = "cloud_ssd"
 }
 
 # Create an ECS instance with the first matched zone
-resource "alicloud_instance" "instance" {
-  availability_zone = "${data.alicloud_zones.zones_ds.zones.0.id}"
+resource "apsarastack_instance" "instance" {
+  availability_zone = "${data.apsarastack_zones.zones_ds.zones.0.id}"
 
   # Other properties...
 }

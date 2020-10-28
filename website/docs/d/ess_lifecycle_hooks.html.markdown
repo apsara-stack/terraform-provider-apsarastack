@@ -11,7 +11,6 @@ description: |-
 
 This data source provides available lifecycle hook resources. 
 
--> **NOTE:** Available in 1.72.0+
 
 ## Example Usage
 
