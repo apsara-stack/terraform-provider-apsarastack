@@ -17,8 +17,6 @@ Copies a custom image from one region to another. You can use copied images to p
 
 -> **NOTE:** If the copying is not completed, you cannot call DeleteImage to delete the image but you can call CancelCopyImage to cancel the copying.
 
--> **NOTE:** Available in 1.66.0+.
-
 ## Example Usage
 
 ```
@@ -61,11 +59,3 @@ The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/d
  The following attributes are exported:
  
 * `id` - ID of the image.
-
-## Import
- 
-image can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_image_copy.default m-uf66871ape***yg1q***
-```

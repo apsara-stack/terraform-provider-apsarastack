@@ -86,10 +86,6 @@ resource "apsarastack_ess_scaling_rule" "default" {
 }
 ```
 
-## Module Support
-
-You can use to the existing [autoscaling-rule module](https://registry.terraform.io/modules/terraform-apsarastack-modules/autoscaling-rule/apsarastack) 
-to create different type rules, alarm task and scheduled task one-click.
 
 ## Argument Reference
 
@@ -112,11 +108,3 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The scaling rule ID.
-
-## Import
-
-ESS scaling rule can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_ess_scaling_rule.example abc123456
-```

@@ -52,11 +52,6 @@ resource "apsarastack_ess_lifecycle_hook" "foo" {
 }
 ```
 
-## Module Support
-
-You can use to the existing [autoscaling module](https://registry.terraform.io/modules/terraform-apsarastack-modules/autoscaling/apsarastack) 
-to create a lifecycle hook, scaling group and configuration one-click.
-
 ## Argument Reference
 
 The following arguments are supported:
@@ -81,11 +76,3 @@ The following attributes are exported:
 * `lifecycle_transition` - Type of Scaling activity attached to lifecycle hook.
 * `notification_metadata` - Additional information that will be sent to notification target.
 * `notification_arn` - The arn of notification target.
-
-## Import
-
-Ess lifecycle hook can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_ess_lifecycle_hook.example ash-l12345
-```

@@ -17,8 +17,6 @@ Manage image sharing permissions. You can share your custom image to other Apsar
 
 -> **NOTE:** After creating an ECS instance using a shared image, once the custom image owner releases the image sharing relationship or deletes the custom image, the instance cannot initialize the system disk.
 
--> **NOTE:** Available in 1.68.0+.
-
 ## Example Usage
 
 ```

@@ -11,8 +11,6 @@ description: |-
 
 Provides a ESS notification resource. More about Ess notification, see [Autoscaling Notification](https://www.alibabacloud.com/help/doc-detail/71114.htm).
 
--> **NOTE:** Available in 1.55.0+
-
 ## Example Usage
 ```
 variable "name" {
@@ -76,11 +74,3 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The ID of notification resource, which is composed of 'scaling_group_id' and 'notification_arn' in the format of '<scaling_group_id>:<notification_arn>'.
-
-## Import
-
-Ess notification can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_ess_notification.example 'scaling_group_id:notification_arn'
-```

@@ -24,10 +24,6 @@ resource "apsarastack_vpc" "vpc" {
 }
 ```
 
-## Module Support
-
-You can use the existing [vpc module](https://registry.terraform.io/modules/alibaba/vpc/apsarastack) 
-to create a VPC and several VSwitches one-click.
 
 ## Argument Reference
 
@@ -53,12 +49,3 @@ The following attributes are exported:
 * `name` - The name of the VPC.
 * `description` - The description of the VPC.
 * `router_id` - The ID of the router created by default on VPC creation.
-
-## Import
-
-VPC can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_vpc.example vpc-abc123456
-```
-

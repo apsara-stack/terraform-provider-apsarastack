@@ -11,8 +11,6 @@ description: |-
 
 This data source provides the ECS instance type families of ApsaraStack.
 
--> **NOTE:** Available in 1.54.0+
-
 ## Example Usage
 
 ```
