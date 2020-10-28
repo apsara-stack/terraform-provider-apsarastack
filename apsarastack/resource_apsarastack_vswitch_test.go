@@ -63,6 +63,8 @@ func testSweepVSwitches(region string) error {
 	req := vpc.CreateDescribeVSwitchesRequest()
 	req.RegionId = client.RegionId
 	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams["Department"] = client.Department
+	req.QueryParams["ResourceGroup"] = client.ResourceGroup
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 
 	// API DescribeVSwitches has some limitations

@@ -200,17 +200,19 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	instanceChargeType := d.Get("instance_charge_type").(string)
 
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeRds)) {
-		request := rds.CreateDescribeAvailableResourceRequest()
+		request := rds.CreateDescribeRegionsRequest()
 		request.RegionId = client.RegionId
-		if instanceChargeType == string(PostPaid) {
-			request.InstanceChargeType = string(Postpaid)
-		} else {
-			request.InstanceChargeType = string(Prepaid)
-		}
-		var response = &rds.DescribeAvailableResourceResponse{}
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		//if instanceChargeType == string(PostPaid) {
+		//	request.InstanceChargeType = string(Postpaid)
+		//} else {
+		//	request.InstanceChargeType = string(Prepaid)
+		//}
+		var response = &rds.DescribeRegionsResponse{}
 		err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 			raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
-				return rdsClient.DescribeAvailableResource(request)
+				return rdsClient.DescribeRegions(request)
 			})
 			if err != nil {
 				if IsExpectedErrors(err, []string{Throttling}) {
@@ -220,16 +222,16 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 				return resource.NonRetryableError(err)
 			}
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-			response = raw.(*rds.DescribeAvailableResourceResponse)
+			response = raw.(*rds.DescribeRegionsResponse)
 			return nil
 		})
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_zones", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		if len(response.AvailableZones.AvailableZone) <= 0 {
+		if len(response.Regions.RDSRegion) <= 0 {
 			return WrapError(fmt.Errorf("[ERROR] There is no available zone for RDS."))
 		}
-		for _, r := range response.AvailableZones.AvailableZone {
+		for _, r := range response.Regions.RDSRegion {
 			if multi && strings.Contains(r.ZoneId, MULTI_IZ_SYMBOL) && r.RegionId == string(client.Region) {
 				zoneIds = append(zoneIds, r.ZoneId)
 				continue

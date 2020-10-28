@@ -24,6 +24,8 @@ type Config struct {
 	EcsRoleName     string
 	Region          Region
 	RegionId        string
+	Department      string
+	ResourceGroup   string
 	SecurityToken   string
 	OtsInstanceName string
 	AccountId       string

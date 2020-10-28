@@ -54,6 +54,11 @@ func resourceApsaraStackCrEENamespaceCreate(d *schema.ResourceData, meta interfa
 	response := &cr_ee.CreateNamespaceResponse{}
 	request := cr_ee.CreateCreateNamespaceRequest()
 	request.RegionId = crService.client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.InstanceId = instanceId
 	request.NamespaceName = namespace
 	request.AutoCreateRepo = requests.NewBoolean(autoCreate)
@@ -108,6 +113,10 @@ func resourceApsaraStackCrEENamespaceUpdate(d *schema.ResourceData, meta interfa
 		visibility := d.Get("default_visibility").(string)
 		response := &cr_ee.UpdateNamespaceResponse{}
 		request := cr_ee.CreateUpdateNamespaceRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.RegionId = crService.client.RegionId
 		request.InstanceId = instanceId
 		request.NamespaceName = namespace

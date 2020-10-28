@@ -636,7 +636,8 @@ func (s *VpcService) sweepVSwitch(id string) error {
 	request := vpc.CreateDeleteVSwitchRequest()
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc"}
-
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 	request.VSwitchId = id
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeleteVSwitch(request)

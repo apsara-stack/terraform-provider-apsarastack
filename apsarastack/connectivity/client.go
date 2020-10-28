@@ -52,6 +52,8 @@ type ApsaraStackClient struct {
 	RegionId          string
 	AccessKey         string
 	SecretKey         string
+	Department        string
+	ResourceGroup     string
 	config            *Config
 	accountId         string
 	ecsconn           *ecs.Client
@@ -115,11 +117,13 @@ func (c *Config) Client() (*ApsaraStackClient, error) {
 	}
 
 	return &ApsaraStackClient{
-		config:    c,
-		Region:    c.Region,
-		RegionId:  c.RegionId,
-		AccessKey: c.AccessKey,
-		SecretKey: c.SecretKey,
+		config:        c,
+		Region:        c.Region,
+		RegionId:      c.RegionId,
+		AccessKey:     c.AccessKey,
+		SecretKey:     c.SecretKey,
+		Department:    c.Department,
+		ResourceGroup: c.ResourceGroup,
 	}, nil
 }
 
@@ -653,11 +657,12 @@ func (client *ApsaraStackClient) WithKmsClient(do func(*kms.Client) (interface{}
 			return nil, fmt.Errorf("unable to initialize the kms client: %#v", err)
 		}
 		kmsconn.AppendUserAgent(Terraform, terraformVersion)
+		kmsconn.Domain = endpoint
 		kmsconn.AppendUserAgent(Provider, providerVersion)
 		kmsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		kmsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			kmsconn.SetHttpsProxy(client.config.Proxy)
+			kmsconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.kmsconn = kmsconn
 	}
@@ -834,9 +839,13 @@ func (client *ApsaraStackClient) WithRdsClient(do func(*rds.Client) (interface{}
 		rdsconn.AppendUserAgent(Provider, providerVersion)
 		rdsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		rdsconn.SetHTTPSInsecure(client.config.Insecure)
+
 		if client.config.Proxy != "" {
 			rdsconn.SetHttpsProxy(client.config.Proxy)
+			rdsconn.SetHttpProxy(client.config.Proxy)
+
 		}
+
 		client.rdsconn = rdsconn
 	}
 
@@ -1026,6 +1035,9 @@ func (client *ApsaraStackClient) WithCrEEClient(do func(*cr_ee.Client) (interfac
 		creeconn.AppendUserAgent(Terraform, terraformVersion)
 		creeconn.AppendUserAgent(Provider, providerVersion)
 		creeconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		if client.config.Proxy != "" {
+			creeconn.SetHttpProxy(client.config.Proxy)
+		}
 		client.creeconn = creeconn
 	}
 
@@ -1054,6 +1066,9 @@ func (client *ApsaraStackClient) WithCrClient(do func(*cr.Client) (interface{}, 
 			return nil, fmt.Errorf("unable to initialize the CR client: %#v", err)
 		}
 		crconn.Domain = endpoint
+		if client.config.Proxy != "" {
+			crconn.SetHttpProxy(client.config.Proxy)
+		}
 		crconn.AppendUserAgent(Terraform, terraformVersion)
 		crconn.AppendUserAgent(Provider, providerVersion)
 		crconn.AppendUserAgent(Module, client.config.ConfigurationSource)
