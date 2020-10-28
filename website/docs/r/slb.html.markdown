@@ -84,10 +84,3 @@ The following attributes are exported:
 * `id` - The ID of the load balancer.
 * `address` - The IP address of the load balancer.
 
-## Import
-
-Load balancer can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb.example lb-abc123456
-```

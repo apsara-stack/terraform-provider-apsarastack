@@ -49,11 +49,3 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The Id of CA Certificate .
-
-## Import
-
-Server Load balancer CA Certificate can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb_ca_certificate.example abc123456
-```

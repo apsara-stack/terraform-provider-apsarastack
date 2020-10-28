@@ -73,11 +73,3 @@ The following attributes are exported:
 * `port` - Connection instance port.
 * `connection_string` - Connection instance string.
 * `ip_address` - The ip address of connection string.
-
-## Import
-
-RDS connection can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_db_connection.example abc12345678
-```

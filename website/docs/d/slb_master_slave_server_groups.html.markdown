@@ -11,8 +11,6 @@ description: |-
 
 This data source provides the master slave server groups related to a server load balancer.
 
--> **NOTE:** Available in 1.54.0+
-
 ## Example Usage
 
 ```

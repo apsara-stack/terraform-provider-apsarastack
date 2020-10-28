@@ -121,11 +121,3 @@ the vserver_group supports the following:
 The following attributes are exported:
 
 * `id` - (Required, ForceNew) The ESS vserver groups attachment resource ID.
-
-## Import
-
-ESS vserver groups can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_ess_vserver_groups.example abc123456
-```

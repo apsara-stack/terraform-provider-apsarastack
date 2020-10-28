@@ -158,10 +158,3 @@ The following attributes are exported:
 
 * `id` - The ID of the forwarding rule.
                                                                                              
-## Import
-
-Load balancer forwarding rule can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb_rule.example rule-abc123456
-```

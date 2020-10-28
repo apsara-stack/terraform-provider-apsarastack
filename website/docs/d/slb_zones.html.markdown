@@ -11,7 +11,6 @@ description: |-
 
 This data source provides availability zones for SLB that can be accessed by an ApsaraStack Cloud account within the region configured in the provider.
 
--> **NOTE:** Available in v1.73.0+.
 
 ## Example Usage
 
