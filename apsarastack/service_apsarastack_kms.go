@@ -16,6 +16,10 @@ type KmsService struct {
 func (s *KmsService) DescribeKmsKey(id string) (object kms.KeyMetadata, err error) {
 	request := kms.CreateDescribeKeyRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	request.KeyId = id
 
@@ -46,6 +50,11 @@ func (s *KmsService) Decrypt(ciphertextBlob string, encryptionContext map[string
 	}
 	request := kms.CreateDecryptRequest()
 	request.RegionId = s.client.RegionId
+
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 	request.CiphertextBlob = ciphertextBlob
 	request.EncryptionContext = string(context[:])
 	raw, err := s.client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
@@ -62,6 +71,10 @@ func (s *KmsService) DescribeKmsSecret(id string) (object kms.DescribeSecretResp
 	request := kms.CreateDescribeSecretRequest()
 	request.RegionId = s.client.RegionId
 
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 	request.SecretName = id
 	request.FetchTags = "true"
 
@@ -85,6 +98,10 @@ func (s *KmsService) GetSecretValue(id string) (object kms.GetSecretValueRespons
 	request := kms.CreateGetSecretValueRequest()
 	request.RegionId = s.client.RegionId
 
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 	request.SecretName = id
 
 	raw, err := s.client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
@@ -119,6 +136,11 @@ func (s *KmsService) setResourceTags(d *schema.ResourceData, resourceType string
 	if len(removed) > 0 {
 		request := kms.CreateUntagResourceRequest()
 		request.RegionId = s.client.RegionId
+
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "kms"}
+		request.QueryParams["Department"] = s.client.Department
+		request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 		if resourceType == "key" {
 			request.KeyId = d.Id()
 		}
@@ -141,6 +163,11 @@ func (s *KmsService) setResourceTags(d *schema.ResourceData, resourceType string
 	if len(added) > 0 {
 		request := kms.CreateTagResourceRequest()
 		request.RegionId = s.client.RegionId
+
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "kms"}
+		request.QueryParams["Department"] = s.client.Department
+		request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 		if resourceType == "key" {
 			request.KeyId = d.Id()
 		}
@@ -166,6 +193,11 @@ func (s *KmsService) setResourceTags(d *schema.ResourceData, resourceType string
 func (s *KmsService) DescribeKmsAlias(id string) (object kms.KeyMetadata, err error) {
 	request := kms.CreateDescribeKeyRequest()
 	request.RegionId = s.client.RegionId
+
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	request.KeyId = id
 
@@ -193,6 +225,11 @@ func (s *KmsService) DescribeKmsKeyVersion(id string) (object kms.DescribeKeyVer
 	}
 	request := kms.CreateDescribeKeyVersionRequest()
 	request.RegionId = s.client.RegionId
+
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "kms"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 	request.KeyId = parts[0]
 	request.KeyVersionId = parts[1]
 
