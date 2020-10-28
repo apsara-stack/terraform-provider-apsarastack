@@ -138,6 +138,11 @@ func dataSourceApsaraStackCRReposRead(d *schema.ResourceData, meta interface{}) 
 	invoker := NewInvoker()
 
 	getRepoListRequest := cr.CreateGetRepoListRequest()
+	getRepoListRequest.Headers = map[string]string{"RegionId": client.RegionId}
+	getRepoListRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+	getRepoListRequest.QueryParams["Department"] = client.Department
+	getRepoListRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	getRepoListRequest.RegionId = string(client.Region)
 	getRepoListRequest.PageSize = requests.NewInteger(PageSizeMedium)
 	getRepoListRequest.Page = requests.NewInteger(1)
@@ -218,6 +223,10 @@ func dataSourceApsaraStackCRReposRead(d *schema.ResourceData, meta interface{}) 
 
 		getRepoTagsRequest := cr.CreateGetRepoTagsRequest()
 		getRepoTagsRequest.RegionId = string(client.Region)
+		getRepoTagsRequest.Headers = map[string]string{"RegionId": client.RegionId}
+		getRepoTagsRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+		getRepoTagsRequest.QueryParams["Department"] = client.Department
+		getRepoTagsRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
 		getRepoTagsRequest.PageSize = requests.NewInteger(PageSizeMedium)
 		getRepoTagsRequest.Page = requests.NewInteger(1)
 		getRepoTagsRequest.RepoNamespace = repo.RepoNamespace

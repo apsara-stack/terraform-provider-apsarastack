@@ -103,6 +103,8 @@ func resourceAliyunRouteTableAttachmentDelete(d *schema.ResourceData, meta inter
 	request := vpc.CreateUnassociateRouteTableRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.RouteTableId = parts[0]
 	request.VSwitchId = parts[1]

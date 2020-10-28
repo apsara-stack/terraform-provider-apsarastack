@@ -77,6 +77,8 @@ func resourceApsaraStackKeyPairAttachmentCreate(d *schema.ResourceData, meta int
 		request := ecs.CreateRebootInstanceRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
 		request.ForceStop = requests.NewBoolean(true)
 		for _, id := range newIds {

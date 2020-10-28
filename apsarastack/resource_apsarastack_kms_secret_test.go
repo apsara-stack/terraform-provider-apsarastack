@@ -31,6 +31,11 @@ func testSweepKmsSecret(region string) error {
 	prefix := "tf_testacc"
 
 	req := kms.CreateListSecretsRequest()
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+	req.QueryParams["Department"] = client.Department
+	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	raw, err := client.WithKmsClient(func(kmsclient *kms.Client) (interface{}, error) {
 		return kmsclient.ListSecrets(req)
 	})
