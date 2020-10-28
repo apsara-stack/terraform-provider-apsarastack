@@ -132,6 +132,10 @@ func resourceApsaraStackCRNamespaceDelete(d *schema.ResourceData, meta interface
 
 	request := cr.CreateDeleteNamespaceRequest()
 	request.Namespace = d.Id()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 
 	raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
 		return crClient.DeleteNamespace(request)

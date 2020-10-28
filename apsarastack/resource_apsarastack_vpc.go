@@ -78,6 +78,8 @@ func resourceApsaraStackVpcCreate(d *schema.ResourceData, meta interface{}) erro
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		args := *request
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -129,6 +131,8 @@ func resourceApsaraStackVpcRead(d *schema.ResourceData, meta interface{}) error 
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.VRouterId = object.VRouterId
 	request.ResourceGroupId = object.ResourceGroupId
 	request.PageNumber = requests.NewInteger(1)
@@ -186,6 +190,8 @@ func resourceApsaraStackVpcUpdate(d *schema.ResourceData, meta interface{}) erro
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.VpcId = d.Id()
 
 	if d.HasChange("name") {
@@ -218,6 +224,8 @@ func resourceApsaraStackVpcDelete(d *schema.ResourceData, meta interface{}) erro
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.VpcId = d.Id()
 	err := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -248,6 +256,8 @@ func buildApsaraStackVpcArgs(d *schema.ResourceData, meta interface{}) *vpc.Crea
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.CidrBlock = d.Get("cidr_block").(string)
 
 	if v := d.Get("name").(string); v != "" {

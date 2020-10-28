@@ -57,6 +57,8 @@ func resourceApsaraStackSwitchCreate(d *schema.ResourceData, meta interface{}) e
 
 	request := vpc.CreateCreateVSwitchRequest()
 	request.RegionId = client.RegionId
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.VpcId = Trim(d.Get("vpc_id").(string))
@@ -131,6 +133,8 @@ func resourceApsaraStackSwitchUpdate(d *schema.ResourceData, meta interface{}) e
 	request := vpc.CreateModifyVSwitchAttributeRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.VSwitchId = d.Id()
 
@@ -161,6 +165,8 @@ func resourceApsaraStackSwitchDelete(d *schema.ResourceData, meta interface{}) e
 	request := vpc.CreateDeleteVSwitchRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.VSwitchId = d.Id()
 	err := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {

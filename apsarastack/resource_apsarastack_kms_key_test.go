@@ -33,6 +33,11 @@ func testSweepKmsKey(region string) error {
 	}
 
 	req := kms.CreateListKeysRequest()
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+	req.QueryParams["Department"] = client.Department
+	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	raw, err := client.WithKmsClient(func(kmsclient *kms.Client) (interface{}, error) {
 		return kmsclient.ListKeys(req)
 	})
@@ -58,6 +63,11 @@ func testSweepKmsKey(region string) error {
 		for _, description := range prefixes {
 			if strings.HasPrefix(strings.ToLower(key.Description), strings.ToLower(description)) {
 				req := kms.CreateScheduleKeyDeletionRequest()
+				req.Headers = map[string]string{"RegionId": client.RegionId}
+				req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+				req.QueryParams["Department"] = client.Department
+				req.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 				req.KeyId = v.KeyId
 				req.PendingWindowInDays = requests.NewInteger(7)
 				raw, err = client.WithKmsClient(func(kmsclient *kms.Client) (interface{}, error) {

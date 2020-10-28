@@ -127,6 +127,8 @@ func resourceApsaraStackRouterInterfaceCreate(d *schema.ResourceData, meta inter
 	request, err := buildApsaraStackRouterInterfaceCreateArgs(d, meta)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	if err != nil {
 		return WrapError(err)
 	}
@@ -158,6 +160,8 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 		return WrapError(err)
 	}
 	request.RegionId = client.RegionId
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	if attributeUpdate {
@@ -174,6 +178,8 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 		d.SetPartial("specification")
 		request := vpc.CreateModifyRouterInterfaceSpecRequest()
 		request.RegionId = string(client.Region)
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 		request.RouterInterfaceId = d.Id()
@@ -249,6 +255,8 @@ func resourceApsaraStackRouterInterfaceDelete(d *schema.ResourceData, meta inter
 	request := vpc.CreateDeleteRouterInterfaceRequest()
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.RouterInterfaceId = d.Id()
 	request.ClientToken = buildClientToken(request.GetActionName())
@@ -288,6 +296,8 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 	request := vpc.CreateCreateRouterInterfaceRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.RouterType = d.Get("router_type").(string)
 	request.RouterId = d.Get("router_id").(string)
@@ -350,6 +360,8 @@ func buildApsaraStackRouterInterfaceModifyAttrArgs(d *schema.ResourceData, meta 
 
 	request := vpc.CreateModifyRouterInterfaceAttributeRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.RouterInterfaceId = d.Id()
 

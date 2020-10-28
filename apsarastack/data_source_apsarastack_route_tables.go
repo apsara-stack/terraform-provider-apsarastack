@@ -88,6 +88,8 @@ func dataSourceApsaraStackRouteTablesRead(d *schema.ResourceData, meta interface
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {

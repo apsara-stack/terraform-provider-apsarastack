@@ -194,6 +194,8 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 		return WrapError(err)
 	}
 
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 	raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.CreateDBInstance(request)
 	})
@@ -234,6 +236,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if !d.IsNewResource() && d.HasChange("instance_charge_type") && payType == Prepaid {
 		prePaidRequest := rds.CreateModifyDBInstancePayTypeRequest()
 		prePaidRequest.RegionId = client.RegionId
+
+		prePaidRequest.Headers = map[string]string{"RegionId": client.RegionId}
+		prePaidRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		prePaidRequest.DBInstanceId = d.Id()
 		prePaidRequest.PayType = string(payType)
 		prePaidRequest.AutoPay = "true"
@@ -264,6 +269,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request := rds.CreateModifyInstanceAutoRenewalAttributeRequest()
 		request.DBInstanceId = d.Id()
 		request.RegionId = client.RegionId
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		auto_renew := d.Get("auto_renew").(bool)
 		if auto_renew {
 			request.AutoRenew = "True"
@@ -300,6 +308,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		period := d.Get("monitoring_period").(int)
 		request := rds.CreateModifyDBInstanceMonitorRequest()
 		request.RegionId = client.RegionId
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		request.DBInstanceId = d.Id()
 		request.Period = strconv.Itoa(period)
 
@@ -315,6 +326,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("maintain_time") {
 		request := rds.CreateModifyDBInstanceMaintainTimeRequest()
 		request.RegionId = client.RegionId
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		request.DBInstanceId = d.Id()
 		request.MaintainTime = d.Get("maintain_time").(string)
 		request.ClientToken = buildClientToken(request.GetActionName())
@@ -332,6 +346,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("security_ip_mode") && d.Get("security_ip_mode").(string) == SafetyMode {
 		request := rds.CreateMigrateSecurityIPModeRequest()
 		request.RegionId = client.RegionId
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		request.DBInstanceId = d.Id()
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.MigrateSecurityIPMode(request)
@@ -346,6 +363,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("sql_collector_status") {
 		request := rds.CreateModifySQLCollectorPolicyRequest()
 		request.RegionId = client.RegionId
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		request.DBInstanceId = d.Id()
 		if d.Get("sql_collector_status").(string) == "Enabled" {
 			request.SQLCollectorStatus = "Enable"
@@ -365,6 +385,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if d.Get("sql_collector_status").(string) == "Enabled" && d.HasChange("sql_collector_config_value") {
 		request := rds.CreateModifySQLCollectorRetentionRequest()
 		request.RegionId = client.RegionId
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		request.DBInstanceId = d.Id()
 		request.ConfigValue = strconv.Itoa(d.Get("sql_collector_config_value").(int))
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -385,6 +408,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("instance_name") {
 		request := rds.CreateModifyDBInstanceDescriptionRequest()
 		request.RegionId = client.RegionId
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		request.DBInstanceId = d.Id()
 		request.DBInstanceDescription = d.Get("instance_name").(string)
 
@@ -416,6 +442,9 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	update := false
 	request := rds.CreateModifyDBInstanceSpecRequest()
 	request.RegionId = client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 	request.DBInstanceId = d.Id()
 	request.PayType = d.Get("instance_charge_type").(string)
 
@@ -539,6 +568,9 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 	if instance.PayType == string(Prepaid) {
 		request := rds.CreateDescribeInstanceAutoRenewalAttributeRequest()
 		request.RegionId = client.RegionId
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 		request.DBInstanceId = d.Id()
 
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -587,6 +619,9 @@ func resourceApsaraStackDBInstanceDelete(d *schema.ResourceData, meta interface{
 
 	request := rds.CreateDeleteDBInstanceRequest()
 	request.RegionId = client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 	request.DBInstanceId = d.Id()
 
 	err = resource.Retry(10*time.Minute, func() *resource.RetryError {
@@ -621,6 +656,9 @@ func buildDBCreateRequest(d *schema.ResourceData, meta interface{}) (*rds.Create
 	vpcService := VpcService{client}
 	request := rds.CreateCreateDBInstanceRequest()
 	request.RegionId = string(client.Region)
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
 	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.Engine = Trim(d.Get("engine").(string))
 	request.DBInstanceStorage = requests.NewInteger(d.Get("instance_storage").(int))
