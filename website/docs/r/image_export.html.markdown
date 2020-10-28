@@ -17,8 +17,6 @@ Export a custom image to the OSS bucket in the same region as the custom image.
 
 -> **NOTE:** Before exporting the image, you must authorize the cloud server ECS official service account to write OSS permissions through RAM.
 
--> **NOTE:** Available in 1.68.0+.
-
 ## Example Usage
 
 ```

@@ -22,9 +22,6 @@ A master slave server group contains two ECS instances. The master slave server 
 -> **NOTE:** One Classic and Intranet load balancer, its master slave server group can only add Classic ECS instances.
 
 -> **NOTE:** One VPC load balancer, its master slave server group can only add the same VPC ECS instances.
-
--> **NOTE:** Available in 1.54.0+
-
 ## Example Usage
 
 ```
@@ -145,10 +142,3 @@ The following attributes are exported:
 
 * `id` - The ID of the master slave server group.
 
-## Import
-
-Load balancer master slave server group can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb_master_slave_server_group.example abc123456
-```

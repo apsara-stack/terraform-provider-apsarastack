@@ -15,8 +15,6 @@ Import a copy of your local on-premise file to ECS, and appear as a custom repla
 
 -> **NOTE:** The region where the image is imported must be the same region as the OSS bucket where the image file is uploaded.
 
--> **NOTE:** Available in 1.69.0+.
-
 ## Example Usage
 
 ```
@@ -67,11 +65,3 @@ The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/d
  The following attributes are exported:
  
 * `id` - ID of the image.
-
-## Import
- 
-image can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_image_import.default m-uf66871ape***yg1q***
-```
