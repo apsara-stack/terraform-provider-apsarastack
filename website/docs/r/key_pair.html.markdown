@@ -28,7 +28,7 @@ resource "apsarastack_key_pair" "prefix" {
 // Import an existing public key to build a apsarastack key pair
 resource "apsarastack_key_pair" "publickey" {
   key_name   = "my_public_key"
-  public_key = "ssh-rsa AAAAB3Nza12345678qwertyuudsfsg"
+  public_key = "ssh-rsa AB3Napapsod45678qwertyuudsfsg"
 }
 ```
 ## Argument Reference

@@ -15,17 +15,17 @@ Provides an ECS Elastic Network Interface resource.
 
 ```
 resource "apsarastack_security_group" "secgroup" {
-  name        = "SurajG_security"
-  description = "Hello Security Group"
+  name        = "SecurityGroup-Name"
+  description = "Security Group"
   vpc_id      = apsarastack_vpc.vpc.id
 }
 resource "apsarastack_vpc" "vpc" {
-  name       = "surajG_vpc"
+  name       = "VPC-Name"
   cidr_block = "10.0.0.0/16"
 }
 
 resource "apsarastack_vswitch" "vsw" {
-  name       = "surajG_vsw"
+  name       = "VSW-Name"
   vpc_id            = apsarastack_vpc.vpc.id
   cidr_block        = apsarastack_vpc.vpc.cidr_block
   availability_zone = "cn-beijing-b"
