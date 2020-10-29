@@ -27,7 +27,6 @@ resource "apsarastack_common_bandwidth_package" "foo" {
 
 resource "apsarastack_eip" "foo" {
   bandwidth            = "2"
-  internet_charge_type = "PayByBandwidth"
 }
 
 resource "apsarastack_common_bandwidth_package_attachment" "foo" {
