@@ -15,7 +15,7 @@ This data source provides the ECS instance type families of ApsaraStack.
 
 ```
 data "apsarastack_instance_type_families" "default" {
-  instance_charge_type = "PrePaid"
+  
 }
 
 output "first_instance_type_family_id" {
