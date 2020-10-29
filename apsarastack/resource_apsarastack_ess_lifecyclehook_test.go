@@ -12,7 +12,7 @@ import (
 )
 
 func TestAccApsaraStackEssLifecycleHookBasic(t *testing.T) {
-	rand := acctest.RandIntRange(1000, 999999)
+	rand := acctest.RandIntRange(10, 99999)
 	var v ess.LifecycleHook
 	resourceId := "apsarastack_ess_lifecycle_hook.default"
 	basicMap := map[string]string{
@@ -285,21 +285,14 @@ func testAccEssLifecycleHookUpdateNotificationArn(common string, rand int) strin
 		default = "tf-testAccEssLifecycleHook-%d"
 	}
 	
-	data "apsarastack_regions" "default" {
-		current = true
-	}
-
-	data "apsarastack_account" "default" {
-	}
-
-	resource "apsarastack_mns_queue" "default"{
-		name="${var.name}"
+	data "apsarastack_zones" "default2" {
+	
 	}
 
 	resource "apsarastack_vswitch" "default2" {
 		  vpc_id = "${apsarastack_vpc.default.id}"
 		  cidr_block = "172.16.1.0/24"
-		  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+		  availability_zone = "${data.apsarastack_zones.default2.zones.0.id}"
 		  name = "${var.name}"
 	}
 	
@@ -318,7 +311,7 @@ func testAccEssLifecycleHookUpdateNotificationArn(common string, rand int) strin
 		heartbeat_timeout = 400
 		notification_metadata = "helloterraform"
 		default_result = "ABANDON"
-		notification_arn = "acs:ess:${data.apsarastack_regions.default.regions.0.id}:${data.apsarastack_account.default.id}:queue/${apsarastack_mns_queue.default.name}"
+		notification_arn = "acs:ess"
 	}
 	`, common, rand)
 }

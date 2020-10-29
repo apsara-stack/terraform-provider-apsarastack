@@ -763,19 +763,19 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 
 		clientOptions := []oss.ClientOption{oss.UserAgent(client.getUserAgent()),
 			oss.SecurityToken(client.config.SecurityToken)}
-		proxy, err := client.getHttpProxy()
+		//proxy, err := client.getHttpProxy()
 		if client.config.Proxy != "" {
 			clientOptions = append(clientOptions, oss.Proxy(client.config.Proxy))
 		}
-		if proxy != nil {
-			skip, err := client.skipProxy(endpoint)
-			if err != nil {
-				return nil, err
-			}
-			if !skip {
-				clientOptions = append(clientOptions, oss.Proxy(proxy.String()))
-			}
-		}
+		//if proxy != nil {
+		//	skip, err := client.skipProxy(endpoint)
+		//	if err != nil {
+		//		return nil, err
+		//	}
+		//	if !skip {
+		//		clientOptions = append(clientOptions, oss.Proxy(proxy.String()))
+		//	}
+		//}
 		clientOptions = append(clientOptions, oss.UseCname(false))
 
 		ossconn, err := oss.New(endpoint, client.config.AccessKey, client.config.SecretKey, clientOptions...)
