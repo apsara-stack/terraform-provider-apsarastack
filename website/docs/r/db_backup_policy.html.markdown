@@ -80,11 +80,3 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The current backup policy resource ID. It is same as 'instance_id'.
-
-## Import
-
-RDS backup policy can be imported using the id or instance id, e.g.
-
-```
-$ terraform import apsarastack_db_backup_policy.example "rm-12345678"
-```

@@ -133,18 +133,8 @@ The following attributes are exported:
 
 ### Timeouts
 
--> **NOTE:** Available in 1.52.1+.
-
 The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/docs/configuration-0-11/resources.html#timeouts) for certain actions:
 
 * `create` - (Defaults to 20 mins) Used when creating the db instance (until it reaches the initial `Running` status). 
 * `update` - (Defaults to 30 mins) Used when updating the db instance (until it reaches the initial `Running` status). 
 * `delete` - (Defaults to 20 mins) Used when terminating the db instance. 
-
-## Import
-
-RDS instance can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_db_instance.example rm-abc12345678
-```

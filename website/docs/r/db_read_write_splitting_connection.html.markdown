@@ -87,11 +87,3 @@ The following attributes are exported:
 
 * `id` - The Id of DB instance.
 * `connection_string` - Connection instance string.
-
-## Import
-
-RDS read write splitting connection can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_db_read_write_splitting_connection.example abc12345678
-```

@@ -92,7 +92,7 @@ The following arguments are supported:
 * `backend_port` - (Required, ForceNew) Port used by the Server Load Balancer instance backend. Valid value range: [1-65535].
 * `protocol` - (Optional, ForceNew) The protocol to listen on. Valid values are [`http`, `https`, `tcp`, `udp`].
 * `bandwidth` - (Required) Bandwidth peak of Listener. For the public network instance charged per traffic consumed, the Bandwidth on Listener can be set to -1, indicating the bandwidth peak is unlimited. Valid values are [-1, 1-5000] in Mbps.
-* `description` - (Optional, Available in 1.69.0+) The description of slb listener. This description can have a string of 1 to 80 characters. Default value: null.
+* `description` - (Optional) The description of slb listener. This description can have a string of 1 to 80 characters. Default value: null.
 * `scheduler` - (Optional) Scheduling algorithm, Valid values are `wrr`, `rr` and `wlc`.  Default to "wrr".
 * `sticky_session` - (Required) Whether to enable session persistence, Valid values are `on` and `off`. Default to `off`.
 * `sticky_session_type` - (Optional) Mode for handling the cookie. If `sticky_session` is "on", it is mandatory. Otherwise, it will be ignored. Valid values are `insert` and `server`. `insert` means it is inserted from Server Load Balancer; `server` means the Server Load Balancer learns from the backend server.
@@ -109,17 +109,17 @@ The following arguments are supported:
 * `health_check_timeout` - (Optional) Maximum timeout of each health check response. It is required when `health_check` is on. Valid value range: [1-300] in seconds. Default to 5. Note: If `health_check_timeout` < `health_check_interval`, its will be replaced by `health_check_interval`.
 * `health_check_interval` - (Optional) Time interval of health checks. It is required when `health_check` is on. Valid value range: [1-50] in seconds. Default to 2.
 * `health_check_http_code` - (Optional) Regular health check HTTP status code. Multiple codes are segmented by “,”. It is required when `health_check` is on. Default to `http_2xx`.  Valid values are: `http_2xx`,  `http_3xx`, `http_4xx` and `http_5xx`.
-* `health_check_method` - (Optional, Available in 1.70.0+) HealthCheckMethod used for health check.`http` and `https` support regions ap-northeast-1, ap-southeast-1, ap-southeast-2, ap-southeast-3, us-east-1, us-west-1, eu-central-1, ap-south-1, me-east-1, cn-huhehaote, cn-zhangjiakou, ap-southeast-5, cn-shenzhen, cn-hongkong, cn-qingdao, cn-chengdu, eu-west-1, cn-hangzhou", cn-beijing, cn-shanghai.This function does not support the TCP protocol .
-* `server_certificate_id` - (Required, Available in 1.59.0+) SLB Server certificate ID. It is required when `protocol` is `https`.
-* `gzip` - (Optional) Whether to enable "Gzip Compression". If enabled, files of specific file types will be compressed, otherwise, no files will be compressed. Default to true. Available in v1.13.0+.
-* `x_forwarded_for` - (Optional) Whether to set additional HTTP Header field "X-Forwarded-For" (documented below). Available in v1.13.0+.
+* `health_check_method` - (Optional) HealthCheckMethod used for health check.`http` and `https` support regions ap-northeast-1, ap-southeast-1, ap-southeast-2, ap-southeast-3, us-east-1, us-west-1, eu-central-1, ap-south-1, me-east-1, cn-huhehaote, cn-zhangjiakou, ap-southeast-5, cn-shenzhen, cn-hongkong, cn-qingdao, cn-chengdu, eu-west-1, cn-hangzhou", cn-beijing, cn-shanghai.This function does not support the TCP protocol .
+* `server_certificate_id` - (Required) SLB Server certificate ID. It is required when `protocol` is `https`.
+* `gzip` - (Optional) Whether to enable "Gzip Compression". If enabled, files of specific file types will be compressed, otherwise, no files will be compressed. Default to true.
+* `x_forwarded_for` - (Optional) Whether to set additional HTTP Header field "X-Forwarded-For" (documented below).
 * `acl_status` - (Optional) Whether to enable "acl(access control list)", the acl is specified by `acl_id`. Valid values are `on` and `off`. Default to `off`.
 * `acl_type` - (Optional) Mode for handling the acl specified by acl_id. If `acl_status` is "on", it is mandatory. Otherwise, it will be ignored. Valid values are `white` and `black`. `white` means the Listener can only be accessed by client ip belongs to the acl; `black` means the Listener can not be accessed by client ip belongs to the acl.
 * `acl_id` - (Optional) the id of access control list to be apply on the listener, is the id of resource apsarastack_slb_acl. If `acl_status` is "on", it is mandatory. Otherwise, it will be ignored.
 * `established_timeout` - (Optional) Timeout of tcp listener established connection idle timeout. Valid value range: [10-900] in seconds. Default to 900.
 * `server_group_id` - (Optional) the id of server group to be apply on the listener, is the id of resource `apsarastack_slb_server_group`.
-* `listener_forward` - (Optional, ForceNew, Available in 1.40.0+) Whether to enable http redirect to https, Valid values are `on` and `off`. Default to `off`.
-* `forward_port` - (Optional, ForceNew, Available in 1.40.0+) The port that http redirect to https.
+* `listener_forward` - (Optional, ForceNew) Whether to enable http redirect to https, Valid values are `on` and `off`. Default to `off`.
+* `forward_port` - (Optional, ForceNew) The port that http redirect to https.
 * `health_check_method` - (Optional, ForceNew, Available in 1.70.0+) The method of health check. Valid values: ["head", "get"].
 * `delete_protection_validation` - (Optional, Available in 1.63.0+) Checking DeleteProtection of SLB instance before deleting. If true, this resource will not be deleted when its SLB instance enabled DeleteProtection. Default to false.
 
@@ -201,10 +201,3 @@ The following attributes are exported:
 * `health_check_http_code` - Regular health check HTTP status code.
 * `server_certificate_id` - (Optional) Security certificate ID.
 
-## Import
-
-Load balancer listener can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb_listener.example "lb-abc123456:22"
-```

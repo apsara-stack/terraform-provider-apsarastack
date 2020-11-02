@@ -87,11 +87,3 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The current account resource ID. Composed of instance ID, account name and privilege with format `<instance_id>:<name>:<privilege>`.
-
-## Import
-
-RDS account privilege can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_db_account_privilege.example "rm-12345:tf_account:ReadOnly"
-```

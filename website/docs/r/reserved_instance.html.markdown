@@ -11,8 +11,6 @@ description: |-
 
 Provides an Reserved Instance resource.
 
--> **NOTE:** Available in 1.65.0+
-
 ## Example Usage
 
 ```
@@ -55,12 +53,4 @@ The apsarastack_reserved_instance resource allows you to manage your ReservedIns
 The following attributes are exported:
 
 * `id` -  ID of the ReservedInstance.
-
-## Import
-
-reservedInstance can be imported using id, e.g.
-
-```
-$ terraform import apsarastack_reserved_instance.default ecsri-uf6df4xm0h3licit****
-```
 

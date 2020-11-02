@@ -11,8 +11,6 @@ description: |-
 
 This data source provides the server load balancer backend servers related to a server load balancer..
 
--> **NOTE:** Available in 1.53.0+
-
 ## Example Usage
 
 ```

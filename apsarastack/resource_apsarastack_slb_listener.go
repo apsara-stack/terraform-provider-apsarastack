@@ -703,6 +703,10 @@ func buildListenerCommonArgs(d *schema.ResourceData, meta interface{}) (*request
 		return request, WrapError(err)
 	}
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.QueryParams["LoadBalancerId"] = d.Get("load_balancer_id").(string)
 	request.QueryParams["ListenerPort"] = string(requests.NewInteger(d.Get("frontend_port").(int)))
 	if backendServerPort, ok := d.GetOk("backend_port"); ok {
