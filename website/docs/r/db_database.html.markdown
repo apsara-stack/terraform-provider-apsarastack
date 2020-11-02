@@ -79,11 +79,3 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The current database resource ID. Composed of instance ID and database name with format `<instance_id>:<name>`.
-
-## Import
-
-RDS database can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_db_database.example "rm-12345:tf_database"
-```

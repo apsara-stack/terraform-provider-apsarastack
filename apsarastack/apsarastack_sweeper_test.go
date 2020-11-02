@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 
 // functions for a given region
 func sharedClientForRegion(region string) (interface{}, error) {
-	var accessKey, secretKey, proxy, domain string
+	var accessKey, secretKey, proxy, domain, ossEndpoint, essEndpoint, slbEndpoint, crEndpoint, vpcEndpoint, rdsEndpoint, ecsEndpoint string
 	var insecure bool
 	if accessKey = os.Getenv("APSARASTACK_ACCESS_KEY"); accessKey == "" {
 		return nil, fmt.Errorf("empty APSARASTACK_ACCESS_KEY")
@@ -33,10 +33,25 @@ func sharedClientForRegion(region string) (interface{}, error) {
 	if domain = os.Getenv("APSARASTACK_DOMAIN"); domain == "" {
 		return nil, fmt.Errorf("empty APSARASTACK_DOMAIN")
 	}
-	if ossEndpoint := os.Getenv("OSS_ENDPOINT"); ossEndpoint == "" {
+	if ossEndpoint = os.Getenv("OSS_ENDPOINT"); ossEndpoint == "" {
 		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
 	if rdsEndpoint := os.Getenv("RDS_ENDPOINT"); rdsEndpoint == "" {
+		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
+	}
+	if essEndpoint = os.Getenv("ESS_ENDPOINT"); essEndpoint == "" {
+		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
+	}
+	if ecsEndpoint = os.Getenv("ESS_ENDPOINT"); ecsEndpoint == "" {
+		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
+	}
+	if vpcEndpoint = os.Getenv("ESS_ENDPOINT"); vpcEndpoint == "" {
+		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
+	}
+	if slbEndpoint = os.Getenv("ESS_ENDPOINT"); slbEndpoint == "" {
+		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
+	}
+	if crEndpoint = os.Getenv("ESS_ENDPOINT"); crEndpoint == "" {
 		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
 	if domain = os.Getenv("APSARASTACK_DOMAIN"); domain == "" {
@@ -44,14 +59,21 @@ func sharedClientForRegion(region string) (interface{}, error) {
 	}
 
 	conf := connectivity.Config{
-		Region:    connectivity.Region(region),
-		RegionId:  region,
-		AccessKey: accessKey,
-		SecretKey: secretKey,
-		Proxy:     proxy,
-		Insecure:  insecure,
-		Domain:    domain,
-		Protocol:  "HTTPS",
+		Region:      connectivity.Region(region),
+		RegionId:    region,
+		AccessKey:   accessKey,
+		SecretKey:   secretKey,
+		Proxy:       proxy,
+		Insecure:    insecure,
+		Domain:      domain,
+		Protocol:    "HTTP",
+		OssEndpoint: ossEndpoint,
+		EssEndpoint: essEndpoint,
+		RdsEndpoint: rdsEndpoint,
+		EcsEndpoint: ecsEndpoint,
+		VpcEndpoint: vpcEndpoint,
+		CrEndpoint:  crEndpoint,
+		SlbEndpoint: slbEndpoint,
 	}
 	if accountId := os.Getenv("APSARASTACK_ACCOUNT_ID"); accountId != "" {
 		conf.AccountId = accountId

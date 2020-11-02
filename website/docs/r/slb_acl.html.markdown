@@ -81,11 +81,3 @@ The entry mapping supports the following:
 The following attributes are exported:
 
 * `id` - The Id of the access control list.
-
-## Import
-
-Server Load balancer access control list can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb_acl.example acl-abc123456
-```

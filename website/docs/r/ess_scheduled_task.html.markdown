@@ -93,10 +93,6 @@ resource "apsarastack_ess_scheduled_task" "default" {
 }
 ```
 
-## Module Support
-
-You can use to the existing [autoscaling-rule module](https://registry.terraform.io/modules/terraform-apsarastack-modules/autoscaling-rule/apsarastack) 
-to create scheduled task, different type rules and alarm task one-click.
 
 ## Argument Reference
 
@@ -132,11 +128,3 @@ The time must be in UTC. You cannot enter a time point later than 365 days from 
 The following attributes are exported:
 
 * `id` - The schedule task ID.
-
-## Import
-
-ESS schedule task can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_ess_scheduled_task.example abc123456
-```
