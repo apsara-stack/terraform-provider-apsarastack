@@ -3,208 +3,167 @@ package apsarastack
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"strings"
 	"testing"
 )
 
 func TestAccApsaraStackSlbListenersDataSource_http(t *testing.T) {
-	rand := acctest.RandIntRange(10, 5000)
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			resource.TestStep{
-				Config: testAccCheckApsaraStackSlbListenersDataSourceConfig(rand, map[string]string{
-					"load_balancer_id": `"${apsarastack_slb_listener.default.load_balancer_id}"`,
-					"frontend_port":    `"80"`,
-					"protocol":         `"http"`,
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKmsKeyV1DataSourceID("data.apsarastack_slb_listeners.default"),
-					resource.TestCheckResourceAttr(
-						"data.apsarastack_slb_listeners.default", "slb_listeners.#", "1"),
-				),
-			},
-		},
-	})
-}
-
-func testAccCheckKmsKeyV1DataSourceID(n string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Can't find Kms key data source: %s", n)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("Kms key data source ID not set")
-		}
-
-		return nil
+	rand := acctest.RandInt()
+	basicConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfig(rand, map[string]string{
+			"load_balancer_id": `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+		}),
 	}
+
+	descriptionConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfig(rand, map[string]string{
+			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
+		}),
+		fakeConfig: testAccCheckApsaraStackSlbListenersDataSourceConfig(rand, map[string]string{
+			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+			"description_regex": `"${apsarastack_slb_listener.default.description}-fake"`,
+		}),
+	}
+
+	allConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfig(rand, map[string]string{
+			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+			"frontend_port":     `"80"`,
+			"protocol":          `"http"`,
+			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
+		}),
+		fakeConfig: testAccCheckApsaraStackSlbListenersDataSourceConfig(rand, map[string]string{
+			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+			"frontend_port":     `"81"`,
+			"protocol":          `"http"`,
+			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
+		}),
+	}
+
+	var existSlbRecordsMapFunc = func(rand int) map[string]string {
+		return map[string]string{
+			"slb_listeners.#":                           "1",
+			"slb_listeners.0.backend_port":              "80",
+			"slb_listeners.0.frontend_port":             "80",
+			"slb_listeners.0.protocol":                  "http",
+			"slb_listeners.0.status":                    "running",
+			"slb_listeners.0.bandwidth":                 "10",
+			"slb_listeners.0.scheduler":                 "wrr",
+			"slb_listeners.0.sticky_session":            "on",
+			"slb_listeners.0.sticky_session_type":       "insert",
+			"slb_listeners.0.cookie_timeout":            "86400",
+			"slb_listeners.0.health_check":              "on",
+			"slb_listeners.0.health_check_uri":          "/cons",
+			"slb_listeners.0.health_check_connect_port": "20",
+			"slb_listeners.0.healthy_threshold":         "8",
+			"slb_listeners.0.unhealthy_threshold":       "8",
+			"slb_listeners.0.health_check_timeout":      "8",
+			"slb_listeners.0.health_check_interval":     "5",
+			"slb_listeners.0.health_check_http_code":    "http_2xx,http_3xx",
+			"slb_listeners.0.gzip":                      "on",
+			"slb_listeners.0.x_forwarded_for":           "on",
+			"slb_listeners.0.x_forwarded_for_slb_ip":    "on",
+			"slb_listeners.0.x_forwarded_for_slb_id":    "on",
+			"slb_listeners.0.x_forwarded_for_slb_proto": "off",
+			"slb_listeners.0.idle_timeout":              "30",
+			"slb_listeners.0.request_timeout":           "80",
+			"slb_listeners.0.description":               fmt.Sprintf("tf-testAccCheckApsaraStackSlbListenersDataSourceHttp-%d", rand),
+		}
+	}
+
+	var fakeSlbRecordsMapFunc = func(rand int) map[string]string {
+		return map[string]string{
+			"slb_listeners.#": "0",
+		}
+	}
+
+	var slbListenersRecordsCheckInfo = dataSourceAttr{
+		resourceId:   "data.apsarastack_slb_listeners.default",
+		existMapFunc: existSlbRecordsMapFunc,
+		fakeMapFunc:  fakeSlbRecordsMapFunc,
+	}
+
+	slbListenersRecordsCheckInfo.dataSourceTestCheck(t, rand, basicConf, descriptionConf, allConf)
 }
 
-//func TestAccApsaraStackSlbListenersDataSource_http(t *testing.T) {
-//
-//
-//
-//	allConf := dataSourceTestAccConfig{
-//		existConfig:
-//		fakeConfig: testAccCheckApsaraStackSlbListenersDataSourceConfig(rand, map[string]string{
-//			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
-//			"frontend_port":     `"81"`,
-//			"protocol":          `"http"`,
-//		}),
-//	}
-//
-//	var existSlbRecordsMapFunc = func(rand int) map[string]string {
-//		return map[string]string{
-//			"slb_listeners.#":                           "1",
-//			"slb_listeners.0.backend_port":              "80",
-//			"slb_listeners.0.frontend_port":             "80",
-//			"slb_listeners.0.protocol":                  "http",
-//			"slb_listeners.0.status":                    "running",
-//			"slb_listeners.0.bandwidth":                 "10",
-//			"slb_listeners.0.scheduler":                 "wrr",
-//			"slb_listeners.0.sticky_session":            "on",
-//			"slb_listeners.0.sticky_session_type":       "insert",
-//			"slb_listeners.0.cookie_timeout":            "86400",
-//			"slb_listeners.0.health_check":              "on",
-//			"slb_listeners.0.health_check_uri":          "/cons",
-//			"slb_listeners.0.health_check_connect_port": "20",
-//			"slb_listeners.0.healthy_threshold":         "8",
-//			"slb_listeners.0.unhealthy_threshold":       "8",
-//			"slb_listeners.0.health_check_timeout":      "8",
-//			"slb_listeners.0.health_check_interval":     "5",
-//			"slb_listeners.0.health_check_http_code":    "http_2xx,http_3xx",
-//			"slb_listeners.0.gzip":                      "on",
-//			"slb_listeners.0.x_forwarded_for":           "on",
-//			"slb_listeners.0.x_forwarded_for_slb_ip":    "on",
-//			"slb_listeners.0.x_forwarded_for_slb_id":    "on",
-//			"slb_listeners.0.x_forwarded_for_slb_proto": "off",
-//			"slb_listeners.0.idle_timeout":              "30",
-//			"slb_listeners.0.request_timeout":           "80",
-//			"slb_listeners.0.description":               fmt.Sprintf("tf-testAccCheckApsaraStackSlbListenersDataSourceHttp-%d", rand),
-//		}
-//	}
-//
-//	var fakeSlbRecordsMapFunc = func(rand int) map[string]string {
-//		return map[string]string{
-//			"slb_listeners.#": "0",
-//		}
-//	}
-//
-//	var slbListenersRecordsCheckInfo = dataSourceAttr{
-//		resourceId:   "data.apsarastack_slb_listeners.default",
-//		existMapFunc: existSlbRecordsMapFunc,
-//		fakeMapFunc:  fakeSlbRecordsMapFunc,
-//	}
-//	resource.Test(t, resource.TestCase{
-//		PreCheck: func() {
-//			testAccPreCheck(t)
-//		},
-//
-//		// module name
-//		IDRefreshName: "data.apsarastack_slb_listeners.default",
-//		Providers:     testAccProviders,
-//		CheckDestroy:  testAccCheckDiskAttachmentDestroy,
-//		Steps: []resource.TestStep{
-//			{
-//				Config: testAccDiskAttachmentConfig(),
-//				Check: resource.ComposeTestCheckFunc(
-//					diskRc.checkResourceExists(),
-//					instanceRc.checkResourceExists(),
-//					attachmentRc.checkResourceExists(),
-//					resource.TestCheckResourceAttrSet(
-//						"apsarastack_disk_attachment.default", "device_name"),
-//				),
-//			},
-//		}
-//	}
-//}
-//
-//	slbListenersRecordsCheckInfo.dataSourceTestCheck(t, rand,/* basicConf, descriptionConf, */ allConf)
-//}
+func TestAccApsaraStackSlbListenersDataSource_https(t *testing.T) {
+	rand := acctest.RandInt()
+	basicConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
+			"load_balancer_id": `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+		}),
+	}
+	descriptionConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
+			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
+		}),
+		fakeConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
+			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+			"description_regex": `"${apsarastack_slb_listener.default.description}-fake"`,
+		}),
+	}
+	allConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
+			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+			"frontend_port":     `"80"`,
+			"protocol":          `"https"`,
+			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
+		}),
+		fakeConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
+			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
+			"frontend_port":     `"81"`,
+			"protocol":          `"https"`,
+			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
+		}),
+	}
 
-//func TestAccApsaraStackSlbListenersDataSource_https(t *testing.T) {
-//	rand := acctest.RandInt()
-//	basicConf := dataSourceTestAccConfig{
-//		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
-//			"load_balancer_id": `"${apsarastack_slb_listener.default.load_balancer_id}"`,
-//		}),
-//	}
-//	descriptionConf := dataSourceTestAccConfig{
-//		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
-//			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
-//			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
-//		}),
-//		fakeConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
-//			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
-//			"description_regex": `"${apsarastack_slb_listener.default.description}-fake"`,
-//		}),
-//	}
-//	allConf := dataSourceTestAccConfig{
-//		existConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
-//			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
-//			"frontend_port":     `"80"`,
-//			"protocol":          `"https"`,
-//			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
-//		}),
-//		fakeConfig: testAccCheckApsaraStackSlbListenersDataSourceConfigHttps(rand, map[string]string{
-//			"load_balancer_id":  `"${apsarastack_slb_listener.default.load_balancer_id}"`,
-//			"frontend_port":     `"81"`,
-//			"protocol":          `"https"`,
-//			"description_regex": `"${apsarastack_slb_listener.default.description}"`,
-//		}),
-//	}
-//
-//	var existSlbRecordsMapFunc = func(rand int) map[string]string {
-//		return map[string]string{
-//			"slb_listeners.#":                           "1",
-//			"slb_listeners.0.backend_port":              "80",
-//			"slb_listeners.0.frontend_port":             "80",
-//			"slb_listeners.0.protocol":                  "https",
-//			"slb_listeners.0.status":                    "running",
-//			"slb_listeners.0.bandwidth":                 "10",
-//			"slb_listeners.0.scheduler":                 "wrr",
-//			"slb_listeners.0.sticky_session":            "on",
-//			"slb_listeners.0.sticky_session_type":       "insert",
-//			"slb_listeners.0.cookie_timeout":            "86400",
-//			"slb_listeners.0.health_check":              "on",
-//			"slb_listeners.0.health_check_uri":          "/cons",
-//			"slb_listeners.0.health_check_connect_port": "20",
-//			"slb_listeners.0.healthy_threshold":         "8",
-//			"slb_listeners.0.unhealthy_threshold":       "8",
-//			"slb_listeners.0.health_check_timeout":      "8",
-//			"slb_listeners.0.health_check_interval":     "5",
-//			"slb_listeners.0.health_check_http_code":    "http_2xx,http_3xx",
-//			"slb_listeners.0.gzip":                      "on",
-//			"slb_listeners.0.x_forwarded_for":           "on",
-//			"slb_listeners.0.x_forwarded_for_slb_ip":    "on",
-//			"slb_listeners.0.x_forwarded_for_slb_id":    "on",
-//			"slb_listeners.0.x_forwarded_for_slb_proto": "off",
-//			"slb_listeners.0.idle_timeout":              "30",
-//			"slb_listeners.0.request_timeout":           "80",
-//			"slb_listeners.0.description":               fmt.Sprintf("tf-testAccCheckApsaraStackSlbListenersDataSourceHttps-%d", rand),
-//		}
-//	}
-//
-//	var fakeSlbRecordsMapFunc = func(rand int) map[string]string {
-//		return map[string]string{
-//			"slb_listeners.#": "0",
-//		}
-//	}
-//
-//	var slbListenersRecordsCheckInfo = dataSourceAttr{
-//		resourceId:   "data.apsarastack_slb_listeners.default",
-//		existMapFunc: existSlbRecordsMapFunc,
-//		fakeMapFunc:  fakeSlbRecordsMapFunc,
-//	}
-//
-//	slbListenersRecordsCheckInfo.dataSourceTestCheck(t, rand, basicConf, descriptionConf, allConf)
-//}
+	var existSlbRecordsMapFunc = func(rand int) map[string]string {
+		return map[string]string{
+			"slb_listeners.#":                           "1",
+			"slb_listeners.0.backend_port":              "80",
+			"slb_listeners.0.frontend_port":             "80",
+			"slb_listeners.0.protocol":                  "https",
+			"slb_listeners.0.status":                    "running",
+			"slb_listeners.0.bandwidth":                 "10",
+			"slb_listeners.0.scheduler":                 "wrr",
+			"slb_listeners.0.sticky_session":            "on",
+			"slb_listeners.0.sticky_session_type":       "insert",
+			"slb_listeners.0.cookie_timeout":            "86400",
+			"slb_listeners.0.health_check":              "on",
+			"slb_listeners.0.health_check_uri":          "/cons",
+			"slb_listeners.0.health_check_connect_port": "20",
+			"slb_listeners.0.healthy_threshold":         "8",
+			"slb_listeners.0.unhealthy_threshold":       "8",
+			"slb_listeners.0.health_check_timeout":      "8",
+			"slb_listeners.0.health_check_interval":     "5",
+			"slb_listeners.0.health_check_http_code":    "http_2xx,http_3xx",
+			"slb_listeners.0.gzip":                      "on",
+			"slb_listeners.0.x_forwarded_for":           "on",
+			"slb_listeners.0.x_forwarded_for_slb_ip":    "on",
+			"slb_listeners.0.x_forwarded_for_slb_id":    "on",
+			"slb_listeners.0.x_forwarded_for_slb_proto": "off",
+			"slb_listeners.0.idle_timeout":              "30",
+			"slb_listeners.0.request_timeout":           "80",
+			"slb_listeners.0.description":               fmt.Sprintf("tf-testAccCheckApsaraStackSlbListenersDataSourceHttps-%d", rand),
+		}
+	}
+
+	var fakeSlbRecordsMapFunc = func(rand int) map[string]string {
+		return map[string]string{
+			"slb_listeners.#": "0",
+		}
+	}
+
+	var slbListenersRecordsCheckInfo = dataSourceAttr{
+		resourceId:   "data.apsarastack_slb_listeners.default",
+		existMapFunc: existSlbRecordsMapFunc,
+		fakeMapFunc:  fakeSlbRecordsMapFunc,
+	}
+
+	slbListenersRecordsCheckInfo.dataSourceTestCheck(t, rand, basicConf, descriptionConf, allConf)
+}
 
 func TestAccApsaraStackSlbListenersDataSource_tcp(t *testing.T) {
 	rand := acctest.RandInt()
@@ -355,6 +314,7 @@ variable "name" {
 }
 
 data "apsarastack_zones" "default" {
+	available_resource_creation= "VSwitch"
 }
 
 resource "apsarastack_vpc" "default" {
@@ -396,7 +356,8 @@ resource "apsarastack_slb_listener" "default" {
     retrive_slb_ip = true
     retrive_slb_id = true
   }
-
+  request_timeout           = 80
+  idle_timeout              = 30
   description = "${var.name}"
 }
 
@@ -420,6 +381,9 @@ variable "name" {
 
 resource "apsarastack_slb" "default" {
   name = "${var.name}"
+  internet_charge_type = "PayByTraffic"
+  internet = true
+  specification = "slb.s2.small"
 }
 
 resource "apsarastack_slb_listener" "default" {
@@ -444,10 +408,14 @@ resource "apsarastack_slb_listener" "default" {
     retrive_slb_ip = true
     retrive_slb_id = true
   }
-  acl_status = "off"
+  acl_status = "on"
   acl_type   = "white"
   acl_id     = "${apsarastack_slb_acl.default.id}"
   server_certificate_id        = "${apsarastack_slb_server_certificate.default.id}"
+  request_timeout           = 80
+  idle_timeout              = 30
+  enable_http2              = "on"
+  tls_cipher_policy         = "tls_cipher_policy_1_2"
   description = "${var.name}"
 }
 
