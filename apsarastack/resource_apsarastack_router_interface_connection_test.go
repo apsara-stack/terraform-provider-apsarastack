@@ -99,10 +99,10 @@ provider "apsarastack" {
   region = "${var.region}"
 }
 variable "region" {
-  default = "cn-hangzhou"
+  default = "cn-qingdao-env66-d01"
 }
 variable "name" {
-  default = "tf-testAccApsaraStackRIConnection_basic%d"
+  default = "tf-test%d"
 }
 resource "apsarastack_vpc" "foo" {
   name = "${var.name}"
@@ -120,8 +120,7 @@ resource "apsarastack_router_interface" "initiate" {
   role = "InitiatingSide"
   specification = "Large.2"
   name = "${var.name}"
-	description = "${var.name}"
-	instance_charge_type = "PostPaid"
+
 }
 resource "apsarastack_router_interface" "opposite" {
   provider = "apsarastack"
@@ -131,17 +130,24 @@ resource "apsarastack_router_interface" "opposite" {
   role = "AcceptingSide"
   specification = "Large.1"
   name = "${var.name}-opposite"
-  description = "${var.name}-opposite"
 }
+
 resource "apsarastack_router_interface_connection" "foo" {
   interface_id = "${apsarastack_router_interface.initiate.id}"
   opposite_interface_id = "${apsarastack_router_interface.opposite.id}"
   depends_on = ["apsarastack_router_interface_connection.bar"]
+  opposite_interface_owner_id = "1262302482727553"
+  opposite_router_id = apsarastack_vpc.foo.router_id
+  opposite_router_type = "VRouter"
 }
+
 resource "apsarastack_router_interface_connection" "bar" {
   provider = "apsarastack"
   interface_id = "${apsarastack_router_interface.opposite.id}"
   opposite_interface_id = "${apsarastack_router_interface.initiate.id}"
+  opposite_interface_owner_id =  "1262302482727553"
+  opposite_router_id = apsarastack_vpc.bar.router_id
+  opposite_router_type = "VRouter"
 }
 `, rand)
 }
