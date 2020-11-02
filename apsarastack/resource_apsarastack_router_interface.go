@@ -3,11 +3,8 @@ package apsarastack
 import (
 	"time"
 
-	"github.com/denverdino/aliyungo/common"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -75,23 +72,6 @@ func resourceApsaraStackRouterInterface() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: routerInterfaceVBRTypeDiffSuppressFunc,
-			},
-			"instance_charge_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      PostPaid,
-				ValidateFunc: validation.StringInSlice([]string{string(common.PrePaid), string(common.PostPaid)}, false),
-			},
-			"period": {
-				Type:             schema.TypeInt,
-				Optional:         true,
-				ForceNew:         true,
-				Default:          1,
-				DiffSuppressFunc: PostPaidDiffSuppressFunc,
-				ValidateFunc: validation.Any(
-					validation.IntBetween(1, 9),
-					validation.IntInSlice([]int{12, 24, 36})),
 			},
 			"access_point_id": {
 				Type:     schema.TypeString,
@@ -223,16 +203,6 @@ func resourceApsaraStackRouterInterfaceRead(d *schema.ResourceData, meta interfa
 	d.Set("opposite_interface_owner_id", object.OppositeInterfaceOwnerId)
 	d.Set("health_check_source_ip", object.HealthCheckSourceIp)
 	d.Set("health_check_target_ip", object.HealthCheckTargetIp)
-	if object.ChargeType == "Prepaid" {
-		d.Set("instance_charge_type", PrePaid)
-		period, err := computePeriodByUnit(object.CreationTime, object.EndTime, d.Get("period").(int), "Month")
-		if err != nil {
-			return WrapError(err)
-		}
-		d.Set("period", period)
-	} else {
-		d.Set("instance_charge_type", PostPaid)
-	}
 	return nil
 
 }
@@ -303,17 +273,6 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 	request.RouterId = d.Get("router_id").(string)
 	request.Role = d.Get("role").(string)
 	request.Spec = d.Get("specification").(string)
-	request.InstanceChargeType = d.Get("instance_charge_type").(string)
-	if request.InstanceChargeType == string(PrePaid) {
-		period := d.Get("period").(int)
-		request.Period = requests.NewInteger(period)
-		request.PricingCycle = string(Month)
-		if period > 9 {
-			request.Period = requests.NewInteger(period / 12)
-			request.PricingCycle = string(Year)
-		}
-		request.AutoPay = requests.NewBoolean(true)
-	}
 	request.OppositeRegionId = oppositeRegion
 	// Accepting side router interface spec only be Negative and router type only be VRouter.
 	if request.Role == string(AcceptingSide) {
