@@ -19,7 +19,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithDirection(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_security_group_rules.ingress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.ingress", "group_name", "tf-testAccCheckApsaraStackSecurityGroupRulesDataSourceConfig_1"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.ingress", "group_desc", "apsarastack security group"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.ingress", "rules.#", "1"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.ingress", "rules.0.direction", "ingress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.ingress", "rules.0.ip_protocol", "tcp"),
@@ -32,7 +31,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithDirection(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.ingress", "rules.0.dest_group_id", ""),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.ingress", "rules.0.dest_group_owner_account", ""),
 					resource.TestCheckResourceAttrSet("data.apsarastack_security_group_rules.ingress", "rules.0.priority"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.ingress", "rules.0.description", ""),
 					resource.TestCheckResourceAttrSet("data.apsarastack_security_group_rules.ingress", "rules.0.nic_type"),
 				),
 			},
@@ -52,7 +50,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithGroupId(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_security_group_rules.egress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "group_name", "tf-testAccCheckApsaraStackSecurityGroupRulesDataSourceConfig0"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "group_desc", "apsarastack security group"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.#", "1"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.direction", "egress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.ip_protocol", "udp"),
@@ -66,7 +63,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithGroupId(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.dest_group_id", ""),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.dest_group_owner_account", ""),
 					resource.TestCheckResourceAttrSet("data.apsarastack_security_group_rules.egress", "rules.0.priority"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.description", ""),
 				),
 			},
 		},
@@ -86,7 +82,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithNic_Type(t *testing.T) {
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_security_group_rules.egress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.#", "1"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "group_name", "tf-testAccCheckApsaraStackSecurityGroupRulesDataSourceConfig1"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "group_desc", "apsarastack security group"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.direction", "egress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.ip_protocol", "udp"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.nic_type", "intranet"),
@@ -99,7 +94,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithNic_Type(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.dest_group_id", ""),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.dest_group_owner_account", ""),
 					resource.TestCheckResourceAttrSet("data.apsarastack_security_group_rules.egress", "rules.0.priority"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.description", ""),
 				),
 			},
 		},
@@ -118,7 +112,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithPolicy(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_security_group_rules.egress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "group_name", "tf-testAccCheckApsaraStackSecurityGroupRulesDataSourceConfig3"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "group_desc", "apsarastack security group"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.#", "1"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.direction", "egress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.ip_protocol", "udp"),
@@ -133,7 +126,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithPolicy(t *testing.T) {
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.dest_group_id", ""),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.dest_group_owner_account", ""),
 					resource.TestCheckResourceAttrSet("data.apsarastack_security_group_rules.egress", "rules.0.priority"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.description", ""),
 				),
 			},
 		},
@@ -152,7 +144,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithIp_Protocol(t *testing.T)
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_security_group_rules.egress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "group_name", "tf-testAccCheckApsaraStackSecurityGroupRulesDataSourceConfig2"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "group_desc", "apsarastack security group"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.#", "1"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.direction", "egress"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.ip_protocol", "udp"),
@@ -166,7 +157,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceWithIp_Protocol(t *testing.T)
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.dest_group_id", ""),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.dest_group_owner_account", ""),
 					resource.TestCheckResourceAttrSet("data.apsarastack_security_group_rules.egress", "rules.0.priority"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.egress", "rules.0.description", ""),
 				),
 			},
 		},
@@ -185,7 +175,6 @@ func TestAccApsaraStackSecurityGroupRulesDataSourceEmpty(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_security_group_rules.empty"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.empty", "group_name", "tf-testAccCheckApsaraStackSecurityGroupRulesDataSourceConfigEgress"),
-					//resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.empty", "group_desc", "apsarastack security group"),
 					resource.TestCheckResourceAttr("data.apsarastack_security_group_rules.empty", "rules.#", "0"),
 					resource.TestCheckNoResourceAttr("data.apsarastack_security_group_rules.empty", "rules.0.direction"),
 					resource.TestCheckNoResourceAttr("data.apsarastack_security_group_rules.empty", "rules.0.ip_protocol"),
@@ -211,7 +200,6 @@ resource "apsarastack_vpc" "foo" {
 
 resource "apsarastack_security_group" "group" {
   name = "${var.name}"
-  //description = "apsarastack security group"
   vpc_id      = "${apsarastack_vpc.foo.id}"
 }
 
@@ -248,13 +236,11 @@ resource "apsarastack_vpc" "foo" {
 
 resource "apsarastack_security_group" "group" {
   name = "${var.name}"
-  //description = "apsarastack security group"
   vpc_id      = "${apsarastack_vpc.foo.id}"
 }
 
 resource "apsarastack_security_group" "bar" {
   name = "tf-testAccCheckApsaraStackSecurityGroupRules"
-  //description = "apsarastack security group"
   vpc_id      = "${apsarastack_vpc.foo.id}"
 }
 
@@ -283,19 +269,14 @@ const testAccCheckApsaraStackSecurityGroupRulesDataSourceConfigNic_Type = `
 variable "name" {
 	default = "tf-testAccCheckApsaraStackSecurityGroupRulesDataSourceConfig1"
 }
+resource "apsarastack_vpc" "foo" {
+  cidr_block = "172.16.0.0/12"
+  name = "${var.name}"
+}
 
 resource "apsarastack_security_group" "group" {
   name = "${var.name}"
-  //description = "apsarastack security group"
-}
-
-resource "apsarastack_security_group_rule" "rule_ingress" {
-  type              = "ingress"
-  ip_protocol       = "tcp"
-  port_range        = "5000/5001"
-  security_group_id = "${apsarastack_security_group.group.id}"
-  cidr_ip           = "0.0.0.0/0"
-  nic_type          = "internet"
+  vpc_id      = "${apsarastack_vpc.foo.id}"
 }
 
 resource "apsarastack_security_group_rule" "rule_egress" {
@@ -324,7 +305,6 @@ resource "apsarastack_vpc" "foo" {
 
 resource "apsarastack_security_group" "group" {
   name = "${var.name}"
-  //description = "apsarastack security group"
   vpc_id      = "${apsarastack_vpc.foo.id}"
 }
 
@@ -363,7 +343,6 @@ resource "apsarastack_vpc" "foo" {
 
 resource "apsarastack_security_group" "group" {
   name = "${var.name}"
-  //description = "apsarastack security group"
   vpc_id      = "${apsarastack_vpc.foo.id}"
 }
 
@@ -403,7 +382,6 @@ resource "apsarastack_vpc" "foo" {
 
 resource "apsarastack_security_group" "group" {
   name = "${var.name}"
-  //description = "apsarastack security group"
   vpc_id      = "${apsarastack_vpc.foo.id}"
 }
 
