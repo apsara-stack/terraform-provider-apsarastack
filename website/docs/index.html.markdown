@@ -24,6 +24,8 @@ provider "apsarastack" {
   region     = "${var.region}"
   insecure    =  true
   proxy      = "${var.proxy}"
+  department="${var.department}"
+  resource_group="${var.resource_group}"
   endpoints {
      vpc = "${var.endpoints}"  
    }
