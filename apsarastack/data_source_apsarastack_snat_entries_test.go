@@ -10,34 +10,19 @@ import (
 
 func TestAccApsaraStackSnatEntriesDataSourceBasic(t *testing.T) {
 	rand := acctest.RandInt()
-	snatIpConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-		}),
-	}
-
-	sourceCidrConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-		}),
-	}
 
 	allConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
 			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+			"source_cidr":   `"172.16.0.0/21"`,
 		}),
 		fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
 			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+			"source_cidr":   `"172.16.0.0/21"`,
 		}),
 	}
 
-	snatEntriesCheckInfo.dataSourceTestCheck(t, rand, snatIpConf, sourceCidrConf, allConf)
+	snatEntriesCheckInfo.dataSourceTestCheck(t, rand, allConf)
 
 }
 
@@ -86,7 +71,7 @@ resource "apsarastack_eip_association" "default" {
 resource "apsarastack_snat_entry" "default" {
 	snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
 	source_vswitch_id = "${apsarastack_vswitch.default.id}"
-
+	snat_ip = "${apsarastack_eip.default.ip_address}"
 }
 
 data "apsarastack_snat_entries" "default" {
@@ -100,7 +85,6 @@ var existSnatEntriesMapFunc = func(rand int) map[string]string {
 		"ids.#":                 "0",
 		"entries.#":             "0",
 		"entries.0.id":          CHECKSET,
-		"entries.0.snat_ip":     CHECKSET,
 		"entries.0.status":      "Available",
 		"entries.0.source_cidr": "172.16.0.0/21",
 	}
