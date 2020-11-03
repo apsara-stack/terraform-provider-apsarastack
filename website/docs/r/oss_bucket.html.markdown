@@ -85,16 +85,7 @@ resource "apsarastack_oss_bucket" "bucket-lifecycle" {
     expiration {
       days = 365
     }
-  }
-  lifecycle_rule {
-    id      = "rule-date"
-    prefix  = "path2/"
-    enabled = true
-
-    expiration {
-      date = "2018-01-12"
-    }
-  }
+  }  
 }
 
 resource "apsarastack_oss_bucket" "bucket-lifecycle" {

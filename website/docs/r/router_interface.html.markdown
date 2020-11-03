@@ -24,7 +24,7 @@ resource "apsarastack_vpc" "foo" {
 }
 
 resource "apsarastack_router_interface" "interface" {
-  opposite_region = "cn-beijing"
+  opposite_region = region
   router_type     = "VRouter"
   router_id       = apsarastack_vpc.foo.router_id
   role            = "InitiatingSide"

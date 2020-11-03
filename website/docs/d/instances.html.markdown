@@ -1,4 +1,4 @@
----
+    ---
 subcategory: "ECS"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_instance"
@@ -20,7 +20,7 @@ data "apsarastack_instances" "instances_ds" {
 }
 
 output "first_instance_id" {
-  value = "${data.apsarastack_instances.instances_ds.instances.0.id}"
+  value = "${data.apsarastack_instances.instances_ds.instances.id}"
 }
 
 output "instance_ids" {

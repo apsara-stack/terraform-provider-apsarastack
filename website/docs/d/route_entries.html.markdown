@@ -69,7 +69,6 @@ resource "apsarastack_security_group_rule" "ingress" {
 }
 
 resource "apsarastack_instance" "foo" {
-  # cn-beijing
   security_groups = ["${apsarastack_security_group.tf_test_foo.id}"]
 
   vswitch_id         = "${apsarastack_vswitch.foo.id}"
