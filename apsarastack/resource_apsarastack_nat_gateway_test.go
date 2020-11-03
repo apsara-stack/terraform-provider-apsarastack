@@ -161,15 +161,7 @@ func TestAccApsaraStackNatGatewayBasic(t *testing.T) {
 				Config: testAccNatGatewayConfig_name(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name": fmt.Sprintf("tf-testAccNatGatewayConfig%d_change", rand),
-					}),
-				),
-			},
-			{
-				Config: testAccNatGatewayConfig_description(rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"description": fmt.Sprintf("tf-testAccNatGatewayConfig%d_description", rand),
+						"name": fmt.Sprintf("tf-testAccNatGatewayConfig%d", rand),
 					}),
 				),
 			},
@@ -177,7 +169,7 @@ func TestAccApsaraStackNatGatewayBasic(t *testing.T) {
 				Config: testAccNatGatewayConfig_type(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"specification": "Middle",
+						"specification": "Small",
 					}),
 				),
 			},
@@ -185,7 +177,7 @@ func TestAccApsaraStackNatGatewayBasic(t *testing.T) {
 				Config: testAccNatGatewayConfig_specification(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"specification": "Middle",
+						"specification": "Small",
 					}),
 				),
 			},
@@ -195,7 +187,6 @@ func TestAccApsaraStackNatGatewayBasic(t *testing.T) {
 					testAccCheck(map[string]string{
 						"specification": "Small",
 						"name":          fmt.Sprintf("tf-testAccNatGatewayConfig%d_all", rand),
-						"description":   fmt.Sprintf("tf-testAccNatGatewayConfig%d_description_all", rand),
 					}),
 				),
 			},
@@ -288,38 +279,7 @@ resource "apsarastack_vswitch" "default" {
 
 resource "apsarastack_nat_gateway" "default" {
 	vpc_id = "${apsarastack_vswitch.default.vpc_id}"
-	name = "${var.name}_change"
-}
-`, rand)
-}
-
-func testAccNatGatewayConfig_description(rand int) string {
-	return fmt.Sprintf(
-		`
-variable "name" {
-	default = "tf-testAccNatGatewayConfig%d"
-}
-
-data "apsarastack_zones" "default" {
-	available_resource_creation = "VSwitch"
-}
-
-resource "apsarastack_vpc" "default" {
 	name = "${var.name}"
-	cidr_block = "172.16.0.0/12"
-}
-
-resource "apsarastack_vswitch" "default" {
-	vpc_id = "${apsarastack_vpc.default.id}"
-	cidr_block = "172.16.0.0/21"
-	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
-	name = "${var.name}"
-}
-
-resource "apsarastack_nat_gateway" "default" {
-	vpc_id = "${apsarastack_vswitch.default.vpc_id}"
-	name = "${var.name}_change"
-	description = "${var.name}_description"
 }
 `, rand)
 }
@@ -349,9 +309,8 @@ resource "apsarastack_vswitch" "default" {
 
 resource "apsarastack_nat_gateway" "default" {
 	vpc_id = "${apsarastack_vswitch.default.vpc_id}"
-	name = "${var.name}_change"
-	description = "${var.name}_description"
-	specification = "Middle"
+	name = "${var.name}"
+	specification = "Small"
 }
 `, rand)
 }
@@ -382,7 +341,6 @@ resource "apsarastack_vswitch" "default" {
 resource "apsarastack_nat_gateway" "default" {
 	vpc_id = "${apsarastack_vswitch.default.vpc_id}"
 	name = "${var.name}_all"
-	description = "${var.name}_description_all"
 	specification = "Small"
 }
 `, rand)
@@ -391,7 +349,6 @@ resource "apsarastack_nat_gateway" "default" {
 var testAccCheckNatGatewayBasicMap = map[string]string{
 	"name":                  "tf-testAccNatGatewayConfigSpec",
 	"specification":         "Small",
-	"description":           "",
 	"bandwidth_package_ids": "",
 	"forward_table_ids":     CHECKSET,
 	"snat_table_ids":        CHECKSET,
