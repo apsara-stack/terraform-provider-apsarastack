@@ -119,7 +119,6 @@ data "apsarastack_security_groups" "default" {
 
 var existSecurityGroupsMapFunc = func(rand int) map[string]string {
 	return map[string]string{
-		//"ids.#":           "0",
 		"names.#":                "1",
 		"groups.#":               "1",
 		"groups.0.vpc_id":        CHECKSET,
@@ -129,13 +128,11 @@ var existSecurityGroupsMapFunc = func(rand int) map[string]string {
 		"groups.0.tags.usage2":   "test",
 		"groups.0.creation_time": CHECKSET,
 		"groups.0.description":   "test security group",
-		//"groups.0.id":            CHECKSET,
 	}
 }
 
 var fakeSecurityGroupsMapFunc = func(rand int) map[string]string {
 	return map[string]string{
-		//"ids.#":    "0",
 		"names.#":  "0",
 		"groups.#": "0",
 	}

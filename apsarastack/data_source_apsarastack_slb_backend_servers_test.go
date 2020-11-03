@@ -60,7 +60,7 @@ func testAccCheckApsaraStackSlbBackendServersDataSourceConfig(attrMap map[string
 
 	config := fmt.Sprintf(`
 variable "name" {
-	default = "tf-testAccslbbackendserversdatasourcebasic"
+	default = "tf-test"
 }
 
 data "apsarastack_zones" "default" {
@@ -102,7 +102,6 @@ resource "apsarastack_instance" "default" {
   image_id = "${data.apsarastack_images.default.images.0.id}"
 
   instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-  internet_charge_type = "PayByTraffic"
   system_disk_category = "cloud_efficiency"
 
   security_groups = ["${apsarastack_security_group.default.id}"]
