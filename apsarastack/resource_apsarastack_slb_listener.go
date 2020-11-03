@@ -350,7 +350,7 @@ func resourceApsaraStackSlbListenerCreate(d *schema.ResourceData, meta interface
 	startLoadBalancerListenerRequest := slb.CreateStartLoadBalancerListenerRequest()
 	startLoadBalancerListenerRequest.RegionId = client.RegionId
 	startLoadBalancerListenerRequest.Headers = map[string]string{"RegionId": client.RegionId}
-	startLoadBalancerListenerRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	startLoadBalancerListenerRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	startLoadBalancerListenerRequest.LoadBalancerId = lb_id
 	startLoadBalancerListenerRequest.ListenerPort = requests.NewInteger(frontend)
 	startLoadBalancerListenerRequest.ListenerProtocol = protocol
@@ -670,7 +670,7 @@ func resourceApsaraStackSlbListenerDelete(d *schema.ResourceData, meta interface
 	request := slb.CreateDeleteLoadBalancerListenerRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = lbId
 	request.ListenerPort = requests.NewInteger(port)
 	request.ListenerProtocol = protocol
@@ -704,9 +704,8 @@ func buildListenerCommonArgs(d *schema.ResourceData, meta interface{}) (*request
 	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.QueryParams["LoadBalancerId"] = d.Get("load_balancer_id").(string)
 	request.QueryParams["ListenerPort"] = string(requests.NewInteger(d.Get("frontend_port").(int)))
 	if backendServerPort, ok := d.GetOk("backend_port"); ok {

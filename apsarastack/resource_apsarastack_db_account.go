@@ -76,6 +76,8 @@ func resourceApsaraStackDBAccountCreate(d *schema.ResourceData, meta interface{}
 	rdsService := RdsService{client}
 	request := rds.CreateCreateAccountRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Get("instance_id").(string)
 	request.AccountName = d.Get("name").(string)
 
@@ -167,6 +169,8 @@ func resourceApsaraStackDBAccountUpdate(d *schema.ResourceData, meta interface{}
 		}
 		request := rds.CreateModifyAccountDescriptionRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = instanceId
 		request.AccountName = accountName
 		request.AccountDescription = d.Get("description").(string)
@@ -187,6 +191,8 @@ func resourceApsaraStackDBAccountUpdate(d *schema.ResourceData, meta interface{}
 		}
 		request := rds.CreateResetAccountPasswordRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = instanceId
 		request.AccountName = accountName
 
@@ -234,6 +240,8 @@ func resourceApsaraStackDBAccountDelete(d *schema.ResourceData, meta interface{}
 	}
 	request := rds.CreateDeleteAccountRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	request.AccountName = parts[1]
 

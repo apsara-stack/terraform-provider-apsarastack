@@ -42,9 +42,7 @@ func testSweepEssSchedules(region string) error {
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 
 	req.Headers = map[string]string{"RegionId": client.RegionId}
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
-	req.QueryParams["Department"] = client.Department
-	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageNumber = requests.NewInteger(1)
 	for {
 		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {

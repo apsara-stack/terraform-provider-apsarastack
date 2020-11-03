@@ -28,7 +28,7 @@ func testApsaraStackLaunchTemplate(region string) error {
 
 	request := ecs.CreateDescribeLaunchTemplatesRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeLaunchTemplates(request)
 	})
@@ -48,7 +48,7 @@ func testApsaraStackLaunchTemplate(region string) error {
 	for i := range ids {
 		templateRequest := ecs.CreateDeleteLaunchTemplateRequest()
 		templateRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		templateRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		templateRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		templateRequest.LaunchTemplateId = ids[i]
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteLaunchTemplate(templateRequest)
