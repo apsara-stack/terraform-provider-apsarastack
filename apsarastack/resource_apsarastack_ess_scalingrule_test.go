@@ -45,132 +45,6 @@ func TestAccApsaraStackEssScalingRule_basic(t *testing.T) {
 					testAccCheck(nil),
 				),
 			},
-			{
-				ResourceName:      resourceId,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccEssScalingRuleUpdateAdjustmentType(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"adjustment_type": "PercentChangeInCapacity",
-					}),
-				),
-			},
-			{
-				Config: testAccEssScalingRuleUpdateAdjustmentValue(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"adjustment_value": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccEssScalingRuleUpdateScalingRuleName(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"scaling_rule_name": fmt.Sprintf("tf-testAccEssScalingRuleConfig-%d", rand),
-					}),
-				),
-			},
-			{
-				Config: testAccEssScalingRuleUpdateCooldown(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"cooldown": "200",
-					}),
-				),
-			},
-			{
-				Config: testAccEssScalingRuleConfig(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(basicMap),
-				),
-			},
-		},
-	})
-}
-
-func TestAccApsaraStackEssScalingRule_target_tracking_rule_basic(t *testing.T) {
-	var v ess.ScalingRule
-	rand := acctest.RandIntRange(1000, 999999)
-	resourceId := "apsarastack_ess_scaling_rule.default"
-	basicMap := map[string]string{
-		"scaling_group_id": CHECKSET,
-	}
-	ra := resourceAttrInit(resourceId, basicMap)
-	rc := resourceCheckInit(resourceId, &v, func() interface{} {
-		return &EssService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	})
-	rac := resourceAttrCheckInit(rc, ra)
-
-	testAccCheck := rac.resourceAttrMapUpdateSet()
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-		// module name
-		IDRefreshName: resourceId,
-		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckEssScalingRuleDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccEssTargetTrackingScalingRuleConfig(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(nil),
-				),
-			},
-			{
-				ResourceName:      resourceId,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAccEssTargetTrackingScalingRuleConfig(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(basicMap),
-				),
-			},
-		},
-	})
-}
-
-func TestAccApsaraStackEssScalingRule_step_rule_basic(t *testing.T) {
-	var v ess.ScalingRule
-	rand := acctest.RandIntRange(1000, 999999)
-	resourceId := "apsarastack_ess_scaling_rule.default"
-	basicMap := map[string]string{
-		"scaling_group_id": CHECKSET,
-	}
-	ra := resourceAttrInit(resourceId, basicMap)
-	rc := resourceCheckInit(resourceId, &v, func() interface{} {
-		return &EssService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	})
-	rac := resourceAttrCheckInit(rc, ra)
-
-	testAccCheck := rac.resourceAttrMapUpdateSet()
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-		// module name
-		IDRefreshName: resourceId,
-
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEssScalingRuleDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccEssStepScalingRuleConfig(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(nil),
-				),
-			},
-			{
-				ResourceName:      resourceId,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
@@ -239,7 +113,7 @@ func testAccEssScalingRuleConfig(common string, rand int) string {
 	return fmt.Sprintf(`
 	%s
 	variable "name" {
-		default = "tf-testAccEssScalingRuleConfig-%d"
+		default = "tf-testAccEssScalingRule-%d"
 	}
 	resource "apsarastack_ess_scaling_group" "default" {
 		min_size = 1
@@ -258,7 +132,7 @@ func testAccEssScalingRuleConfig(common string, rand int) string {
 	resource "apsarastack_ess_scaling_rule" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
 		adjustment_type = "TotalCapacity"
-		adjustment_value = 1
+		adjustment_value = "1"
 		cooldown = 0
 	}
 	`, common, rand)
@@ -268,7 +142,7 @@ func testAccEssScalingRuleUpdateAdjustmentType(common string, rand int) string {
 	return fmt.Sprintf(`
 	%s
 	variable "name" {
-		default = "tf-testAccEssScalingRuleConfig-%d"
+		default = "tf-testAccEssScalingRule-%d"
 	}
 	resource "apsarastack_ess_scaling_group" "default" {
 		min_size = 1
@@ -297,7 +171,7 @@ func testAccEssScalingRuleUpdateAdjustmentValue(common string, rand int) string 
 	return fmt.Sprintf(`
 	%s
 	variable "name" {
-		default = "tf-testAccEssScalingRuleConfig-%d"
+		default = "tf-testAccEssScalingRule-%d"
 	}
 	resource "apsarastack_ess_scaling_group" "default" {
 		min_size = 1
@@ -326,7 +200,7 @@ func testAccEssScalingRuleUpdateScalingRuleName(common string, rand int) string 
 	return fmt.Sprintf(`
 	%s
 	variable "name" {
-		default = "tf-testAccEssScalingRuleConfig-%d"
+		default = "tf-testAccEssScalingRule-%d"
 	}
 	resource "apsarastack_ess_scaling_group" "default" {
 		min_size = 1
@@ -356,7 +230,7 @@ func testAccEssScalingRuleUpdateCooldown(common string, rand int) string {
 	return fmt.Sprintf(`
 	%s
 	variable "name" {
-		default = "tf-testAccEssScalingRuleConfig-%d"
+		default = "tf-testAccEssScalingRule-%d"
 	}
 	resource "apsarastack_ess_scaling_group" "default" {
 		min_size = 1
@@ -386,7 +260,7 @@ func testAccEssScalingRuleConfigMulti(common string, rand int) string {
 	return fmt.Sprintf(`
 	%s
 	variable "name" {
-		default = "tf-testAccEssScalingRuleConfig-%d"
+		default = "tf-testAccEssScalingRule-%d"
 	}
 	resource "apsarastack_ess_scaling_group" "default" {
 		min_size = 1
@@ -425,7 +299,9 @@ func testAccEssTargetTrackingScalingRuleConfig(common string, rand int) string {
 	}
 	resource "apsarastack_ess_scaling_rule" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
-	}
+		adjustment_type  = "TotalCapacity"
+  		adjustment_value = 1
+	}​​​​
 	`, common, rand)
 }
 
@@ -444,6 +320,7 @@ func testAccEssStepScalingRuleConfig(common string, rand int) string {
 	resource "apsarastack_ess_scaling_rule" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
 		adjustment_type = "TotalCapacity"
+		adjustment_value = 1​​​
 	}
 	`, common, rand)
 }

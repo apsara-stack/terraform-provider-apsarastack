@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccApsaraStackEssScheduledtasksDataSource(t *testing.T) {
-	rand := acctest.RandInt()
+	rand := acctest.RandIntRange(0, 500)
 	idConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
 			"scheduled_task_id": `"${apsarastack_ess_scheduled_task.default.id}"`,
@@ -63,11 +63,11 @@ func TestAccApsaraStackEssScheduledtasksDataSource(t *testing.T) {
 		return map[string]string{
 			"ids.#":                          "1",
 			"tasks.#":                        "1",
-			"tasks.0.name":                   fmt.Sprintf("tf-testAccDataSourceEssScheduledTasks-%d", rand),
+			"tasks.0.name":                   fmt.Sprintf("tf-testAccDataSourceEssSchT-%d", rand),
 			"tasks.0.id":                     CHECKSET,
 			"tasks.0.scheduled_action":       CHECKSET,
 			"tasks.0.launch_expiration_time": CHECKSET,
-			"tasks.0.launch_time":            "2020-02-21T11:37Z",
+			"tasks.0.launch_time":            "2020-11-21T11:37Z",
 			"tasks.0.max_value":              CHECKSET,
 			"tasks.0.min_value":              CHECKSET,
 			"tasks.0.task_enabled":           CHECKSET,
@@ -101,7 +101,7 @@ func testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand int, attrMap 
 %s
 
 variable "name" {
-	default = "tf-testAccDataSourceEssScheduledTasks-%d"
+	default = "tf-testAccDataSourceEssSchT-%d"
 }
 
 resource "apsarastack_ess_scaling_group" "default" {
@@ -121,7 +121,7 @@ resource "apsarastack_ess_scaling_rule" "default" {
 
 resource "apsarastack_ess_scheduled_task" "default" {
   scheduled_action    = "${apsarastack_ess_scaling_rule.default.ari}"
-  launch_time         = "2020-02-21T11:37Z"
+  launch_time         = "2020-11-21T11:37Z"
   scheduled_task_name = "${var.name}"
 }
 

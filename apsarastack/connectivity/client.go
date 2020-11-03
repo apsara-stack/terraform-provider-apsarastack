@@ -5,6 +5,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/adb"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/bssopenapi"
 	cdn_new "github.com/aliyun/alibaba-cloud-sdk-go/services/cdn"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
@@ -82,6 +83,7 @@ type ApsaraStackClient struct {
 	logpopconn        *slsPop.Client
 	creeconn          *cr_ee.Client
 	crconn            *cr.Client
+	dnsconn           *alidns.Client
 }
 
 const (
@@ -427,6 +429,42 @@ func (client *ApsaraStackClient) WithVpcClient(do func(*vpc.Client) (interface{}
 
 	return do(client.vpcconn)
 }
+
+// ASCM Client
+
+func (client *ApsaraStackClient) WithAscmClient(do func(*vpc.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the VPC client if necessary
+	if client.vpcconn == nil {
+		endpoint := client.config.VpcEndpoint // TODO
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, VPCCode)
+		}
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(VPCCode), endpoint)
+		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
+
+		vpcconn, err := vpc.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the VPC client: %#v", err)
+		}
+		vpcconn.Domain = endpoint
+		vpcconn.AppendUserAgent(Terraform, terraformVersion)
+		vpcconn.AppendUserAgent(Provider, providerVersion)
+		vpcconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		vpcconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			vpcconn.SetHttpsProxy(client.config.Proxy)
+			vpcconn.SetHttpProxy(client.config.Proxy)
+		}
+		client.vpcconn = vpcconn
+	}
+
+	return do(client.vpcconn)
+}
+
 func (client *ApsaraStackClient) WithSlbClient(do func(*slb.Client) (interface{}, error)) (interface{}, error) {
 	// Initialize the SLB client if necessary
 	if client.slbconn == nil {
@@ -763,19 +801,19 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 
 		clientOptions := []oss.ClientOption{oss.UserAgent(client.getUserAgent()),
 			oss.SecurityToken(client.config.SecurityToken)}
-		proxy, err := client.getHttpProxy()
+		//proxy, err := client.getHttpProxy()
 		if client.config.Proxy != "" {
 			clientOptions = append(clientOptions, oss.Proxy(client.config.Proxy))
 		}
-		if proxy != nil {
-			skip, err := client.skipProxy(endpoint)
-			if err != nil {
-				return nil, err
-			}
-			if !skip {
-				clientOptions = append(clientOptions, oss.Proxy(proxy.String()))
-			}
-		}
+		//if proxy != nil {
+		//	skip, err := client.skipProxy(endpoint)
+		//	if err != nil {
+		//		return nil, err
+		//	}
+		//	if !skip {
+		//		clientOptions = append(clientOptions, oss.Proxy(proxy.String()))
+		//	}
+		//}
 		clientOptions = append(clientOptions, oss.UseCname(false))
 
 		ossconn, err := oss.New(endpoint, client.config.AccessKey, client.config.SecretKey, clientOptions...)
@@ -1076,4 +1114,31 @@ func (client *ApsaraStackClient) WithCrClient(do func(*cr.Client) (interface{}, 
 	}
 
 	return do(client.crconn)
+}
+func (client *ApsaraStackClient) WithDnsClient(do func(*alidns.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the DNS client if necessary
+	if client.dnsconn == nil {
+		endpoint := client.config.DnsEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, DNSCode)
+		}
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(DNSCode), endpoint)
+		}
+
+		dnsconn, err := alidns.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the DNS client: %#v", err)
+		}
+		dnsconn.AppendUserAgent(Terraform, terraformVersion)
+		dnsconn.AppendUserAgent(Provider, providerVersion)
+		dnsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		dnsconn.Domain = endpoint
+		if client.config.Proxy != "" {
+			dnsconn.SetHttpProxy(client.config.Proxy)
+		}
+		client.dnsconn = dnsconn
+	}
+
+	return do(client.dnsconn)
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccApsaraStackEssLifecycleHooksDataSource(t *testing.T) {
-	rand := acctest.RandInt()
+	rand := acctest.RandIntRange(10, 1000)
 	nameRegexConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackEssLifecycleHooksDataSourceConfig(rand, map[string]string{
 			"scaling_group_id": `"${apsarastack_ess_lifecycle_hook.default.scaling_group_id}"`,
@@ -48,7 +48,7 @@ func TestAccApsaraStackEssLifecycleHooksDataSource(t *testing.T) {
 		return map[string]string{
 			"ids.#":                         "1",
 			"hooks.#":                       "1",
-			"hooks.0.name":                  fmt.Sprintf("tf-testAccDataSourceEssLifecycleHooks-%d", rand),
+			"hooks.0.name":                  fmt.Sprintf("tf-testAccDataSourceLcHooks-%d", rand),
 			"hooks.0.scaling_group_id":      CHECKSET,
 			"hooks.0.default_result":        CHECKSET,
 			"hooks.0.heartbeat_timeout":     "400",
@@ -84,7 +84,7 @@ func testAccCheckApsaraStackEssLifecycleHooksDataSourceConfig(rand int, attrMap 
 %s
 
 variable "name" {
-	default = "tf-testAccDataSourceEssLifecycleHooks-%d"
+	default = "tf-testAccDataSourceLcHooks-%d"
 }
 
 resource "apsarastack_ess_scaling_group" "default" {
