@@ -97,10 +97,9 @@ func resourceApsaraStackNatGatewayCreate(d *schema.ResourceData, meta interface{
 
 	request := vpc.CreateCreateNatGatewayRequest()
 	request.RegionId = string(client.Region)
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.VpcId = string(d.Get("vpc_id").(string))
 	request.Spec = string(d.Get("specification").(string))
 	request.ClientToken = buildClientToken(request.GetActionName())
@@ -266,18 +265,16 @@ func resourceApsaraStackNatGatewayDelete(d *schema.ResourceData, meta interface{
 	}
 	request := vpc.CreateDeleteNatGatewayRequest()
 	request.RegionId = string(client.Region)
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.NatGatewayId = d.Id()
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		request := vpc.CreateDeleteNatGatewayRequest()
-		request.QueryParams["Department"] = client.Department
-		request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 		request.RegionId = string(client.Region)
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.NatGatewayId = d.Id()
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteNatGateway(request)
@@ -379,10 +376,9 @@ func getPackage(packageId string, meta interface{}, d *schema.ResourceData) (pac
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeBandwidthPackagesRequest()
 	request.RegionId = client.RegionId
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.NatGatewayId = d.Id()
 	request.BandwidthPackageId = packageId
 

@@ -46,7 +46,7 @@ func resourceApsaraStackImageExportCreate(d *schema.ResourceData, meta interface
 	request := ecs.CreateExportImageRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ImageId = d.Get("image_id").(string)
 	request.OSSBucket = d.Get("oss_bucket").(string)
 	request.OSSPrefix = d.Get("oss_prefix").(string)

@@ -35,7 +35,7 @@ func testApsaraStackNetworkInterface(region string) error {
 	req := ecs.CreateDescribeNetworkInterfacesRequest()
 	req.RegionId = client.RegionId
 	req.Headers = map[string]string{"RegionId": client.RegionId}
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	var enis []ecs.NetworkInterfaceSet
@@ -94,7 +94,7 @@ func testApsaraStackNetworkInterface(region string) error {
 		if eni.InstanceId != "" {
 			req := ecs.CreateDetachNetworkInterfaceRequest()
 			req.Headers = map[string]string{"RegionId": client.RegionId}
-			req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+			req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			req.InstanceId = eni.InstanceId
 			req.NetworkInterfaceId = eni.NetworkInterfaceId
 			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -115,7 +115,7 @@ func testApsaraStackNetworkInterface(region string) error {
 		log.Printf("[INFO] Deleting NetworkInterface %s", name)
 		req := ecs.CreateDeleteNetworkInterfaceRequest()
 		req.Headers = map[string]string{"RegionId": client.RegionId}
-		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.NetworkInterfaceId = eni.NetworkInterfaceId
 		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteNetworkInterface(req)

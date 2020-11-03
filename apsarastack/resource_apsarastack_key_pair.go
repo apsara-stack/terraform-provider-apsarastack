@@ -85,7 +85,7 @@ func resourceApsaraStackKeyPairCreate(d *schema.ResourceData, meta interface{}) 
 		request := ecs.CreateImportKeyPairRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.KeyPairName = keyName
 		request.PublicKeyBody = publicKey.(string)
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -101,7 +101,7 @@ func resourceApsaraStackKeyPairCreate(d *schema.ResourceData, meta interface{}) 
 		request := ecs.CreateCreateKeyPairRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.KeyPairName = keyName
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.CreateKeyPair(request)
@@ -157,7 +157,7 @@ func resourceApsaraStackKeyPairDelete(d *schema.ResourceData, meta interface{}) 
 	request := ecs.CreateDeleteKeyPairsRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.KeyPairNames = convertListToJsonString(append(make([]interface{}, 0, 1), d.Id()))
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {

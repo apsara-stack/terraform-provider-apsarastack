@@ -73,6 +73,8 @@ func resourceApsaraStackDBReadWriteSplittingConnectionCreate(d *schema.ResourceD
 
 	request := rds.CreateAllocateReadWriteSplittingConnectionRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = Trim(d.Get("instance_id").(string))
 	request.MaxDelayTime = strconv.Itoa(d.Get("max_delay_time").(int))
 
@@ -176,6 +178,8 @@ func resourceApsaraStackDBReadWriteSplittingConnectionUpdate(d *schema.ResourceD
 
 	request := rds.CreateModifyReadWriteSplittingConnectionRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
 
 	update := false
@@ -241,6 +245,8 @@ func resourceApsaraStackDBReadWriteSplittingConnectionDelete(d *schema.ResourceD
 	rdsService := RdsService{client}
 	request := rds.CreateReleaseReadWriteSplittingConnectionRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
 
 	if err := resource.Retry(30*time.Minute, func() *resource.RetryError {

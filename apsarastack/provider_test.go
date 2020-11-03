@@ -194,9 +194,8 @@ func testAccPreCheckWithNoDefaultVpc(t *testing.T) {
 	client := rawClient.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeVpcsRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = string(client.Region)
 	request.PageSize = requests.NewInteger(PageSizeSmall)
 	request.PageNumber = requests.NewInteger(1)
@@ -228,9 +227,8 @@ func testAccPreCheckWithNoDefaultVswitch(t *testing.T) {
 	request := vpc.CreateDescribeVSwitchesRequest()
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeSmall)
 	request.PageNumber = requests.NewInteger(1)
 	request.IsDefault = requests.NewBoolean(true)

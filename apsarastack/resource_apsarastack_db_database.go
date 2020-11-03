@@ -53,6 +53,8 @@ func resourceApsaraStackDBDatabaseCreate(d *schema.ResourceData, meta interface{
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := rds.CreateCreateDatabaseRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Get("instance_id").(string)
 	request.DBName = d.Get("name").(string)
 	request.CharacterSetName = d.Get("character_set").(string)
@@ -113,6 +115,8 @@ func resourceApsaraStackDBDatabaseUpdate(d *schema.ResourceData, meta interface{
 		}
 		request := rds.CreateModifyDBDescriptionRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = parts[0]
 		request.DBName = parts[1]
 		request.DBDescription = d.Get("description").(string)
@@ -137,6 +141,8 @@ func resourceApsaraStackDBDatabaseDelete(d *schema.ResourceData, meta interface{
 	}
 	request := rds.CreateDeleteDatabaseRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	request.DBName = parts[1]
 	// wait instance status is running before deleting database
