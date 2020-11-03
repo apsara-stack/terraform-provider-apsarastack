@@ -203,7 +203,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 		request := rds.CreateDescribeRegionsRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		//if instanceChargeType == string(PostPaid) {
 		//	request.InstanceChargeType = string(Postpaid)
 		//} else {
@@ -434,7 +434,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 		request := slb.CreateDescribeAvailableResourceRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		if ipVersion, ok := d.GetOk("available_slb_address_ip_version"); ok {
 			request.AddressIPVersion = ipVersion.(string)
 		}

@@ -192,7 +192,7 @@ func dataSourceApsaraStackSlbListenersRead(d *schema.ResourceData, meta interfac
 	request := slb.CreateDescribeLoadBalancerAttributeRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 
 	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -255,7 +255,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 		case Http:
 			request := slb.CreateDescribeLoadBalancerHTTPListenerAttributeRequest()
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.LoadBalancerId = loadBalancerId
 			request.ListenerPort = requests.NewInteger(listener.ListenerPort)
 			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -292,7 +292,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 		case Https:
 			request := slb.CreateDescribeLoadBalancerHTTPSListenerAttributeRequest()
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.LoadBalancerId = loadBalancerId
 			request.ListenerPort = requests.NewInteger(listener.ListenerPort)
 			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -332,7 +332,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 		case Tcp:
 			request := slb.CreateDescribeLoadBalancerTCPListenerAttributeRequest()
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.LoadBalancerId = loadBalancerId
 			request.ListenerPort = requests.NewInteger(listener.ListenerPort)
 			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -364,7 +364,7 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 		case Udp:
 			request := slb.CreateDescribeLoadBalancerUDPListenerAttributeRequest()
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.LoadBalancerId = loadBalancerId
 			request.ListenerPort = requests.NewInteger(listener.ListenerPort)
 			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {

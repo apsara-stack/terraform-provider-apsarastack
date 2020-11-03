@@ -123,7 +123,7 @@ func resourceApsaraStackSlbAclUpdate(d *schema.ResourceData, meta interface{}) e
 		request := slb.CreateSetAccessControlListAttributeRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.AclId = d.Id()
 		request.AclName = d.Get("name").(string)
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -168,7 +168,7 @@ func resourceApsaraStackSlbAclDelete(d *schema.ResourceData, meta interface{}) e
 	request := slb.CreateDeleteAccessControlListRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AclId = d.Id()
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
