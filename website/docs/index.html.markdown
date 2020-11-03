@@ -80,6 +80,8 @@ provider "apsarastack" {
   region     = "${var.region}"
   insecure    =  true
   proxy      = "${var.proxy}"
+  department="${var.department}"
+  resource_group="${var.resource_group}"
   endpoints {
      vpc = "${var.endpoints}"  
    }
@@ -95,9 +97,11 @@ environment variables, representing your ApsaraStack access key and secret key r
 
 ```hcl
 provider "apsarastack" {
-endpoints {
-     vpc = "${var.endpoints}"  
-   }
+    endpoints {
+         vpc = "${var.endpoints}"  
+       }
+    department="${var.department}"
+    resource_group="${var.resource_group}"
 }
 ```
 Usage:
@@ -129,6 +133,10 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
   it can also be sourced from the `APSARASTACK_REGION` environment variables.
 
 * `insecure` - (Optional) Use this to Trust self-signed certificates. It's typically used to allow insecure connections.
+
+* `department` - (Required) Use this to give department for specific user organisation.
+
+* `resource_group` - (Required) Use this to give resource group for specific user organisation.
 
 * `protocol` - (Optional, Available in 1.72.0+) The Protocol of used by API request. Valid values: `HTTP` and `HTTPS`. Default to `HTTPS`.
 
