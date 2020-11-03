@@ -45,7 +45,7 @@ func resourceApsaraStackNetworkInterfaceAttachmentCreate(d *schema.ResourceData,
 	request := ecs.CreateAttachNetworkInterfaceRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.InstanceId = instanceId
 	request.NetworkInterfaceId = eniId
 
@@ -113,7 +113,7 @@ func resourceApsaraStackNetworkInterfaceAttachmentDelete(d *schema.ResourceData,
 	request.InstanceId = instanceId
 	request.NetworkInterfaceId = eniId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	err = resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

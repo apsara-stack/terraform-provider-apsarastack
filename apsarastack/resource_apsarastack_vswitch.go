@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"log"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -57,10 +58,10 @@ func resourceApsaraStackSwitchCreate(d *schema.ResourceData, meta interface{}) e
 
 	request := vpc.CreateCreateVSwitchRequest()
 	request.RegionId = client.RegionId
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.VpcId = Trim(d.Get("vpc_id").(string))
 	request.ZoneId = d.Get("availability_zone").(string)
 	request.CidrBlock = Trim(d.Get("cidr_block").(string))
@@ -79,6 +80,7 @@ func resourceApsaraStackSwitchCreate(d *schema.ResourceData, meta interface{}) e
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateVSwitch(&args)
 		})
+		log.Printf("Vswitch Request Roshan %s", args.QueryParams)
 		if err != nil {
 			if IsExpectedErrors(err, []string{"TaskConflict", "UnknownError", "InvalidStatus.RouteEntry",
 				"InvalidCidrBlock.Overlapped", Throttling, "OperationFailed.IdempotentTokenProcessing"}) {
@@ -89,6 +91,7 @@ func resourceApsaraStackSwitchCreate(d *schema.ResourceData, meta interface{}) e
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*vpc.CreateVSwitchResponse)
+		log.Printf("Vswitch Request %s", response)
 		d.SetId(response.VSwitchId)
 		return nil
 	}); err != nil {
@@ -133,9 +136,9 @@ func resourceApsaraStackSwitchUpdate(d *schema.ResourceData, meta interface{}) e
 	request := vpc.CreateModifyVSwitchAttributeRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.VSwitchId = d.Id()
 
 	if d.HasChange("name") {
@@ -165,9 +168,8 @@ func resourceApsaraStackSwitchDelete(d *schema.ResourceData, meta interface{}) e
 	request := vpc.CreateDeleteVSwitchRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.VSwitchId = d.Id()
 	err := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {

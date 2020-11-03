@@ -351,7 +351,9 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		dataRequest := ecs.CreateDescribeUserDataRequest()
 		dataRequest.RegionId = client.RegionId
 		dataRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		dataRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		dataRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		dataRequest.QueryParams["Department"] = client.Department
+		dataRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
 		dataRequest.InstanceId = d.Id()
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeUserData(dataRequest)
@@ -369,7 +371,9 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		request := ecs.CreateDescribeInstanceRamRoleRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.InstanceIds = convertListToJsonString([]interface{}{d.Id()})
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstanceRamRole(request)
@@ -388,7 +392,9 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		request := ecs.CreateDescribeInstanceAutoRenewAttributeRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.InstanceId = d.Id()
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstanceAutoRenewAttribute(request)
@@ -472,7 +478,9 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 			stopRequest := ecs.CreateStopInstanceRequest()
 			stopRequest.RegionId = client.RegionId
 			stopRequest.Headers = map[string]string{"RegionId": client.RegionId}
-			stopRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+			stopRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			stopRequest.QueryParams["Department"] = client.Department
+			stopRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
 			stopRequest.InstanceId = d.Id()
 			stopRequest.ForceStop = requests.NewBoolean(false)
 			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -504,7 +512,7 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 		startRequest := ecs.CreateStartInstanceRequest()
 		startRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		startRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		startRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		startRequest.InstanceId = d.Id()
 
 		err := resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -555,13 +563,13 @@ func resourceApsaraStackInstanceDelete(d *schema.ResourceData, meta interface{})
 
 	stopRequest := ecs.CreateStopInstanceRequest()
 	stopRequest.Headers = map[string]string{"RegionId": client.RegionId}
-	stopRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	stopRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	stopRequest.InstanceId = d.Id()
 	stopRequest.ForceStop = requests.NewBoolean(true)
 
 	deleteRequest := ecs.CreateDeleteInstanceRequest()
 	deleteRequest.Headers = map[string]string{"RegionId": client.RegionId}
-	deleteRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	deleteRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	deleteRequest.InstanceId = d.Id()
 	deleteRequest.Force = requests.NewBoolean(true)
 
@@ -604,7 +612,7 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 	request := ecs.CreateRunInstancesRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.InstanceType = d.Get("instance_type").(string)
 	request.SystemDiskDiskName = d.Get("system_disk_name").(string)
 	imageID := d.Get("image_id").(string)
@@ -758,7 +766,7 @@ func modifyInstanceImage(d *schema.ResourceData, meta interface{}, run bool) (bo
 		keyPairName := instance.KeyPairName
 		request := ecs.CreateReplaceSystemDiskRequest()
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceId = d.Id()
 		request.ImageId = d.Get("image_id").(string)
 		request.SystemDiskSize = requests.NewInteger(d.Get("system_disk_size").(int))
@@ -828,7 +836,7 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 	request := ecs.CreateModifyInstanceAttributeRequest()
 	request.InstanceId = d.Id()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if d.HasChange("instance_name") {
 		d.SetPartial("instance_name")
@@ -918,7 +926,7 @@ func modifyVpcAttribute(d *schema.ResourceData, meta interface{}, run bool) (boo
 	request.InstanceId = d.Id()
 	request.VSwitchId = d.Get("vswitch_id").(string)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if d.HasChange("vswitch_id") {
 		update = true
@@ -993,7 +1001,7 @@ func modifyInstanceType(d *schema.ResourceData, meta interface{}, run bool) (boo
 		request := ecs.CreateModifyInstanceSpecRequest()
 		request.InstanceId = d.Id()
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceType = d.Get("instance_type").(string)
 		request.ClientToken = buildClientToken(request.GetActionName())
 
@@ -1054,7 +1062,7 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 	request.InstanceId = d.Id()
 	request.ClientToken = buildClientToken(request.GetActionName())
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if d.HasChange("internet_max_bandwidth_out") {
 		o, n := d.GetChange("internet_max_bandwidth_out")
@@ -1122,7 +1130,7 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 			request := ecs.CreateAllocatePublicIpAddressRequest()
 			request.InstanceId = d.Id()
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.AllocatePublicIpAddress(request)
 			})

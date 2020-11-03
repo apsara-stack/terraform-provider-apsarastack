@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -57,7 +58,7 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 	request := ecs.CreateCreateSecurityGroupRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if v := d.Get("name").(string); v != "" {
 		request.SecurityGroupName = v
@@ -75,6 +76,7 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.CreateSecurityGroup(request)
 	})
+	log.Printf("Roshan security Group params %s %s", request.QueryParams, request)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_security_group", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
@@ -104,7 +106,7 @@ func resourceApsaraStackSecurityGroupRead(d *schema.ResourceData, meta interface
 	request := ecs.CreateDescribeSecurityGroupsRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SecurityGroupId = d.Id()
 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -195,6 +197,8 @@ func resourceApsaraStackSecurityGroupDelete(d *schema.ResourceData, meta interfa
 	ecsService := EcsService{client}
 	request := ecs.CreateDeleteSecurityGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SecurityGroupId = d.Id()
 
 	err := resource.Retry(6*time.Minute, func() *resource.RetryError {

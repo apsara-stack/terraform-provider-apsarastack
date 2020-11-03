@@ -165,10 +165,9 @@ func dataSourceApsaraStackRouterInterfacesRead(d *schema.ResourceData, meta inte
 	request := vpc.CreateDescribeRouterInterfacesRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.PageNumber = requests.NewInteger(1)
 	var filters []vpc.DescribeRouterInterfacesFilter
 	for _, key := range []string{"status", "router_id", "router_type", "opposite_interface_id", "opposite_interface_owner_id"} {
