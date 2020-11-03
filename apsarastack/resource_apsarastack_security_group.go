@@ -1,7 +1,6 @@
 package apsarastack
 
 import (
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -76,7 +75,6 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.CreateSecurityGroup(request)
 	})
-	log.Printf("Roshan security Group params %s %s", request.QueryParams, request)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_security_group", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}

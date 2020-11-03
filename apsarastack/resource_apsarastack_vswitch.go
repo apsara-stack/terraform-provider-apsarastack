@@ -80,7 +80,6 @@ func resourceApsaraStackSwitchCreate(d *schema.ResourceData, meta interface{}) e
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.CreateVSwitch(&args)
 		})
-		log.Printf("Vswitch Request Roshan %s", args.QueryParams)
 		if err != nil {
 			if IsExpectedErrors(err, []string{"TaskConflict", "UnknownError", "InvalidStatus.RouteEntry",
 				"InvalidCidrBlock.Overlapped", Throttling, "OperationFailed.IdempotentTokenProcessing"}) {
