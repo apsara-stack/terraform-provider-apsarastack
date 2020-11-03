@@ -238,6 +238,7 @@ func TestAccApsaraStackdEssScalingGroup_vpc(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:      resourceId,
@@ -340,6 +341,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScalingGroupSlb(EcsInstanceCommonTestCase, rand),
@@ -350,6 +352,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 						"loadbalancer_ids.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScalingGroupSlbDetach(EcsInstanceCommonTestCase, rand),
@@ -359,6 +362,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 						"loadbalancer_ids.#": "1",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScalingGroupSlbUpdateMaxSize(EcsInstanceCommonTestCase, rand),
@@ -370,6 +374,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 						"loadbalancer_ids.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScalingGroupSlbUpdateScalingGroupName(EcsInstanceCommonTestCase, rand),
@@ -380,6 +385,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 						"scaling_group_name": fmt.Sprintf("tf-testAccEssScalingGroupUpdate-%d", rand),
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScalingGroupSlbUpdateRemovalPolicies(EcsInstanceCommonTestCase, rand),
@@ -390,6 +396,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 						"removal_policies.#": "1",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScalingGroupSlbUpdateDefaultCooldown(EcsInstanceCommonTestCase, rand),
@@ -400,6 +407,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 						"default_cooldown": "200",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScalingGroupSlbUpdateMinSize(EcsInstanceCommonTestCase, rand),
@@ -410,6 +418,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 						"min_size": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScalingGroupSlbempty(EcsInstanceCommonTestCase, rand),
@@ -423,6 +432,7 @@ func TestAccApsaraStackEssScalingGroup_slb(t *testing.T) {
 						"scaling_group_name": fmt.Sprintf("tf-testAccEssScalingGroup_slb-%d", rand),
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -771,9 +781,11 @@ func testAccEssScalingGroupSlb(common string, rand int) string {
 	  load_balancer_id = "${element(apsarastack_slb.default.*.id, count.index)}"
 	  backend_port = "22"
 	  frontend_port = "22"
-	  protocol = "tcp"
+	  protocol = "http"
 	  bandwidth = "10"
-	  health_check_type = "tcp"
+	  health_check_type = "http"
+      health_check ="off"
+	  sticky_session ="off"
 	}
 	`, common, rand)
 }
@@ -806,9 +818,11 @@ func testAccEssScalingGroupSlbDetach(common string, rand int) string {
 	  load_balancer_id = "${element(apsarastack_slb.default.*.id, count.index)}"
 	  backend_port = "22"
 	  frontend_port = "22"
-	  protocol = "tcp"
+	  protocol = "http"
 	  bandwidth = "10"
-	  health_check_type = "tcp"
+	  health_check_type = "http"
+      health_check ="off"
+	  sticky_session ="off"
 	}
 	`, common, rand)
 }
@@ -858,9 +872,11 @@ func testAccEssScalingGroupSlbUpdateMaxSize(common string, rand int) string {
 	  load_balancer_id = "${element(apsarastack_slb.default.*.id, count.index)}"
 	  backend_port = "22"
 	  frontend_port = "22"
-	  protocol = "tcp"
+	  protocol = "http"
 	  bandwidth = "10"
-	  health_check_type = "tcp"
+	  health_check_type = "http"
+      health_check ="off"
+	  sticky_session ="off"
 	}
 	`, common, rand)
 }
@@ -893,9 +909,11 @@ func testAccEssScalingGroupSlbUpdateScalingGroupName(common string, rand int) st
 	  load_balancer_id = "${element(apsarastack_slb.default.*.id, count.index)}"
 	  backend_port = "22"
 	  frontend_port = "22"
-	  protocol = "tcp"
+	  protocol = "http"
 	  bandwidth = "10"
-	  health_check_type = "tcp"
+	  health_check_type = "http"
+       sticky_session="off"
+	  health_check= "off"
 	}
 	`, common, rand)
 }
@@ -928,9 +946,11 @@ func testAccEssScalingGroupSlbUpdateRemovalPolicies(common string, rand int) str
 	  load_balancer_id = "${element(apsarastack_slb.default.*.id, count.index)}"
 	  backend_port = "22"
 	  frontend_port = "22"
-	  protocol = "tcp"
+	  protocol = "http"
 	  bandwidth = "10"
-	  health_check_type = "tcp"
+	  health_check_type = "http"
+      health_check ="off"
+	  sticky_session ="off"
 	}
 	`, common, rand)
 }
@@ -964,9 +984,11 @@ func testAccEssScalingGroupSlbUpdateDefaultCooldown(common string, rand int) str
 	  load_balancer_id = "${element(apsarastack_slb.default.*.id, count.index)}"
 	  backend_port = "22"
 	  frontend_port = "22"
-	  protocol = "tcp"
+	  protocol = "http"
 	  bandwidth = "10"
-	  health_check_type = "tcp"
+	  health_check_type = "http"
+      health_check ="off"
+	  sticky_session ="off"
 	}
 	`, common, rand)
 }
@@ -1000,9 +1022,11 @@ func testAccEssScalingGroupSlbUpdateMinSize(common string, rand int) string {
 	  load_balancer_id = "${element(apsarastack_slb.default.*.id, count.index)}"
 	  backend_port = "22"
 	  frontend_port = "22"
-	  protocol = "tcp"
+	  protocol = "http"
 	  bandwidth = "10"
-	  health_check_type = "tcp"
+	  health_check_type = "http"
+      health_check ="off"
+	  sticky_session ="off"
 	}
 	`, common, rand)
 }

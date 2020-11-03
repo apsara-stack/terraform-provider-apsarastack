@@ -36,6 +36,7 @@ func TestAccApsaraStackEssVserverGroups_basic(t *testing.T) {
 						"vserver_groups.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
@@ -50,6 +51,7 @@ func TestAccApsaraStackEssVserverGroups_basic(t *testing.T) {
 						"vserver_groups.#": "1",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -148,6 +150,8 @@ func testAccEssScalingGroupVserverGroup(common string, rand int) string {
 	  protocol = "tcp"
 	  bandwidth = "10"
 	  health_check_type = "tcp"
+	  health_check = "off"
+	  sticky_session = "off"
 	}
 	`, common, rand)
 }
@@ -209,6 +213,8 @@ func testAccEssScalingGroupVserverGroupUpdate(common string, rand int) string {
 	  protocol = "tcp"
 	  bandwidth = "10"
 	  health_check_type = "tcp"
+	  health_check = "off"
+	  sticky_session = "off"
 	}
 	`, common, rand)
 }

@@ -28,7 +28,7 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 	rac := resourceAttrCheckInit(rc, ra)
 
 	testAccCheck := rac.resourceAttrMapUpdateSet()
-	name := fmt.Sprintf("tf-testAccEssScalingConfiguration-%d", rand)
+	name := fmt.Sprintf("tf-testAccEssScCon-%d", rand)
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceEssScalingConfigurationConfigDependence)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -52,8 +52,9 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:            resourceId,
-				ImportState:             true,
+				ResourceName: resourceId,
+				ImportState:  true,
+
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force_delete", "instance_type", "security_group_id", "password", "kms_encrypted_password", "kms_encryption_context"},
 			},
@@ -69,11 +70,11 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"scaling_configuration_name": fmt.Sprintf("tf-testAccEssScalingConfiguration-%d", rand),
+					"scaling_configuration_name": fmt.Sprintf("tf-testAccEssScCon-%d", rand),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"scaling_configuration_name": fmt.Sprintf("tf-testAccEssScalingConfiguration-%d", rand),
+						"scaling_configuration_name": fmt.Sprintf("tf-testAccEssScCon-%d", rand),
 					}),
 				),
 			},
@@ -124,17 +125,9 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 						"user_data": "#!/bin/bash\necho \"hello\"\n",
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"role_name": "${apsarastack_ram_role.default.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"role_name": CHECKSET,
-					}),
-				),
-			},
+
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"key_name": "${apsarastack_key_pair.default.id}",
@@ -167,80 +160,6 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 					}),
 				),
 			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_type":  REMOVEKEY,
-					"instance_types": []string{"${data.apsarastack_instance_types.default.instance_types.0.id}", "${data.apsarastack_instance_types.default.instance_types.1.id}"},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_type":    REMOVEKEY,
-						"instance_types.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_group_id": REMOVEKEY,
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_group_id": REMOVEKEY,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"image_id": "${data.apsarastack_images.default1.images.0.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"image_id": REGEXMATCH + "^centos",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_name":              REMOVEKEY,
-					"instance_types":             REMOVEKEY,
-					"system_disk_category":       REMOVEKEY,
-					"key_name":                   REMOVEKEY,
-					"role_name":                  REMOVEKEY,
-					"data_disk":                  REMOVEKEY,
-					"tags":                       REMOVEKEY,
-					"user_data":                  REMOVEKEY,
-					"scaling_configuration_name": REMOVEKEY,
-					"scaling_group_id":           "${apsarastack_ess_scaling_group.default.id}",
-					"image_id":                   "${data.apsarastack_images.default.images.0.id}",
-					"instance_type":              "${data.apsarastack_instance_types.default.instance_types.0.id}",
-					"security_group_id":          "${apsarastack_security_group.default.id}",
-					"force_delete":               "true",
-					"override":                   "true",
-					"system_disk_size":           "100",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":                    REMOVEKEY,
-						"instance_types.#":                 REMOVEKEY,
-						"system_disk_category":             REMOVEKEY,
-						"key_name":                         REMOVEKEY,
-						"role_name":                        REMOVEKEY,
-						"data_disk.#":                      REMOVEKEY,
-						"data_disk.0.delete_with_instance": REMOVEKEY,
-						"data_disk.0.size":                 REMOVEKEY,
-						"data_disk.0.category":             REMOVEKEY,
-						"tags.name":                        REMOVEKEY,
-						"user_data":                        REMOVEKEY,
-						"scaling_configuration_name":       REMOVEKEY,
-						"system_disk_size":                 "100",
-						"scaling_group_id":                 CHECKSET,
-						"instance_type":                    CHECKSET,
-						"security_group_id":                CHECKSET,
-						"image_id":                         REGEXMATCH + "^ubuntu_18",
-						"override":                         "true",
-					}),
-				),
-			},
 		},
 	})
 }
@@ -263,7 +182,7 @@ func TestAccApsaraStackEssScalingConfigurationMulti(t *testing.T) {
 	rac := resourceAttrCheckInit(rc, ra)
 
 	testAccCheck := rac.resourceAttrMapUpdateSet()
-	name := fmt.Sprintf("tf-testAccEssScalingConfiguration-%d", rand)
+	name := fmt.Sprintf("tf-testAccEssScCon-%d", rand)
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceEssScalingConfigurationConfigDependence)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
