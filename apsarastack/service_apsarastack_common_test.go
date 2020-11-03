@@ -689,7 +689,7 @@ func (s *SlbService) sweepSlb(id string) error {
 	log.Printf("[DEBUG] Set SLB DeleteProtection to off before deleting %s ...", id)
 	request := slb.CreateSetLoadBalancerDeleteProtectionRequest()
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.LoadBalancerId = id
 	request.DeleteProtection = "off"
 	_, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -701,7 +701,7 @@ func (s *SlbService) sweepSlb(id string) error {
 	log.Printf("[DEBUG] Deleting SLB %s ...", id)
 	delRequest := slb.CreateDeleteLoadBalancerRequest()
 	delRequest.Headers = map[string]string{"RegionId": s.client.RegionId}
-	delRequest.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb"}
+	delRequest.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	delRequest.LoadBalancerId = id
 	_, err = s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DeleteLoadBalancer(delRequest)

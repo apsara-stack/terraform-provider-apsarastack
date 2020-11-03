@@ -57,7 +57,7 @@ func resourceApsaraStackSlbCreate(d *schema.ResourceData, meta interface{}) erro
 	request := slb.CreateCreateLoadBalancerRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerName = d.Get("name").(string)
 	request.AddressType = strings.ToLower(string(Intranet))
 	request.ClientToken = buildClientToken(request.GetActionName())
@@ -148,7 +148,7 @@ func resourceApsaraStackSlbUpdate(d *schema.ResourceData, meta interface{}) erro
 		request := slb.CreateSetLoadBalancerNameRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.LoadBalancerId = d.Id()
 		request.LoadBalancerName = d.Get("name").(string)
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -163,7 +163,7 @@ func resourceApsaraStackSlbUpdate(d *schema.ResourceData, meta interface{}) erro
 	update := false
 	modifyLoadBalancerInternetSpecRequest := slb.CreateModifyLoadBalancerInternetSpecRequest()
 	modifyLoadBalancerInternetSpecRequest.Headers = map[string]string{"RegionId": client.RegionId}
-	modifyLoadBalancerInternetSpecRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	modifyLoadBalancerInternetSpecRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	modifyLoadBalancerInternetSpecRequest.RegionId = client.RegionId
 	modifyLoadBalancerInternetSpecRequest.LoadBalancerId = d.Id()
 	if update {
@@ -180,7 +180,7 @@ func resourceApsaraStackSlbUpdate(d *schema.ResourceData, meta interface{}) erro
 	modifyLoadBalancerPayTypeRequest := slb.CreateModifyLoadBalancerPayTypeRequest()
 	modifyLoadBalancerPayTypeRequest.RegionId = client.RegionId
 	modifyLoadBalancerInternetSpecRequest.Headers = map[string]string{"RegionId": client.RegionId}
-	modifyLoadBalancerInternetSpecRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	modifyLoadBalancerInternetSpecRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	modifyLoadBalancerPayTypeRequest.LoadBalancerId = d.Id()
 
 	if update {
@@ -204,7 +204,7 @@ func resourceApsaraStackSlbDelete(d *schema.ResourceData, meta interface{}) erro
 	request := slb.CreateDeleteLoadBalancerRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = d.Id()
 
 	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
