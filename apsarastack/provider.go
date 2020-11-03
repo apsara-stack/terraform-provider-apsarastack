@@ -114,13 +114,13 @@ func Provider() terraform.ResourceProvider {
 			},
 			"department": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DEPARTMENT", nil),
 				Description: descriptions["department"],
 			},
 			"resource_group": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP", nil),
 				Description: descriptions["resource_group"],
 			},
@@ -439,7 +439,7 @@ func init() {
 func endpointsSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,
-		Optional: true,
+		Required: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"cbn": {
