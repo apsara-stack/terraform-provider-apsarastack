@@ -139,7 +139,7 @@ func dataSourceApsarastackNetworkInterfacesRead(d *schema.ResourceData, meta int
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateDescribeNetworkInterfacesRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
 	if networkInterfaceIds, ok := d.GetOk("ids"); ok {
 		ids := expandStringList(networkInterfaceIds.(*schema.Set).List())

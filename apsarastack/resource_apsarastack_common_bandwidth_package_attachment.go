@@ -39,9 +39,8 @@ func resourceApsaraStackCommonBandwidthPackageAttachmentCreate(d *schema.Resourc
 	request := vpc.CreateAddCommonBandwidthPackageIpRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.BandwidthPackageId = Trim(d.Get("bandwidth_package_id").(string))
 	request.IpInstanceId = Trim(d.Get("instance_id").(string))
 	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -93,9 +92,8 @@ func resourceApsaraStackCommonBandwidthPackageAttachmentDelete(d *schema.Resourc
 
 	request := vpc.CreateRemoveCommonBandwidthPackageIpRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.BandwidthPackageId = bandwidthPackageId
 	request.IpInstanceId = ipInstanceId
 

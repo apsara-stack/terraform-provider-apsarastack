@@ -25,7 +25,7 @@ func (s *EcsService) JudgeRegionValidation(key, region string) error {
 	request := ecs.CreateDescribeRegionsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeRegions(request)
 	})
@@ -53,7 +53,7 @@ func (s *EcsService) DescribeZone(id string) (zone ecs.Zone, err error) {
 	request := ecs.CreateDescribeZonesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeZones(request)
 	})
@@ -81,7 +81,7 @@ func (s *EcsService) DescribeZones(d *schema.ResourceData) (zones []ecs.Zone, er
 	request := ecs.CreateDescribeZonesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	//request.SpotStrategy = d.Get("spot_strategy").(string)
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeZones(request)
@@ -114,7 +114,7 @@ func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err err
 	request.RegionId = s.client.RegionId
 
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.InstanceIds = convertListToJsonString([]interface{}{id})
 
 	var response *ecs.DescribeInstancesResponse
@@ -152,7 +152,7 @@ func (s *EcsService) DescribeInstanceAttribute(id string) (instance ecs.Describe
 	request.InstanceId = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeInstanceAttribute(request)
 	})
@@ -174,7 +174,7 @@ func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, e
 	request.DiskType = string(DiskTypeSystem)
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	var response *ecs.DescribeDisksResponse
 	wait := incrementalWait(1*time.Second, 1*time.Second)
 	err = resource.Retry(10*time.Minute, func() *resource.RetryError {
@@ -226,7 +226,7 @@ func (s *EcsService) JoinSecurityGroups(instanceId string, securityGroupIds []st
 	request.InstanceId = instanceId
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	for _, sid := range securityGroupIds {
 		request.SecurityGroupId = sid
 		raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -246,7 +246,7 @@ func (s *EcsService) LeaveSecurityGroups(instanceId string, securityGroupIds []s
 	request.InstanceId = instanceId
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	for _, sid := range securityGroupIds {
 		request.SecurityGroupId = sid
 		raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -266,7 +266,7 @@ func (s *EcsService) DescribeSecurityGroup(id string) (group ecs.DescribeSecurit
 	request.SecurityGroupId = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeSecurityGroupAttribute(request)
 	})
@@ -302,7 +302,7 @@ func (s *EcsService) DescribeSecurityGroupRule(id string) (rule ecs.Permission, 
 	request.NicType = nicType
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeSecurityGroupAttribute(request)
 	})
@@ -346,7 +346,7 @@ func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta int
 	request := ecs.CreateDescribeAvailableResourceRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DestinationResource = string(destination)
 	request.IoOptimized = string(IOOptimized)
 
@@ -450,7 +450,7 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keyPair string) (
 	request := ecs.CreateDescribeInstancesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	request.InstanceIds = instanceIdsStr
@@ -489,7 +489,7 @@ func (s *EcsService) DescribeKeyPair(id string) (keyPair ecs.KeyPair, err error)
 	request := ecs.CreateDescribeKeyPairsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.KeyPairName = id
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeKeyPairs(request)
@@ -531,7 +531,7 @@ func (s *EcsService) DescribeDisk(id string) (disk ecs.Disk, err error) {
 	request.DiskIds = convertListToJsonString([]interface{}{id})
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeDisks(request)
 	})
@@ -567,7 +567,7 @@ func (s *EcsService) DescribeDisksByType(instanceId string, diskType DiskType) (
 	request := ecs.CreateDescribeDisksRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	if instanceId != "" {
 		request.InstanceId = instanceId
 	}
@@ -591,7 +591,7 @@ func (s *EcsService) DescribeTags(resourceId string, resourceType TagResourceTyp
 	request := ecs.CreateDescribeTagsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ResourceType = string(resourceType)
 	request.ResourceId = resourceId
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -615,7 +615,7 @@ func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	request := ecs.CreateDescribeImagesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ImageId = id
 	request.Status = fmt.Sprintf("%s,%s,%s,%s,%s", "Creating", "Waiting", "Available", "UnAvailable", "CreateFailed")
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -649,7 +649,7 @@ func (s *EcsService) deleteImage(d *schema.ResourceData) error {
 	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ImageId = object.ImageId
 
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -682,7 +682,7 @@ func (s *EcsService) updateImage(d *schema.ResourceData) error {
 	request := ecs.CreateModifyImageAttributeRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ImageId = d.Id()
 
 	if d.HasChange("description") || d.HasChange("name") || d.HasChange("image_name") {
@@ -716,7 +716,7 @@ func (s *EcsService) DescribeNetworkInterface(id string) (networkInterface ecs.N
 	request := ecs.CreateDescribeNetworkInterfacesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	eniIds := []string{id}
 	request.NetworkInterfaceId = &eniIds
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -747,7 +747,7 @@ func (s *EcsService) DescribeNetworkInterfaceAttachment(id string) (networkInter
 	request := ecs.CreateDescribeNetworkInterfacesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.InstanceId = instanceId
 	eniIds := []string{eniId}
 	request.NetworkInterfaceId = &eniIds
@@ -826,7 +826,8 @@ func (s *EcsService) deleteImageforDest(d *schema.ResourceData, region string) e
 		return WrapError(err)
 	}
 	request := ecs.CreateDeleteImageRequest()
-
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	if force, ok := d.GetOk("force"); ok {
 		request.Force = requests.NewBoolean(force.(bool))
 	}
@@ -852,6 +853,8 @@ func (s *EcsService) DescribeImage(id, region string) (image ecs.Image, err erro
 	request := ecs.CreateDescribeImagesRequest()
 	request.RegionId = region
 	request.ImageId = id
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.Status = fmt.Sprintf("%s,%s,%s,%s,%s", "Creating", "Waiting", "Available", "UnAvailable", "CreateFailed")
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeImages(request)
@@ -1117,7 +1120,7 @@ func (s *EcsService) AttachKeyPair(keyName string, instanceIds []interface{}) er
 	request := ecs.CreateAttachKeyPairRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.KeyPairName = keyName
 	request.InstanceIds = convertListToJsonString(instanceIds)
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -1201,7 +1204,8 @@ func (s *EcsService) TaskStateRefreshFunc(id string, failStates []string) resour
 func (s *EcsService) DescribeTaskById(id string) (task *ecs.DescribeTaskAttributeResponse, err error) {
 	request := ecs.CreateDescribeTaskAttributeRequest()
 	request.TaskId = id
-
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeTaskAttribute(request)
 	})
@@ -1222,7 +1226,7 @@ func (s *EcsService) DescribeSnapshot(id string) (*ecs.Snapshot, error) {
 	request := ecs.CreateDescribeSnapshotsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.SnapshotIds = fmt.Sprintf("[\"%s\"]", id)
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeSnapshots(request)
@@ -1244,7 +1248,7 @@ func (s *EcsService) DescribeSnapshotPolicy(id string) (*ecs.AutoSnapshotPolicy,
 	request.AutoSnapshotPolicyId = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeAutoSnapshotPolicyEx(request)
 	})
@@ -1268,7 +1272,7 @@ func (s *EcsService) DescribeReservedInstance(id string) (reservedInstance ecs.R
 	request.ReservedInstanceId = balance
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeReservedInstances(request)
 	})
@@ -1339,7 +1343,7 @@ func (s *EcsService) DescribeLaunchTemplate(id string) (set ecs.LaunchTemplateSe
 	request := ecs.CreateDescribeLaunchTemplatesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.LaunchTemplateId = &[]string{id}
 
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -1366,7 +1370,7 @@ func (s *EcsService) DescribeLaunchTemplateVersion(id string, version int) (set 
 	request := ecs.CreateDescribeLaunchTemplateVersionsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.LaunchTemplateId = id
 	request.LaunchTemplateVersion = &[]string{strconv.FormatInt(int64(version), 10)}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -1420,7 +1424,7 @@ func (s *EcsService) DescribeImageShareByImageId(id string) (imageShare *ecs.Des
 	request := ecs.CreateDescribeImageSharePermissionRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	parts, err := ParseResourceId(id, 2)
 	if err != nil {
 		return imageShare, WrapError(err)
@@ -1473,7 +1477,7 @@ func (s *EcsService) DescribeAutoProvisioningGroup(id string) (group ecs.AutoPro
 	request.AutoProvisioningGroupId = &ids
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, e := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeAutoProvisioningGroups(request)
 	})
@@ -1533,7 +1537,7 @@ func (s *EcsService) SetResourceTags(d *schema.ResourceData, resourceType string
 		request := ecs.CreateUntagResourcesRequest()
 		request.RegionId = s.client.RegionId
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.ResourceId = &[]string{d.Id()}
 		request.ResourceType = resourceType
 		request.TagKey = &removed
@@ -1552,7 +1556,7 @@ func (s *EcsService) SetResourceTags(d *schema.ResourceData, resourceType string
 		request := ecs.CreateTagResourcesRequest()
 		request.RegionId = s.client.RegionId
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.ResourceId = &[]string{d.Id()}
 		request.ResourceType = resourceType
 		request.Tag = &added
@@ -1574,7 +1578,7 @@ func (s *EcsService) DescribeEcsDedicatedHost(id string) (object ecs.DedicatedHo
 	request := ecs.CreateDescribeDedicatedHostsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 
 	request.PageNumber = requests.NewInteger(1)
 	request.PageSize = requests.NewInteger(20)

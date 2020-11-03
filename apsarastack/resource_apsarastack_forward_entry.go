@@ -61,9 +61,8 @@ func resourceApsaraStackForwardEntryCreate(d *schema.ResourceData, meta interfac
 	request := vpc.CreateCreateForwardEntryRequest()
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ForwardTableId = d.Get("forward_table_id").(string)
 	request.ExternalIp = d.Get("external_ip").(string)
 	request.ExternalPort = d.Get("external_port").(string)
@@ -137,9 +136,8 @@ func resourceApsaraStackForwardEntryUpdate(d *schema.ResourceData, meta interfac
 	request := vpc.CreateModifyForwardEntryRequest()
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ForwardEntryId = parts[1]
 	request.ForwardTableId = parts[0]
 
@@ -188,10 +186,9 @@ func resourceApsaraStackForwardEntryDelete(d *schema.ResourceData, meta interfac
 	vpcService := VpcService{client}
 	request := vpc.CreateDeleteForwardEntryRequest()
 	request.RegionId = string(client.Region)
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ForwardTableId = parts[0]
 	request.ForwardEntryId = parts[1]
 

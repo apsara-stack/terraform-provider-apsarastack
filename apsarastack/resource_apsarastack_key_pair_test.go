@@ -41,6 +41,8 @@ func testSweepKeyPairs(region string) error {
 	var pairs []ecs.KeyPair
 	req := ecs.CreateDescribeKeyPairsRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -82,6 +84,8 @@ func testSweepKeyPairs(region string) error {
 		}
 		log.Printf("[INFO] Deleting Key Pair: %s", name)
 		req := ecs.CreateDeleteKeyPairsRequest()
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.KeyPairNames = convertListToJsonString(append(make([]interface{}, 0, 1), name))
 		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteKeyPairs(req)

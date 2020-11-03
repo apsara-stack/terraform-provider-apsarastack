@@ -466,7 +466,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 
 	req := ecs.CreateDescribeZonesRequest()
 	req.Headers = map[string]string{"RegionId": client.RegionId}
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.RegionId = client.RegionId
 	req.InstanceChargeType = instanceChargeType
 	if v, ok := d.GetOk("spot_strategy"); ok && v.(string) != "" {
