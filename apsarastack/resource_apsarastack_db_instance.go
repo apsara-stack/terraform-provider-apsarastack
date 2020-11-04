@@ -195,7 +195,7 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	}
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.CreateDBInstance(request)
 	})
@@ -238,7 +238,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		prePaidRequest.RegionId = client.RegionId
 
 		prePaidRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		prePaidRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		prePaidRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		prePaidRequest.DBInstanceId = d.Id()
 		prePaidRequest.PayType = string(payType)
 		prePaidRequest.AutoPay = "true"
@@ -271,7 +271,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request.RegionId = client.RegionId
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		auto_renew := d.Get("auto_renew").(bool)
 		if auto_renew {
 			request.AutoRenew = "True"
@@ -310,7 +310,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request.RegionId = client.RegionId
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.Period = strconv.Itoa(period)
 
@@ -328,7 +328,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request.RegionId = client.RegionId
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.MaintainTime = d.Get("maintain_time").(string)
 		request.ClientToken = buildClientToken(request.GetActionName())
@@ -348,7 +348,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request.RegionId = client.RegionId
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.MigrateSecurityIPMode(request)
@@ -365,7 +365,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request.RegionId = client.RegionId
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		if d.Get("sql_collector_status").(string) == "Enabled" {
 			request.SQLCollectorStatus = "Enable"
@@ -387,7 +387,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request.RegionId = client.RegionId
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.ConfigValue = strconv.Itoa(d.Get("sql_collector_config_value").(int))
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -410,7 +410,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request.RegionId = client.RegionId
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.DBInstanceDescription = d.Get("instance_name").(string)
 
@@ -444,7 +444,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	request.RegionId = client.RegionId
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
 	request.PayType = d.Get("instance_charge_type").(string)
 
@@ -570,7 +570,7 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 		request.RegionId = client.RegionId
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -621,7 +621,7 @@ func resourceApsaraStackDBInstanceDelete(d *schema.ResourceData, meta interface{
 	request.RegionId = client.RegionId
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
 
 	err = resource.Retry(10*time.Minute, func() *resource.RetryError {
@@ -658,7 +658,7 @@ func buildDBCreateRequest(d *schema.ResourceData, meta interface{}) (*rds.Create
 	request.RegionId = string(client.Region)
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.Engine = Trim(d.Get("engine").(string))
 	request.DBInstanceStorage = requests.NewInteger(d.Get("instance_storage").(int))

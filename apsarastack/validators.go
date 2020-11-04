@@ -162,3 +162,23 @@ func normalizeJsonString(jsonString interface{}) (string, error) {
 
 	return string(bytes[:]), nil
 }
+
+func validateRR(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+
+	if strings.HasPrefix(value, "-") || strings.HasSuffix(value, "-") {
+		errors = append(errors, fmt.Errorf("RR is invalid, it can not starts or ends with '-'"))
+	}
+
+	if len(value) > 253 {
+		errors = append(errors, fmt.Errorf("RR can not longer than 253 characters."))
+	}
+
+	for _, part := range strings.Split(value, ".") {
+		if len(part) > 63 {
+			errors = append(errors, fmt.Errorf("Each part of RR split with . can not longer than 63 characters."))
+			return
+		}
+	}
+	return
+}

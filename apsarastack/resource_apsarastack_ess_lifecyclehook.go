@@ -71,7 +71,8 @@ func resourceApsaraStackEssLifeCycleHookCreate(d *schema.ResourceData, meta inte
 	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateLifecycleHook(request)
@@ -125,7 +126,8 @@ func resourceApsaraStackEssLifeCycleHookUpdate(d *schema.ResourceData, meta inte
 	request.LifecycleHookId = d.Id()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if d.HasChange("lifecycle_transition") {
 		request.LifecycleTransition = d.Get("lifecycle_transition").(string)
 	}
@@ -164,7 +166,8 @@ func resourceApsaraStackEssLifeCycleHookDelete(d *schema.ResourceData, meta inte
 	request.LifecycleHookId = d.Id()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteLifecycleHook(request)
 	})

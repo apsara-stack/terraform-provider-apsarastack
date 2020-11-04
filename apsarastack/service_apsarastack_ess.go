@@ -20,7 +20,7 @@ func (s *EssService) DescribeEssAlarm(id string) (alarm ess.Alarm, err error) {
 	request := ess.CreateDescribeAlarmsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.AlarmTaskId = id
 	request.MetricType = "system"
 	Alarms, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -62,8 +62,7 @@ func (s *EssService) DescribeEssLifecycleHook(id string) (hook ess.LifecycleHook
 	request.LifecycleHookId = &[]string{id}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
-
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeLifecycleHooks(request)
 	})
@@ -111,7 +110,7 @@ func (s *EssService) DescribeEssNotification(id string) (notification ess.Notifi
 	request := ess.CreateDescribeNotificationConfigurationsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ScalingGroupId = scalingGroupId
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeNotificationConfigurations(request)
@@ -162,7 +161,7 @@ func (s *EssService) DescribeEssScalingGroup(id string) (group ess.ScalingGroup,
 	request.ScalingGroupId1 = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, e := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingGroups(request)
 	})
@@ -186,7 +185,7 @@ func (s *EssService) DescribeEssScalingConfiguration(id string) (config ess.Scal
 	request.ScalingConfigurationId1 = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingConfigurations(request)
 	})
@@ -212,7 +211,7 @@ func (s *EssService) ActiveEssScalingConfiguration(sgId, id string) error {
 	request.ActiveScalingConfigurationId = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.ModifyScalingGroup(request)
 	})
@@ -296,7 +295,7 @@ func (s *EssService) DescribeEssScalingRule(id string) (rule ess.ScalingRule, er
 	request.ScalingRuleId1 = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScalingRules(request)
 	})
@@ -345,7 +344,7 @@ func (s *EssService) DescribeEssScheduledTask(id string) (task ess.ScheduledTask
 	request.ScheduledTaskId1 = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeScheduledTasks(request)
 	})
@@ -394,7 +393,8 @@ func (srv *EssService) DescribeEssAttachment(id string, instanceIds []string) (i
 	request := ess.CreateDescribeScalingInstancesRequest()
 	request.RegionId = srv.client.RegionId
 	request.Headers = map[string]string{"RegionId": srv.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": srv.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": srv.client.SecretKey, "Product": "ess", "Department": srv.client.Department, "ResourceGroup": srv.client.ResourceGroup}
+
 	request.ScalingGroupId = id
 	s := reflect.ValueOf(request).Elem()
 
@@ -431,7 +431,7 @@ func (s *EssService) DescribeEssScalingConfifurations(id string) (configs []ess.
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	for {
 		raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DescribeScalingConfigurations(request)
@@ -491,7 +491,8 @@ func (srv *EssService) EssRemoveInstances(id string, instanceIds []string) error
 		request.ScalingGroupId = id
 		request.RegionId = srv.client.RegionId
 		request.Headers = map[string]string{"RegionId": srv.client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": srv.client.SecretKey, "Product": "ess"}
+		request.QueryParams = map[string]string{"AccessKeySecret": srv.client.SecretKey, "Product": "ess", "Department": srv.client.Department, "ResourceGroup": srv.client.ResourceGroup}
+
 		if len(removed) > 0 {
 			request.InstanceId = &removed
 		} else {

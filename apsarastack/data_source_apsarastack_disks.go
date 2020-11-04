@@ -142,8 +142,7 @@ func dataSourceApsaraStackDisksRead(d *schema.ResourceData, meta interface{}) er
 	request := ecs.CreateDescribeDisksRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
-
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if v, ok := d.GetOk("ids"); ok && len(v.([]interface{})) > 0 {
 		request.DiskIds = convertListToJsonString(v.([]interface{}))
 	}

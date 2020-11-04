@@ -95,9 +95,8 @@ func resourceApsaraStackRouterInterfaceConnectionCreate(d *schema.ResourceData, 
 	request.RegionId = client.RegionId
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterInterfaceId = interfaceId
 	request.OppositeInterfaceId = oppositeId
 
@@ -150,10 +149,9 @@ func resourceApsaraStackRouterInterfaceConnectionCreate(d *schema.ResourceData, 
 	if object.Role == string(InitiatingSide) {
 		connectRequest := vpc.CreateConnectRouterInterfaceRequest()
 		connectRequest.RegionId = client.RegionId
-		request.QueryParams["Department"] = client.Department
-		request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 		connectRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		connectRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+		connectRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		connectRequest.RouterInterfaceId = interfaceId
 		if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
