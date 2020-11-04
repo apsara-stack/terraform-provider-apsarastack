@@ -21,7 +21,7 @@ data "apsarastack_router_interfaces" "router_interfaces_ds" {
 }
 
 output "first_router_interface_id" {
-  value = "${data.apsarastack_router_interfaces.router_interfaces_ds.interfaces.0.id}"
+  value = "${data.apsarastack_router_interfaces.router_interfaces_ds.interfaces.id}"
 }
 ```
 

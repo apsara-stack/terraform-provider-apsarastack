@@ -293,7 +293,6 @@ resource "apsarastack_vpc" "default" {
 
 resource "apsarastack_security_group" "default" {
   name = "${var.name}"
-  description = "Security group for rules"
   vpc_id = "${apsarastack_vpc.default.id}"
 }
 

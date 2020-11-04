@@ -21,6 +21,15 @@ func dataSourceApsaraStackSnatEntries() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"snat_ip": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"source_cidr": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			// the snat_entry resource id is spliced from snat_table_id and snat_entry_id, but,this id refers to snat_entry_id
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,

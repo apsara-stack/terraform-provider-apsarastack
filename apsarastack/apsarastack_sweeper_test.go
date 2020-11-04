@@ -37,21 +37,21 @@ func sharedClientForRegion(region string) (interface{}, error) {
 		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
 	if rdsEndpoint := os.Getenv("RDS_ENDPOINT"); rdsEndpoint == "" {
-		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
+		//eturn nil, fmt.Errorf("empty RDS_ENDPOINT")
 	}
 	if essEndpoint = os.Getenv("ESS_ENDPOINT"); essEndpoint == "" {
 		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
-	if ecsEndpoint = os.Getenv("ESS_ENDPOINT"); ecsEndpoint == "" {
+	if ecsEndpoint = os.Getenv("ECS_ENDPOINT"); ecsEndpoint == "" {
 		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
-	if vpcEndpoint = os.Getenv("ESS_ENDPOINT"); vpcEndpoint == "" {
+	if vpcEndpoint = os.Getenv("VPC_ENDPOINT"); vpcEndpoint == "" {
 		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
-	if slbEndpoint = os.Getenv("ESS_ENDPOINT"); slbEndpoint == "" {
+	if slbEndpoint = os.Getenv("SLB_ENDPOINT"); slbEndpoint == "" {
 		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
-	if crEndpoint = os.Getenv("ESS_ENDPOINT"); crEndpoint == "" {
+	if crEndpoint = os.Getenv("CR_ENDPOINT"); crEndpoint == "" {
 		//return nil, fmt.Errorf("empty OSS_ENDPOINT")
 	}
 	if domain = os.Getenv("APSARASTACK_DOMAIN"); domain == "" {
