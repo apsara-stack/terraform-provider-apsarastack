@@ -51,59 +51,13 @@ func TestAccApsaraStackSlbBackendServers_vpc(t *testing.T) {
 						"backend_servers.#": "1",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"delete_protection_validation"},
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"load_balancer_id": "${apsarastack_slb.default.id}",
-					"backend_servers": []map[string]interface{}{
-						{
-							"server_id": "${apsarastack_instance.instance.0.id}",
-							"weight":    "80",
-						},
-						{
-							"server_id": "${apsarastack_instance.instance.1.id}",
-							"weight":    "80",
-						},
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"backend_servers.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"load_balancer_id": "${apsarastack_slb.default.id}",
-					"backend_servers":  buildBackendServersMap(21),
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"backend_servers.#": "21",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"load_balancer_id": "${apsarastack_slb.default.id}",
-					"backend_servers": []map[string]interface{}{
-						{
-							"server_id": "${apsarastack_instance.instance.0.id}",
-							"weight":    "80",
-						},
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"backend_servers.#": "1",
-					}),
-				),
 			},
 		},
 	})
@@ -155,6 +109,7 @@ func TestAccApsaraStackSlbBackendServers_multi_vpc(t *testing.T) {
 						"backend_servers.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -205,6 +160,7 @@ func TestAccApsaraStackSlbBackendServers_classic(t *testing.T) {
 						"backend_servers.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
@@ -303,19 +259,16 @@ resource "apsarastack_instance" "instance" {
   image_id                   = "${data.apsarastack_images.default.images.0.id}"
   instance_type              = "${data.apsarastack_instance_types.default.instance_types.0.id}"
   instance_name              = "${var.name}"
-  count                      = "21"
+  count                      = "2"
   security_groups            = "${apsarastack_security_group.group.*.id}"
-  internet_charge_type       = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone          = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-  instance_charge_type       = "PostPaid"
   system_disk_category       = "cloud_efficiency"
   vswitch_id                 = "${apsarastack_vswitch.default.id}"
 }
 resource "apsarastack_slb" "default" {
   name          = "${var.name}"
   vswitch_id    = "${apsarastack_vswitch.default.id}"
-  specification = "slb.s2.small"
 }
 
 
@@ -335,10 +288,8 @@ resource "apsarastack_instance" "new" {
   instance_name = "${var.name}"
   count = "1"
   security_groups = "${apsarastack_security_group.group.*.id}"
-  internet_charge_type = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }
@@ -388,10 +339,8 @@ resource "apsarastack_instance" "instance" {
   	instance_name = "${var.name}"
   	count = "2"
   	security_groups = "${apsarastack_security_group.default.*.id}"
-  	internet_charge_type = "PayByTraffic"
   	internet_max_bandwidth_out = "10"
   	availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-  	instance_charge_type = "PostPaid"
   	system_disk_category = "cloud_efficiency"
   	vswitch_id = "${apsarastack_vswitch.default.id}"
 }
