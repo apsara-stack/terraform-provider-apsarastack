@@ -24,7 +24,7 @@ resource "apsarastack_vpc" "foo" {
 }
 
 resource "apsarastack_router_interface" "interface" {
-  opposite_region = "cn-beijing"
+  opposite_region = region
   router_type     = "VRouter"
   router_id       = apsarastack_vpc.foo.router_id
   role            = "InitiatingSide"
@@ -48,9 +48,6 @@ The following arguments are supported:
 * `description` - (Optional) Description of the router interface. It can be 2-256 characters long or left blank. It cannot start with http:// and https://.
 * `health_check_source_ip` - (Optional) Used as the Packet Source IP of health check for disaster recovery or ECMP. It is only valid when `router_type` is `VBR`. The IP must be an unused IP in the local VPC. It and `health_check_target_ip` must be specified at the same time.
 * `health_check_target_ip` - (Optional) Used as the Packet Target IP of health check for disaster recovery or ECMP. It is only valid when `router_type` is `VBR`. The IP must be an unused IP in the local VPC. It and `health_check_source_ip` must be specified at the same time.
-* `instance_charge_type` - (Optional, ForceNew) The billing method of the router interface. Valid values are "PrePaid" and "PostPaid". Default to "PostPaid". Router Interface doesn't support "PrePaid" when region and opposite_region are the same.
-* `period` - (Optional, ForceNew) The duration that you will buy the resource, in month. It is valid when `instance_charge_type` is `PrePaid`. Default to 1. Valid values: [1-9, 12, 24, 36]. At present, the provider does not support modify "period" and you can do that via web console.
-
 
 ## Attributes Reference
 

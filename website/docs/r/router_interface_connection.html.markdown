@@ -28,7 +28,7 @@ provider "apsarastack" {
 }
 
 variable "region" {
-  default = "cn-hangzhou"
+  default = "region"
 }
 
 variable "name" {

@@ -32,7 +32,7 @@ resource "apsarastack_instance" "ecs_instance" {
   instance_type         = "${var.instance_type}"
   availability_zone     = "${var.availability_zone}"
   security_groups       = ["${var.security_groups}"]
-  instance_name         = "Hello"
+  instance_name         = "EcsInstance"
 
   tags = {
     Name = "TerraformTest-instance"

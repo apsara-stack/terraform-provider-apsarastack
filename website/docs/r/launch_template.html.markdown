@@ -26,10 +26,8 @@ resource "apsarastack_launch_template" "template" {
   description                   = "test1"
   image_id                      = "${data.apsarastack_images.images.images.0.id}"
   host_name                     = "tf-test-host"
-  instance_charge_type          = "PrePaid"
   instance_name                 = "tf-instance-name"
   instance_type                 = "${data.apsarastack_instances.instances.instances.0.instance_type}"
-  internet_charge_type          = "PayByBandwidth"
   internet_max_bandwidth_in     = 5
   internet_max_bandwidth_out    = 0
   io_optimized                  = "none"
@@ -39,7 +37,7 @@ resource "apsarastack_launch_template" "template" {
   security_enhancement_strategy = "Active"
   spot_price_limit              = 5
   spot_strategy                 = "SpotWithPriceLimit"
-  security_group_id             = "sg-zxcvj0lasdf102350asdf9a"
+  security_group_id             = "sg-z2vj0lasdf102350asdf9a"
   system_disk_category          = "cloud_ssd"
   system_disk_description       = "test disk"
   system_disk_name              = "hello"
@@ -56,7 +54,7 @@ resource "apsarastack_launch_template" "template" {
   }
   network_interfaces {
     name              = "eth0"
-    description       = "hello1"
+    description       = "NI"
     primary_ip        = "10.0.0.2"
     security_group_id = "xxxx"
     vswitch_id        = "xxxxxxx"
@@ -81,14 +79,8 @@ The following arguments are supported:
 * `host_name` - (Optional) Instance host name.It cannot start or end with a period (.) or a hyphen (-) and it cannot have two or more consecutive periods (.) or hyphens (-).For Windows: The host name can be [2, 15] characters in length. It can contain A-Z, a-z, numbers, periods (.), and hyphens (-). It cannot only contain numbers. For other operating systems: The host name can be [2, 64] characters in length. It can be segments separated by periods (.). It can contain A-Z, a-z, numbers, and hyphens (-).
 * `image_id` - (Optional) Image ID.
 * `instance_name` - (Optional) The name of the instance. The name is a string of 2 to 128 characters. It must begin with an English or a Chinese character. It can contain A-Z, a-z, Chinese characters, numbers, periods (.), colons (:), underscores (_), and hyphens (-).
-* `instance_charge_type` - (Optional)Billing methods. Optional values:
-    - PrePaid: Monthly, or annual subscription. Make sure that your registered credit card is invalid or you have insufficient balance in your PayPal account. Otherwise, InvalidPayMethod error may occur.
-    - PostPaid: Pay-As-You-Go.
-
-    Default value: PostPaid.
 * `instance_type` - (Optional) Instance type. For more information, call resource_apsarastack_instances to obtain the latest instance type list.
 * `auto_release_time` - (Optional) Instance auto release time. The time is presented using the ISO8601 standard and in UTC time. The format is  YYYY-MM-DDTHH:MM:SSZ.
-* `internet_charge_type` - (Optional) Internet bandwidth billing method. Optional values: PayByTraffic.
 * `internet_max_bandwidth_in` - (Optional) The maximum inbound bandwidth from the Internet network, measured in Mbit/s. Value range: [1, 200].
 * `internet_max_bandwidth_out` - (Optional) Maximum outbound bandwidth from the Internet, its unit of measurement is Mbit/s. Value range: [0, 100].
 * `io_optimized` - (Optional) Whether it is an I/O-optimized instance or not. Optional values:

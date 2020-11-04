@@ -17,7 +17,7 @@ Provides a resource to put a object(content or file) to a oss bucket.
 
 ```
 resource "apsarastack_oss_bucket_object" "object-source" {
-  bucket = "your_bucket_name"
+  bucket = "your-bucket-name"
   key    = "new_object_key"
   source = "path/to/file"
 }

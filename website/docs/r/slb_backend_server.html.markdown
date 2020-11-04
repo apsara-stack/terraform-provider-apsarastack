@@ -55,10 +55,8 @@ resource "apsarastack_instance" "default" {
   instance_name = "${var.name}"
   count = "2"
   security_groups = "${apsarastack_security_group.default.*.id}"
-  internet_charge_type = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }

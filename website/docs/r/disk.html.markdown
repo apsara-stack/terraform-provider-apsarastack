@@ -20,7 +20,7 @@ Provides a ECS disk resource.
 resource "apsarastack_disk" "ecs_disk" { 
   availability_zone = "${var.availability_zone}"
   name              = "New-disk"
-  description       = "Hello ecs disk."
+  description       = "ECS-Disk"
   category          = "cloud_efficiency"
   size              = "30"
 
