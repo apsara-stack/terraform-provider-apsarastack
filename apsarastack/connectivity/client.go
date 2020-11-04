@@ -5,6 +5,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/adb"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/bssopenapi"
 	cdn_new "github.com/aliyun/alibaba-cloud-sdk-go/services/cdn"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
@@ -82,6 +83,7 @@ type ApsaraStackClient struct {
 	logpopconn        *slsPop.Client
 	creeconn          *cr_ee.Client
 	crconn            *cr.Client
+	dnsconn           *alidns.Client
 }
 
 const (
@@ -131,9 +133,6 @@ func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}
 	// Initialize the ECS client if necessary
 	if client.ecsconn == nil {
 		endpoint := client.config.EcsEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, ECSCode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ECSCode), endpoint)
 		}
@@ -164,25 +163,20 @@ func (client *ApsaraStackClient) WithPolarDBClient(do func(*polardb.Client) (int
 	// Initialize the PolarDB client if necessary
 	if client.polarDBconn == nil {
 		endpoint := client.config.PolarDBEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, POLARDBCode)
-			if endpoint == "" {
-				endpoint = fmt.Sprintf("%s.polardb.aliyuncs.com", client.config.RegionId)
-			}
-		}
 
 		polarDBconn, err := polardb.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the PolarDB client: %#v", err)
 
 		}
-
+		polarDBconn.Domain = endpoint
 		polarDBconn.AppendUserAgent(Terraform, terraformVersion)
 		polarDBconn.AppendUserAgent(Provider, providerVersion)
 		polarDBconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		polarDBconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			polarDBconn.SetHttpsProxy(client.config.Proxy)
+			polarDBconn.SetHttpProxy(client.config.Proxy)
+			polarDBconn.SetHTTPSInsecure(client.config.Insecure)
 		}
 
 		client.polarDBconn = polarDBconn
@@ -194,9 +188,7 @@ func (client *ApsaraStackClient) WithElasticsearchClient(do func(*elasticsearch.
 	// Initialize the Elasticsearch client if necessary
 	if client.elasticsearchconn == nil {
 		endpoint := client.config.ElasticsearchEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, ELASTICSEARCHCode)
-		}
+
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ELASTICSEARCHCode), endpoint)
 		}
@@ -210,7 +202,7 @@ func (client *ApsaraStackClient) WithElasticsearchClient(do func(*elasticsearch.
 		elasticsearchconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		elasticsearchconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			elasticsearchconn.SetHttpsProxy(client.config.Proxy)
+			elasticsearchconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.elasticsearchconn = elasticsearchconn
 	}
@@ -221,9 +213,6 @@ func (client *ApsaraStackClient) WithEssClient(do func(*ess.Client) (interface{}
 	// Initialize the ESS client if necessary
 	if client.essconn == nil {
 		endpoint := client.config.EssEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, ESSCode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ESSCode), endpoint)
 		}
@@ -253,9 +242,6 @@ func (client *ApsaraStackClient) WithRkvClient(do func(*r_kvstore.Client) (inter
 	// Initialize the RKV client if necessary
 	if client.rkvconn == nil {
 		endpoint := client.config.KVStoreEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, KVSTORECode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, fmt.Sprintf("R-%s", string(KVSTORECode)), endpoint)
 		}
@@ -269,7 +255,7 @@ func (client *ApsaraStackClient) WithRkvClient(do func(*r_kvstore.Client) (inter
 		rkvconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		rkvconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			rkvconn.SetHttpsProxy(client.config.Proxy)
+			rkvconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.rkvconn = rkvconn
 	}
@@ -281,9 +267,6 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 	// Initialize the GPDB client if necessary
 	if client.gpdbconn == nil {
 		endpoint := client.config.GpdbEnpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, GPDBCode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(GPDBCode), endpoint)
 		}
@@ -297,7 +280,7 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 		gpdbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		gpdbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			gpdbconn.SetHttpsProxy(client.config.Proxy)
+			gpdbconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.gpdbconn = gpdbconn
 	}
@@ -308,25 +291,19 @@ func (client *ApsaraStackClient) WithAdbClient(do func(*adb.Client) (interface{}
 	// Initialize the adb client if necessary
 	if client.adbconn == nil {
 		endpoint := client.config.AdbEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, ADBCode)
-			if endpoint == "" {
-				endpoint = fmt.Sprintf("%s.adb.aliyuncs.com", client.config.RegionId)
-			}
-		}
 
 		adbconn, err := adb.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the adb client: %#v", err)
 
 		}
-
+		adbconn.Domain = endpoint
 		adbconn.AppendUserAgent(Terraform, terraformVersion)
 		adbconn.AppendUserAgent(Provider, providerVersion)
 		adbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		adbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			adbconn.SetHttpsProxy(client.config.Proxy)
+			adbconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.adbconn = adbconn
 	}
@@ -337,9 +314,6 @@ func (client *ApsaraStackClient) WithHbaseClient(do func(*hbase.Client) (interfa
 	// Initialize the HBase client if necessary
 	if client.hbaseconn == nil {
 		endpoint := client.config.HBaseEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, HBASECode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(HBASECode), endpoint)
 		}
@@ -353,7 +327,7 @@ func (client *ApsaraStackClient) WithHbaseClient(do func(*hbase.Client) (interfa
 		hbaseconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		hbaseconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			hbaseconn.SetHttpsProxy(client.config.Proxy)
+			hbaseconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.hbaseconn = hbaseconn
 	}
@@ -367,12 +341,7 @@ func (client *ApsaraStackClient) WithFcClient(do func(*fc.Client) (interface{}, 
 	// Initialize the FC client if necessary
 	if client.fcconn == nil {
 		endpoint := client.config.FcEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, FCCode)
-			if endpoint == "" {
-				endpoint = fmt.Sprintf("%s.fc.aliyuncs.com", client.config.RegionId)
-			}
-		}
+
 		if strings.HasPrefix(endpoint, "http") {
 			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
 		}
@@ -400,9 +369,6 @@ func (client *ApsaraStackClient) WithVpcClient(do func(*vpc.Client) (interface{}
 	// Initialize the VPC client if necessary
 	if client.vpcconn == nil {
 		endpoint := client.config.VpcEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, VPCCode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(VPCCode), endpoint)
 		}
@@ -427,13 +393,12 @@ func (client *ApsaraStackClient) WithVpcClient(do func(*vpc.Client) (interface{}
 
 	return do(client.vpcconn)
 }
+
 func (client *ApsaraStackClient) WithSlbClient(do func(*slb.Client) (interface{}, error)) (interface{}, error) {
 	// Initialize the SLB client if necessary
 	if client.slbconn == nil {
 		endpoint := client.config.SlbEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, SLBCode)
-		}
+
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(SLBCode), endpoint)
 		}
@@ -459,9 +424,7 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 	// Initialize the DDS client if necessary
 	if client.ddsconn == nil {
 		endpoint := client.config.DdsEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, DDSCode)
-		}
+
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(DDSCode), endpoint)
 		}
@@ -488,9 +451,7 @@ func (client *ApsaraStackClient) describeEndpointForService(serviceCode string) 
 	args.ServiceCode = serviceCode
 	args.Id = client.config.RegionId
 	args.Domain = client.config.LocationEndpoint
-	if args.Domain == "" {
-		args.Domain = loadEndpoint(client.RegionId, LOCATIONCode)
-	}
+
 	if args.Domain == "" {
 		args.Domain = "location-readonly.aliyuncs.com"
 	}
@@ -532,10 +493,6 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 	}
 
 	if endpoint == "" {
-		endpoint = loadEndpoint(client.RegionId, ServiceCode(strings.ToUpper(product)))
-	}
-
-	if endpoint == "" {
 		endpointItem, err := client.describeEndpointForService(serviceCode)
 		if err != nil {
 			return nil, fmt.Errorf("describeEndpointForService got an error: %#v.", err)
@@ -555,7 +512,13 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 	request.RegionId = client.RegionId
 	request.Product = product
 	request.Scheme = schema
-	request.QueryParams = map[string]string{"Product": product, "Version": string(apiVersion)}
+
+	if strings.ToUpper(product) == "SLB" {
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
+	}
+	if strings.ToUpper(product) == "ECS" {
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
+	}
 
 	request.AppendUserAgent(Terraform, terraformVersion)
 	request.AppendUserAgent(Provider, providerVersion)
@@ -646,9 +609,7 @@ func (client *ApsaraStackClient) WithKmsClient(do func(*kms.Client) (interface{}
 	if client.kmsconn == nil {
 
 		endpoint := client.config.KmsEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, KMSCode)
-		}
+
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(KMSCode), endpoint)
 		}
@@ -672,9 +633,7 @@ func (client *ApsaraStackClient) GetCallerIdentity() (*sts.GetCallerIdentityResp
 	args := sts.CreateGetCallerIdentityRequest()
 
 	endpoint := client.config.StsEndpoint
-	if endpoint == "" {
-		endpoint = loadEndpoint(client.config.RegionId, STSCode)
-	}
+
 	if endpoint != "" {
 		endpoints.AddEndpointMapping(client.config.RegionId, string(STSCode), endpoint)
 	}
@@ -705,9 +664,6 @@ func (client *ApsaraStackClient) WithBssopenapiClient(do func(*bssopenapi.Client
 	// Initialize the bssopenapi client if necessary
 	if client.bssopenapiconn == nil {
 		endpoint := client.config.BssOpenApiEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, BSSOPENAPICode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(BSSOPENAPICode), endpoint)
 		}
@@ -737,9 +693,6 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 		schma := "http"
 		endpoint := client.config.OssEndpoint
 		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, OSSCode)
-		}
-		if endpoint == "" {
 			endpointItem, _ := client.describeEndpointForService(strings.ToLower(string(OSSCode)))
 			if endpointItem != nil {
 				if len(endpointItem.Protocols.Protocols) > 0 {
@@ -753,8 +706,6 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 					}
 				}
 				endpoint = endpointItem.Endpoint
-			} else {
-				endpoint = fmt.Sprintf("oss-%s.aliyuncs.com", client.RegionId)
 			}
 		}
 		if !strings.HasPrefix(endpoint, "http") {
@@ -763,19 +714,10 @@ func (client *ApsaraStackClient) WithOssClient(do func(*oss.Client) (interface{}
 
 		clientOptions := []oss.ClientOption{oss.UserAgent(client.getUserAgent()),
 			oss.SecurityToken(client.config.SecurityToken)}
-		proxy, err := client.getHttpProxy()
 		if client.config.Proxy != "" {
 			clientOptions = append(clientOptions, oss.Proxy(client.config.Proxy))
 		}
-		if proxy != nil {
-			skip, err := client.skipProxy(endpoint)
-			if err != nil {
-				return nil, err
-			}
-			if !skip {
-				clientOptions = append(clientOptions, oss.Proxy(proxy.String()))
-			}
-		}
+
 		clientOptions = append(clientOptions, oss.UseCname(false))
 
 		ossconn, err := oss.New(endpoint, client.config.AccessKey, client.config.SecretKey, clientOptions...)
@@ -793,9 +735,6 @@ func (client *ApsaraStackClient) WithRamClient(do func(*ram.Client) (interface{}
 	// Initialize the RAM client if necessary
 	if client.ramconn == nil {
 		endpoint := client.config.RamEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, RAMCode)
-		}
 		if strings.HasPrefix(endpoint, "http") {
 			endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "http://"))
 		}
@@ -824,9 +763,6 @@ func (client *ApsaraStackClient) WithRdsClient(do func(*rds.Client) (interface{}
 	// Initialize the RDS client if necessary
 	if client.rdsconn == nil {
 		endpoint := client.config.RdsEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, RDSCode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(RDSCode), endpoint)
 		}
@@ -856,9 +792,6 @@ func (client *ApsaraStackClient) WithCdnClient_new(do func(*cdn_new.Client) (int
 	// Initialize the CDN client if necessary
 	if client.cdnconn_new == nil {
 		endpoint := client.config.CdnEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, CDNCode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(CDNCode), endpoint)
 		}
@@ -891,9 +824,6 @@ func (client *ApsaraStackClient) WithCsClient(do func(*cs.Client) (interface{}, 
 		csconn := cs.NewClientForAussumeRole(client.config.AccessKey, client.config.SecretKey, client.config.SecurityToken)
 		csconn.SetUserAgent(client.getUserAgent())
 		endpoint := client.config.CsEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, CONTAINCode)
-		}
 		if endpoint != "" {
 			if !strings.HasPrefix(endpoint, "http") {
 				endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "://"))
@@ -940,9 +870,6 @@ func (client *ApsaraStackClient) WithOnsClient(do func(*ons.Client) (interface{}
 	// Initialize the ons client if necessary
 	if client.onsconn == nil {
 		endpoint := client.config.OnsEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, ONSCode)
-		}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ONSCode), endpoint)
 		}
@@ -966,13 +893,6 @@ func (client *ApsaraStackClient) WithLogClient(do func(*sls.Client) (interface{}
 	// Initialize the LOG client if necessary
 	if client.logconn == nil {
 		endpoint := client.config.LogEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, LOGCode)
-			if endpoint == "" {
-				endpoint = fmt.Sprintf("%s.log.aliyuncs.com", client.config.RegionId)
-			}
-		}
-
 		if strings.HasPrefix(endpoint, "http") {
 			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
 		}
@@ -994,11 +914,8 @@ func (client *ApsaraStackClient) WithLogPopClient(do func(*slsPop.Client) (inter
 	// Initialize the HBase client if necessary
 	if client.logpopconn == nil {
 		endpoint := client.config.LogEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, LOGCode)
-		}
 		if endpoint != "" {
-			endpoint = fmt.Sprintf("%s.log.aliyuncs.com", client.config.RegionId)
+			endpoint = fmt.Sprintf("%s."+endpoint, client.config.RegionId)
 		}
 		logpopconn, err := slsPop.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 
@@ -1019,12 +936,7 @@ func (client *ApsaraStackClient) WithCrEEClient(do func(*cr_ee.Client) (interfac
 	// Initialize the CR EE client if necessary
 	if client.creeconn == nil {
 		endpoint := client.config.CrEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, CRCode)
-			if endpoint == "" {
-				endpoint = fmt.Sprintf("cr.%s.aliyuncs.com", client.config.RegionId)
-			}
-		}
+
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(CRCode), endpoint)
 		}
@@ -1048,12 +960,7 @@ func (client *ApsaraStackClient) WithCrClient(do func(*cr.Client) (interface{}, 
 	// Initialize the CR client if necessary
 	if client.crconn == nil {
 		endpoint := client.config.CrEndpoint
-		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, CRCode)
-			if endpoint == "" {
-				endpoint = fmt.Sprintf("cr.%s.aliyuncs.com", client.config.RegionId)
-			}
-		}
+
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(CRCode), endpoint)
 		}
@@ -1076,4 +983,28 @@ func (client *ApsaraStackClient) WithCrClient(do func(*cr.Client) (interface{}, 
 	}
 
 	return do(client.crconn)
+}
+func (client *ApsaraStackClient) WithDnsClient(do func(*alidns.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the DNS client if necessary
+	if client.dnsconn == nil {
+		endpoint := client.config.DnsEndpoint
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(DNSCode), endpoint)
+		}
+
+		dnsconn, err := alidns.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the DNS client: %#v", err)
+		}
+		dnsconn.AppendUserAgent(Terraform, terraformVersion)
+		dnsconn.AppendUserAgent(Provider, providerVersion)
+		dnsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		dnsconn.Domain = endpoint
+		if client.config.Proxy != "" {
+			dnsconn.SetHttpProxy(client.config.Proxy)
+		}
+		client.dnsconn = dnsconn
+	}
+
+	return do(client.dnsconn)
 }

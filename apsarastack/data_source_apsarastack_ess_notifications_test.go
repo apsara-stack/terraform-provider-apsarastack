@@ -8,7 +8,7 @@ import (
 )
 
 func TestAccApsaraStackEssNotificationsDataSource(t *testing.T) {
-	rand := acctest.RandInt()
+	rand := acctest.RandIntRange(0, 500)
 	scalingGroupIdConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackEssNotificationsDataSourceConfig(rand, map[string]string{
 			"scaling_group_id": `"${apsarastack_ess_notification.default.scaling_group_id}"`,
@@ -60,13 +60,7 @@ func testAccCheckApsaraStackEssNotificationsDataSourceConfig(rand int, attrMap m
 %s
 
 variable "name" {
-	default = "tf-testAccDataSourceEssNotifications-%d"
-}
-data "apsarastack_regions" "default" {
-    current = true
-}
-
-data "apsarastack_account" "default" {
+	default = "tf-testAccDataSourceEssNs-%d"
 }
 
 resource "apsarastack_ess_scaling_group" "default" {
@@ -77,14 +71,11 @@ resource "apsarastack_ess_scaling_group" "default" {
     vswitch_ids = ["${apsarastack_vswitch.default.id}"]
 }
 
-resource "apsarastack_mns_queue" "default"{
-    name="${var.name}"
-}
 
 resource "apsarastack_ess_notification" "default" {
     scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
     notification_types = ["AUTOSCALING:SCALE_OUT_SUCCESS"]
-    notification_arn = "acs:ess:${data.apsarastack_regions.default.regions.0.id}:${data.apsarastack_account.default.id}:queue/${apsarastack_mns_queue.default.name}"
+    //notification_arn = "acs:ess"
 }
 
 data "apsarastack_ess_notifications" "default"{

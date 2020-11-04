@@ -40,6 +40,9 @@ func testSweepEssSchedules(region string) error {
 	req := ess.CreateDescribeScheduledTasksRequest()
 	req.RegionId = client.RegionId
 	req.PageSize = requests.NewInteger(PageSizeLarge)
+
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageNumber = requests.NewInteger(1)
 	for {
 		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -81,6 +84,11 @@ func testSweepEssSchedules(region string) error {
 		}
 		log.Printf("[INFO] Deleting Scheduled Task: %s (%s)", name, id)
 		req := ess.CreateDeleteScheduledTaskRequest()
+
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms"}
+		req.QueryParams["Department"] = client.Department
+		req.QueryParams["ResourceGroup"] = client.ResourceGroup
 		req.ScheduledTaskId = id
 		_, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.DeleteScheduledTask(req)
@@ -280,19 +288,10 @@ func testAccEssScheduleConfig(common, scheduleTime string, rand int) string {
 		removal_policies = ["OldestInstance", "NewestInstance"]
 	}
 	
-	resource "apsarastack_ess_scaling_configuration" "default" {
-		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
-		image_id = "${data.apsarastack_images.default.images.0.id}"
-		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-		security_group_id = "${apsarastack_security_group.default.id}"
-		force_delete = "true"
-	}
-	
 	resource "apsarastack_ess_scaling_rule" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
 		adjustment_type = "TotalCapacity"
 		adjustment_value = 2
-		cooldown = 60
 	}
 	
 	resource "apsarastack_ess_scheduled_task" "default" {
@@ -316,14 +315,6 @@ func testAccEssScheduleUpdateScheduledTaskName(common, scheduleTime string, rand
 		scaling_group_name = "${var.name}"
 		vswitch_ids = ["${apsarastack_vswitch.default.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
-	}
-	
-	resource "apsarastack_ess_scaling_configuration" "default" {
-		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
-		image_id = "${data.apsarastack_images.default.images.0.id}"
-		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-		security_group_id = "${apsarastack_security_group.default.id}"
-		force_delete = "true"
 	}
 	
 	resource "apsarastack_ess_scaling_rule" "default" {
@@ -356,14 +347,6 @@ func testAccEssScheduleUpdateDescription(common, scheduleTime string, rand int) 
 		removal_policies = ["OldestInstance", "NewestInstance"]
 	}
 	
-	resource "apsarastack_ess_scaling_configuration" "default" {
-		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
-		image_id = "${data.apsarastack_images.default.images.0.id}"
-		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-		security_group_id = "${apsarastack_security_group.default.id}"
-		force_delete = "true"
-	}
-	
 	resource "apsarastack_ess_scaling_rule" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
 		adjustment_type = "TotalCapacity"
@@ -394,15 +377,7 @@ func testAccEssScheduleUpdateLaunchExpirationTime(common, scheduleTime string, r
 		vswitch_ids = ["${apsarastack_vswitch.default.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
 	}
-	
-	resource "apsarastack_ess_scaling_configuration" "default" {
-		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
-		image_id = "${data.apsarastack_images.default.images.0.id}"
-		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-		security_group_id = "${apsarastack_security_group.default.id}"
-		force_delete = "true"
-	}
-	
+
 	resource "apsarastack_ess_scaling_rule" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
 		adjustment_type = "TotalCapacity"
@@ -433,20 +408,11 @@ func testAccEssScheduleUpdateRecurrenceType(common, scheduleTime string, rand in
 		vswitch_ids = ["${apsarastack_vswitch.default.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
 	}
-	
-	resource "apsarastack_ess_scaling_configuration" "default" {
-		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
-		image_id = "${data.apsarastack_images.default.images.0.id}"
-		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-		security_group_id = "${apsarastack_security_group.default.id}"
-		force_delete = "true"
-	}
-	
+
 	resource "apsarastack_ess_scaling_rule" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
 		adjustment_type = "TotalCapacity"
 		adjustment_value = 2
-		cooldown = 60
 	}
 	
 	resource "apsarastack_ess_scheduled_task" "default" {
@@ -477,14 +443,6 @@ func testAccEssScheduleUpdateTaskEnabled(common, scheduleTime string, rand int) 
 		removal_policies = ["OldestInstance", "NewestInstance"]
 	}
 	
-	resource "apsarastack_ess_scaling_configuration" "default" {
-		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
-		image_id = "${data.apsarastack_images.default.images.0.id}"
-		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-		security_group_id = "${apsarastack_security_group.default.id}"
-		force_delete = "true"
-	}
-	
 	resource "apsarastack_ess_scaling_rule" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
 		adjustment_type = "TotalCapacity"
@@ -498,9 +456,9 @@ func testAccEssScheduleUpdateTaskEnabled(common, scheduleTime string, rand int) 
 		scheduled_task_name = "${var.name}"
 		description = "terraform test"
 		launch_expiration_time = 500
-		recurrence_type = "Weekly"
-		recurrence_value = "0,1,2"
-		recurrence_end_time = "%s"
+		//recurrence_type = "Weekly"
+		//recurrence_value = "0,1,2"
+		//recurrence_end_time = "%s"
 		task_enabled = false
 	}
 	`, common, rand, scheduleTime, scheduleTime)
@@ -518,14 +476,6 @@ func testAccEssScheduleConfigMulti(common, scheduleTime string, rand int) string
 		scaling_group_name = "${var.name}"
 		vswitch_ids = ["${apsarastack_vswitch.default.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
-	}
-	
-	resource "apsarastack_ess_scaling_configuration" "default" {
-		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
-		image_id = "${data.apsarastack_images.default.images.0.id}"
-		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-		security_group_id = "${apsarastack_security_group.default.id}"
-		force_delete = "true"
 	}
 	
 	resource "apsarastack_ess_scaling_rule" "default" {

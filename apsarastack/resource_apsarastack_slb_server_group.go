@@ -82,7 +82,7 @@ func resourceApsaraStackSlbServerGroupCreate(d *schema.ResourceData, meta interf
 	request := slb.CreateCreateVServerGroupRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 	if v, ok := d.GetOk("name"); ok {
 		request.VServerGroupName = v.(string)
@@ -195,7 +195,7 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 			request := slb.CreateRemoveVServerGroupBackendServersRequest()
 			request.RegionId = client.RegionId
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.VServerGroupId = d.Id()
 			segs := len(rmservers)/step + 1
 			for i := 0; i < segs; i++ {
@@ -238,7 +238,7 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 			request := slb.CreateAddVServerGroupBackendServersRequest()
 			request.RegionId = client.RegionId
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.VServerGroupId = d.Id()
 			segs := len(addservers)/step + 1
 			for i := 0; i < segs; i++ {
@@ -272,7 +272,7 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 		request := slb.CreateSetVServerGroupAttributeRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.VServerGroupId = d.Id()
 		request.VServerGroupName = name
 		if serverUpdate {
@@ -350,7 +350,7 @@ func resourceApsaraStackSlbServerGroupDelete(d *schema.ResourceData, meta interf
 	request := slb.CreateDeleteVServerGroupRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.VServerGroupId = d.Id()
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {

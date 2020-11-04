@@ -40,7 +40,7 @@ func resourceApsaraStackInstanceRoleAttachmentCreate(d *schema.ResourceData, met
 	request := ecs.CreateAttachInstanceRamRoleRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.InstanceIds = instanceIds
 	request.RamRoleName = d.Get("role_name").(string)
 
@@ -107,7 +107,7 @@ func resourceApsaraStackInstanceRoleAttachmentDelete(d *schema.ResourceData, met
 	request := ecs.CreateDetachInstanceRamRoleRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RamRoleName = roleName
 	request.InstanceIds = instanceIds
 

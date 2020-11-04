@@ -129,6 +129,8 @@ func resourceApsaraStackImageImportCreate(d *schema.ResourceData, meta interface
 
 	request := ecs.CreateImportImageRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.Architecture = d.Get("architecture").(string)
 	request.Description = d.Get("description").(string)
 	request.ImageName = d.Get("image_name").(string)

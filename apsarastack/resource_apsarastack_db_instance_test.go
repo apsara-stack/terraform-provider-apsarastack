@@ -38,6 +38,8 @@ func testSweepDBInstances(region string) error {
 	var insts []rds.DBInstance
 	req := rds.CreateDescribeDBInstancesRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -93,6 +95,8 @@ func testSweepDBInstances(region string) error {
 		if len(v.ReadOnlyDBInstanceIds.ReadOnlyDBInstanceId) > 0 {
 			request := rds.CreateReleaseReadWriteSplittingConnectionRequest()
 			request.DBInstanceId = id
+			request.Headers = map[string]string{"RegionId": client.RegionId}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			if _, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 				return rdsClient.ReleaseReadWriteSplittingConnection(request)
 			}); err != nil {
@@ -103,6 +107,8 @@ func testSweepDBInstances(region string) error {
 		}
 		req := rds.CreateDeleteDBInstanceRequest()
 		req.DBInstanceId = id
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DeleteDBInstance(req)
 		})

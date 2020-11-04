@@ -73,10 +73,9 @@ func resourceApsaraStackRouteEntryCreate(d *schema.ResourceData, meta interface{
 	}
 	request := vpc.CreateCreateRouteEntryRequest()
 	request.RegionId = client.RegionId
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouteTableId = rtId
 	request.DestinationCidrBlock = cidr
 	request.NextHopType = nt
@@ -153,10 +152,9 @@ func resourceApsaraStackRouteEntryDelete(d *schema.ResourceData, meta interface{
 	}
 	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	vpcService := VpcService{client}
 	parts, err := ParseResourceId(d.Id(), 5)
 	rtId := parts[0]

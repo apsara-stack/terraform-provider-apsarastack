@@ -80,11 +80,10 @@ func dataSourceApsaraStackEipsRead(d *schema.ResourceData, meta interface{}) err
 	request := vpc.CreateDescribeEipAddressesRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	idsMap := make(map[string]string)
 	ipsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {
