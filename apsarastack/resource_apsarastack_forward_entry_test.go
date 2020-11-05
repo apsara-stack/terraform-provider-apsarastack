@@ -40,58 +40,6 @@ func TestAccApsaraStackForwardEntryBasic(t *testing.T) {
 					testAccCheck(nil),
 				),
 			},
-			{
-				Config: testAccForwardEntryConfig_external_ip(rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(nil),
-				),
-			},
-			{
-				Config: testAccForwardEntryConfig_external_port(rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"external_port": "81",
-					}),
-				),
-			},
-			{
-				Config: testAccForwardEntryConfig_ip_protocol(rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"ip_protocol": "udp",
-					}),
-				),
-			},
-			{
-				Config: testAccForwardEntryConfig_internal_ip(rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"internal_ip": "172.16.0.4",
-					}),
-				),
-			},
-			{
-				Config: testAccForwardEntryConfig_internal_port(rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"internal_port": "8081",
-					}),
-				),
-			},
-			{
-				Config: testAccForwardEntryConfig_name(rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"name": fmt.Sprintf("tf-testAccForwardEntryConfig%d_change", rand),
-					}),
-				),
-			},
-			{
-				Config: testAccForwardEntryConfigBasic(rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(testAccForwardEntryCheckMap),
-				),
-			},
 		},
 	})
 }
@@ -156,107 +104,18 @@ func testAccForwardEntryConfigBasic(rand int) string {
 %s
 
 resource "apsarastack_forward_entry" "default"{
+	name = "${var.name}"
 	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
 	external_ip = "${apsarastack_eip.default.0.ip_address}"
 	external_port = "80"
 	ip_protocol = "tcp"
-	internal_ip = "172.16.0.3"
+	internal_ip = "172.16.0.4"
 	internal_port = "8080"
+
+
 }
 `, testAccForwardEntryConfigCommon(rand))
 	return config
-}
-
-func testAccForwardEntryConfig_external_ip(rand int) string {
-	config := fmt.Sprintf(`
-%s
-
-resource "apsarastack_forward_entry" "default"{
-	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
-	external_ip = "${apsarastack_eip.default.1.ip_address}"
-	external_port = "80"
-	ip_protocol = "tcp"
-	internal_ip = "172.16.0.3"
-	internal_port = "8080"
-}
-`, testAccForwardEntryConfigCommon(rand))
-	return config
-}
-
-func testAccForwardEntryConfig_external_port(rand int) string {
-	return fmt.Sprintf(`
-%s
-
-resource "apsarastack_forward_entry" "default"{
-	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
-	external_ip = "${apsarastack_eip.default.1.ip_address}"
-	external_port = "81"
-	ip_protocol = "tcp"
-	internal_ip = "172.16.0.3"
-	internal_port = "8080"
-}
-`, testAccForwardEntryConfigCommon(rand))
-}
-
-func testAccForwardEntryConfig_ip_protocol(rand int) string {
-	return fmt.Sprintf(`
-%s
-
-resource "apsarastack_forward_entry" "default"{
-	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
-	external_ip = "${apsarastack_eip.default.1.ip_address}"
-	external_port = "81"
-	ip_protocol = "udp"
-	internal_ip = "172.16.0.3"
-	internal_port = "8080"
-}
-`, testAccForwardEntryConfigCommon(rand))
-}
-
-func testAccForwardEntryConfig_internal_ip(rand int) string {
-	return fmt.Sprintf(`
-%s
-
-resource "apsarastack_forward_entry" "default"{
-	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
-	external_ip = "${apsarastack_eip.default.1.ip_address}"
-	external_port = "81"
-	ip_protocol = "udp"
-	internal_ip = "172.16.0.4"
-	internal_port = "8080"
-}
-`, testAccForwardEntryConfigCommon(rand))
-}
-
-func testAccForwardEntryConfig_internal_port(rand int) string {
-	return fmt.Sprintf(`
-%s
-
-resource "apsarastack_forward_entry" "default"{	
-	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
-	external_ip = "${apsarastack_eip.default.1.ip_address}"
-	external_port = "81"
-	ip_protocol = "udp"
-	internal_ip = "172.16.0.4"
-	internal_port = "8081"
-}
-`, testAccForwardEntryConfigCommon(rand))
-}
-
-func testAccForwardEntryConfig_name(rand int) string {
-	return fmt.Sprintf(`
-%s
-
-resource "apsarastack_forward_entry" "default"{
-	name = "${var.name}_change"
-	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
-	external_ip = "${apsarastack_eip.default.1.ip_address}"
-	external_port = "81"
-	ip_protocol = "udp"
-	internal_ip = "172.16.0.4"
-	internal_port = "8081"
-}
-`, testAccForwardEntryConfigCommon(rand))
 }
 
 func testAccForwardEntryConfig_multi(rand int) string {
@@ -265,7 +124,7 @@ func testAccForwardEntryConfig_multi(rand int) string {
 
 resource "apsarastack_forward_entry" "default"{
 	count = 5
-	
+	name = "${var.name}"
 	forward_table_id = "${apsarastack_nat_gateway.default.forward_table_ids}"
 	external_ip = "${apsarastack_eip.default.0.ip_address}"
 	external_port = "${80 + count.index}"
@@ -328,7 +187,6 @@ var testAccForwardEntryCheckMap = map[string]string{
 	"external_ip":      CHECKSET,
 	"external_port":    "80",
 	"ip_protocol":      "tcp",
-	"internal_ip":      "172.16.0.3",
 	"internal_port":    "8080",
 	"forward_entry_id": CHECKSET,
 }
