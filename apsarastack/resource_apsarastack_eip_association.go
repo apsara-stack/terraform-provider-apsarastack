@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"strings"
 	"time"
 
@@ -26,6 +27,12 @@ func resourceApsaraStackEipAssociation() *schema.Resource {
 			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+			},
+			"force": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
 				ForceNew: true,
 			},
 
@@ -106,6 +113,7 @@ func resourceApsaraStackEipAssociationRead(d *schema.ResourceData, meta interfac
 	d.Set("instance_id", object.InstanceId)
 	d.Set("allocation_id", object.AllocationId)
 	d.Set("instance_type", object.InstanceType)
+	d.Set("force", d.Get("force").(bool))
 	return nil
 }
 
@@ -128,6 +136,7 @@ func resourceApsaraStackEipAssociationDelete(d *schema.ResourceData, meta interf
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AllocationId = allocationId
 	request.InstanceId = instanceId
+	request.Force = requests.NewBoolean(d.Get("force").(bool))
 	request.InstanceType = EcsInstance
 	request.ClientToken = buildClientToken(request.GetActionName())
 
