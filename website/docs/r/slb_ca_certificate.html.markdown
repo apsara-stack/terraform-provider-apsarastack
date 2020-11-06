@@ -43,7 +43,6 @@ The following arguments are supported:
 
 * `name` - (Optional) Name of the CA Certificate.
 * `ca_certificate` - (Required, ForceNew) the content of the CA certificate.
-* `tags` - (Optional, Available in v1.66.0+) A mapping of tags to assign to the resource.
 ## Attributes Reference
 
 The following attributes are exported:
