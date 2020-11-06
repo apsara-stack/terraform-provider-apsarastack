@@ -72,9 +72,8 @@ func resourceApsaraStackCrEERepoCreate(d *schema.ResourceData, meta interface{})
 	response := &cr_ee.CreateRepositoryResponse{}
 	request := cr_ee.CreateCreateRepositoryRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.RegionId = crService.client.RegionId
 	request.InstanceId = instanceId
 	request.RepoNamespaceName = namespace
@@ -138,9 +137,8 @@ func resourceApsaraStackCrEERepoUpdate(d *schema.ResourceData, meta interface{})
 		response := &cr_ee.UpdateRepositoryResponse{}
 		request := cr_ee.CreateUpdateRepositoryRequest()
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
-		request.QueryParams["Department"] = client.Department
-		request.QueryParams["ResourceGroup"] = client.ResourceGroup
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 		request.RegionId = crService.client.RegionId
 		request.InstanceId = instanceId
 		request.RepoId = d.Get("repo_id").(string)
