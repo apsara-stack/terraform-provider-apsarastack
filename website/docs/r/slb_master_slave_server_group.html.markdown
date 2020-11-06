@@ -81,7 +81,6 @@ resource "apsarastack_instance" "instance" {
 resource "apsarastack_slb" "instance" {
   name          = "${var.name}"
   vswitch_id    = "${apsarastack_vswitch.main.id}"
-  specification = "slb.s2.small"
 }
 
 resource "apsarastack_network_interface" "default" {
@@ -134,7 +133,6 @@ The servers mapping supports the following:
 * `port` - (Required) The port used by the backend server. Valid value range: [1-65535].
 * `weight` - (Optional) Weight of the backend server. Valid value range: [0-100]. Default to 100.
 * `server_type` - (Optional) The server type of the backend server. Valid value Master, Slave.
-* `is_backup` - (Removed from v1.63.0) Determine if the server is executing. Valid value 0, 1. 
 
 ## Attributes Reference
 
