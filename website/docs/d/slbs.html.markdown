@@ -35,17 +35,7 @@ The following arguments are supported:
 * `vpc_id` - (Optional) ID of the VPC linked to the SLBs.
 * `vswitch_id` - (Optional) ID of the VSwitch linked to the SLBs.
 * `address` - (Optional) Service address of the SLBs.
-* `tags` - (Optional) A map of tags assigned to the SLB instances. The `tags` can have a maximum of 5 tag. It must be in the format:
-  ```
-  data "apsarastack_slbs" "taggedInstances" {
-    tags = {
-      tagKey1 = "tagValue1",
-      tagKey2 = "tagValue2"
-    }
-  }
-  ```
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
-* `resource_group_id` - (Optional, ForceNew, Available in 1.60.0+) The Id of resource group which SLB belongs.
 
 ## Attributes Reference
 
@@ -64,4 +54,3 @@ The following attributes are exported in addition to the arguments listed above:
   * `vswitch_id` - ID of the VSwitch the SLB belongs to.
   * `address` - Service address of the SLB.
   * `creation_time` - SLB creation time.
-  * `tags` - A map of tags assigned to the SLB instance.
