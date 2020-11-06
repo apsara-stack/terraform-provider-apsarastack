@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -86,11 +87,12 @@ func resourceApsaraStackEssScalingGroupCreate(d *schema.ResourceData, meta inter
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	essService := EssService{client}
-
+	log.Printf("/n Roshan Quesry %s /n Roshan Header %s", request.QueryParams, request.Headers)
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateScalingGroup(request)
 		})
+		log.Printf("/n Roshan2 Quesry %s /n Roshan Header %s", request.QueryParams, request.Headers)
 		if err != nil {
 			if IsExpectedErrors(err, []string{Throttling, "IncorrectLoadBalancerHealthCheck", "IncorrectLoadBalancerStatus"}) {
 				return resource.RetryableError(err)
