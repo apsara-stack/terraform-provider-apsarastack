@@ -88,9 +88,6 @@ func (s *SlbService) DescribeSlbRule(id string) (*slb.DescribeRuleAttributeRespo
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ = raw.(*slb.DescribeRuleAttributeResponse)
-	//if response.RuleId != id {
-	//	return response, WrapErrorf(Error(GetNotFoundMessage("SlbRule", id)), NotFoundMsg, ApsaraStackSdkGoERROR)
-	//}
 	return response, nil
 }
 

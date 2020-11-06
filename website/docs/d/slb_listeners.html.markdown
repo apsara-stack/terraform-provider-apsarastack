@@ -30,7 +30,7 @@ The following arguments are supported:
 * `load_balancer_id` - (Required) ID of the SLB with listeners.
 * `protocol` - (Optional) Filter listeners by the specified protocol. Valid values: `http`, `https`, `tcp` and `udp`.
 * `frontend_port` - (Optional) Filter listeners by the specified frontend port.
-* `description_regex` - (Optional, Available in 1.69.0+) A regex string to filter results by SLB listener description.
+* `description_regex` - (Optional) A regex string to filter results by SLB listener description.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
