@@ -121,12 +121,6 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"security_group_ids": {
-				Type:     schema.TypeSet,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
-				Optional: true,
-			},
 			"security_ip_mode": {
 				Type:         schema.TypeString,
 				ValidateFunc: validation.StringInSlice([]string{NormalMode, SafetyMode}, false),
@@ -163,18 +157,6 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-			},
-			"sql_collector_status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Enabled", "Disabled"}, false),
-				Default:      "Disabled",
-			},
-			"sql_collector_config_value": {
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ValidateFunc: validation.IntInSlice([]int{30, 180, 365, 1095, 1825}),
-				Default:      30,
 			},
 		},
 	}
@@ -236,7 +218,6 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if !d.IsNewResource() && d.HasChange("instance_charge_type") && payType == Prepaid {
 		prePaidRequest := rds.CreateModifyDBInstancePayTypeRequest()
 		prePaidRequest.RegionId = client.RegionId
-
 		prePaidRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		prePaidRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		prePaidRequest.DBInstanceId = d.Id()
@@ -290,18 +271,6 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 
 		d.SetPartial("auto_renew")
 		d.SetPartial("auto_renew_period")
-	}
-
-	if d.HasChange("security_group_ids") || d.HasChange("security_group_id") {
-		groupIds := d.Get("security_group_id").(string)
-		if d.HasChange("security_group_ids") {
-			groupIds = strings.Join(expandStringList(d.Get("security_group_ids").(*schema.Set).List())[:], COMMA_SEPARATED)
-		}
-		err := rdsService.ModifySecurityGroupConfiguration(d.Id(), groupIds)
-		if err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("security_group_ids")
 	}
 
 	if d.HasChange("monitoring_period") {
@@ -358,46 +327,6 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		d.SetPartial("security_ip_mode")
-	}
-
-	if d.HasChange("sql_collector_status") {
-		request := rds.CreateModifySQLCollectorPolicyRequest()
-		request.RegionId = client.RegionId
-
-		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		request.DBInstanceId = d.Id()
-		if d.Get("sql_collector_status").(string) == "Enabled" {
-			request.SQLCollectorStatus = "Enable"
-		} else {
-			request.SQLCollectorStatus = d.Get("sql_collector_status").(string)
-		}
-		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
-			return rdsClient.ModifySQLCollectorPolicy(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("sql_collector_status")
-	}
-
-	if d.Get("sql_collector_status").(string) == "Enabled" && d.HasChange("sql_collector_config_value") {
-		request := rds.CreateModifySQLCollectorRetentionRequest()
-		request.RegionId = client.RegionId
-
-		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		request.DBInstanceId = d.Id()
-		request.ConfigValue = strconv.Itoa(d.Get("sql_collector_config_value").(int))
-		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
-			return rdsClient.ModifySQLCollectorRetention(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("sql_collector_config_value")
 	}
 
 	if d.IsNewResource() {
@@ -523,16 +452,6 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 		return WrapError(err)
 	}
 
-	sqlCollectorPolicy, err := rdsService.DescribeSQLCollectorPolicy(d.Id())
-	if err != nil {
-		return WrapError(err)
-	}
-
-	sqlCollectorRetention, err := rdsService.DescribeSQLCollectorRetention(d.Id())
-	if err != nil {
-		return WrapError(err)
-	}
-
 	d.Set("monitoring_period", monitoringPeriod)
 
 	d.Set("security_ips", ips)
@@ -550,16 +469,6 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 	d.Set("connection_string", instance.ConnectionString)
 	d.Set("instance_name", instance.DBInstanceDescription)
 	d.Set("maintain_time", instance.MaintainTime)
-	if sqlCollectorPolicy.SQLCollectorStatus == "Enable" {
-		d.Set("sql_collector_status", "Enabled")
-	} else {
-		d.Set("sql_collector_status", sqlCollectorPolicy.SQLCollectorStatus)
-	}
-	configValue, err := strconv.Atoi(sqlCollectorRetention.ConfigValue)
-	if err != nil {
-		return WrapError(err)
-	}
-	d.Set("sql_collector_config_value", configValue)
 
 	if err = rdsService.RefreshParameters(d, "parameters"); err != nil {
 		return WrapError(err)
@@ -592,12 +501,6 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 		}
 		d.Set("period", period)
 	}
-
-	groups, err := rdsService.DescribeSecurityGroupConfiguration(d.Id())
-	if err != nil {
-		return WrapError(err)
-	}
-	d.Set("security_group_ids", groups)
 
 	return nil
 }
