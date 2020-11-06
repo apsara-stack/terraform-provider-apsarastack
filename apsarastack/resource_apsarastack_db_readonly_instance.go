@@ -70,6 +70,12 @@ func resourceApsaraStackDBReadonlyInstance() *schema.Resource {
 				ForceNew: true,
 				Optional: true,
 			},
+			"db_instance_storage_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"local_ssd", "cloud_ssd", "cloud_essd", "cloud_essd2", "cloud_essd3"}, false),
+			},
 
 			"parameters": {
 				Type: schema.TypeSet,
@@ -196,6 +202,10 @@ func resourceApsaraStackDBReadonlyInstanceUpdate(d *schema.ResourceData, meta in
 	request.DBInstanceId = d.Id()
 	request.PayType = string(Postpaid)
 
+	if d.HasChange("db_instance_storage_type") {
+		request.DBInstanceStorageType = d.Get("db_instance_storage_type").(string)
+		update = true
+	}
 	if d.HasChange("instance_type") {
 		request.DBInstanceClass = d.Get("instance_type").(string)
 		update = true
@@ -227,6 +237,7 @@ func resourceApsaraStackDBReadonlyInstanceUpdate(d *schema.ResourceData, meta in
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 			d.SetPartial("instance_type")
 			d.SetPartial("instance_storage")
+			d.SetPartial("db_instance_storage_type")
 			return nil
 		})
 
@@ -268,6 +279,7 @@ func resourceApsaraStackDBReadonlyInstanceRead(d *schema.ResourceData, meta inte
 	d.Set("vswitch_id", instance.VSwitchId)
 	d.Set("connection_string", instance.ConnectionString)
 	d.Set("instance_name", instance.DBInstanceDescription)
+	d.Set("db_instance_storage_type", instance.DBInstanceStorageType)
 
 	if err = rdsService.RefreshParameters(d, "parameters"); err != nil {
 		return err
@@ -349,6 +361,7 @@ func buildDBReadonlyCreateRequest(d *schema.ResourceData, meta interface{}) (*rd
 	request.DBInstanceStorage = requests.NewInteger(d.Get("instance_storage").(int))
 	request.DBInstanceClass = Trim(d.Get("instance_type").(string))
 	request.DBInstanceDescription = d.Get("instance_name").(string)
+	request.DBInstanceStorageType = d.Get("db_instance_storage_type").(string)
 
 	if zone, ok := d.GetOk("zone_id"); ok && Trim(zone.(string)) != "" {
 		request.ZoneId = Trim(zone.(string))
