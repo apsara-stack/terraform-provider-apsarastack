@@ -10,19 +10,41 @@ import (
 
 func TestAccApsaraStackSnatEntriesDataSourceBasic(t *testing.T) {
 	rand := acctest.RandInt()
-
-	allConf := dataSourceTestAccConfig{
+	snatIpConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
 			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-			"source_cidr":   `"172.16.0.0/21"`,
+			"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
 		}),
 		fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
 			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-			"source_cidr":   `"172.16.0.0/21"`,
+			"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}_fake"`,
 		}),
 	}
+	//
+	//sourceCidrConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
+	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+	//		"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
+	//		"source_cidr":   `"172.16.0.0/21"`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
+	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+	//		"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
+	//		"source_cidr":   `"172.16.0.0/20"`,
+	//	}),
+	//}
+	//allConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
+	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+	//		"source_cidr":   `"172.16.0.0/21"`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
+	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+	//		"source_cidr":   `"172.16.0.0/21"`,
+	//	}),
+	//}
 
-	snatEntriesCheckInfo.dataSourceTestCheck(t, rand, allConf)
+	snatEntriesCheckInfo.dataSourceTestCheck(t, rand, snatIpConf /*,sourceCidrConf/*,allConf*/)
 
 }
 
@@ -82,8 +104,8 @@ data "apsarastack_snat_entries" "default" {
 
 var existSnatEntriesMapFunc = func(rand int) map[string]string {
 	return map[string]string{
-		"ids.#":                 "0",
-		"entries.#":             "0",
+		//"ids.#":                 "0",
+		//"entries.#":             "0",
 		"entries.0.id":          CHECKSET,
 		"entries.0.status":      "Available",
 		"entries.0.source_cidr": "172.16.0.0/21",
