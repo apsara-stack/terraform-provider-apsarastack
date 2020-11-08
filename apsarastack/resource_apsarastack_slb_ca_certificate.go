@@ -74,7 +74,7 @@ func resourceApsaraStackSlbCACertificateRead(d *schema.ResourceData, meta interf
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
-			return nil
+			//return nil
 		}
 		return WrapError(err)
 	}
