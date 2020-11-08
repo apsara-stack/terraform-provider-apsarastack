@@ -159,6 +159,8 @@ func resourceApsaraStackSlbDomainExtensionDelete(d *schema.ResourceData, meta in
 
 	request := slb.CreateDeleteDomainExtensionRequest()
 	request.DomainExtensionId = d.Id()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
