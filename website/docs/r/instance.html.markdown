@@ -99,8 +99,6 @@ On other OSs such as Linux, the host name can contain a maximum of 30 characters
 
 ### Timeouts
 
--> **NOTE:** Available in 1.46.0+.
-
 The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/docs/configuration-0-11/resources.html#timeouts) for certain actions:
 
 * `create` - (Defaults to 10 mins) Used when creating the instance (until it reaches the initial `Running` status). 

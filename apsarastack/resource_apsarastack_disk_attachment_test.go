@@ -147,17 +147,7 @@ func testAccDiskAttachmentConfig() string {
       name   = "${var.name}"
       vpc_id = "${apsarastack_vpc.default.id}"
     }
-    resource "apsarastack_security_group_rule" "default" {
-      	type = "ingress"
-      	ip_protocol = "tcp"
-      	nic_type = "intranet"
-      	policy = "accept"
-      	port_range = "22/22"
-      	priority = 1
-      	security_group_id = "${apsarastack_security_group.default.id}"
-      	cidr_ip = "172.16.0.0/24"
-    }	
-
+   
 	variable "name" {
 		default = "tf-testAccEcsDiskAttachmentConfig"
 	}
@@ -217,17 +207,7 @@ func testAccDiskAttachmentConfigResize() string {
       name   = "${var.name}"
       vpc_id = "${apsarastack_vpc.default.id}"
     }
-    resource "apsarastack_security_group_rule" "default" {
-      	type = "ingress"
-      	ip_protocol = "tcp"
-      	nic_type = "intranet"
-      	policy = "accept"
-      	port_range = "22/22"
-      	priority = 1
-      	security_group_id = "${apsarastack_security_group.default.id}"
-      	cidr_ip = "172.16.0.0/24"
-    }	
-
+    
 	variable "name" {
 		default = "tf-testAccEcsDiskAttachmentConfig"
 	}

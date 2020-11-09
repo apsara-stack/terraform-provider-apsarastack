@@ -7,11 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/bssopenapi"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/denverdino/aliyungo/common"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
@@ -46,24 +43,6 @@ func dataSourceApsaraStackInstanceTypes() *schema.Resource {
 				Type:     schema.TypeFloat,
 				Optional: true,
 				ForceNew: true,
-			},
-			"gpu_amount": {
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: true,
-			},
-			"gpu_spec": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"instance_charge_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Default:  PostPaid,
-				// %q must contain a valid InstanceChargeType, expected common.PrePaid, common.PostPaid
-				ValidateFunc: validation.StringInSlice([]string{string(common.PrePaid), string(common.PostPaid)}, false),
 			},
 			"eni_amount": {
 				Type:     schema.TypeInt,
@@ -128,22 +107,6 @@ func dataSourceApsaraStackInstanceTypes() *schema.Resource {
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"gpu": {
-							Type:     schema.TypeMap,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"amount": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"category": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-								},
-							},
 						},
 						"burstable_instance": {
 							Type:     schema.TypeMap,
@@ -224,10 +187,10 @@ func dataSourceApsaraStackInstanceTypesRead(d *schema.ResourceData, meta interfa
 	cpu := d.Get("cpu_core_count").(int)
 	mem := d.Get("memory_size").(float64)
 	family := strings.TrimSpace(d.Get("instance_type_family").(string))
-	gpuAmount := d.Get("gpu_amount").(int)
-	gpuSpec := d.Get("gpu_spec").(string)
 
 	req := ecs.CreateDescribeInstanceTypesRequest()
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.InstanceTypeFamily = family
 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -257,12 +220,7 @@ func dataSourceApsaraStackInstanceTypesRead(d *schema.ResourceData, meta interfa
 			if eniAmount > types.EniQuantity {
 				continue
 			}
-			if gpuAmount > 0 && types.GPUAmount != gpuAmount {
-				continue
-			}
-			if gpuSpec != "" && types.GPUSpec != gpuSpec {
-				continue
-			}
+
 			// Kubernetes node does not support instance types which family is "ecs.t5" and spec less that c2g4
 			// Kubernetes master node does not support gpu instance types which family prefixes with "ecs.gn"
 			if k8sNode != "" {
@@ -280,19 +238,6 @@ func dataSourceApsaraStackInstanceTypesRead(d *schema.ResourceData, meta interfa
 			instanceTypes = append(instanceTypes, instanceTypeWithOriginalPrice{
 				InstanceType: types,
 			})
-		}
-		sortedBy := d.Get("sorted_by").(string)
-
-		if sortedBy == "Price" && len(instanceTypes) > 0 {
-			bssopenapiService := BssopenapiService{client}
-
-			priceList, err := getEcsInstanceTypePrice(bssopenapiService, d.Get("instance_charge_type").(string), instanceTypes)
-			if err != nil {
-				return WrapError(err)
-			}
-			for i := 0; i < len(instanceTypes); i++ {
-				instanceTypes[i].OriginalPrice = priceList[i]
-			}
 		}
 	}
 
@@ -331,11 +276,7 @@ func instanceTypesDescriptionAttributes(d *schema.ResourceData, types []instance
 		zoneIds := mapTypes[t.InstanceType.InstanceTypeId]
 		sort.Strings(zoneIds)
 		mapping["availability_zones"] = zoneIds
-		gpu := map[string]interface{}{
-			"amount":   strconv.Itoa(t.InstanceType.GPUAmount),
-			"category": t.InstanceType.GPUSpec,
-		}
-		mapping["gpu"] = gpu
+
 		brust := map[string]interface{}{
 			"initial_credit":  strconv.Itoa(t.InstanceType.InitialCredit),
 			"baseline_credit": strconv.Itoa(t.InstanceType.BaselineCredit),
@@ -365,37 +306,4 @@ func instanceTypesDescriptionAttributes(d *schema.ResourceData, types []instance
 		writeToFile(output.(string), s)
 	}
 	return nil
-}
-
-func getEcsInstanceTypePrice(bssopenapiService BssopenapiService, instanceChargeType string, instanceTypes []instanceTypeWithOriginalPrice) ([]float64, error) {
-	client := bssopenapiService.client
-	var modules interface{}
-	moduleCode := "InstanceType"
-	var payAsYouGo []bssopenapi.GetPayAsYouGoPriceModuleList
-	var subsciption []bssopenapi.GetSubscriptionPriceModuleList
-	for _, types := range instanceTypes {
-		config := fmt.Sprintf("InstanceType:%s,IoOptimized:IoOptimized,ImageOs:linux,Region:%s",
-			types.InstanceType.InstanceTypeId, client.RegionId)
-		if instanceChargeType == string(PostPaid) {
-			payAsYouGo = append(payAsYouGo, bssopenapi.GetPayAsYouGoPriceModuleList{
-				ModuleCode: moduleCode,
-				Config:     config,
-				PriceType:  "Hour",
-			})
-		} else {
-			subsciption = append(subsciption, bssopenapi.GetSubscriptionPriceModuleList{
-				ModuleCode: moduleCode,
-				Config:     config,
-			})
-
-		}
-	}
-
-	if len(payAsYouGo) != 0 {
-		modules = payAsYouGo
-	} else {
-		modules = subsciption
-	}
-
-	return bssopenapiService.GetInstanceTypePrice("ecs", "", modules)
 }

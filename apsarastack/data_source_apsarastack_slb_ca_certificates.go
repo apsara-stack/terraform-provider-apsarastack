@@ -32,7 +32,6 @@ func dataSourceApsaraStackSlbCACertificates() *schema.Resource {
 				ValidateFunc: validation.ValidateRegexp,
 				ForceNew:     true,
 			},
-			"tags": tagsSchema(),
 			"names": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -56,10 +55,6 @@ func dataSourceApsaraStackSlbCACertificates() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"created_time": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
 						"created_timestamp": {
 							Type:     schema.TypeInt,
 							Computed: true,
@@ -68,7 +63,6 @@ func dataSourceApsaraStackSlbCACertificates() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"tags": tagsSchema(),
 					},
 				},
 			},
@@ -80,18 +74,8 @@ func dataSourceApsaraStackSlbCACertificatesRead(d *schema.ResourceData, meta int
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := slb.CreateDescribeCACertificatesRequest()
-	tags := d.Get("tags").(map[string]interface{})
-	if tags != nil && len(tags) > 0 {
-		Tags := make([]slb.DescribeCACertificatesTag, 0, len(tags))
-		for k, v := range tags {
-			certificatesTag := slb.DescribeCACertificatesTag{
-				Key:   k,
-				Value: v.(string),
-			}
-			Tags = append(Tags, certificatesTag)
-		}
-		request.Tag = &Tags
-	}
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {
@@ -133,18 +117,6 @@ func dataSourceApsaraStackSlbCACertificatesRead(d *schema.ResourceData, meta int
 	return slbCACertificatesDescriptionAttributes(d, filteredTemp, meta)
 }
 
-func caCertificateTagsMappings(d *schema.ResourceData, id string, meta interface{}) map[string]string {
-	client := meta.(*connectivity.ApsaraStackClient)
-	slbService := SlbService{client}
-	tags, err := slbService.DescribeTags(id, nil, TagResourceCertificate)
-
-	if err != nil {
-		return nil
-	}
-
-	return slbTagsToMap(tags)
-}
-
 func slbCACertificatesDescriptionAttributes(d *schema.ResourceData, certificates []slb.CACertificate, meta interface{}) error {
 	var ids []string
 	var names []string
@@ -156,10 +128,8 @@ func slbCACertificatesDescriptionAttributes(d *schema.ResourceData, certificates
 			"id":                certificate.CACertificateId,
 			"name":              certificate.CACertificateName,
 			"fingerprint":       certificate.Fingerprint,
-			"created_time":      certificate.CreateTime,
 			"created_timestamp": certificate.CreateTimeStamp,
 			"region_id":         certificate.RegionId,
-			"tags":              caCertificateTagsMappings(d, certificate.CACertificateId, meta),
 		}
 		ids = append(ids, certificate.CACertificateId)
 		names = append(names, certificate.CACertificateName)

@@ -8,33 +8,33 @@ import (
 )
 
 func TestAccApsaraStackEssScalingconfigurationsDataSource(t *testing.T) {
-	rand := acctest.RandInt()
-	scalingGroupIdConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
-			"scaling_group_id": `"${apsarastack_ess_scaling_configuration.default.scaling_group_id}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
-			"scaling_group_id": `"${apsarastack_ess_scaling_configuration.default.scaling_group_id}_fake"`,
-		}),
-	}
-
-	nameRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_ess_scaling_configuration.default.scaling_configuration_name}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_ess_scaling_configuration.default.scaling_configuration_name}_fake"`,
-		}),
-	}
-
-	idsConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
-			"ids": `["${apsarastack_ess_scaling_configuration.default.id}"]`,
-		}),
-		fakeConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
-			"ids": `["${apsarastack_ess_scaling_configuration.default.id}_fake"]`,
-		}),
-	}
+	rand := acctest.RandIntRange(0, 500)
+	//scalingGroupIdConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
+	//		"scaling_group_id": `"${apsarastack_ess_scaling_configuration.default.scaling_group_id}"`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
+	//		"scaling_group_id": `"${apsarastack_ess_scaling_configuration.default.scaling_group_id}_fake"`,
+	//	}),
+	//}
+	//
+	//nameRegexConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
+	//		"name_regex": `"${apsarastack_ess_scaling_configuration.default.scaling_configuration_name}"`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
+	//		"name_regex": `"${apsarastack_ess_scaling_configuration.default.scaling_configuration_name}_fake"`,
+	//	}),
+	//}
+	//
+	//idsConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
+	//		"ids": `["${apsarastack_ess_scaling_configuration.default.id}"]`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
+	//		"ids": `["${apsarastack_ess_scaling_configuration.default.id}_fake"]`,
+	//	}),
+	//}
 
 	allConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand, map[string]string{
@@ -82,7 +82,7 @@ func TestAccApsaraStackEssScalingconfigurationsDataSource(t *testing.T) {
 		fakeMapFunc:  fakeEssScalingconfigurationsMapFunc,
 	}
 
-	essScalingconfigurationsCheckInfo.dataSourceTestCheck(t, rand, scalingGroupIdConf, nameRegexConf, idsConf, allConf)
+	essScalingconfigurationsCheckInfo.dataSourceTestCheck(t, rand, allConf)
 }
 
 func testAccCheckApsaraStackEssScalingconfigurationsDataSourceConfig(rand int, attrMap map[string]string) string {

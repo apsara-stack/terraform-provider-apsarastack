@@ -90,6 +90,8 @@ func resourceApsaraStackReservedInstanceCreate(d *schema.ResourceData, meta inte
 	client := meta.(*connectivity.ApsaraStackClient)
 	ecsService := EcsService{client}
 	request := ecs.CreatePurchaseReservedInstancesOfferingRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if v, ok := d.GetOk("instance_type"); ok {
 		request.InstanceType = v.(string)
 	}
@@ -149,7 +151,8 @@ func resourceApsaraStackReservedInstanceCreate(d *schema.ResourceData, meta inte
 func resourceApsaraStackReservedInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateModifyReservedInstanceAttributeRequest()
-
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ReservedInstanceId = d.Id()
 	request.RegionId = client.RegionId
 	if d.HasChange("name") || d.HasChange("description") {

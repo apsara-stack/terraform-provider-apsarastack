@@ -60,12 +60,8 @@ resource "apsarastack_instance" "instance" {
   count           = 2
   security_groups = ["${apsarastack_security_group.group.id}"]
   vswitch_id      = "${apsarastack_vswitch.vswitch.id}"
-
-  internet_charge_type       = "PayByTraffic"
   internet_max_bandwidth_out = 5
   password                   = "Test12345"
-
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_ssd"
 }
 

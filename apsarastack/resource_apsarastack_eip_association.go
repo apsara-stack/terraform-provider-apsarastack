@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"strings"
 	"time"
 
@@ -28,6 +29,12 @@ func resourceApsaraStackEipAssociation() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"force": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				ForceNew: true,
+			},
 
 			"instance_type": {
 				Type:     schema.TypeString,
@@ -45,6 +52,9 @@ func resourceApsaraStackEipAssociationCreate(d *schema.ResourceData, meta interf
 
 	request := vpc.CreateAssociateEipAddressRequest()
 	request.RegionId = client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AllocationId = Trim(d.Get("allocation_id").(string))
 	request.InstanceId = Trim(d.Get("instance_id").(string))
 	request.InstanceType = EcsInstance
@@ -103,6 +113,7 @@ func resourceApsaraStackEipAssociationRead(d *schema.ResourceData, meta interfac
 	d.Set("instance_id", object.InstanceId)
 	d.Set("allocation_id", object.AllocationId)
 	d.Set("instance_type", object.InstanceType)
+	d.Set("force", d.Get("force").(bool))
 	return nil
 }
 
@@ -120,8 +131,12 @@ func resourceApsaraStackEipAssociationDelete(d *schema.ResourceData, meta interf
 
 	request := vpc.CreateUnassociateEipAddressRequest()
 	request.RegionId = client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AllocationId = allocationId
 	request.InstanceId = instanceId
+	request.Force = requests.NewBoolean(d.Get("force").(bool))
 	request.InstanceType = EcsInstance
 	request.ClientToken = buildClientToken(request.GetActionName())
 

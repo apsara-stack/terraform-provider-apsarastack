@@ -259,6 +259,9 @@ func resourceApsaraStackEssScalingConfigurationUpdate(d *schema.ResourceData, me
 func modifyEssScalingConfiguration(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateModifyScalingConfigurationRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.ScalingConfigurationId = d.Id()
 
 	if d.HasChange("override") {
@@ -295,7 +298,7 @@ func modifyEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 		securityGroupId := d.Get("security_group_id").(string)
 		if securityGroupId == "" {
 			return fmt.Errorf("securityGroupId must be assigned")
-			//return fmt.Errorf("securityGroupId or securityGroupIds must be assigned")
+
 		}
 
 		if securityGroupId != "" {
@@ -420,6 +423,9 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 
 				request := ess.CreateEnableScalingGroupRequest()
 				request.RegionId = client.RegionId
+				request.Headers = map[string]string{"RegionId": client.RegionId}
+				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 				request.ScalingGroupId = sgId
 				request.ActiveScalingConfigurationId = activeConfig
 
@@ -440,6 +446,9 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 			if group.LifecycleState == string(Active) {
 				request := ess.CreateDisableScalingGroupRequest()
 				request.RegionId = client.RegionId
+				request.Headers = map[string]string{"RegionId": client.RegionId}
+				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 				request.ScalingGroupId = sgId
 				raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 					return essClient.DisableScalingGroup(request)
@@ -534,6 +543,9 @@ func resourceApsaraStackEssScalingConfigurationDelete(d *schema.ResourceData, me
 
 	request := ess.CreateDescribeScalingConfigurationsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.ScalingGroupId = object.ScalingGroupId
 
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -549,9 +561,15 @@ func resourceApsaraStackEssScalingConfigurationDelete(d *schema.ResourceData, me
 	} else if len(response.ScalingConfigurations.ScalingConfiguration) == 1 {
 		if d.Get("force_delete").(bool) {
 			request := ess.CreateDeleteScalingGroupRequest()
+			request.Headers = map[string]string{"RegionId": client.RegionId}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 			request.ScalingGroupId = object.ScalingGroupId
 			request.ForceDelete = requests.NewBoolean(true)
 			request.RegionId = client.RegionId
+			request.Headers = map[string]string{"RegionId": client.RegionId}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 			raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 				return essClient.DeleteScalingGroup(request)
 			})
@@ -571,6 +589,8 @@ func resourceApsaraStackEssScalingConfigurationDelete(d *schema.ResourceData, me
 
 	deleteScalingConfigurationRequest := ess.CreateDeleteScalingConfigurationRequest()
 	deleteScalingConfigurationRequest.ScalingConfigurationId = d.Id()
+	deleteScalingConfigurationRequest.Headers = map[string]string{"RegionId": client.RegionId}
+	deleteScalingConfigurationRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	rawDeleteScalingConfiguration, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteScalingConfiguration(deleteScalingConfigurationRequest)
@@ -592,6 +612,9 @@ func buildApsaraStackEssScalingConfigurationArgs(d *schema.ResourceData, meta in
 
 	request := ess.CreateCreateScalingConfigurationRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.ScalingGroupId = d.Get("scaling_group_id").(string)
 	request.ImageId = d.Get("image_id").(string)
 	request.SecurityGroupId = d.Get("security_group_id").(string)
@@ -700,6 +723,10 @@ func activeSubstituteScalingConfiguration(d *schema.ResourceData, meta interface
 
 	request := ess.CreateDescribeScalingConfigurationsRequest()
 	request.RegionId = client.RegionId
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.ScalingGroupId = c.ScalingGroupId
 
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {

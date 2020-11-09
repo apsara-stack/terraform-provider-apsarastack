@@ -53,6 +53,8 @@ func resourceApsaraStackSnapshotCreate(d *schema.ResourceData, meta interface{})
 
 	request := ecs.CreateCreateSnapshotRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DiskId = d.Get("disk_id").(string)
 	request.ClientToken = buildClientToken(request.GetActionName())
 	if name, ok := d.GetOk("name"); ok {
@@ -66,7 +68,7 @@ func resourceApsaraStackSnapshotCreate(d *schema.ResourceData, meta interface{})
 		return ecsClient.CreateSnapshot(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultDebugMsg, "apsarastack_snapshot", request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultDebugMsg, "apsarastack_snapshot", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response := raw.(*ecs.CreateSnapshotResponse)
@@ -125,6 +127,8 @@ func resourceApsaraStackSnapshotDelete(d *schema.ResourceData, meta interface{})
 
 	request := ecs.CreateDeleteSnapshotRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SnapshotId = d.Id()
 
 	var raw interface{}

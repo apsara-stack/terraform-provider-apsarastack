@@ -45,7 +45,7 @@ func resourceApsaraStackDisk() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"cloud", "cloud_efficiency", "cloud_ssd"}, false),
-				Default:      DiskCloud,
+				Default:      DiskCloudEfficiency,
 			},
 
 			"size": {
@@ -106,6 +106,8 @@ func resourceApsaraStackDiskCreate(d *schema.ResourceData, meta interface{}) err
 	request := ecs.CreateCreateDiskRequest()
 	request.RegionId = client.RegionId
 	request.ZoneId = availabilityZone.ZoneId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if v, ok := d.GetOk("category"); ok && v.(string) != "" {
 		category := DiskCategory(v.(string))
@@ -195,6 +197,8 @@ func resourceApsaraStackDiskUpdate(d *schema.ResourceData, meta interface{}) err
 	update := false
 	request := ecs.CreateModifyDiskAttributeRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DiskId = d.Id()
 
 	if !d.IsNewResource() && d.HasChange("name") {
@@ -255,6 +259,8 @@ func resourceApsaraStackDiskUpdate(d *schema.ResourceData, meta interface{}) err
 		size := d.Get("size").(int)
 		request := ecs.CreateResizeDiskRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DiskId = d.Id()
 		request.NewSize = requests.NewInteger(size)
 		request.Type = string(DiskResizeTypeOnline)
@@ -283,6 +289,8 @@ func resourceApsaraStackDiskDelete(d *schema.ResourceData, meta interface{}) err
 	ecsService := EcsService{client}
 
 	request := ecs.CreateDeleteDiskRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
 	request.DiskId = d.Id()
 

@@ -42,6 +42,8 @@ func testSweepSLBs(region string) error {
 	var slbs []slb.LoadBalancer
 	req := slb.CreateDescribeLoadBalancersRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -125,7 +127,7 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	rand := acctest.RandIntRange(1000, 9999)
-	name := fmt.Sprintf("tf-testAccSlbClassicInstanceConfigSpot%d", rand)
+	name := fmt.Sprintf("tf-test%d", rand)
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceSlbClassicConfigDependence)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -153,13 +155,12 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"name":         name,
-					"internet":     REMOVEKEY,
-					"address_type": "intranet",
+					"address_type": "internet",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"name":         name,
-						"address_type": "intranet",
+						"address_type": "internet",
 					}),
 				),
 			},
@@ -180,27 +181,6 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"tag_A1": "value_A1",
-						"tag_B2": "value_B2",
-						"tag_C3": "value_C3",
-						"tag_D4": "value_D4",
-						"tag_E5": "value_E5",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":      "5",
-						"tags.tag_A1": "value_A1",
-						"tags.tag_B2": "value_B2",
-						"tags.tag_C3": "value_C3",
-						"tags.tag_D4": "value_D4",
-						"tags.tag_E5": "value_E5",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
 					"name":         name,
 					"address_type": REMOVEKEY,
 				}),
@@ -208,12 +188,6 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 					testAccCheck(map[string]string{
 						"name":         name,
 						"address_type": "internet",
-						"tags.%":       REMOVEKEY,
-						"tags.tag_A1":  REMOVEKEY,
-						"tags.tag_B2":  REMOVEKEY,
-						"tags.tag_C3":  REMOVEKEY,
-						"tags.tag_D4":  REMOVEKEY,
-						"tags.tag_E5":  REMOVEKEY,
 					}),
 				),
 			},
@@ -263,27 +237,6 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"tag_A1": "value_A1",
-						"tag_B2": "value_B2",
-						"tag_C3": "value_C3",
-						"tag_D4": "value_D4",
-						"tag_E5": "value_E5",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":      "5",
-						"tags.tag_A1": "value_A1",
-						"tags.tag_B2": "value_B2",
-						"tags.tag_C3": "value_C3",
-						"tags.tag_D4": "value_D4",
-						"tags.tag_E5": "value_E5",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
 					"name": fmt.Sprintf("tf-testAccSlbVpcInstanceConfigSpot%d_change", rand),
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -298,8 +251,7 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":   name,
-						"tags.%": REMOVEKEY,
+						"name": name,
 					}),
 				),
 			},
@@ -336,23 +288,10 @@ func TestAccApsaraStackSlb_vpcmulti(t *testing.T) {
 					"count":      "10",
 					"name":       name,
 					"vswitch_id": "${apsarastack_vswitch.default.id}",
-					"tags": map[string]string{
-						"tag_A1": "value_A1",
-						"tag_B2": "value_B2",
-						"tag_C3": "value_C3",
-						"tag_D4": "value_D4",
-						"tag_E5": "value_E5",
-					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":        name,
-						"tags.%":      "5",
-						"tags.tag_A1": "value_A1",
-						"tags.tag_B2": "value_B2",
-						"tags.tag_C3": "value_C3",
-						"tags.tag_D4": "value_D4",
-						"tags.tag_E5": "value_E5",
+						"name": name,
 					}),
 				),
 			},

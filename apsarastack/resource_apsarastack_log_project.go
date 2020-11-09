@@ -41,7 +41,7 @@ func resourceApsaraStackLogProjectCreate(d *schema.ResourceData, meta interface{
 		"name":        d.Get("name").(string),
 		"description": d.Get("description").(string),
 	}
-	if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
+	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
 			requestInfo = slsClient
 			return slsClient.CreateProject(request["name"], request["description"])

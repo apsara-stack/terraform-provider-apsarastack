@@ -38,6 +38,10 @@ func testSweepCommonBandwidthPackageAttachment(region string) error {
 	var commonBandwidthPackages []vpc.CommonBandwidthPackage
 	req := vpc.CreateDescribeCommonBandwidthPackagesRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams["Department"] = client.Department
+	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -81,6 +85,10 @@ func testSweepCommonBandwidthPackageAttachment(region string) error {
 			}
 			log.Printf("[INFO] Unassociating Common Bandwidth Package: %s (%s)", name, id)
 			req := vpc.CreateRemoveCommonBandwidthPackageIpRequest()
+			req.QueryParams["Department"] = client.Department
+			req.QueryParams["ResourceGroup"] = client.ResourceGroup
+			req.Headers = map[string]string{"RegionId": client.RegionId}
+			req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			req.BandwidthPackageId = id
 			req.IpInstanceId = eip.AllocationId
 			_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -205,7 +213,6 @@ func testAccCommonBandwidthPackageAttachmentConfigBasic(rand int) string {
 	resource "apsarastack_eip" "default" {
 		name = "${var.name}"
 		bandwidth            = "2"
-		internet_charge_type = "PayByTraffic"
 	}
 
 	resource "apsarastack_common_bandwidth_package_attachment" "default" {
@@ -236,7 +243,6 @@ func testAccCommonBandwidthPackageAttachmentConfigMulti(rand int) string {
 		count = "${var.number}"
 		name = "${var.name}"
 		bandwidth            = "2"
-		internet_charge_type = "PayByTraffic"
 	}
 
 	resource "apsarastack_common_bandwidth_package_attachment" "default" {

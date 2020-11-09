@@ -46,6 +46,9 @@ func resourceAliyunRouteTableCreate(d *schema.ResourceData, meta interface{}) er
 	request := vpc.CreateCreateRouteTableRequest()
 	request.RegionId = client.RegionId
 
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.VpcId = d.Get("vpc_id").(string)
 	request.RouteTableName = d.Get("name").(string)
 	request.Description = d.Get("description").(string)
@@ -98,6 +101,9 @@ func resourceAliyunRouteTableUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	request := vpc.CreateModifyRouteTableAttributesRequest()
 	request.RegionId = client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouteTableId = d.Id()
 
 	if d.HasChange("description") {
@@ -124,6 +130,9 @@ func resourceAliyunRouteTableDelete(d *schema.ResourceData, meta interface{}) er
 	routeTableService := VpcService{client}
 	request := vpc.CreateDeleteRouteTableRequest()
 	request.RegionId = client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouteTableId = d.Id()
 
 	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {

@@ -87,11 +87,12 @@ func dataSourceApsaraStackSecurityGroupsRead(d *schema.ResourceData, meta interf
 	ecsService := EcsService{client}
 
 	request := ecs.CreateDescribeSecurityGroupsRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
 	request.VpcId = d.Get("vpc_id").(string)
 	request.PageNumber = requests.NewInteger(1)
 	request.PageSize = requests.NewInteger(PageSizeLarge)
-	//request.ResourceGroupId = d.Get("resource_group_id").(string)
 	var sg []SecurityGroup
 	var nameRegex *regexp.Regexp
 	if v, ok := d.GetOk("name_regex"); ok {
@@ -183,13 +184,10 @@ func securityGroupsDescription(d *schema.ResourceData, sg []SecurityGroup, meta 
 
 	for _, item := range sg {
 		mapping := map[string]interface{}{
-			"id":          item.Attributes.SecurityGroupId,
-			"name":        item.Attributes.SecurityGroupName,
-			"description": item.Attributes.Description,
-			"vpc_id":      item.Attributes.VpcId,
-			//"resource_group_id":   item.ResourceGroupId,//has been removed from Apsarastack
-			//"security_group_type": item.SecurityGroupType,//has been removed from Apsarastack
-			//"inner_access":        item.Attributes.InnerAccessPolicy == string(GroupInnerAccept),//has been removed from deprecated
+			"id":            item.Attributes.SecurityGroupId,
+			"name":          item.Attributes.SecurityGroupName,
+			"description":   item.Attributes.Description,
+			"vpc_id":        item.Attributes.VpcId,
 			"creation_time": item.CreationTime,
 			"tags":          ecsService.tagsToMap(item.Tags.Tag),
 		}

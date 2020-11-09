@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"testing"
 
@@ -43,6 +42,10 @@ func testSweepCommonBandwidthPackage(region string) error {
 	var commonBandwidthPackages []vpc.CommonBandwidthPackage
 	req := vpc.CreateDescribeCommonBandwidthPackagesRequest()
 	req.RegionId = client.RegionId
+	req.QueryParams["Department"] = client.Department
+	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -85,6 +88,10 @@ func testSweepCommonBandwidthPackage(region string) error {
 		}
 		log.Printf("[INFO] Deleting Common Bandwidth Package: %s (%s)", name, id)
 		req := vpc.CreateDeleteCommonBandwidthPackageRequest()
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams["Department"] = client.Department
+		req.QueryParams["ResourceGroup"] = client.ResourceGroup
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.BandwidthPackageId = id
 		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteCommonBandwidthPackage(req)
@@ -107,7 +114,6 @@ func TestAccApsaraStackCommonBandwidthPackage_PayByTraffic(t *testing.T) {
 		"description":          "",
 		"internet_charge_type": "PayByTraffic",
 		"ratio":                "100",
-		"resource_group_id":    os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"),
 	})
 	serviceFunc := func() interface{} {
 		return &VpcService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -184,7 +190,6 @@ func TestAccApsaraStackCommonBandwidthPackage_PayByBandwidth(t *testing.T) {
 		"description":          "",
 		"internet_charge_type": "PayByBandwidth",
 		"ratio":                "100",
-		"resource_group_id":    os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"),
 	})
 	serviceFunc := func() interface{} {
 		return &VpcService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -261,7 +266,6 @@ func TestAccApsaraStackCommonBandwidthPackage_Multi(t *testing.T) {
 		"description":          "",
 		"internet_charge_type": "PayByBandwidth",
 		"ratio":                "100",
-		"resource_group_id":    os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"),
 	})
 	serviceFunc := func() interface{} {
 		return &VpcService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -317,10 +321,9 @@ variable "name" {
 resource "apsarastack_common_bandwidth_package" "default" {
   internet_charge_type = "%s"
   bandwidth = "10"
-  resource_group_id = "%s"
   name = "${var.name}"
 }
-`, rand, internetChargeType, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand, internetChargeType)
 }
 func testAccCommonBandwidthPackageName(rand int, internetChargeType string) string {
 	return fmt.Sprintf(
@@ -331,11 +334,10 @@ variable "name" {
 
 resource "apsarastack_common_bandwidth_package" "default" {
   internet_charge_type = "%s"
-  resource_group_id = "%s"
   bandwidth = "10"
   name = "${var.name}_change"
 }
-`, rand, internetChargeType, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand, internetChargeType)
 }
 func testAccCommonBandwidthPackageDescription(rand int, internetChargeType string) string {
 	return fmt.Sprintf(
@@ -346,12 +348,11 @@ variable "name" {
 
 resource "apsarastack_common_bandwidth_package" "default" {
   internet_charge_type = "%s"
-  resource_group_id = "%s"
   bandwidth = "10"
   name = "${var.name}_change"
   description = "${var.name}_description"
 }
-`, rand, internetChargeType, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand, internetChargeType)
 }
 
 func testAccCommonBandwidthPackageBandwidth(rand int, internetChargeType string) string {
@@ -363,12 +364,11 @@ variable "name" {
 
 resource "apsarastack_common_bandwidth_package" "default" {
   internet_charge_type = "%s"
-  resource_group_id = "%s"
   bandwidth = "20"
   name = "${var.name}_change"
   description = "${var.name}_description"
 }
-`, rand, internetChargeType, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand, internetChargeType)
 }
 
 func testAccCommonBandwidthPackageAll(rand int, internetChargeType string) string {
@@ -380,12 +380,11 @@ variable "name" {
 
 resource "apsarastack_common_bandwidth_package" "default" {
   internet_charge_type = "%s"
-  resource_group_id = "%s"
   bandwidth = "20"
   name = "${var.name}_all"
   description = "${var.name}_all"
 }
-`, rand, internetChargeType, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand, internetChargeType)
 }
 
 func testAccCommonBandwidthPackageMulti(rand int, internetChargeType string) string {
@@ -398,9 +397,8 @@ variable "name" {
 resource "apsarastack_common_bandwidth_package" "default" {
   count = 10
   internet_charge_type = "%s"
-  resource_group_id = "%s"
   bandwidth = "10"
   name = "${var.name}"
 }
-`, rand, internetChargeType, os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"))
+`, rand, internetChargeType)
 }

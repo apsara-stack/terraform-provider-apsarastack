@@ -51,6 +51,8 @@ func resourceApsaraStackSnapshotPolicyCreate(d *schema.ResourceData, meta interf
 
 	request := ecs.CreateCreateAutoSnapshotPolicyRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AutoSnapshotPolicyName = d.Get("name").(string)
 	request.RepeatWeekdays = convertListToJsonString(d.Get("repeat_weekdays").(*schema.Set).List())
 	request.RetentionDays = requests.NewInteger(d.Get("retention_days").(int))
@@ -107,6 +109,8 @@ func resourceApsaraStackSnapshotPolicyUpdate(d *schema.ResourceData, meta interf
 
 	request := ecs.CreateModifyAutoSnapshotPolicyExRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AutoSnapshotPolicyId = d.Id()
 	if d.HasChange("name") {
 		request.AutoSnapshotPolicyName = d.Get("name").(string)
@@ -136,6 +140,8 @@ func resourceApsaraStackSnapshotPolicyDelete(d *schema.ResourceData, meta interf
 
 	request := ecs.CreateDeleteAutoSnapshotPolicyRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AutoSnapshotPolicyId = d.Id()
 	err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

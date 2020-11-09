@@ -72,6 +72,9 @@ func resourceApsaraStackEssScheduledTaskCreate(d *schema.ResourceData, meta inte
 	request := buildApsaraStackEssScheduledTaskArgs(d)
 	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.CreateScheduledTask(request)
 	})
@@ -118,6 +121,9 @@ func resourceApsaraStackEssScheduledTaskUpdate(d *schema.ResourceData, meta inte
 
 	request := ess.CreateModifyScheduledTaskRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.ScheduledTaskId = d.Id()
 	request.LaunchExpirationTime = requests.NewInteger(d.Get("launch_expiration_time").(int))
 
@@ -164,6 +170,9 @@ func resourceApsaraStackEssScheduledTaskDelete(d *schema.ResourceData, meta inte
 	request := ess.CreateDeleteScheduledTaskRequest()
 	request.ScheduledTaskId = d.Id()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteScheduledTask(request)
 	})

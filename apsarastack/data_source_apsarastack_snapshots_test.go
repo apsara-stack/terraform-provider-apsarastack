@@ -40,17 +40,6 @@ func TestAccApsaraStackSnapshotsDataSourceBasic(t *testing.T) {
 		}),
 	}
 
-	encryptedConfig := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"ids":       []string{"${apsarastack_snapshot.default.id}"},
-			"encrypted": "false",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"ids":       []string{"${apsarastack_snapshot.default.id}"},
-			"encrypted": "true",
-		}),
-	}
-
 	nameRegexConfig := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
 			"name_regex": name,
@@ -182,7 +171,7 @@ func TestAccApsaraStackSnapshotsDataSourceBasic(t *testing.T) {
 		fakeMapFunc:  fakeSnapshotsMapFunc,
 	}
 
-	snapshotsCheckInfo.dataSourceTestCheck(t, rand, idsConfig, instanceIdConfig, diskIdConfig, encryptedConfig, nameRegexConfig,
+	snapshotsCheckInfo.dataSourceTestCheck(t, rand, idsConfig, instanceIdConfig, diskIdConfig, nameRegexConfig,
 		statusConfig, typeConfig, sourceDiskTypeConfig, usageConfig, tagsConfig, allConfig)
 }
 
@@ -191,41 +180,33 @@ func dataSourceSnapshotsConfigDependence(name string) string {
 variable "name" {
   default = "%s"
 }
-
 data "apsarastack_instance_types" "default" {
 	cpu_core_count    = 1
 	memory_size       = 2
 }
-
 resource "apsarastack_vpc" "default" {
   name = "${var.name}"
   cidr_block = "192.168.0.0/16"
 }
-
-
 resource "apsarastack_vswitch" "default" {
   name = "${var.name}"
   cidr_block = "192.168.0.0/24"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
   vpc_id = "${apsarastack_vpc.default.id}"
 }
-
 resource "apsarastack_security_group" "default" {
   name        = "${var.name}"
   description = "${var.name}"
   vpc_id = "${apsarastack_vpc.default.id}"
 }
-
 resource "apsarastack_disk" "default" {
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
   category          = "cloud_efficiency"
   size              = "20"
 }
-
 data "apsarastack_images" "default" {
   owners = "system"
 }
-
 resource "apsarastack_instance" "default" {
   instance_name   = "${var.name}"
   image_id        = "${data.apsarastack_images.default.images.0.id}"
@@ -234,12 +215,10 @@ resource "apsarastack_instance" "default" {
   vswitch_id      = "${apsarastack_vswitch.default.id}"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
 }
-
 resource "apsarastack_disk_attachment" "default" {
   disk_id     = "${apsarastack_disk.default.id}"
   instance_id = "${apsarastack_instance.default.id}"
 }
-
 resource "apsarastack_snapshot" "default" {
   disk_id = "${apsarastack_disk_attachment.default.disk_id}"
   name = "${var.name}"

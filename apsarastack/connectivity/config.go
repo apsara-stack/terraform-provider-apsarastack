@@ -24,6 +24,8 @@ type Config struct {
 	EcsRoleName     string
 	Region          Region
 	RegionId        string
+	Department      string
+	ResourceGroup   string
 	SecurityToken   string
 	OtsInstanceName string
 	AccountId       string
@@ -52,7 +54,7 @@ type Config struct {
 	OtsEndpoint           string
 	CmsEndpoint           string
 	PvtzEndpoint          string
-	StsEndpoint           string
+	AscmEndpoint          string
 	LogEndpoint           string
 	DrdsEndpoint          string
 	DdsEndpoint           string

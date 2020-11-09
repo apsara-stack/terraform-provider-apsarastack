@@ -58,6 +58,10 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := alidns.CreateAddDomainRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.DomainName = d.Get("domain_name").(string)
 	if v, ok := d.GetOk("group_id"); ok {
 		request.GroupId = v.(string)
@@ -87,7 +91,7 @@ func resourceApsaraStackDnsDomainRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
-			return nil
+			//return nil
 		}
 		return WrapError(err)
 	}
@@ -117,6 +121,10 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 
 	update := false
 	request := alidns.CreateChangeDomainGroupRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.DomainName = d.Id()
 	if !d.IsNewResource() && d.HasChange("group_id") {
 		update = true
@@ -139,6 +147,10 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 	}
 	update = false
 	updateDomainRemarkReq := alidns.CreateUpdateDomainRemarkRequest()
+	updateDomainRemarkReq.Headers = map[string]string{"RegionId": client.RegionId}
+	updateDomainRemarkReq.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	updateDomainRemarkReq.QueryParams["Department"] = client.Department
+	updateDomainRemarkReq.QueryParams["ResourceGroup"] = client.ResourceGroup
 	updateDomainRemarkReq.DomainName = d.Id()
 	updateDomainRemarkReq.Lang = d.Get("lang").(string)
 	if d.HasChange("remark") {
@@ -167,6 +179,10 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := alidns.CreateDeleteDomainRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.DomainName = d.Id()
 	if v, ok := d.GetOk("lang"); ok {
 		request.Lang = v.(string)

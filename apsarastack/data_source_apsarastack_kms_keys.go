@@ -94,6 +94,8 @@ func dataSourceApsaraStackKmsKeysRead(d *schema.ResourceData, meta interface{}) 
 
 	request := kms.CreateListKeysRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok && len(v.([]interface{})) > 0 {
@@ -147,6 +149,9 @@ func dataSourceApsaraStackKmsKeysRead(d *schema.ResourceData, meta interface{}) 
 	for _, k := range keyIds {
 
 		request := kms.CreateDescribeKeyRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 		request.KeyId = k
 		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
 			return kmsClient.DescribeKey(request)

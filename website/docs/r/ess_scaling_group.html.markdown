@@ -84,11 +84,6 @@ resource "apsarastack_ess_scaling_group" "default" {
 }
 ```
 
-## Module Support
-
-You can use to the existing [autoscaling module](https://registry.terraform.io/modules/terraform-alicloud-modules/autoscaling/alicloud) 
-to create a scaling group, configuration and lifecycle hook one-click.
-
 ## Argument Reference
 
 The following arguments are supported:
@@ -131,11 +126,3 @@ The following attributes are exported:
 * `db_instance_ids` - The db instances id which the ECS instance attached to.
 * `loadbalancer_ids` - The slb instances id which the ECS instance attached to.
 * `vswitch_ids` - The vswitches id in which the ECS instance launched.
-
-## Import
-
-ESS scaling group can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_ess_scaling_group.example asg-abc123456
-```

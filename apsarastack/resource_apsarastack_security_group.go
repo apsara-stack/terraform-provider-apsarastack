@@ -56,6 +56,8 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 
 	request := ecs.CreateCreateSecurityGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if v := d.Get("name").(string); v != "" {
 		request.SecurityGroupName = v
@@ -74,7 +76,7 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 		return ecsClient.CreateSecurityGroup(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_security_group", request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_security_group", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*ecs.CreateSecurityGroupResponse)
@@ -101,13 +103,15 @@ func resourceApsaraStackSecurityGroupRead(d *schema.ResourceData, meta interface
 
 	request := ecs.CreateDescribeSecurityGroupsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SecurityGroupId = d.Id()
 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeSecurityGroups(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*ecs.DescribeSecurityGroupsResponse)
@@ -130,7 +134,7 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 		d.SetPartial("tags")
 	}
 
-	if d.HasChange("inner_access_policy") /*|| d.HasChange("inner_access") || d.IsNewResource() && d.Get("security_group_type").(string) != "enterprise" */ {
+	if d.HasChange("inner_access_policy") {
 		policy := GroupInnerAccept
 		if v, ok := d.GetOk("inner_access_policy"); ok && v.(string) != "" {
 			policy = GroupInnerAccessPolicy(v.(string))
@@ -145,7 +149,7 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 			return ecsClient.ModifySecurityGroupPolicy(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		d.SetPartial("inner_access_policy")
@@ -174,7 +178,7 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 			return ecsClient.ModifySecurityGroupAttribute(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		d.SetPartial("name")
@@ -191,6 +195,8 @@ func resourceApsaraStackSecurityGroupDelete(d *schema.ResourceData, meta interfa
 	ecsService := EcsService{client}
 	request := ecs.CreateDeleteSecurityGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SecurityGroupId = d.Id()
 
 	err := resource.Retry(6*time.Minute, func() *resource.RetryError {

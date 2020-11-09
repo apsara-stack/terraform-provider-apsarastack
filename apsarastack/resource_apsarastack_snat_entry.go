@@ -58,7 +58,10 @@ func resourceApsaraStackSnatEntryCreate(d *schema.ResourceData, meta interface{}
 	vpcService := VpcService{client}
 
 	request := vpc.CreateCreateSnatEntryRequest()
-	request.RegionId = string(client.Region)
+
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SnatTableId = d.Get("snat_table_id").(string)
 	request.SourceVSwitchId = d.Get("source_vswitch_id").(string)
 	request.SnatIp = d.Get("snat_ip").(string)
@@ -135,7 +138,10 @@ func resourceApsaraStackSnatEntryUpdate(d *schema.ResourceData, meta interface{}
 	}
 
 	request := vpc.CreateModifySnatEntryRequest()
-	request.RegionId = string(client.Region)
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SnatTableId = parts[0]
 	request.SnatEntryId = parts[1]
 	update := false
@@ -171,7 +177,10 @@ func resourceApsaraStackSnatEntryDelete(d *schema.ResourceData, meta interface{}
 		return WrapError(err)
 	}
 	request := vpc.CreateDeleteSnatEntryRequest()
-	request.RegionId = string(client.Region)
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SnatTableId = parts[0]
 	request.SnatEntryId = parts[1]
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {

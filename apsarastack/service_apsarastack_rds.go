@@ -41,6 +41,9 @@ func (s *RdsService) DescribeDBInstance(id string) (*rds.DBInstanceAttribute, er
 	instance := &rds.DBInstanceAttribute{}
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.RegionId = s.client.RegionId
+
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeDBInstanceAttribute(request)
@@ -63,6 +66,8 @@ func (s *RdsService) DescribeDBInstance(id string) (*rds.DBInstanceAttribute, er
 func (s *RdsService) DescribeTasks(id string) (task *rds.DescribeTasksResponse, err error) {
 	request := rds.CreateDescribeTasksRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeTasks(request)
@@ -83,6 +88,8 @@ func (s *RdsService) DescribeDBReadonlyInstance(id string) (*rds.DBInstanceAttri
 	instance := &rds.DBInstanceAttribute{}
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeDBInstanceAttribute(request)
@@ -110,6 +117,8 @@ func (s *RdsService) DescribeDBAccount(id string) (*rds.DBInstanceAccount, error
 	}
 	request := rds.CreateDescribeAccountsRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	request.AccountName = parts[1]
 	invoker := NewInvoker()
@@ -148,6 +157,8 @@ func (s *RdsService) DescribeDBAccountPrivilege(id string) (*rds.DBInstanceAccou
 	}
 	request := rds.CreateDescribeAccountsRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	request.AccountName = parts[1]
 	invoker := NewInvoker()
@@ -185,6 +196,8 @@ func (s *RdsService) DescribeDBDatabase(id string) (*rds.Database, error) {
 	dbName := parts[1]
 	request := rds.CreateDescribeDatabasesRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	request.DBName = dbName
 
@@ -218,6 +231,8 @@ func (s *RdsService) DescribeParameters(id string) (*rds.DescribeParametersRespo
 	ds := &rds.DescribeParametersResponse{}
 	request := rds.CreateDescribeParametersRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -287,6 +302,8 @@ func (s *RdsService) RefreshParameters(d *schema.ResourceData, attribute string)
 func (s *RdsService) ModifyParameters(d *schema.ResourceData, attribute string) error {
 	request := rds.CreateModifyParameterRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = d.Id()
 	request.Forcerestart = requests.NewBoolean(d.Get("force_restart").(bool))
 	config := make(map[string]string)
@@ -310,6 +327,8 @@ func (s *RdsService) ModifyParameters(d *schema.ResourceData, attribute string) 
 		if !d.Get("force_restart").(bool) {
 			req := rds.CreateDescribeParameterTemplatesRequest()
 			req.RegionId = s.client.RegionId
+			req.Headers = map[string]string{"RegionId": s.client.RegionId}
+			req.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 			req.DBInstanceId = d.Id()
 			req.Engine = d.Get("engine").(string)
 			req.EngineVersion = d.Get("engine_version").(string)
@@ -362,6 +381,8 @@ func (s *RdsService) DescribeDBInstanceNetInfo(id string) ([]rds.DBInstanceNetIn
 	request := rds.CreateDescribeDBInstanceNetInfoRequest()
 	request.RegionId = s.client.RegionId
 	request.DBInstanceId = id
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeDBInstanceNetInfo(request)
 	})
@@ -440,6 +461,8 @@ func (s *RdsService) GrantAccountPrivilege(id, dbName string) error {
 	}
 	request := rds.CreateGrantAccountPrivilegeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	request.AccountName = parts[1]
 	request.DBName = dbName
@@ -479,6 +502,8 @@ func (s *RdsService) RevokeAccountPrivilege(id, dbName string) error {
 	}
 	request := rds.CreateRevokeAccountPrivilegeRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	request.AccountName = parts[1]
 	request.DBName = dbName
@@ -514,6 +539,8 @@ func (s *RdsService) ReleaseDBPublicConnection(instanceId, connection string) er
 
 	request := rds.CreateReleaseInstancePublicConnectionRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = instanceId
 	request.CurrentConnectionString = connection
 
@@ -606,6 +633,8 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 	if updateForData {
 		request := rds.CreateModifyBackupPolicyRequest()
 		request.RegionId = s.client.RegionId
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.PreferredBackupPeriod = backupPeriod
 		request.PreferredBackupTime = backupTime
@@ -639,6 +668,8 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 	if updateForLog && instance.Engine != "SQLServer" {
 		request := rds.CreateModifyBackupPolicyRequest()
 		request.RegionId = s.client.RegionId
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.EnableBackupLog = enableBackupLog
 		request.LocalLogRetentionHours = localLogRetentionHours
@@ -668,6 +699,8 @@ func (s *RdsService) ModifyDBSecurityIps(instanceId, ips string) error {
 
 	request := rds.CreateModifySecurityIpsRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = instanceId
 	request.SecurityIps = ips
 
@@ -690,6 +723,8 @@ func (s *RdsService) DescribeDBSecurityIps(instanceId string) (ips []rds.DBInsta
 
 	request := rds.CreateDescribeDBInstanceIPArrayListRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = instanceId
 
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -738,6 +773,8 @@ func (s *RdsService) GetSecurityIps(instanceId string) ([]string, error) {
 func (s *RdsService) DescribeSecurityGroupConfiguration(id string) ([]string, error) {
 	request := rds.CreateDescribeSecurityGroupConfigurationRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeSecurityGroupConfiguration(request)
@@ -760,6 +797,8 @@ func (s *RdsService) DescribeDBInstanceSSL(id string) (*rds.DescribeDBInstanceSS
 	response := &rds.DescribeDBInstanceSSLResponse{}
 	request := rds.CreateDescribeDBInstanceSSLRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeDBInstanceSSL(request)
@@ -777,6 +816,8 @@ func (s *RdsService) DescribeRdsTDEInfo(id string) (*rds.DescribeDBInstanceTDERe
 	response := &rds.DescribeDBInstanceTDEResponse{}
 	request := rds.CreateDescribeDBInstanceTDERequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	statErr := s.WaitForDBInstance(id, Running, DefaultLongTimeout)
 	if statErr != nil {
@@ -796,6 +837,8 @@ func (s *RdsService) DescribeRdsTDEInfo(id string) (*rds.DescribeDBInstanceTDERe
 func (s *RdsService) ModifySecurityGroupConfiguration(id string, groupid string) error {
 	request := rds.CreateModifySecurityGroupConfigurationRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	//openapi required that input "Empty" if groupid is ""
 	if len(groupid) == 0 {
@@ -817,6 +860,8 @@ func (s *RdsService) DescribeMultiIZByRegion() (izs []string, err error) {
 
 	request := rds.CreateDescribeRegionsRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeRegions(request)
 	})
@@ -843,6 +888,8 @@ func (s *RdsService) DescribeBackupPolicy(id string) (*rds.DescribeBackupPolicyR
 	policy := &rds.DescribeBackupPolicyResponse{}
 	request := rds.CreateDescribeBackupPolicyRequest()
 	request.DBInstanceId = id
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.RegionId = s.client.RegionId
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeBackupPolicy(request)
@@ -863,6 +910,8 @@ func (s *RdsService) DescribeDbInstanceMonitor(id string) (monitoringPeriod int,
 
 	request := rds.CreateDescribeDBInstanceMonitorRequest()
 	request.DBInstanceId = id
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.RegionId = s.client.RegionId
 	raw, err := s.client.WithRdsClient(func(client *rds.Client) (interface{}, error) {
 		return client.DescribeDBInstanceMonitor(request)
@@ -885,6 +934,8 @@ func (s *RdsService) DescribeSQLCollectorPolicy(id string) (collectorPolicy *rds
 	request := rds.CreateDescribeSQLCollectorPolicyRequest()
 	request.DBInstanceId = id
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeSQLCollectorPolicy(request)
 	})
@@ -904,6 +955,8 @@ func (s *RdsService) DescribeSQLCollectorRetention(id string) (collectorRetentio
 	request := rds.CreateDescribeSQLCollectorRetentionRequest()
 	request.DBInstanceId = id
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeSQLCollectorRetention(request)
 	})
@@ -1102,6 +1155,8 @@ func (s *RdsService) WaitForAccount(id string, status Status, timeout int) error
 			} else if object.AccountStatus == "Lock" {
 				request := rds.CreateDeleteAccountRequest()
 				request.RegionId = s.client.RegionId
+				request.Headers = map[string]string{"RegionId": s.client.RegionId}
+				request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 				request.DBInstanceId = object.DBInstanceId
 				request.AccountName = object.AccountName
 
@@ -1278,6 +1333,8 @@ func (s *RdsService) setInstanceTags(d *schema.ResourceData) error {
 			request.ResourceType = "INSTANCE"
 			request.TagKey = &remove
 			request.RegionId = s.client.RegionId
+			request.Headers = map[string]string{"RegionId": s.client.RegionId}
+			request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 
 			wait := incrementalWait(1*time.Second, 2*time.Second)
 			err := resource.Retry(10*time.Minute, func() *resource.RetryError {
@@ -1306,7 +1363,8 @@ func (s *RdsService) setInstanceTags(d *schema.ResourceData) error {
 			request.Tag = &add
 			request.ResourceType = "INSTANCE"
 			request.RegionId = s.client.RegionId
-
+			request.Headers = map[string]string{"RegionId": s.client.RegionId}
+			request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 			wait := incrementalWait(1*time.Second, 2*time.Second)
 			err := resource.Retry(10*time.Minute, func() *resource.RetryError {
 				raw, err := s.client.WithRdsClient(func(client *rds.Client) (interface{}, error) {
@@ -1338,6 +1396,8 @@ func (s *RdsService) describeTags(d *schema.ResourceData) (tags []Tag, err error
 	request := rds.CreateDescribeTagsRequest()
 	request.DBInstanceId = d.Id()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithRdsClient(func(client *rds.Client) (interface{}, error) {
 		return client.DescribeTags(request)
 	})

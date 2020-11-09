@@ -525,6 +525,7 @@ func (s *RamService) DescribeRamRoleAttachment(id string) (*ecs.DescribeInstance
 	}
 	request := ecs.CreateDescribeInstanceRamRoleRequest()
 	request.RegionId = s.client.RegionId
+
 	request.InstanceIds = parts[1]
 	var raw interface{}
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {

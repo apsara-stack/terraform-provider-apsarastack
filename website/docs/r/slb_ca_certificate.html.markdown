@@ -43,17 +43,8 @@ The following arguments are supported:
 
 * `name` - (Optional) Name of the CA Certificate.
 * `ca_certificate` - (Required, ForceNew) the content of the CA certificate.
-* `tags` - (Optional, Available in v1.66.0+) A mapping of tags to assign to the resource.
 ## Attributes Reference
 
 The following attributes are exported:
 
 * `id` - The Id of CA Certificate .
-
-## Import
-
-Server Load balancer CA Certificate can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb_ca_certificate.example abc123456
-```

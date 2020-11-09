@@ -3,11 +3,8 @@ package apsarastack
 import (
 	"time"
 
-	"github.com/denverdino/aliyungo/common"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -76,23 +73,6 @@ func resourceApsaraStackRouterInterface() *schema.Resource {
 				Optional:         true,
 				DiffSuppressFunc: routerInterfaceVBRTypeDiffSuppressFunc,
 			},
-			"instance_charge_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				Default:      PostPaid,
-				ValidateFunc: validation.StringInSlice([]string{string(common.PrePaid), string(common.PostPaid)}, false),
-			},
-			"period": {
-				Type:             schema.TypeInt,
-				Optional:         true,
-				ForceNew:         true,
-				Default:          1,
-				DiffSuppressFunc: PostPaidDiffSuppressFunc,
-				ValidateFunc: validation.Any(
-					validation.IntBetween(1, 9),
-					validation.IntInSlice([]int{12, 24, 36})),
-			},
 			"access_point_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -125,6 +105,9 @@ func resourceApsaraStackRouterInterfaceCreate(d *schema.ResourceData, meta inter
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
 	request, err := buildApsaraStackRouterInterfaceCreateArgs(d, meta)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if err != nil {
 		return WrapError(err)
 	}
@@ -156,6 +139,9 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 		return WrapError(err)
 	}
 	request.RegionId = client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if attributeUpdate {
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyRouterInterfaceAttribute(request)
@@ -170,6 +156,9 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 		d.SetPartial("specification")
 		request := vpc.CreateModifyRouterInterfaceSpecRequest()
 		request.RegionId = string(client.Region)
+
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.RouterInterfaceId = d.Id()
 		request.Spec = d.Get("specification").(string)
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -211,16 +200,6 @@ func resourceApsaraStackRouterInterfaceRead(d *schema.ResourceData, meta interfa
 	d.Set("opposite_interface_owner_id", object.OppositeInterfaceOwnerId)
 	d.Set("health_check_source_ip", object.HealthCheckSourceIp)
 	d.Set("health_check_target_ip", object.HealthCheckTargetIp)
-	if object.ChargeType == "Prepaid" {
-		d.Set("instance_charge_type", PrePaid)
-		period, err := computePeriodByUnit(object.CreationTime, object.EndTime, d.Get("period").(int), "Month")
-		if err != nil {
-			return WrapError(err)
-		}
-		d.Set("period", period)
-	} else {
-		d.Set("instance_charge_type", PostPaid)
-	}
 	return nil
 
 }
@@ -242,6 +221,9 @@ func resourceApsaraStackRouterInterfaceDelete(d *schema.ResourceData, meta inter
 
 	request := vpc.CreateDeleteRouterInterfaceRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterInterfaceId = d.Id()
 	request.ClientToken = buildClientToken(request.GetActionName())
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -279,21 +261,13 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 
 	request := vpc.CreateCreateRouterInterfaceRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterType = d.Get("router_type").(string)
 	request.RouterId = d.Get("router_id").(string)
 	request.Role = d.Get("role").(string)
 	request.Spec = d.Get("specification").(string)
-	request.InstanceChargeType = d.Get("instance_charge_type").(string)
-	if request.InstanceChargeType == string(PrePaid) {
-		period := d.Get("period").(int)
-		request.Period = requests.NewInteger(period)
-		request.PricingCycle = string(Month)
-		if period > 9 {
-			request.Period = requests.NewInteger(period / 12)
-			request.PricingCycle = string(Year)
-		}
-		request.AutoPay = requests.NewBoolean(true)
-	}
 	request.OppositeRegionId = oppositeRegion
 	// Accepting side router interface spec only be Negative and router type only be VRouter.
 	if request.Role == string(AcceptingSide) {
@@ -331,7 +305,7 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 }
 
 func buildApsaraStackRouterInterfaceModifyAttrArgs(d *schema.ResourceData, meta interface{}) (*vpc.ModifyRouterInterfaceAttributeRequest, bool, error) {
-
+	client := meta.(*connectivity.ApsaraStackClient)
 	sourceIp, sourceOk := d.GetOk("health_check_source_ip")
 	targetIp, targetOk := d.GetOk("health_check_target_ip")
 	if sourceOk && !targetOk || !sourceOk && targetOk {
@@ -339,6 +313,9 @@ func buildApsaraStackRouterInterfaceModifyAttrArgs(d *schema.ResourceData, meta 
 	}
 
 	request := vpc.CreateModifyRouterInterfaceAttributeRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterInterfaceId = d.Id()
 
 	attributeUpdate := false

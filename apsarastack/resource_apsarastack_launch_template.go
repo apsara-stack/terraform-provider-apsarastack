@@ -273,6 +273,8 @@ func resourceApsaraStackLaunchTemplateCreate(d *schema.ResourceData, meta interf
 
 	request := ecs.CreateCreateLaunchTemplateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LaunchTemplateName = d.Get("name").(string)
 	request.Description = d.Get("description").(string)
 	request.HostName = d.Get("host_name").(string)
@@ -480,6 +482,8 @@ func resourceApsaraStackLaunchTemplateDelete(d *schema.ResourceData, meta interf
 
 	request := ecs.CreateDeleteLaunchTemplateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LaunchTemplateId = d.Id()
 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -500,6 +504,8 @@ func getLaunchTemplateVersions(id string, meta interface{}) ([]ecs.LaunchTemplat
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateDescribeLaunchTemplateVersionsRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(50)
 	request.LaunchTemplateId = id
 	raw, err := client.WithEcsClient(func(client *ecs.Client) (interface{}, error) {
@@ -521,6 +527,8 @@ func deleteLaunchTemplateVersion(id string, version int, meta interface{}) error
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateDeleteLaunchTemplateVersionRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LaunchTemplateId = id
 	request.DeleteVersion = &[]string{strconv.FormatInt(int64(version), 10)}
 	raw, err := client.WithEcsClient(func(client *ecs.Client) (interface{}, error) {
@@ -537,6 +545,8 @@ func createLaunchTemplateVersion(d *schema.ResourceData, meta interface{}) error
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateCreateLaunchTemplateVersionRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LaunchTemplateId = d.Id()
 	request.Description = d.Get("description").(string)
 	request.HostName = d.Get("host_name").(string)

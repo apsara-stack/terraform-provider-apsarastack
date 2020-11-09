@@ -21,6 +21,15 @@ func dataSourceApsaraStackSnatEntries() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"snat_ip": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"source_cidr": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			// the snat_entry resource id is spliced from snat_table_id and snat_entry_id, but,this id refers to snat_entry_id
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -60,7 +69,10 @@ func dataSourceApsaraStackSnatEntriesRead(d *schema.ResourceData, meta interface
 
 	request := vpc.CreateDescribeSnatTableEntriesRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
+
 	request.PageNumber = requests.NewInteger(1)
 	request.SnatTableId = d.Get("snat_table_id").(string)
 	idsMap := make(map[string]string)
