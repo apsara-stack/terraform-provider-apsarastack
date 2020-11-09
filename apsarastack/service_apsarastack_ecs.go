@@ -58,7 +58,7 @@ func (s *EcsService) DescribeZone(id string) (zone ecs.Zone, err error) {
 		return ecsClient.DescribeZones(request)
 	})
 	if err != nil {
-		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -87,7 +87,7 @@ func (s *EcsService) DescribeZones(d *schema.ResourceData) (zones []ecs.Zone, er
 		return ecsClient.DescribeZones(request)
 	})
 	if err != nil {
-		err = WrapErrorf(err, DefaultErrorMsg, "apsarastak_instance_type_families", request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, "apsarastak_instance_type_families", request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -137,7 +137,7 @@ func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err err
 	})
 
 	if err != nil {
-		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	if len(response.Instances.Instance) < 1 {
@@ -157,7 +157,7 @@ func (s *EcsService) DescribeInstanceAttribute(id string) (instance ecs.Describe
 		return ecsClient.DescribeInstanceAttribute(request)
 	})
 	if err != nil {
-		return instance, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return instance, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*ecs.DescribeInstanceAttributeResponse)
@@ -194,7 +194,7 @@ func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, e
 		return nil
 	})
 	if err != nil {
-		return disk, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return disk, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	if len(response.Disks.Disk) < 1 || response.Disks.Disk[0].InstanceId != id {
 		return disk, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
@@ -233,7 +233,7 @@ func (s *EcsService) JoinSecurityGroups(instanceId string, securityGroupIds []st
 			return ecsClient.JoinSecurityGroup(request)
 		})
 		if err != nil && IsExpectedErrors(err, []string{"InvalidInstanceId.AlreadyExists"}) {
-			return WrapErrorf(err, DefaultErrorMsg, instanceId, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, instanceId, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	}
@@ -253,7 +253,7 @@ func (s *EcsService) LeaveSecurityGroups(instanceId string, securityGroupIds []s
 			return ecsClient.LeaveSecurityGroup(request)
 		})
 		if err != nil && IsExpectedErrors(err, []string{"InvalidSecurityGroupId.NotFound"}) {
-			return WrapErrorf(err, DefaultErrorMsg, instanceId, request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, instanceId, request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	}
@@ -272,7 +272,7 @@ func (s *EcsService) DescribeSecurityGroup(id string) (group ecs.DescribeSecurit
 	})
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidSecurityGroupId.NotFound"}) {
-			err = WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+			err = WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
 		return
 	}
@@ -308,7 +308,7 @@ func (s *EcsService) DescribeSecurityGroupRule(id string) (rule ecs.Permission, 
 	})
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidSecurityGroupId.NotFound"}) {
-			err = WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+			err = WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
 		return
 	}
@@ -460,7 +460,7 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keyPair string) (
 			return ecsClient.DescribeInstances(request)
 		})
 		if e != nil {
-			err = WrapErrorf(e, DefaultErrorMsg, keyPair, request.GetActionName(), ApsaraStackGoClientFailure)
+			err = WrapErrorf(e, DefaultErrorMsg, keyPair, request.GetActionName(), ApsaraStackSdkGoERROR)
 			return
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -476,7 +476,7 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keyPair string) (
 			break
 		}
 		if page, e := getNextpageNumber(request.PageNumber); e != nil {
-			err = WrapErrorf(e, DefaultErrorMsg, keyPair, request.GetActionName(), ApsaraStackGoClientFailure)
+			err = WrapErrorf(e, DefaultErrorMsg, keyPair, request.GetActionName(), ApsaraStackSdkGoERROR)
 			return
 		} else {
 			request.PageNumber = page
@@ -495,7 +495,7 @@ func (s *EcsService) DescribeKeyPair(id string) (keyPair ecs.KeyPair, err error)
 		return ecsClient.DescribeKeyPairs(request)
 	})
 	if err != nil {
-		return keyPair, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return keyPair, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	object, _ := raw.(*ecs.DescribeKeyPairsResponse)
@@ -510,7 +510,7 @@ func (s *EcsService) DescribeKeyPairAttachment(id string) (keyPair ecs.KeyPair, 
 	parts, err := ParseResourceId(id, 2)
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidKeyPair.NotFound"}) {
-			err = WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+			err = WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
 		return
 	}
@@ -536,7 +536,7 @@ func (s *EcsService) DescribeDisk(id string) (disk ecs.Disk, err error) {
 		return ecsClient.DescribeDisks(request)
 	})
 	if err != nil {
-		return disk, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return disk, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	response, _ := raw.(*ecs.DescribeDisksResponse)
 	if len(response.Disks.Disk) < 1 || response.Disks.Disk[0].DiskId != id {
@@ -598,7 +598,7 @@ func (s *EcsService) DescribeTags(resourceId string, resourceType TagResourceTyp
 		return ecsClient.DescribeTags(request)
 	})
 	if err != nil {
-		err = WrapErrorf(err, DefaultErrorMsg, resourceId, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, resourceId, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -657,7 +657,7 @@ func (s *EcsService) deleteImage(d *schema.ResourceData) error {
 	})
 
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	stateConf := BuildStateConf([]string{}, []string{}, d.Timeout(schema.TimeoutCreate), 3*time.Second, s.ImageStateRefreshFunc(d.Id(), []string{}))
@@ -700,7 +700,7 @@ func (s *EcsService) updateImage(d *schema.ResourceData) error {
 			return ecsClient.ModifyImageAttribute(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		d.SetPartial("name")
 		d.SetPartial("image_name")
@@ -723,7 +723,7 @@ func (s *EcsService) DescribeNetworkInterface(id string) (networkInterface ecs.N
 		return ecsClient.DescribeNetworkInterfaces(request)
 	})
 	if err != nil {
-		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -755,7 +755,7 @@ func (s *EcsService) DescribeNetworkInterfaceAttachment(id string) (networkInter
 		return ecsClient.DescribeNetworkInterfaces(request)
 	})
 	if err != nil {
-		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -839,7 +839,7 @@ func (s *EcsService) deleteImageforDest(d *schema.ResourceData, region string) e
 	})
 
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	stateConf := BuildStateConf([]string{}, []string{}, d.Timeout(schema.TimeoutCreate), 3*time.Second, s.ImageStateRefreshFunc(d.Id(), []string{}))
@@ -1137,7 +1137,7 @@ func (s *EcsService) AttachKeyPair(keyName string, instanceIds []interface{}) er
 		return nil
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, keyName, request.GetActionName(), ApsaraStackGoClientFailure)
+		return WrapErrorf(err, DefaultErrorMsg, keyName, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	return nil
 }
@@ -1210,7 +1210,7 @@ func (s *EcsService) DescribeTaskById(id string) (task *ecs.DescribeTaskAttribut
 		return ecsClient.DescribeTaskAttribute(request)
 	})
 	if err != nil {
-		return task, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return task, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	task, _ = raw.(*ecs.DescribeTaskAttributeResponse)
@@ -1232,7 +1232,7 @@ func (s *EcsService) DescribeSnapshot(id string) (*ecs.Snapshot, error) {
 		return ecsClient.DescribeSnapshots(request)
 	})
 	if err != nil {
-		return snapshot, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return snapshot, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response := raw.(*ecs.DescribeSnapshotsResponse)
@@ -1253,7 +1253,7 @@ func (s *EcsService) DescribeSnapshotPolicy(id string) (*ecs.AutoSnapshotPolicy,
 		return ecsClient.DescribeAutoSnapshotPolicyEx(request)
 	})
 	if err != nil {
-		return policy, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return policy, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
@@ -1277,7 +1277,7 @@ func (s *EcsService) DescribeReservedInstance(id string) (reservedInstance ecs.R
 		return ecsClient.DescribeReservedInstances(request)
 	})
 	if err != nil {
-		return reservedInstance, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return reservedInstance, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*ecs.DescribeReservedInstancesResponse)
@@ -1350,7 +1350,7 @@ func (s *EcsService) DescribeLaunchTemplate(id string) (set ecs.LaunchTemplateSe
 		return ecsClient.DescribeLaunchTemplates(request)
 	})
 	if err != nil {
-		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -1378,10 +1378,10 @@ func (s *EcsService) DescribeLaunchTemplateVersion(id string, version int) (set 
 	})
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidLaunchTemplate.NotFound"}) {
-			err = WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+			err = WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 			return
 		}
-		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -1435,9 +1435,9 @@ func (s *EcsService) DescribeImageShareByImageId(id string) (imageShare *ecs.Des
 	})
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidImageId.NotFound"}) {
-			return imageShare, WrapErrorf(err, NotFoundMsg, ApsaraStackGoClientFailure)
+			return imageShare, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return imageShare, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		return imageShare, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	resp, _ := raw.(*ecs.DescribeImageSharePermissionResponse)
@@ -1482,7 +1482,7 @@ func (s *EcsService) DescribeAutoProvisioningGroup(id string) (group ecs.AutoPro
 		return ecsClient.DescribeAutoProvisioningGroups(request)
 	})
 	if e != nil {
-		err = WrapErrorf(e, id, request.GetActionName(), ApsaraStackGoClientFailure)
+		err = WrapErrorf(e, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -1549,7 +1549,7 @@ func (s *EcsService) SetResourceTags(d *schema.ResourceData, resourceType string
 			if IsExpectedErrors(err, []string{"InvalidRegionId.NotFound", "InvalidResourceId.NotFound", "InvalidResourceType.NotFound", "MissingParameter.RegionId", "MissingParameter.ResourceIds", "MissingParameter.ResourceType", "MissingParameter.TagOwnerBid", "MissingParameter.TagOwnerUid", "MissingParameter.Tags"}) {
 				return nil
 			}
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 	}
 	if len(added) > 0 {
@@ -1568,7 +1568,7 @@ func (s *EcsService) SetResourceTags(d *schema.ResourceData, resourceType string
 			if IsExpectedErrors(err, []string{"InvalidRegionId.NotFound", "InvalidResourceId.NotFound", "InvalidResourceType.NotFound", "MissingParameter.RegionId", "MissingParameter.ResourceIds", "MissingParameter.ResourceType", "MissingParameter.TagOwnerBid", "MissingParameter.TagOwnerUid", "MissingParameter.Tags"}) {
 				return nil
 			}
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackGoClientFailure)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 	}
 	return nil
@@ -1593,7 +1593,7 @@ func (s *EcsService) DescribeEcsDedicatedHost(id string) (object ecs.DedicatedHo
 				err = WrapErrorf(Error(GetNotFoundMessage("EcsDedicatedHost", id)), NotFoundMsg, ProviderERROR)
 				return object, err
 			}
-			err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackGoClientFailure)
+			err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 			return object, err
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
