@@ -73,6 +73,10 @@ func resourceApsaraStackDnsRecord() *schema.Resource {
 func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := alidns.CreateAddDomainRecordRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RegionId = client.RegionId
 	request.DomainName = d.Get("name").(string)
 	request.RR = d.Get("host_record").(string)
@@ -119,6 +123,10 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := alidns.CreateUpdateDomainRecordRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RegionId = client.RegionId
 	request.RecordId = d.Id()
 	request.RR = d.Get("host_record").(string)
@@ -171,6 +179,10 @@ func resourceApsaraStackDnsRecordDelete(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 	dnsService := &DnsService{client: client}
 	request := alidns.CreateDeleteDomainRecordRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RegionId = client.RegionId
 	request.RecordId = d.Id()
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {

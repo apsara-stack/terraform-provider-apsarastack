@@ -61,6 +61,7 @@ func TestAccApsaraStackSlbMasterSlaveServerGroup_vpc(t *testing.T) {
 						"servers.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
@@ -99,7 +100,7 @@ func TestAccApsaraStackSlbMasterSlaveServerGroup_multi_vpc(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"count":            "10",
+					"count":            "2",
 					"load_balancer_id": "${apsarastack_slb.default.id}",
 					"name":             "${var.name}",
 					"servers": []map[string]interface{}{
@@ -123,6 +124,7 @@ func TestAccApsaraStackSlbMasterSlaveServerGroup_multi_vpc(t *testing.T) {
 						"servers.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -185,7 +187,7 @@ resource "apsarastack_instance" "default" {
 resource "apsarastack_slb" "default" {
     name = "${var.name}"
     vswitch_id = "${apsarastack_vswitch.default.id}"
-    specification  = "slb.s2.small"
+
 }
 `, name)
 }

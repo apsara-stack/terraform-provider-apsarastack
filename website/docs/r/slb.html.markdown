@@ -41,18 +41,6 @@ resource "apsarastack_vswitch" "default" {
 resource "apsarastack_slb" "default" {
   name          = "${var.name}"
   vswitch_id    = "${apsarastack_vswitch.default.id}"
-  tags = {
-    tag_a = 1
-    tag_b = 2
-    tag_c = 3
-    tag_d = 4
-    tag_e = 5
-    tag_f = 6
-    tag_g = 7
-    tag_h = 8
-    tag_i = 9
-    tag_j = 10
-  }
 }
 ```
 
@@ -67,9 +55,6 @@ Terraform will autogenerate a name beginning with `tf-lb`.
     - internet: After an Internet SLB instance is created, the system allocates a public IP address so that the instance can forward requests from the Internet.
     - intranet: After an intranet SLB instance is created, the system allocates an intranet IP address so that the instance can only forward intranet requests.
 * `vswitch_id` - (Required for a VPC SLB, Forces New Resource) The VSwitch ID to launch in. If `address_type` is internet, it will be ignore.
-* `tags` - (Optional) A mapping of tags to assign to the resource. The `tags` can have a maximum of 10 tag for every load balancer instance.
-* `instance_charge_type` - (Optional, Available in v1.34.0+) The billing method of the load balancer. Valid values are "PrePaid" and "PostPaid". Default to "PostPaid".
-* `period` - (Optional, Available in v1.34.0+) The duration that you will buy the resource, in month. It is valid when `instance_charge_type` is `PrePaid`. Default to 1. Valid values: [1-9, 12, 24, 36].
 
 -> **NOTE:** A "Shared-Performance" instance can be changed to "Performance-guaranteed", but the change is irreversible.
 
@@ -84,10 +69,3 @@ The following attributes are exported:
 * `id` - The ID of the load balancer.
 * `address` - The IP address of the load balancer.
 
-## Import
-
-Load balancer can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb.example lb-abc123456
-```

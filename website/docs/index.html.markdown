@@ -24,7 +24,11 @@ provider "apsarastack" {
   region     = "${var.region}"
   insecure    =  true
   proxy      = "${var.proxy}"
-  domain     = "${var.domain}"
+  department="${var.department}"
+  resource_group="${var.resource_group}"
+  endpoints {
+     vpc = "${var.endpoints}"  
+   }
 }
 
 
@@ -78,7 +82,11 @@ provider "apsarastack" {
   region     = "${var.region}"
   insecure    =  true
   proxy      = "${var.proxy}"
-  domain     = "${var.domain}"
+  department="${var.department}"
+  resource_group="${var.resource_group}"
+  endpoints {
+     vpc = "${var.endpoints}"  
+   }
 }
 
 ```
@@ -90,7 +98,13 @@ environment variables, representing your ApsaraStack access key and secret key r
 `APSARASTACK_PROXY`,`APSARASTACK_REGION` is also used, if applicable:
 
 ```hcl
-provider "apsarastack" {}
+provider "apsarastack" {
+    endpoints {
+         vpc = "${var.endpoints}"  
+       }
+    department="${var.department}"
+    resource_group="${var.resource_group}"
+}
 ```
 Usage:
 
@@ -100,7 +114,6 @@ $ export APSARASTACK_SECRET_KEY="asecretkey"
 $ export APSARASTACK_REGION="region"
 $ export APSARASTACK_INSECURE= true
 $ export APSARASTACK_PROXY= "http://IP:Port"
-$ export APSARASTACK_DOMAIN= true
 $ terraform plan
 ```
 
@@ -123,10 +136,27 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `insecure` - (Optional) Use this to Trust self-signed certificates. It's typically used to allow insecure connections.
 
+* `department` - (Required) Use this to give department for specific user organisation.
+
+* `resource_group` - (Required) Use this to give resource group for specific user organisation.
+
 * `protocol` - (Optional, Available in 1.72.0+) The Protocol of used by API request. Valid values: `HTTP` and `HTTPS`. Default to `HTTPS`.
 
 * `proxy` -  (Optional) Use this to set proxy for ApsaraStack connection.
 
-* `domain` - (Optional) Use this to override the default domain. It's typically used to connect to custom domain on which apsarastack in running.
+* `endpoints` - (Required) An `endpoints` block (documented below) to support apsarastack custom endpoints.
+
+Nested `endpoints` block supports the following:
+* `ecs` - (Optional) Use this to override the default endpoint URL constructed from the `region`. It's typically used to connect to custom ECS endpoints.
+
+* `rds` - (Optional) Use this to override the default endpoint URL constructed from the `region`. It's typically used to connect to custom RDS endpoints.
+
+* `slb` - (Optional) Use this to override the default endpoint URL constructed from the `region`. It's typically used to connect to custom SLB endpoints.
+
+* `vpc` - (Optional) Use this to override the default endpoint URL constructed from the `region`. It's typically used to connect to custom VPC and VPN endpoints.
+
+* `ess` - (Optional) Use this to override the default endpoint URL constructed from the `region`. It's typically used to connect to custom Autoscaling endpoints.
+
+* `oss` - (Optional) Use this to override the default endpoint URL constructed from the `region`. It's typically used to connect to custom OSS endpoints.
 
 

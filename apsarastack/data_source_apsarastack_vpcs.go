@@ -120,8 +120,11 @@ func dataSourceApsaraStackVpcsRead(d *schema.ResourceData, meta interface{}) err
 
 	request := vpc.CreateDescribeVpcsRequest()
 	request.RegionId = string(client.Region)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
+
 	var allVpcs []vpc.Vpc
 	invoker := NewInvoker()
 	for {
@@ -197,7 +200,9 @@ func dataSourceApsaraStackVpcsRead(d *schema.ResourceData, meta interface{}) err
 			continue
 		}
 		request := vpc.CreateDescribeVRoutersRequest()
-		request.RegionId = client.RegionId
+		//request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.VRouterId = v.VRouterId
 		request.RegionId = string(client.Region)
 

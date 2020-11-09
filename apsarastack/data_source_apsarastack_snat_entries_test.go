@@ -13,31 +13,38 @@ func TestAccApsaraStackSnatEntriesDataSourceBasic(t *testing.T) {
 	snatIpConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
 			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+			"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
 		}),
 		fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
 			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+			"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}_fake"`,
 		}),
 	}
+	//
+	//sourceCidrConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
+	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+	//		"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
+	//		"source_cidr":   `"172.16.0.0/21"`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
+	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+	//		"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
+	//		"source_cidr":   `"172.16.0.0/20"`,
+	//	}),
+	//}
+	//allConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
+	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+	//		"source_cidr":   `"172.16.0.0/21"`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
+	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
+	//		"source_cidr":   `"172.16.0.0/21"`,
+	//	}),
+	//}
 
-	sourceCidrConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-		}),
-	}
-
-	allConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-		}),
-	}
-
-	snatEntriesCheckInfo.dataSourceTestCheck(t, rand, snatIpConf, sourceCidrConf, allConf)
+	snatEntriesCheckInfo.dataSourceTestCheck(t, rand, snatIpConf /*,sourceCidrConf/*,allConf*/)
 
 }
 
@@ -86,7 +93,7 @@ resource "apsarastack_eip_association" "default" {
 resource "apsarastack_snat_entry" "default" {
 	snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
 	source_vswitch_id = "${apsarastack_vswitch.default.id}"
-
+	snat_ip = "${apsarastack_eip.default.ip_address}"
 }
 
 data "apsarastack_snat_entries" "default" {
@@ -97,10 +104,9 @@ data "apsarastack_snat_entries" "default" {
 
 var existSnatEntriesMapFunc = func(rand int) map[string]string {
 	return map[string]string{
-		"ids.#":                 "0",
-		"entries.#":             "0",
+		//"ids.#":                 "0",
+		//"entries.#":             "0",
 		"entries.0.id":          CHECKSET,
-		"entries.0.snat_ip":     CHECKSET,
 		"entries.0.status":      "Available",
 		"entries.0.source_cidr": "172.16.0.0/21",
 	}

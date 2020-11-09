@@ -38,6 +38,11 @@ func testSweepDisks(region string) error {
 	var disks []ecs.Disk
 	req := ecs.CreateDescribeDisksRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	req.QueryParams["Department"] = client.Department
+	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -80,6 +85,10 @@ func testSweepDisks(region string) error {
 		}
 		log.Printf("[INFO] Deleting Disk: %s (%s)", name, id)
 		req := ecs.CreateDeleteDiskRequest()
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		req.QueryParams["Department"] = client.Department
+		req.QueryParams["ResourceGroup"] = client.ResourceGroup
 		req.DiskId = id
 		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteDisk(req)

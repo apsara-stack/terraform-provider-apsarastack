@@ -37,6 +37,10 @@ func testSweepRouterInterfaces(region string) error {
 	var ris []vpc.RouterInterfaceType
 	req := vpc.CreateDescribeRouterInterfacesRequest()
 	req.RegionId = client.RegionId
+	req.QueryParams["Department"] = client.Department
+	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -85,6 +89,10 @@ func testSweepRouterInterfaces(region string) error {
 		}
 		log.Printf("[INFO] Deleting Router Interface: %s (%s)", name, id)
 		req := vpc.CreateDeleteRouterInterfaceRequest()
+		req.QueryParams["Department"] = client.Department
+		req.QueryParams["ResourceGroup"] = client.ResourceGroup
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.RouterInterfaceId = id
 		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteRouterInterface(req)
@@ -171,12 +179,6 @@ func TestAccApsaraStackRouterInterfaceBasic(t *testing.T) {
 						"name": fmt.Sprintf("tf-testAccRouterInterfaceConfig%d", rand),
 					}),
 				),
-			},
-			{
-				ResourceName:            resourceId,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"period"},
 			},
 			{
 				Config: testAccRouterInterfaceConfig_role(rand),
@@ -276,16 +278,15 @@ resource "apsarastack_vpc" "default" {
 	cidr_block = "172.16.0.0/12"
 }
 
-data "apsarastack_regions" "default" {
-	current = true
+variable "region" {
+  default = "cn-qingdao-env66-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
-	opposite_region = "${data.apsarastack_regions.default.regions.0.id}"
+	opposite_region = "${var.region}"
 	router_type = "VRouter"
 	router_id = "${apsarastack_vpc.default.router_id}"
 	role = "AcceptingSide"
-    instance_charge_type = "PostPaid"
 	name = "${var.name}"
 }`, rand)
 }
@@ -301,17 +302,16 @@ resource "apsarastack_vpc" "default" {
 	cidr_block = "172.16.0.0/12"
 }
 
-data "apsarastack_regions" "default" {
-	current = true
+variable "region" {
+  default = "cn-qingdao-env66-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
 	count = 3
-	opposite_region = "${data.apsarastack_regions.default.regions.0.id}"
+	opposite_region = "${var.region}"
 	router_type = "VRouter"
 	router_id = "${apsarastack_vpc.default.router_id}"
 	role = "AcceptingSide"
-    instance_charge_type = "PostPaid"
 	name = "${var.name}"
 }`, rand)
 }
@@ -327,17 +327,16 @@ resource "apsarastack_vpc" "default" {
 	cidr_block = "172.16.0.0/12"
 }
 
-data "apsarastack_regions" "default" {
-	current = true
+variable "region" {
+  default = "cn-qingdao-env66-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
-	opposite_region = "${data.apsarastack_regions.default.regions.0.id}"
+	opposite_region = "${var.region}"
 	router_type = "VRouter"
 	router_id = "${apsarastack_vpc.default.router_id}"
 	role = "InitiatingSide"
 	specification = "Large.1"
-    instance_charge_type = "PostPaid"
 	name = "${var.name}"
 }`, rand)
 }
@@ -353,16 +352,15 @@ resource "apsarastack_vpc" "default" {
 	cidr_block = "172.16.0.0/12"
 }
 
-data "apsarastack_regions" "default" {
-	current = true
+variable "region" {
+  default = "cn-qingdao-env66-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
-	opposite_region = "${data.apsarastack_regions.default.regions.0.id}"
+	opposite_region = "${var.region}"
 	router_type = "VRouter"
 	router_id = "${apsarastack_vpc.default.router_id}"
 	role = "InitiatingSide"
-    instance_charge_type = "PostPaid"
 	name = "${var.name}"
 	specification = "Large.2"
 }`, rand)
@@ -379,16 +377,15 @@ resource "apsarastack_vpc" "default" {
 	cidr_block = "172.16.0.0/12"
 }
 
-data "apsarastack_regions" "default" {
-	current = true
+variable "region" {
+  default = "cn-qingdao-env66-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
-	opposite_region = "${data.apsarastack_regions.default.regions.0.id}"
+	opposite_region = "${var.region}"
 	router_type = "VRouter"
 	router_id = "${apsarastack_vpc.default.router_id}"
 	role = "InitiatingSide"
-    instance_charge_type = "PostPaid"
 	name = "${var.name}_change"
 	specification = "Large.2"
 }`, rand)
@@ -405,16 +402,15 @@ resource "apsarastack_vpc" "default" {
 	cidr_block = "172.16.0.0/12"
 }
 
-data "apsarastack_regions" "default" {
-	current = true
+variable "region" {
+  default = "cn-qingdao-env66-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
-	opposite_region = "${data.apsarastack_regions.default.regions.0.id}"
+	opposite_region = "${var.region}"
 	router_type = "VRouter"
 	router_id = "${apsarastack_vpc.default.router_id}"
 	role = "InitiatingSide"
-    instance_charge_type = "PostPaid"
 	name = "${var.name}_change"
 	specification = "Large.2"
 	description = "${var.name}_description"
@@ -432,16 +428,15 @@ resource "apsarastack_vpc" "default" {
 	cidr_block = "172.16.0.0/12"
 }
 
-data "apsarastack_regions" "default" {
-	current = true
+variable "region" {
+  default = "cn-qingdao-env66-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
-	opposite_region = "${data.apsarastack_regions.default.regions.0.id}"
+	opposite_region = "${var.region}"
 	router_type = "VRouter"
 	router_id = "${apsarastack_vpc.default.router_id}"
 	role = "InitiatingSide"
-    instance_charge_type = "PostPaid"
 	name = "${var.name}"
 	specification = "Large.1"
 	description = "${var.name}"
@@ -456,5 +451,4 @@ var testAccRouterInterfaceCheckMap = map[string]string{
 	"description":            "",
 	"health_check_source_ip": "",
 	"health_check_target_ip": "",
-	"instance_charge_type":   string(PostPaid),
 }

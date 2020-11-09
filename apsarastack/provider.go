@@ -89,7 +89,7 @@ func Provider() terraform.ResourceProvider {
 			"protocol": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "HTTPS",
+				Default:      "HTTP",
 				Description:  descriptions["protocol"],
 				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
 			},
@@ -111,6 +111,18 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DOMAIN", nil),
 				Description: descriptions["domain"],
+			},
+			"department": {
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DEPARTMENT", nil),
+				Description: descriptions["department"],
+			},
+			"resource_group": {
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP", nil),
+				Description: descriptions["resource_group"],
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -151,6 +163,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_buckets":                    dataSourceApsaraStackOssBuckets(),
 			"apsarastack_oss_bucket_objects":             dataSourceApsaraStackOssBucketObjects(),
 			"apsarastack_ess_scaling_groups":             dataSourceApsaraStackEssScalingGroups(),
+			"apsarastack_ess_lifecycle_hooks":            dataSourceApsaraStackEssLifecycleHooks(),
+			"apsarastack_ess_notifications":              dataSourceApsaraStackEssNotifications(),
 			"apsarastack_ess_scaling_rules":              dataSourceApsaraStackEssScalingRules(),
 			"apsarastack_router_interfaces":              dataSourceApsaraStackRouterInterfaces(),
 			"apsarastack_ess_scheduled_tasks":            dataSourceApsaraStackEssScheduledTasks(),
@@ -161,13 +175,15 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kms_ciphertext":                 dataSourceApsaraStackKmsCiphertext(),
 			"apsarastack_kms_keys":                       dataSourceApsaraStackKmsKeys(),
 			"apsarastack_kms_secrets":                    dataSourceApsaraStackKmsSecrets(),
+			"apsarastack_cr_ee_instances":                dataSourceApsaraStackCrEEInstances(),
+			"apsarastack_cr_ee_namespaces":               dataSourceApsaraStackCrEENamespaces(),
+			"apsarastack_cr_ee_repos":                    dataSourceApsaraStackCrEERepos(),
+			"apsarastack_cr_ee_sync_rules":               dataSourceApsaraStackCrEESyncRules(),
+			"apsarastack_cr_namespaces":                  dataSourceApsaraStackCRNamespaces(),
+			"apsarastack_cr_repos":                       dataSourceApsaraStackCRRepos(),
 			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
 			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
 			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
-			"apsarastack_kvstore_instances":              dataSourceApsaraStackKVStoreInstances(),
-			"apsarastack_kvstore_zones":                  dataSourceApsaraStackKVStoreZones(),
-			"apsarastack_kvstore_instance_classes":       dataSourceApsaraStackKVStoreInstanceClasses(),
-			"apsarastack_kvstore_instance_engines":       dataSourceApsaraStackKVStoreInstanceEngines(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -223,6 +239,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_oss_bucket":                          resourceApsaraStackOssBucket(),
 			"apsarastack_oss_bucket_object":                   resourceApsaraStackOssBucketObject(),
 			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
+			"apsarastack_ess_notification":                    resourceApsaraStackEssNotification(),
 			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
 			"apsarastack_ess_scaling_rule":                    resourceApsaraStackEssScalingRule(),
 			"apsarastack_router_interface":                    resourceApsaraStackRouterInterface(),
@@ -242,13 +259,15 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_log_machine_group":                   resourceApsaraStackLogMachineGroup(),
 			"apsarastack_logtail_attachment":                  resourceApsaraStackLogtailAttachment(),
 			"apsarastack_logtail_config":                      resourceApsaraStackLogtailConfig(),
+			"apsarastack_cr_ee_namespace":                     resourceApsaraStackCrEENamespace(),
+			"apsarastack_cr_ee_repo":                          resourceApsaraStackCrEERepo(),
+			"apsarastack_cr_ee_sync_rule":                     resourceApsaraStackCrEESyncRule(),
+			"apsarastack_cr_namespace":                        resourceApsaraStackCRNamespace(),
+			"apsarastack_cr_repo":                             resourceApsaraStackCRRepo(),
 			"apsarastack_dns_record":                          resourceApsaraStackDnsRecord(),
 			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
 			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
 			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
-			"apsarastack_kvstore_instance":                    resourceApsaraStackKVStoreInstance(),
-			"apsarastack_kvstore_backup_policy":               resourceApsaraStackKVStoreBackupPolicy(),
-			"apsarastack_kvstore_account":                     resourceApsaraStackKVstoreAccount(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -287,6 +306,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Protocol:             d.Get("protocol").(string),
 		Insecure:             d.Get("insecure").(bool),
 		Proxy:                d.Get("proxy").(string),
+		Department:           d.Get("department").(string),
+		ResourceGroup:        d.Get("resource_group").(string),
 	}
 	token := getProviderConfig(d.Get("security_token").(string), "sts_token")
 	config.SecurityToken = strings.TrimSpace(token)
@@ -337,13 +358,14 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.VpcEndpoint = "vpc." + domain
 		config.SlbEndpoint = "slb." + domain
 		config.OssEndpoint = "oss." + domain
-		config.StsEndpoint = "sts." + domain
+		config.AscmEndpoint = "ascm." + domain
 		config.RdsEndpoint = "rds." + domain
 		config.OnsEndpoint = "ons." + domain
 		config.KmsEndpoint = "kms." + domain
 		config.LogEndpoint = "log." + domain
+		config.CrEndpoint = "cr." + domain
+		config.EssEndpoint = "ess." + domain
 		config.DnsEndpoint = "dns." + domain
-		config.KVStoreEndpoint = "kvstore."
 
 	} else {
 
@@ -353,20 +375,22 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			endpoints := endpointsSetI.(map[string]interface{})
 			config.EcsEndpoint = strings.TrimSpace(endpoints["ecs"].(string))
 			config.VpcEndpoint = strings.TrimSpace(endpoints["vpc"].(string))
-			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
+			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
 			config.RdsEndpoint = strings.TrimSpace(endpoints["rds"].(string))
-			config.OssEndpoint = strings.TrimSpace(endpoints["oss."].(string))
-			config.StsEndpoint = strings.TrimSpace(endpoints["slb."].(string))
+			config.OssEndpoint = strings.TrimSpace(endpoints["oss"].(string))
 			config.OnsEndpoint = strings.TrimSpace(endpoints["ons"].(string))
 			config.KmsEndpoint = strings.TrimSpace(endpoints["kms"].(string))
 			config.LogEndpoint = strings.TrimSpace(endpoints["log"].(string))
+			config.SlbEndpoint = strings.TrimSpace(endpoints["slb"].(string))
+			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
+			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
-			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
+
 		}
 	}
 
 	if config.RamRoleArn != "" {
-		config.AccessKey, config.SecretKey, config.SecurityToken, err = getAssumeRoleAK(config.AccessKey, config.SecretKey, config.SecurityToken, region, config.RamRoleArn, config.RamRoleSessionName, config.RamRolePolicy, config.RamRoleSessionExpiration, config.StsEndpoint)
+		config.AccessKey, config.SecretKey, config.SecurityToken, err = getAssumeRoleAK(config.AccessKey, config.SecretKey, config.SecurityToken, region, config.RamRoleArn, config.RamRoleSessionName, config.RamRolePolicy, config.RamRoleSessionExpiration, config.AscmEndpoint)
 		if err != nil {
 			return nil, err
 		}
@@ -538,11 +562,11 @@ func endpointsSchema() *schema.Schema {
 					Description: descriptions["pvtz_endpoint"],
 				},
 
-				"sts": {
+				"ascm": {
 					Type:        schema.TypeString,
 					Optional:    true,
 					Default:     "",
-					Description: descriptions["sts_endpoint"],
+					Description: descriptions["ascm_endpoint"],
 				},
 				// log service is sls service
 				"log": {
@@ -702,7 +726,7 @@ func endpointsToHash(v interface{}) int {
 	buf.WriteString(fmt.Sprintf("%s-", m["ots"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["cms"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["pvtz"].(string)))
-	buf.WriteString(fmt.Sprintf("%s-", m["sts"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", m["ascm"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["log"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["drds"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["dds"].(string)))
@@ -834,14 +858,14 @@ func assumeRoleSchema() *schema.Schema {
 	}
 }
 
-func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionName, policy string, sessionExpiration int, stsEndpoint string) (string, string, string, error) {
+func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionName, policy string, sessionExpiration int, ascmEndpoint string) (string, string, string, error) {
 	request := sts.CreateAssumeRoleRequest()
 	request.RoleArn = roleArn
 	request.RoleSessionName = sessionName
 	request.DurationSeconds = requests.NewInteger(sessionExpiration)
 	request.Policy = policy
-	request.Scheme = "https"
-	request.Domain = stsEndpoint
+	request.Scheme = "http"
+	request.Domain = ascmEndpoint
 
 	var client *sts.Client
 	var err error

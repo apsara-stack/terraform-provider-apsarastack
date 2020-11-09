@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccApsaraStackEssScalinggroupsDataSource(t *testing.T) {
-	rand := acctest.RandInt()
+	rand := acctest.RandIntRange(5, 1000)
 	nameRegexConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackEssScalinggroupsDataSourceConfig(rand, map[string]string{
 			"name_regex": `"${apsarastack_ess_scaling_group.default.scaling_group_name}"`,

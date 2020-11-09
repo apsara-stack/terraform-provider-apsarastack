@@ -20,7 +20,7 @@ Provides a ECS disk resource.
 resource "apsarastack_disk" "ecs_disk" { 
   availability_zone = "${var.availability_zone}"
   name              = "New-disk"
-  description       = "Hello ecs disk."
+  description       = "ECS-Disk"
   category          = "cloud_efficiency"
   size              = "30"
 
@@ -51,11 +51,3 @@ The following attributes are exported:
 
 * `id` - The ID of the disk.
 * `status` - The disk status.
-
-## Import
-
-Cloud disk can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_disk.example d-abc12345678
-```

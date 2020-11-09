@@ -38,6 +38,7 @@ func CreateTokenAutoUpdateClient(endpoint string, tokenUpdateFunc UpdateTokenFun
 	return tauc, nil
 }
 
+
 // ClientInterface for all log's open api
 type ClientInterface interface {
 	// #################### Client Operations #####################
@@ -50,6 +51,8 @@ type ClientInterface interface {
 	// CreateProject create a new loghub project.
 	CreateProject(name, description string) (*LogProject, error)
 	GetProject(name string) (*LogProject, error)
+	// UpdateProject create a new loghub project.
+	UpdateProject(name, description string) (*LogProject, error)
 	// ListProject list all projects in specific region
 	// the region is related with the client's endpoint
 	ListProject() (projectNames []string, err error)
@@ -200,6 +203,7 @@ type ClientInterface interface {
 
 	// #################### Chart&Dashboard Operations #####################
 	ListDashboard(project string, dashboardName string, offset, size int) (dashboardList []string, count, total int, err error)
+	ListDashboardV2(project string, dashboardName string, offset, size int) (dashboardList []string, dashboardItems []ResponseDashboardItem, count, total int, err error)
 	GetDashboard(project, name string) (dashboard *Dashboard, err error)
 	GetDashboardString(project, name string) (dashboard string, err error)
 	DeleteDashboard(project, name string) error
@@ -218,6 +222,7 @@ type ClientInterface interface {
 	DeleteSavedSearch(project string, savedSearchName string) error
 	GetSavedSearch(project string, savedSearchName string) (*SavedSearch, error)
 	ListSavedSearch(project string, savedSearchName string, offset, size int) (savedSearches []string, total int, count int, err error)
+	ListSavedSearchV2(project string, savedSearchName string, offset, size int) (savedSearches []string, savedsearchItems []ResponseSavedSearchItem, total int, count int, err error)
 	CreateAlert(project string, alert *Alert) error
 	UpdateAlert(project string, alert *Alert) error
 	DeleteAlert(project string, alertName string) error
@@ -225,4 +230,25 @@ type ClientInterface interface {
 	DisableAlert(project string, alertName string) error
 	EnableAlert(project string, alertName string) error
 	ListAlert(project, alertName, dashboard string, offset, size int) (alerts []*Alert, total int, count int, err error)
+
+	// #################### Consumer Operations #####################
+	CreateConsumerGroup(project, logstore string, cg ConsumerGroup) (err error)
+	UpdateConsumerGroup(project, logstore string, cg ConsumerGroup) (err error)
+	DeleteConsumerGroup(project, logstore string, cgName string) (err error)
+	ListConsumerGroup(project, logstore string) (cgList []*ConsumerGroup, err error)
+	HeartBeat(project, logstore string, cgName, consumer string, heartBeatShardIDs []int) (shardIDs []int, err error)
+	UpdateCheckpoint(project, logstore string, cgName string, consumer string, shardID int, checkpoint string, forceSuccess bool) (err error)
+	GetCheckpoint(project, logstore string, cgName string) (checkPointList []*ConsumerGroupCheckPoint, err error)
+
+	// ####################### Resource Tags API ######################
+	// TagResources tag specific resource
+	TagResources(project string, tags *ResourceTags) error
+	// UnTagResources untag specific resource
+	UnTagResources(project string, tags *ResourceUnTags) error
+	// ListTagResources list rag resources
+	ListTagResources(project string,
+		resourceType string,
+		resourceIDs []string,
+		tags []ResourceFilterTag,
+		nextToken string) (respTags []*ResourceTagResponse, respNextToken string, err error)
 }

@@ -33,6 +33,10 @@ func testSweepDnsDomain(region string) error {
 	client := rawClient.(*connectivity.ApsaraStackClient)
 	queryRequest := alidns.CreateDescribeDomainsRequest()
 	var allDomains []alidns.Domain
+	queryRequest.Headers = map[string]string{"RegionId": client.RegionId}
+	queryRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	queryRequest.QueryParams["Department"] = client.Department
+	queryRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
 	queryRequest.PageSize = requests.NewInteger(PageSizeLarge)
 	queryRequest.PageNumber = requests.NewInteger(1)
 
@@ -65,6 +69,10 @@ func testSweepDnsDomain(region string) error {
 		}
 
 		removeRequest := alidns.CreateDeleteDomainRequest()
+		removeRequest.Headers = map[string]string{"RegionId": client.RegionId}
+		removeRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+		removeRequest.QueryParams["Department"] = client.Department
+		removeRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
 		removeRequest.DomainName = ""
 		for _, domain := range allDomains {
 			removeRequest.DomainName = domain.DomainName

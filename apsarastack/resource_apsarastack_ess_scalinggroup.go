@@ -86,7 +86,6 @@ func resourceApsaraStackEssScalingGroupCreate(d *schema.ResourceData, meta inter
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	essService := EssService{client}
-
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateScalingGroup(request)
@@ -168,6 +167,9 @@ func resourceApsaraStackEssScalingGroupUpdate(d *schema.ResourceData, meta inter
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateModifyScalingGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.ScalingGroupId = d.Id()
 
 	d.Partial(true)
@@ -236,6 +238,9 @@ func resourceApsaraStackEssScalingGroupDelete(d *schema.ResourceData, meta inter
 
 	request := ess.CreateDeleteScalingGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.ScalingGroupId = d.Id()
 	request.ForceDelete = requests.NewBoolean(true)
 
@@ -259,6 +264,9 @@ func buildApsaraStackEssScalingGroupArgs(d *schema.ResourceData, meta interface{
 	slbService := SlbService{client}
 	request := ess.CreateCreateScalingGroupRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.MinSize = requests.NewInteger(d.Get("min_size").(int))
 	request.MaxSize = requests.NewInteger(d.Get("max_size").(int))
 	request.DefaultCooldown = requests.NewInteger(d.Get("default_cooldown").(int))

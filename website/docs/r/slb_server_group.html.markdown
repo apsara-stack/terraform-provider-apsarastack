@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_slb_server_group"
 sidebar_current: "docs-apsarastack-resource-slb-server-group"
 description: |-
-  Provides a Load Banlancer Virtual Backend Server Group resource.
+  Provides a Load Balancer Virtual Backend Server Group resource.
 ---
 
 # apsarastack\_slb\_server\_group
@@ -62,10 +62,8 @@ resource "apsarastack_instance" "instance" {
   instance_name              = "${var.name}"
   count                      = "2"
   security_groups            = "${apsarastack_security_group.default.*.id}"
-  internet_charge_type       = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone          = "${data.apsarastack_zones.default.zones.0.id}"
-  instance_charge_type       = "PostPaid"
   system_disk_category       = "cloud_efficiency"
   vswitch_id                 = "${apsarastack_vswitch.default.id}"
 }
@@ -96,7 +94,7 @@ The following arguments are supported:
 * `load_balancer_id` - (Required, ForceNew) The Load Balancer ID which is used to launch a new virtual server group.
 * `name` - (Optional) Name of the virtual server group. Our plugin provides a default name: "tf-server-group".
 * `servers` - A list of ECS instances to be added. At most 20 ECS instances can be supported in one resource. It contains three sub-fields as `Block server` follows.
-* `delete_protection_validation` - (Optional, Available in 1.63.0+) Checking DeleteProtection of SLB instance before deleting. If true, this resource will not be deleted when its SLB instance enabled DeleteProtection. Default to false.
+* `delete_protection_validation` - (Optional) Checking DeleteProtection of SLB instance before deleting. If true, this resource will not be deleted when its SLB instance enabled DeleteProtection. Default to false.
 
 ## Block servers
 
@@ -105,7 +103,7 @@ The servers mapping supports the following:
 * `server_ids` - (Required) A list backend server ID (ECS instance ID).
 * `port` - (Required) The port used by the backend server. Valid value range: [1-65535].
 * `weight` - (Optional) Weight of the backend server. Valid value range: [0-100]. Default to 100.
-* `type` - (Optional, Available in 1.51.0+) Type of the backend server. Valid value ecs, eni. Default to eni.
+* `type` - (Optional) Type of the backend server. Valid value ecs, eni. Default to eni.
 
 ## Attributes Reference
 
@@ -115,11 +113,3 @@ The following attributes are exported:
 * `load_balancer_id` - The Load Balancer ID which is used to launch a new virtual server group.
 * `name` - The name of the virtual server group.
 * `servers` - A list of ECS instances that have be added.
-
-## Import
-
-Load balancer backend server group can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb_server_group.example abc123456
-```

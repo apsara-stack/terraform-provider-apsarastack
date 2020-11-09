@@ -85,16 +85,7 @@ resource "apsarastack_oss_bucket" "bucket-lifecycle" {
     expiration {
       days = 365
     }
-  }
-  lifecycle_rule {
-    id      = "rule-date"
-    prefix  = "path2/"
-    enabled = true
-
-    expiration {
-      date = "2018-01-12"
-    }
-  }
+  }  
 }
 
 resource "apsarastack_oss_bucket" "bucket-lifecycle" {
@@ -312,10 +303,4 @@ The following attributes are exported:
 * `location` - The location of the bucket.
 * `owner` - The bucket owner.
 
-## Import
 
-OSS bucket can be imported using the bucket name, e.g.
-
-```
-$ terraform import apsarastack_oss_bucket.bucket bucket-12345678
-```

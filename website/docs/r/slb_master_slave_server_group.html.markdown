@@ -22,9 +22,6 @@ A master slave server group contains two ECS instances. The master slave server 
 -> **NOTE:** One Classic and Intranet load balancer, its master slave server group can only add Classic ECS instances.
 
 -> **NOTE:** One VPC load balancer, its master slave server group can only add the same VPC ECS instances.
-
--> **NOTE:** Available in 1.54.0+
-
 ## Example Usage
 
 ```
@@ -84,7 +81,6 @@ resource "apsarastack_instance" "instance" {
 resource "apsarastack_slb" "instance" {
   name          = "${var.name}"
   vswitch_id    = "${apsarastack_vswitch.main.id}"
-  specification = "slb.s2.small"
 }
 
 resource "apsarastack_network_interface" "default" {
@@ -137,7 +133,6 @@ The servers mapping supports the following:
 * `port` - (Required) The port used by the backend server. Valid value range: [1-65535].
 * `weight` - (Optional) Weight of the backend server. Valid value range: [0-100]. Default to 100.
 * `server_type` - (Optional) The server type of the backend server. Valid value Master, Slave.
-* `is_backup` - (Removed from v1.63.0) Determine if the server is executing. Valid value 0, 1. 
 
 ## Attributes Reference
 
@@ -145,10 +140,3 @@ The following attributes are exported:
 
 * `id` - The ID of the master slave server group.
 
-## Import
-
-Load balancer master slave server group can be imported using the id, e.g.
-
-```
-$ terraform import apsarastack_slb_master_slave_server_group.example abc123456
-```

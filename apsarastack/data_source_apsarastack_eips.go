@@ -78,7 +78,9 @@ func dataSourceApsaraStackEipsRead(d *schema.ResourceData, meta interface{}) err
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := vpc.CreateDescribeEipAddressesRequest()
-	request.RegionId = string(client.Region)
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 

@@ -45,6 +45,8 @@ func testSweepRouteTable(region string) error {
 	var routeTables []vpc.RouterTableListType
 	req := vpc.CreateDescribeRouteTableListRequest()
 	req.RegionId = client.RegionId
+	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -87,6 +89,10 @@ func testSweepRouteTable(region string) error {
 		}
 		log.Printf("[INFO] Deleting Route Table: %s (%s)", name, id)
 		req := vpc.CreateDeleteRouteTableRequest()
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		req.QueryParams["Department"] = client.Department
+		req.QueryParams["ResourceGroup"] = client.ResourceGroup
 		req.RouteTableId = id
 		_, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.DeleteRouteTable(req)

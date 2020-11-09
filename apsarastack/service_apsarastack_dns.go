@@ -5,6 +5,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"reflect"
 	"time"
 )
@@ -16,6 +17,10 @@ type DnsService struct {
 func (dns *DnsService) DescribeDnsRecord(id string) (*alidns.DescribeDomainRecordInfoResponse, error) {
 	response := &alidns.DescribeDomainRecordInfoResponse{}
 	request := alidns.CreateDescribeDomainRecordInfoRequest()
+	request.Headers = map[string]string{"RegionId": dns.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": dns.client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = dns.client.Department
+	request.QueryParams["ResourceGroup"] = dns.client.ResourceGroup
 	request.RecordId = id
 	request.RegionId = dns.client.RegionId
 	raw, err := dns.client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
@@ -38,6 +43,10 @@ func (dns *DnsService) DescribeDnsRecord(id string) (*alidns.DescribeDomainRecor
 func (dns *DnsService) DescribeDnsGroup(id string) (alidns.DomainGroup, error) {
 	var group alidns.DomainGroup
 	request := alidns.CreateDescribeDomainGroupsRequest()
+	request.Headers = map[string]string{"RegionId": dns.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": dns.client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = dns.client.Department
+	request.QueryParams["ResourceGroup"] = dns.client.ResourceGroup
 	request.RegionId = dns.client.RegionId
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
@@ -72,6 +81,10 @@ func (dns *DnsService) DescribeDnsGroup(id string) (alidns.DomainGroup, error) {
 func (s *DnsService) ListTagResources(id string) (object alidns.ListTagResourcesResponse, err error) {
 	request := alidns.CreateListTagResourcesRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	request.ResourceType = "DOMAIN"
 	request.ResourceId = &[]string{id}
@@ -90,6 +103,10 @@ func (s *DnsService) ListTagResources(id string) (object alidns.ListTagResources
 func (s *DnsService) DescribeDnsDomainAttachment(id string) (object alidns.DescribeInstanceDomainsResponse, err error) {
 	request := alidns.CreateDescribeInstanceDomainsRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	request.InstanceId = id
 
@@ -164,6 +181,11 @@ func (s *DnsService) SetResourceTags(d *schema.ResourceData, resourceType string
 	if len(removed) > 0 {
 		request := alidns.CreateUntagResourcesRequest()
 		request.RegionId = s.client.RegionId
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "alidns"}
+		request.QueryParams["Department"] = s.client.Department
+		request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
+
 		request.ResourceId = &[]string{d.Id()}
 		request.ResourceType = resourceType
 		request.TagKey = &removed
@@ -178,6 +200,11 @@ func (s *DnsService) SetResourceTags(d *schema.ResourceData, resourceType string
 	if len(added) > 0 {
 		request := alidns.CreateTagResourcesRequest()
 		request.RegionId = s.client.RegionId
+		request.Headers = map[string]string{"RegionId": s.client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "alidns"}
+		request.QueryParams["Department"] = s.client.Department
+		request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
+
 		request.ResourceId = &[]string{d.Id()}
 		request.ResourceType = resourceType
 		request.Tag = &added
@@ -195,13 +222,19 @@ func (s *DnsService) SetResourceTags(d *schema.ResourceData, resourceType string
 func (s *DnsService) DescribeDnsDomain(id string) (object alidns.DescribeDomainInfoResponse, err error) {
 	request := alidns.CreateDescribeDomainInfoRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
 	request.DomainName = id
 
 	raw, err := s.client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
 		return alidnsClient.DescribeDomainInfo(request)
 	})
+	log.Printf("ROshan err %s", raw)
 	if err != nil {
+		log.Printf("ROshan %s", err)
 		if IsExpectedErrors(err, []string{"InvalidDomainName.NoExist"}) {
 			err = WrapErrorf(Error(GetNotFoundMessage("DnsDomain", id)), NotFoundMsg, ProviderERROR)
 			return
@@ -211,5 +244,6 @@ func (s *DnsService) DescribeDnsDomain(id string) (object alidns.DescribeDomainI
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*alidns.DescribeDomainInfoResponse)
+	log.Printf("ROshan2 %s ,id %s,rid %s", response.DomainName, id, response.DomainId)
 	return *response, nil
 }

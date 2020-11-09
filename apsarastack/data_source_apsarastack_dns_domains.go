@@ -113,6 +113,10 @@ func dataSourceApsaraStackDnsDomains() *schema.Resource {
 func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := alidns.CreateDescribeDomainsRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 
 	var allDomains []alidns.Domain
 	request.RegionId = client.RegionId

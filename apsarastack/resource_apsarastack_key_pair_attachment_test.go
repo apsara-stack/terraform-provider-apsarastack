@@ -83,14 +83,12 @@ data "apsarastack_images" "default" {
 	owners = "system"
 }
 variable "name" {
-	default = "tf-testAccKeyPairAttachmentConfig"
+	default = "tf-testAccKeyPairAttachment"
 }
-
 resource "apsarastack_vpc" "default" {
   name = "${var.name}"
   cidr_block = "10.1.0.0/21"
 }
-
 resource "apsarastack_vswitch" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
   cidr_block = "10.1.1.0/24"
@@ -102,7 +100,6 @@ resource "apsarastack_security_group" "default" {
   description = "New security group"
   vpc_id = "${apsarastack_vpc.default.id}"
 }
-
 resource "apsarastack_instance" "default" {
   instance_name = "${var.name}-${count.index+1}"
   image_id = "${data.apsarastack_images.default.images.0.id}"
@@ -110,19 +107,13 @@ resource "apsarastack_instance" "default" {
   count = 2
   security_groups = ["${apsarastack_security_group.default.id}"]
   vswitch_id = "${apsarastack_vswitch.default.id}"
-
-  internet_charge_type = "PayByTraffic"
   internet_max_bandwidth_out = 5
   password = "Yourpassword1234"
-
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_ssd"
 }
-
 resource "apsarastack_key_pair" "default" {
   key_name = "${var.name}"
 }
-
 resource "apsarastack_key_pair_attachment" "default" {
   key_name = "${apsarastack_key_pair.default.id}"
   instance_ids = "${apsarastack_instance.default.*.id}"

@@ -87,6 +87,10 @@ func resourceApsaraStackKmsSecretCreate(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := kms.CreateCreateSecretRequest()
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if v, ok := d.GetOk("description"); ok {
 		request.Description = v.(string)
 	}
@@ -172,6 +176,9 @@ func resourceApsaraStackKmsSecretUpdate(d *schema.ResourceData, meta interface{}
 	}
 	if d.HasChange("description") {
 		request := kms.CreateUpdateSecretRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 		request.SecretName = d.Id()
 		request.Description = d.Get("description").(string)
 		raw, err := client.WithKmsClient(func(kmsClient *kms.Client) (interface{}, error) {
@@ -185,6 +192,9 @@ func resourceApsaraStackKmsSecretUpdate(d *schema.ResourceData, meta interface{}
 	}
 	update := false
 	request := kms.CreatePutSecretValueRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.SecretName = d.Id()
 	if d.HasChange("secret_data") {
 		update = true
@@ -221,6 +231,9 @@ func resourceApsaraStackKmsSecretUpdate(d *schema.ResourceData, meta interface{}
 func resourceApsaraStackKmsSecretDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := kms.CreateDeleteSecretRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "kms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.SecretName = d.Id()
 	if v, ok := d.GetOkExists("force_delete_without_recovery"); ok {
 		request.ForceDeleteWithoutRecovery = fmt.Sprintf("%v", v.(bool))

@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccApsaraStackOssBucketObject_basic(t *testing.T) {
+func TestAccAlicloudOssBucketObject_basic(t *testing.T) {
 	tmpFile, err := ioutil.TempFile("", "tf-oss-object-test-acc-source")
 	if err != nil {
 		t.Fatal(err)
@@ -44,7 +44,7 @@ func TestAccApsaraStackOssBucketObject_basic(t *testing.T) {
 		},
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckApsaraStackOssBucketObjectDestroy,
+		CheckDestroy:  testAccCheckAlicloudOssBucketObjectDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -54,7 +54,7 @@ func TestAccApsaraStackOssBucketObject_basic(t *testing.T) {
 					"content_type": "binary/octet-stream",
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApsaraStackOssBucketObjectExists(
+					testAccCheckAlicloudOssBucketObjectExists(
 						"apsarastack_oss_bucket_object.default", name, v),
 					testAccCheck(map[string]string{
 						"bucket": name,
@@ -68,7 +68,7 @@ func TestAccApsaraStackOssBucketObject_basic(t *testing.T) {
 					"content": "some words for test oss object content",
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApsaraStackOssBucketObjectExists(
+					testAccCheckAlicloudOssBucketObjectExists(
 						"apsarastack_oss_bucket_object.default", name, v),
 					testAccCheck(map[string]string{
 						"source":  REMOVEKEY,
@@ -89,7 +89,7 @@ func TestAccApsaraStackOssBucketObject_basic(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"server_side_encryption": "KMS",
-					"kms_key_id":             "423a0d8a-0c28-4899-be56-32217cb95e88",
+					"kms_key_id":             "${data.apsarastack_kms_keys.enabled.ids.0}",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{}),
@@ -107,7 +107,7 @@ func TestAccApsaraStackOssBucketObject_basic(t *testing.T) {
 					"acl":                    REMOVEKEY,
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApsaraStackOssBucketObjectExists(
+					testAccCheckAlicloudOssBucketObjectExists(
 						"apsarastack_oss_bucket_object.default", name, v),
 					testAccCheck(map[string]string{
 						"bucket":       name,
@@ -128,7 +128,11 @@ func resourceOssBucketObjectConfigDependence(name string) string {
 	return fmt.Sprintf(`
 resource "apsarastack_oss_bucket" "default" {
 	bucket = "%s"
-}`, name)
+}
+data "apsarastack_kms_keys" "enabled" {
+	status = "Enabled"
+}
+`, name)
 }
 
 var ossBucketObjectBasicMap = map[string]string{
@@ -139,7 +143,7 @@ var ossBucketObjectBasicMap = map[string]string{
 	"acl":          "private",
 }
 
-func testAccCheckApsaraStackOssBucketObjectExists(n string, bucket string, obj http.Header) resource.TestCheckFunc {
+func testAccCheckAlicloudOssBucketObjectExists(n string, bucket string, obj http.Header) resource.TestCheckFunc {
 	providers := []*schema.Provider{testAccProvider}
 	return testAccCheckOssBucketObjectExistsWithProviders(n, bucket, obj, &providers)
 }
@@ -183,7 +187,7 @@ func testAccCheckOssBucketObjectExistsWithProviders(n string, bucket string, obj
 		return fmt.Errorf("Bucket not found")
 	}
 }
-func testAccCheckApsaraStackOssBucketObjectDestroy(s *terraform.State) error {
+func testAccCheckAlicloudOssBucketObjectDestroy(s *terraform.State) error {
 	return testAccCheckOssBucketObjectDestroyWithProvider(s, testAccProvider)
 }
 

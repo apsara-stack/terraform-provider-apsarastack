@@ -83,6 +83,10 @@ func resourceApsaraStackDnsDomainAttachmentUpdate(d *schema.ResourceData, meta i
 	if len(remove) > 0 {
 		removeNames := strings.Join(remove, ",")
 		request := alidns.CreateUnbindInstanceDomainsRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.InstanceId = d.Id()
 		request.DomainNames = removeNames
 		raw, err := client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
@@ -96,6 +100,10 @@ func resourceApsaraStackDnsDomainAttachmentUpdate(d *schema.ResourceData, meta i
 	if len(add) > 0 {
 		addNames := strings.Join(add, ",")
 		request := alidns.CreateBindInstanceDomainsRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+		request.QueryParams["Department"] = client.Department
+		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.InstanceId = d.Id()
 		request.DomainNames = addNames
 		raw, err := client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
@@ -123,6 +131,10 @@ func resourceApsaraStackDnsdomainAttachmentDelete(d *schema.ResourceData, meta i
 	}
 
 	request := alidns.CreateUnbindInstanceDomainsRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.InstanceId = d.Id()
 	request.DomainNames = strings.Join(deleteSli, ",")
 

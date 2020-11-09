@@ -127,6 +127,10 @@ func dataSourceApsaraStackDnsRecordsRead(d *schema.ResourceData, meta interface{
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := alidns.CreateDescribeDomainRecordsRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = client.Department
+	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RegionId = client.RegionId
 	request.DomainName = d.Get("domain_name").(string)
 	if v, ok := d.GetOk("type"); ok && v.(string) != "" {

@@ -70,6 +70,9 @@ func resourceApsaraStackEssLifeCycleHookCreate(d *schema.ResourceData, meta inte
 	request := buildApsaraStackEssLifeCycleHookArgs(d)
 	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateLifecycleHook(request)
@@ -122,6 +125,9 @@ func resourceApsaraStackEssLifeCycleHookUpdate(d *schema.ResourceData, meta inte
 	request := ess.CreateModifyLifecycleHookRequest()
 	request.LifecycleHookId = d.Id()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if d.HasChange("lifecycle_transition") {
 		request.LifecycleTransition = d.Get("lifecycle_transition").(string)
 	}
@@ -159,6 +165,9 @@ func resourceApsaraStackEssLifeCycleHookDelete(d *schema.ResourceData, meta inte
 	request := ess.CreateDeleteLifecycleHookRequest()
 	request.LifecycleHookId = d.Id()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteLifecycleHook(request)
 	})
@@ -175,6 +184,7 @@ func resourceApsaraStackEssLifeCycleHookDelete(d *schema.ResourceData, meta inte
 }
 
 func buildApsaraStackEssLifeCycleHookArgs(d *schema.ResourceData) *ess.CreateLifecycleHookRequest {
+
 	request := ess.CreateCreateLifecycleHookRequest()
 
 	request.ScalingGroupId = d.Get("scaling_group_id").(string)
