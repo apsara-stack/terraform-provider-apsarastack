@@ -845,16 +845,14 @@ func (client *ApsaraStackClient) WithRdsClient(do func(*rds.Client) (interface{}
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the RDS client: %#v", err)
 		}
-
+		rdsconn.Domain = endpoint
 		rdsconn.AppendUserAgent(Terraform, terraformVersion)
 		rdsconn.AppendUserAgent(Provider, providerVersion)
 		rdsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		rdsconn.SetHTTPSInsecure(client.config.Insecure)
 
 		if client.config.Proxy != "" {
-			rdsconn.SetHttpsProxy(client.config.Proxy)
 			rdsconn.SetHttpProxy(client.config.Proxy)
-
 		}
 
 		client.rdsconn = rdsconn

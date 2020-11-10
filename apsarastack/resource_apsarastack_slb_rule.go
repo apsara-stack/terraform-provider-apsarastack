@@ -43,6 +43,7 @@ func resourceApsaraStackSlbRule() *schema.Resource {
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 
 			"listener_sync": {
@@ -71,6 +72,7 @@ func resourceApsaraStackSlbRule() *schema.Resource {
 			"server_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"cookie": {
 				Type:             schema.TypeString,
