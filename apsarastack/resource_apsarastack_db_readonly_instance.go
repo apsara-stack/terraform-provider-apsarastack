@@ -166,6 +166,7 @@ func resourceApsaraStackDBReadonlyInstanceUpdate(d *schema.ResourceData, meta in
 	if d.HasChange("instance_name") {
 		request := rds.CreateModifyDBInstanceDescriptionRequest()
 		request.RegionId = client.RegionId
+
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
@@ -197,6 +198,7 @@ func resourceApsaraStackDBReadonlyInstanceUpdate(d *schema.ResourceData, meta in
 	update := false
 	request := rds.CreateModifyDBInstanceSpecRequest()
 	request.RegionId = client.RegionId
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()

@@ -61,9 +61,6 @@ func TestAccApsaraStackSlbListener_http_basic(t *testing.T) {
 							"retrive_slb_id": "true",
 						},
 					},
-					"acl_status":  "on",
-					"acl_type":    "white",
-					"acl_id":      "${apsarastack_slb_acl.default.id}",
 					"description": name,
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -90,19 +87,16 @@ func TestAccApsaraStackSlbListener_http_basic(t *testing.T) {
 						"x_forwarded_for.0.retrive_slb_ip":    "true",
 						"x_forwarded_for.0.retrive_slb_id":    "true",
 						"x_forwarded_for.0.retrive_slb_proto": "false",
-						"acl_status":                          "on",
-						"acl_type":                            string(AclTypeWhite),
-						"acl_id":                              CHECKSET,
-						"gzip":                                "true",
 						"description":                         name,
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_protection_validation"},
+				ImportStateVerifyIgnore: []string{"delete_protection_validation", "acl_status"},
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -226,41 +220,11 @@ func TestAccApsaraStackSlbListener_http_basic(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"idle_timeout": "40",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"idle_timeout": "40",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"request_timeout": "90",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"request_timeout": "90",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
 					"health_check": "off",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"health_check": "off",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"acl_status": "off",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"acl_status": "off",
 					}),
 				),
 			},
@@ -313,17 +277,17 @@ func TestAccCheckSlbListenerForward(t *testing.T) {
 				Config: testAccSlbListenerHttpForward(name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"load_balancer_id":          CHECKSET,
-						"frontend_port":             "80",
-						"protocol":                  "http",
-						"listener_forward":          "on",
-						"forward_port":              "443",
-						"bandwidth":                 NOSET,
-						"scheduler":                 string(WRRScheduler),
-						"sticky_session":            NOSET,
-						"sticky_session_type":       NOSET,
-						"cookie_timeout":            NOSET,
-						"health_check":              NOSET,
+						"load_balancer_id": CHECKSET,
+						"frontend_port":    "80",
+						"protocol":         "http",
+						"listener_forward": "on",
+						"forward_port":     "443",
+						//"bandwidth":                 NOSET,
+						"scheduler": string(WRRScheduler),
+						//"sticky_session":            NOSET,
+						"sticky_session_type": NOSET,
+						"cookie_timeout":      NOSET,
+						//"health_check":              NOSET,
 						"health_check_uri":          NOSET,
 						"health_check_domain":       NOSET,
 						"health_check_connect_port": NOSET,
@@ -331,17 +295,16 @@ func TestAccCheckSlbListenerForward(t *testing.T) {
 						"unhealthy_threshold":       "3",
 						"health_check_timeout":      "5",
 						"health_check_interval":     "2",
-						"acl_status":                string(OffFlag),
-						"acl_type":                  NOSET,
-						"acl_id":                    NOSET,
 						"gzip":                      NOSET,
 						"health_check_http_code":    NOSET,
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
 }
+
 func TestAccApsaraStackSlbListener_same_port(t *testing.T) {
 	var v map[string]interface{}
 	resourceId := "apsarastack_slb_listener.default"
@@ -368,16 +331,18 @@ func TestAccApsaraStackSlbListener_same_port(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"load_balancer_id": CHECKSET,
-						"frontend_port":    "80",
+						"frontend_port":    "22",
 						"protocol":         "tcp",
 						"bandwidth":        "10",
 						"backend_port":     "80",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
 }
+
 func TestAccApsaraStackSlbListener_https_update(t *testing.T) {
 	var v map[string]interface{}
 	resourceId := "apsarastack_slb_listener.default"
@@ -425,9 +390,6 @@ func TestAccApsaraStackSlbListener_https_update(t *testing.T) {
 							"retrive_slb_id": "true",
 						},
 					},
-					"acl_status":            "on",
-					"acl_type":              "white",
-					"acl_id":                "${apsarastack_slb_acl.default.id}",
 					"server_certificate_id": "${apsarastack_slb_server_certificate.default.id}",
 					"description":           name,
 				}),
@@ -448,9 +410,6 @@ func TestAccApsaraStackSlbListener_https_update(t *testing.T) {
 						"unhealthy_threshold":       "8",
 						"health_check_timeout":      "8",
 						"health_check_interval":     "5",
-						"acl_status":                "on",
-						"acl_type":                  string(AclTypeWhite),
-						"acl_id":                    CHECKSET,
 						"gzip":                      "true",
 						"health_check_http_code":    string(HTTP_2XX) + "," + string(HTTP_3XX),
 						"server_certificate_id":     CHECKSET,
@@ -458,12 +417,13 @@ func TestAccApsaraStackSlbListener_https_update(t *testing.T) {
 						"description":               name,
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_protection_validation"},
+				ImportStateVerifyIgnore: []string{"delete_protection_validation", "acl_status"},
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -614,18 +574,17 @@ func TestAccApsaraStackSlbListener_tcp_basic(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"load_balancer_id":          "${apsarastack_slb.default.id}",
+					"sticky_session":            "off",
 					"frontend_port":             "22",
 					"backend_port":              "22",
 					"protocol":                  "tcp",
 					"scheduler":                 string(WRRScheduler),
 					"bandwidth":                 "10",
-					"acl_status":                "on",
-					"acl_type":                  string(AclTypeBlack),
-					"acl_id":                    "${apsarastack_slb_acl.default.id}",
 					"persistence_timeout":       "3600",
 					"health_check_type":         string(HTTPHealthCheckType),
 					"health_check_domain":       "",
 					"health_check_uri":          "/console",
+					"health_check":              "on",
 					"health_check_connect_port": "20",
 					"healthy_threshold":         "8",
 					"unhealthy_threshold":       "8",
@@ -643,9 +602,7 @@ func TestAccApsaraStackSlbListener_tcp_basic(t *testing.T) {
 						"protocol":                  "tcp",
 						"scheduler":                 string(WRRScheduler),
 						"bandwidth":                 "10",
-						"acl_status":                "on",
-						"acl_type":                  string(AclTypeBlack),
-						"acl_id":                    CHECKSET,
+						"health_check":              "on",
 						"persistence_timeout":       "3600",
 						"health_check_type":         string(HTTPHealthCheckType),
 						"health_check_domain":       "",
@@ -660,12 +617,13 @@ func TestAccApsaraStackSlbListener_tcp_basic(t *testing.T) {
 						"description":               name,
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_protection_validation"},
+				ImportStateVerifyIgnore: []string{"delete_protection_validation", "acl_status", "sticky_session"},
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -799,7 +757,6 @@ func TestAccApsaraStackSlbListener_tcp_server_group(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-
 		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
@@ -822,6 +779,8 @@ func TestAccApsaraStackSlbListener_tcp_server_group(t *testing.T) {
 					"health_check_connect_port": "20",
 					"health_check_uri":          "/console",
 					"established_timeout":       "600",
+					"sticky_session":            "off",
+					"health_check":              "off",
 					"server_group_id":           "${apsarastack_slb_server_group.default.id}",
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -844,6 +803,13 @@ func TestAccApsaraStackSlbListener_tcp_server_group(t *testing.T) {
 						"server_group_id":           CHECKSET,
 					}),
 				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				ResourceName:            resourceId,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_protection_validation", "sticky_session", "health_check", "acl_status"},
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -854,6 +820,7 @@ func TestAccApsaraStackSlbListener_tcp_server_group(t *testing.T) {
 						"server_group_id": "",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -864,6 +831,7 @@ func TestAccApsaraStackSlbListener_tcp_server_group(t *testing.T) {
 						"master_slave_server_group_id": CHECKSET,
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -894,20 +862,19 @@ func TestAccApsaraStackSlbListener_udp_basic(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"load_balancer_id":          "${apsarastack_slb.default.id}",
+					"sticky_session":            "off",
 					"backend_port":              "2001",
 					"frontend_port":             "2001",
 					"protocol":                  "udp",
 					"bandwidth":                 "10",
 					"scheduler":                 string(WRRScheduler),
+					"health_check":              "on",
 					"healthy_threshold":         "8",
 					"unhealthy_threshold":       "8",
 					"health_check_timeout":      "8",
 					"health_check_interval":     "4",
 					"persistence_timeout":       "3600",
 					"health_check_connect_port": "20",
-					"acl_status":                "on",
-					"acl_type":                  string(AclTypeBlack),
-					"acl_id":                    "${apsarastack_slb_acl.default.id}",
 					"description":               name,
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -916,6 +883,7 @@ func TestAccApsaraStackSlbListener_udp_basic(t *testing.T) {
 							"load_balancer_id":          CHECKSET,
 							"backend_port":              "2001",
 							"frontend_port":             "2001",
+							"health_check":              "on",
 							"protocol":                  "udp",
 							"bandwidth":                 "10",
 							"scheduler":                 string(WRRScheduler),
@@ -925,18 +893,16 @@ func TestAccApsaraStackSlbListener_udp_basic(t *testing.T) {
 							"health_check_interval":     "4",
 							"persistence_timeout":       "3600",
 							"health_check_connect_port": "20",
-							"acl_status":                "on",
-							"acl_type":                  string(AclTypeBlack),
-							"acl_id":                    CHECKSET,
 							"description":               name,
 						}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_protection_validation"},
+				ImportStateVerifyIgnore: []string{"delete_protection_validation", "acl_status", "sticky_session"},
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -1036,7 +1002,7 @@ func TestAccApsaraStackSlbListener_http_healcheckmethod(t *testing.T) {
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceSlbListenerConfigDependence)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheckWithRegions(t, true, connectivity.HttpHttpsHealthCheckMehtodSupportedRegions)
+			//testAccPreCheckWithRegions(t, true, connectivity.HttpHttpsHealthCheckMehtodSupportedRegions)
 			testAccPreCheck(t)
 		},
 
@@ -1072,9 +1038,6 @@ func TestAccApsaraStackSlbListener_http_healcheckmethod(t *testing.T) {
 							"retrive_slb_id": "true",
 						},
 					},
-					"acl_status":  "on",
-					"acl_type":    "white",
-					"acl_id":      "${apsarastack_slb_acl.default.id}",
 					"description": name,
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -1102,19 +1065,17 @@ func TestAccApsaraStackSlbListener_http_healcheckmethod(t *testing.T) {
 						"x_forwarded_for.0.retrive_slb_ip":    "true",
 						"x_forwarded_for.0.retrive_slb_id":    "true",
 						"x_forwarded_for.0.retrive_slb_proto": "false",
-						"acl_status":                          "on",
-						"acl_type":                            string(AclTypeWhite),
-						"acl_id":                              CHECKSET,
 						"gzip":                                "true",
 						"description":                         name,
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_protection_validation"},
+				ImportStateVerifyIgnore: []string{"delete_protection_validation", "acl_status", "health_check_method"},
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -1129,6 +1090,7 @@ func TestAccApsaraStackSlbListener_http_healcheckmethod(t *testing.T) {
 		},
 	})
 }
+
 func TestAccApsaraStackSlbListener_https_healcheckmethod(t *testing.T) {
 	var v map[string]interface{}
 	resourceId := "apsarastack_slb_listener.default"
@@ -1143,7 +1105,7 @@ func TestAccApsaraStackSlbListener_https_healcheckmethod(t *testing.T) {
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheckWithRegions(t, true, connectivity.HttpHttpsHealthCheckMehtodSupportedRegions)
+			//testAccPreCheckWithRegions(t, true, connectivity.HttpHttpsHealthCheckMehtodSupportedRegions)
 			testAccPreCheck(t)
 		},
 
@@ -1178,9 +1140,6 @@ func TestAccApsaraStackSlbListener_https_healcheckmethod(t *testing.T) {
 							"retrive_slb_id": "true",
 						},
 					},
-					"acl_status":            "on",
-					"acl_type":              "white",
-					"acl_id":                "${apsarastack_slb_acl.default.id}",
 					"server_certificate_id": "${apsarastack_slb_server_certificate.default.id}",
 					"description":           name,
 				}),
@@ -1196,15 +1155,12 @@ func TestAccApsaraStackSlbListener_https_healcheckmethod(t *testing.T) {
 						"sticky_session_type":       string(InsertStickySessionType),
 						"cookie_timeout":            "86400",
 						"health_check":              "on",
-						"health_check_method":       "head",
 						"health_check_connect_port": "20",
+						"health_check_method":       "head",
 						"healthy_threshold":         "8",
 						"unhealthy_threshold":       "8",
 						"health_check_timeout":      "8",
 						"health_check_interval":     "5",
-						"acl_status":                "on",
-						"acl_type":                  string(AclTypeWhite),
-						"acl_id":                    CHECKSET,
 						"gzip":                      "true",
 						"health_check_http_code":    string(HTTP_2XX) + "," + string(HTTP_3XX),
 						"server_certificate_id":     CHECKSET,
@@ -1212,12 +1168,13 @@ func TestAccApsaraStackSlbListener_https_healcheckmethod(t *testing.T) {
 						"description":               name,
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"delete_protection_validation"},
+				ImportStateVerifyIgnore: []string{"delete_protection_validation", "acl_status", "health_check_method"},
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -1241,6 +1198,10 @@ func testAccSlbListenerHttpForward(name string) string {
   		frontend_port = 80
   		protocol = "http"
   		listener_forward = "on"
+        bandwidth  =  10
+        backend_port =  80
+        sticky_session = "off"
+        health_check = "off"
   		forward_port = "${apsarastack_slb_listener.default-1.frontend_port}"
 	}
 	resource "apsarastack_slb_listener" "default-1" {
@@ -1271,17 +1232,21 @@ func testAccSlbListenerSamePort(name string) string {
 	}
 	resource "apsarastack_slb_listener" "default"{
   		load_balancer_id = "${apsarastack_slb.default.id}"
-  		frontend_port = 80
+  		frontend_port = 22
   		protocol = "tcp"
 		bandwidth = "10"
 		backend_port = 80
+        sticky_session = "off"
+        health_check = "off"
 	}
 	resource "apsarastack_slb_listener" "default-1" {
   		load_balancer_id = "${apsarastack_slb.default.id}"
   		frontend_port = 80
-  		protocol = "udp"
+  		protocol = "http"
 		bandwidth = "10"
 		backend_port = 80
+		sticky_session = "off"
+        health_check = "off"
 	}`, SlbListenerCommonTestCase, name)
 }
 
