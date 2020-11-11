@@ -111,10 +111,11 @@ func (s *EcsService) DescribeZones(d *schema.ResourceData) (zones []ecs.Zone, er
 
 func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err error) {
 	request := ecs.CreateDescribeInstancesRequest()
+
 	request.RegionId = s.client.RegionId
 
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
 	request.InstanceIds = convertListToJsonString([]interface{}{id})
 
 	var response *ecs.DescribeInstancesResponse
@@ -450,7 +451,7 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keyPair string) (
 	request := ecs.CreateDescribeInstancesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	request.InstanceIds = instanceIdsStr
