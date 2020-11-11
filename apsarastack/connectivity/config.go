@@ -19,18 +19,18 @@ var securityCredURL = "http://100.100.100.200/latest/meta-data/ram/security-cred
 
 // Config of apsarastack
 type Config struct {
-	AccessKey       string
-	SecretKey       string
-	EcsRoleName     string
-	Region          Region
-	RegionId        string
-	Department      string
-	ResourceGroup   string
-	SecurityToken   string
-	OtsInstanceName string
-	AccountId       string
-	Protocol        string
-
+	AccessKey                string
+	SecretKey                string
+	EcsRoleName              string
+	Region                   Region
+	RegionId                 string
+	Department               string
+	ResourceGroup            string
+	SecurityToken            string
+	OtsInstanceName          string
+	AccountId                string
+	Protocol                 string
+	AscmEndpoint             string
 	RamRoleArn               string
 	RamRoleSessionName       string
 	RamRolePolicy            string

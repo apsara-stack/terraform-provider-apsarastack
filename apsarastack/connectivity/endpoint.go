@@ -17,6 +17,7 @@ const (
 	ActiontrailCode     = ServiceCode("ACTIONTRAIL")
 	OosCode             = ServiceCode("OOS")
 	EcsCode             = ServiceCode("ECS")
+	ASCMCode            = ServiceCode("ASCM")
 	NasCode             = ServiceCode("NAS")
 	EciCode             = ServiceCode("ECI")
 	DdoscooCode         = ServiceCode("DDOSCOO")

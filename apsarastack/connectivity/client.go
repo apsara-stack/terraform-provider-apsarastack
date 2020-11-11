@@ -26,6 +26,7 @@ import (
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/aliyun/fc-go-sdk"
+	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"log"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -57,6 +58,7 @@ type ApsaraStackClient struct {
 	ResourceGroup     string
 	config            *Config
 	accountId         string
+	ascmconn          *ascm.Client
 	ecsconn           *ecs.Client
 	accountIdMutex    sync.RWMutex
 	vpcconn           *vpc.Client
@@ -90,6 +92,7 @@ const (
 	ApiVersion20140526 = ApiVersion("2014-05-26")
 	ApiVersion20160815 = ApiVersion("2016-08-15")
 	ApiVersion20140515 = ApiVersion("2014-05-15")
+	ApiVersion20190510 = ApiVersion("2019-05-10")
 )
 
 const DefaultClientRetryCountSmall = 5
@@ -128,6 +131,32 @@ func (c *Config) Client() (*ApsaraStackClient, error) {
 		ResourceGroup: c.ResourceGroup,
 	}, nil
 }
+func (client *ApsaraStackClient) WithAscmClient(do func(*ascm.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the ASCM client if necessary
+	if client.ascmconn == nil {
+		endpoint := client.config.AscmEndpoint
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(ASCMCode), endpoint)
+		}
+		//ascmconn, err := ascm.NewClientWithOptions(client.config.RegionId, client.getSdkConfig().WithTimeout(time.Duration(60)*time.Second), client.config.getAuthCredential(true))
+		ascmconn, err := sdk.NewClientWithAccessKey(client.RegionId, client.AccessKey, client.SecretKey)
+
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the ASCM client AccessKey: %#v", err)
+		}
+		ascmconn.Domain = endpoint
+		ascmconn.AppendUserAgent(Terraform, terraformVersion)
+		ascmconn.AppendUserAgent(Provider, providerVersion)
+		ascmconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		ascmconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			ascmconn.SetHttpsProxy(client.config.Proxy)
+			ascmconn.SetHttpProxy(client.config.Proxy)
+		}
+
+	}
+	return do(client.ascmconn)
+}
 
 func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}, error)) (interface{}, error) {
 	// Initialize the ECS client if necessary
@@ -141,9 +170,6 @@ func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}
 			return nil, fmt.Errorf("unable to initialize the ECS client: %#v", err)
 		}
 
-		//if _, err := ecsconn.DescribeRegions(ecs.CreateDescribeRegionsRequest()); err != nil {
-		//	return nil, err
-		//}
 		ecsconn.Domain = endpoint
 		ecsconn.AppendUserAgent(Terraform, terraformVersion)
 		ecsconn.AppendUserAgent(Provider, providerVersion)
@@ -491,6 +517,9 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 	if strings.ToUpper(product) == "ECS" {
 		endpoint = client.config.EcsEndpoint
 	}
+	if strings.ToUpper(product) == "ASCM" {
+		endpoint = client.config.AscmEndpoint
+	}
 
 	if endpoint == "" {
 		endpointItem, err := client.describeEndpointForService(serviceCode)
@@ -519,6 +548,9 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 	if strings.ToUpper(product) == "ECS" {
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
 	}
+	if strings.ToUpper(product) == "ASCM" {
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ascm", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
+	}
 
 	request.AppendUserAgent(Terraform, terraformVersion)
 	request.AppendUserAgent(Provider, providerVersion)
@@ -536,7 +568,8 @@ func (client *ApsaraStackClient) getSdkConfig() *sdk.Config {
 		WithMaxTaskQueueSize(10000).
 		WithDebug(false).
 		WithHttpTransport(client.getTransport()).
-		WithScheme(client.config.Protocol)
+		//WithScheme(client.config.Protocol)
+		WithScheme("http")
 }
 
 func (client *ApsaraStackClient) getTransport() *http.Transport {
