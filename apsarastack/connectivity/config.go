@@ -54,7 +54,7 @@ type Config struct {
 	OtsEndpoint           string
 	CmsEndpoint           string
 	PvtzEndpoint          string
-	StsEndpoint           string
+	AscmEndpoint          string
 	LogEndpoint           string
 	DrdsEndpoint          string
 	DdsEndpoint           string

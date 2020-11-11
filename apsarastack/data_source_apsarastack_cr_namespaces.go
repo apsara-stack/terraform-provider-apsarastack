@@ -71,7 +71,7 @@ func dataSourceApsaraStackCRNamespacesRead(d *schema.ResourceData, meta interfac
 		raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
 			request = cr.CreateGetNamespaceListRequest()
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
+			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 			return crClient.GetNamespaceList(request)
 		})

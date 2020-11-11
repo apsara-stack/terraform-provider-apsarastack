@@ -86,7 +86,6 @@ func resourceApsaraStackEssScalingGroupCreate(d *schema.ResourceData, meta inter
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	essService := EssService{client}
-
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 			return essClient.CreateScalingGroup(request)

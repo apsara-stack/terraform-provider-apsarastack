@@ -39,6 +39,8 @@ func testSweepDBInstances(region string) error {
 	req := rds.CreateDescribeDBInstancesRequest()
 	req.RegionId = client.RegionId
 	req.Headers = map[string]string{"RegionId": client.RegionId}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds"}
+	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
@@ -152,10 +154,10 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"engine":           "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":   "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":    "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage": "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}",
+					"engine":           "MySQL",
+					"engine_version":   "5.6",
+					"instance_type":    "rds.mysql.s2.large",
+					"instance_storage": "30",
 					"instance_name":    "${var.name}",
 					"vswitch_id":       "${apsarastack_vswitch.default.id}",
 				}),
@@ -186,11 +188,11 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"instance_storage": "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min + data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.step}",
+					"instance_storage": "30",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"instance_storage": "10",
+						"instance_storage": "30",
 					}),
 				),
 			},
@@ -206,7 +208,7 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"instance_type": "${data.apsarastack_db_instance_classes.default.instance_classes.1.instance_class}",
+					"instance_type": "rds.mysql.s2.large",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -220,17 +222,6 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					resource.ComposeTestCheckFunc(testAccCheckSecurityIpExists("apsarastack_db_instance.default", ips)),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_group_ids": "${apsarastack_security_group.default.*.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_group_id":    CHECKSET,
-						"security_group_ids.#": "1",
-					}),
 				),
 			},
 			{
@@ -262,25 +253,23 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"engine":               "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":       "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":        "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage":     "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min * 3}",
+					"engine":               "MySQL",
+					"engine_version":       "5.6",
+					"instance_type":        "rds.mysql.s2.large",
+					"instance_storage":     "30",
 					"instance_name":        "tf-testAccDBInstanceConfig",
 					"instance_charge_type": "Postpaid",
-					"security_group_ids":   []string{},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"engine":               "MySQL",
-						"engine_version":       "5.6",
-						"instance_type":        CHECKSET,
-						"instance_storage":     "15",
-						"instance_name":        "tf-testAccDBInstanceConfig",
-						"zone_id":              CHECKSET,
-						"connection_string":    CHECKSET,
-						"port":                 CHECKSET,
-						"security_group_ids.#": "0",
+						"engine":            "MySQL",
+						"engine_version":    "5.6",
+						"instance_type":     CHECKSET,
+						"instance_storage":  "30",
+						"instance_name":     "tf-testAccDBInstanceConfig",
+						"zone_id":           CHECKSET,
+						"connection_string": CHECKSET,
+						"port":              CHECKSET,
 					}),
 				),
 			},
@@ -308,18 +297,6 @@ variable "creation" {
 		default = "Rds"
 }
 
-data "apsarastack_db_instance_engines" "default" {
-  instance_charge_type = "PostPaid"
-  engine               = "MySQL"
-  engine_version       = "5.6"
-}
-
-data "apsarastack_db_instance_classes" "default" {
-  instance_charge_type = "PostPaid"
-  engine               = "MySQL"
-  engine_version       = "5.6"
-}
-
 resource "apsarastack_security_group" "default" {
 	name   = "${var.name}"
 	vpc_id = "${apsarastack_vpc.default.id}"
@@ -330,7 +307,7 @@ resource "apsarastack_security_group" "default" {
 func TestAccApsaraStackDBInstanceMultiInstance(t *testing.T) {
 	var instance *rds.DBInstanceAttribute
 
-	resourceId := "apsarastack_db_instance.default.4"
+	resourceId := "apsarastack_db_instance.default.2"
 	ra := resourceAttrInit(resourceId, instanceBasicMap)
 	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
 		return &RdsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -354,11 +331,11 @@ func TestAccApsaraStackDBInstanceMultiInstance(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"count":            "5",
-					"engine":           "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":   "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":    "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage": "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}",
+					"count":            "3",
+					"engine":           "MySQL",
+					"engine_version":   "5.6",
+					"instance_type":    "rds.mysql.s2.large",
+					"instance_storage": "30",
 					"instance_name":    "${var.name}",
 					"vswitch_id":       "${apsarastack_vswitch.default.id}",
 				}),
@@ -369,453 +346,6 @@ func TestAccApsaraStackDBInstanceMultiInstance(t *testing.T) {
 		},
 	})
 }
-
-// Unknown current resource exists
-func TestAccApsaraStackDBInstanceSQLServer(t *testing.T) {
-	var instance *rds.DBInstanceAttribute
-	var ips []map[string]interface{}
-
-	resourceId := "apsarastack_db_instance.default"
-	ra := resourceAttrInit(resourceId, instanceBasicMap)
-	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
-		return &RdsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	}, "DescribeDBInstance")
-	rac := resourceAttrCheckInit(rc, ra)
-
-	testAccCheck := rac.resourceAttrMapUpdateSet()
-	name := "tf-testAccDBInstanceConfig"
-	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceDBInstanceSQLServerConfigDependence)
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-
-		// module name
-		IDRefreshName: resourceId,
-
-		Providers:    testAccProviders,
-		CheckDestroy: rac.checkResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"engine":           "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":   "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":    "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage": "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}",
-					"instance_name":    "${var.name}",
-					"vswitch_id":       "${apsarastack_vswitch.default.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"engine":           "SQLServer",
-						"engine_version":   "2012",
-						"instance_type":    CHECKSET,
-						"instance_storage": "20",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_name": "tf-testAccDBInstance_instance_name",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name": "tf-testAccDBInstance_instance_name",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_type": "${data.apsarastack_db_instance_classes.default.instance_classes.1.instance_class}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_type": CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"monitoring_period": "300",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"monitoring_period": "300",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_ips": []string{"10.168.1.12", "100.69.7.112"},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKeyValueInMaps(ips, "security ip", "security_ips", "10.168.1.12,100.69.7.112"),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_group_ids": "${apsarastack_security_group.default.*.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_group_id":    CHECKSET,
-						"security_group_ids.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"engine":             "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":     "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":      "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage":   "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min + data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.step}",
-					"instance_name":      "${var.name}",
-					"vswitch_id":         "${apsarastack_vswitch.default.id}",
-					"security_group_ids": []string{},
-					"monitoring_period":  "60",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"engine":               "SQLServer",
-						"engine_version":       "2012",
-						"instance_type":        CHECKSET,
-						"instance_storage":     "25",
-						"instance_name":        "tf-testAccDBInstanceConfig",
-						"zone_id":              CHECKSET,
-						"connection_string":    CHECKSET,
-						"port":                 CHECKSET,
-						"security_group_ids.#": "0",
-					}),
-				),
-			},
-		},
-	})
-}
-
-func resourceDBInstanceSQLServerConfigDependence(name string) string {
-	return fmt.Sprintf(`
-%s
-variable "name" {
-	default = "%s"
-}
-variable "creation" {
-		default = "Rds"
-}
-
-data "apsarastack_db_instance_engines" "default" {
-  instance_charge_type = "PostPaid"
-  engine               = "SQLServer"
-  engine_version       = "2012"
-}
-
-data "apsarastack_db_instance_classes" "default" {
-  instance_charge_type = "PostPaid"
-  engine               = "SQLServer"
-  engine_version       = "2012"
-}
-
-resource "apsarastack_security_group" "default" {
-	count = 2
-	name   = "${var.name}"
-	vpc_id = "${apsarastack_vpc.default.id}"
-}
-`, RdsCommonTestCase, name)
-}
-
-func TestAccApsaraStackDBInstancePostgreSQL(t *testing.T) {
-	var instance *rds.DBInstanceAttribute
-	var ips []map[string]interface{}
-
-	resourceId := "apsarastack_db_instance.default"
-	ra := resourceAttrInit(resourceId, instanceBasicMap)
-	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
-		return &RdsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	}, "DescribeDBInstance")
-	rac := resourceAttrCheckInit(rc, ra)
-
-	testAccCheck := rac.resourceAttrMapUpdateSet()
-	name := "tf-testAccDBInstanceConfig"
-	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceDBInstancePostgreSQLConfigDependence)
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-
-		// module name
-		IDRefreshName: resourceId,
-
-		Providers:    testAccProviders,
-		CheckDestroy: rac.checkResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"engine":           "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":   "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":    "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage": "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}",
-					"zone_id":          "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.id}",
-					"instance_name":    "${var.name}",
-					"vswitch_id":       "${apsarastack_vswitch.default.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"engine":           "PostgreSQL",
-						"engine_version":   "9.4",
-						"instance_storage": "20",
-						"instance_type":    CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_name": "tf-testAccDBInstance_instance_name",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name": "tf-testAccDBInstance_instance_name",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_type": "${data.apsarastack_db_instance_classes.default.instance_classes.1.instance_class}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_type": CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_ips": []string{"10.168.1.12", "100.69.7.112"},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKeyValueInMaps(ips, "security ip", "security_ips", "10.168.1.12,100.69.7.112"),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_group_ids": "${apsarastack_security_group.default.*.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_group_id":    CHECKSET,
-						"security_group_ids.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"engine":             "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":     "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":      "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage":   "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min + data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.step}",
-					"instance_name":      "${var.name}",
-					"vswitch_id":         "${apsarastack_vswitch.default.id}",
-					"security_group_ids": []string{},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"engine":               "PostgreSQL",
-						"engine_version":       "9.4",
-						"instance_type":        CHECKSET,
-						"instance_storage":     "25",
-						"instance_name":        "tf-testAccDBInstanceConfig",
-						"zone_id":              CHECKSET,
-						"connection_string":    CHECKSET,
-						"port":                 CHECKSET,
-						"security_group_ids.#": "0",
-					}),
-				),
-			},
-		},
-	})
-}
-
-func resourceDBInstancePostgreSQLConfigDependence(name string) string {
-	return fmt.Sprintf(`
-%s
-variable "name" {
-	default = "%s"
-}
-variable "creation" {
-		default = "Rds"
-}
-
-data "apsarastack_db_instance_engines" "default" {
-  	instance_charge_type = "PostPaid"
-  	engine               = "PostgreSQL"
-  	engine_version       = "9.4"
-	multi_zone           = true
-}
-
-data "apsarastack_db_instance_classes" "default" {
-  	instance_charge_type = "PostPaid"
-  	engine               = "PostgreSQL"
-  	engine_version       = "9.4"
-  	multi_zone           = true
-}
-
-resource "apsarastack_security_group" "default" {
-	count = 2
-	name   = var.name
-	vpc_id = apsarastack_vpc.default.id
-}
-`, RdsCommonTestCase, name)
-}
-
-// Unknown current resource exists
-func TestAccApsaraStackDBInstancePPAS(t *testing.T) {
-	var instance *rds.DBInstanceAttribute
-	var ips []map[string]interface{}
-
-	resourceId := "apsarastack_db_instance.default"
-	ra := resourceAttrInit(resourceId, instanceBasicMap)
-	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
-		return &RdsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	}, "DescribeDBInstance")
-	rac := resourceAttrCheckInit(rc, ra)
-
-	testAccCheck := rac.resourceAttrMapUpdateSet()
-	name := "tf-testAccDBInstanceConfig"
-	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceDBInstanceAZConfigDependence)
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheckWithRegions(t, false, connectivity.RdsPPASNoSupportedRegions)
-		},
-
-		// module name
-		IDRefreshName: resourceId,
-
-		Providers:    testAccProviders,
-		CheckDestroy: rac.checkResourceDestroy(),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"engine":           "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":   "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":    "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage": "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}",
-					"zone_id":          "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.id}",
-					"instance_name":    "${var.name}",
-					"vswitch_id":       "${apsarastack_vswitch.default.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"engine":           "PPAS",
-						"engine_version":   "9.3",
-						"instance_storage": "250",
-						"instance_type":    CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_name": "tf-testAccDBInstance_instance_name",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name": "tf-testAccDBInstance_instance_name",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"instance_type": "${data.apsarastack_db_instance_classes.default.instance_classes.1.instance_class}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_type": CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_ips": []string{"10.168.1.12", "100.69.7.112"},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckKeyValueInMaps(ips, "security ip", "security_ips", "10.168.1.12,100.69.7.112"),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"security_group_ids": "${apsarastack_security_group.default.*.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_group_id":    CHECKSET,
-						"security_group_ids.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"engine":             "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":     "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":      "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage":   "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min + data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.step}",
-					"instance_name":      "${var.name}",
-					"vswitch_id":         "${apsarastack_vswitch.default.id}",
-					"security_group_ids": []string{},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"engine":               "PPAS",
-						"engine_version":       "9.3",
-						"instance_type":        CHECKSET,
-						"instance_storage":     "500",
-						"instance_name":        "tf-testAccDBInstanceConfig",
-						"zone_id":              CHECKSET,
-						"connection_string":    CHECKSET,
-						"port":                 CHECKSET,
-						"security_group_ids.#": "0",
-					}),
-				),
-			},
-		},
-	})
-}
-
-func resourceDBInstanceAZConfigDependence(name string) string {
-	return fmt.Sprintf(`
-variable "name" {
-	default = "%s"
-}
-
-data "apsarastack_db_instance_engines" "default" {
-  instance_charge_type = "PostPaid"
-  engine               = "PPAS"
-  engine_version       = "9.3"
-  multi_zone           = true
-}
-
-data "apsarastack_db_instance_classes" "default" {
-  instance_charge_type = "PostPaid"
-  engine               = "PPAS"
-  engine_version       = "9.3"
-  multi_zone           = true
-}
-
-resource "apsarastack_vpc" "default" {
-  name       = "${var.name}"
-  cidr_block = "172.16.0.0/16"
-}
-resource "apsarastack_vswitch" "default" {
-  vpc_id            = "${apsarastack_vpc.default.id}"
-  cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.sub_zone_ids.0}"
-  name              = "${var.name}"
-}
-
-resource "apsarastack_security_group" "default" {
-	name   = "${var.name}"
-	vpc_id = "${apsarastack_vpc.default.id}"
-}
-`, name)
-}
-
-// Unknown current resource exists
 func TestAccApsaraStackDBInstanceMultiAZ(t *testing.T) {
 	var instance = &rds.DBInstanceAttribute{}
 	resourceId := "apsarastack_db_instance.default"
@@ -841,17 +371,16 @@ func TestAccApsaraStackDBInstanceMultiAZ(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"engine":           "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":   "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":    "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage": "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}",
-					"zone_id":          "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.id}",
+					"engine":           "MySQL",
+					"engine_version":   "5.6",
+					"instance_type":    "rds.mysql.s2.large",
+					"instance_storage": "30",
+					"zone_id":          "${data.apsarastack_zones.default.zones[0].id}",
 					"instance_name":    "${var.name}",
 					"vswitch_id":       "${apsarastack_vswitch.default.id}",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"zone_id":       REGEXMATCH + ".*" + MULTI_IZ_SYMBOL + ".*",
 						"instance_name": "tf-testAccDBInstance_multiAZ",
 					}),
 				),
@@ -870,17 +399,7 @@ variable "name" {
 variable "creation" {
 		default = "Rds"
 }
-data "apsarastack_db_instance_engines" "default" {
-  	engine               = "MySQL"
-  	engine_version       = "5.6"
-	multi_zone           = true
-}
 
-data "apsarastack_db_instance_classes" "default" {
-  	engine               = "MySQL"
-  	engine_version       = "5.6"
-	multi_zone           = true
-}
 resource "apsarastack_security_group" "default" {
 	name   = "${var.name}"
 	vpc_id = "${apsarastack_vpc.default.id}"
@@ -914,11 +433,11 @@ func TestAccApsaraStackDBInstanceClassic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"engine":           "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}",
-					"engine_version":   "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}",
-					"instance_type":    "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}",
-					"instance_storage": "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}",
-					"zone_id":          `${lookup(data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids[length(data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids)-1], "id")}`,
+					"engine":           "MySQL",
+					"engine_version":   "5.6",
+					"instance_type":    "rds.mysql.s2.large",
+					"instance_storage": "30",
+					"zone_id":          "${data.apsarastack_zones.default.zones[0].id}",
 					"instance_name":    "${var.name}",
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -934,16 +453,6 @@ func resourceDBInstanceClassicConfigDependence(name string) string {
 	return fmt.Sprintf(`
 variable "name" {
 	default = "%s"
-}
-
-data "apsarastack_db_instance_engines" "default" {
-  engine               = "MySQL"
-  engine_version       = "5.6"
-}
-
-data "apsarastack_db_instance_classes" "default" {
-  engine               = "MySQL"
-  engine_version       = "5.6"
 }
 
 data "apsarastack_zones" "default" {
@@ -980,22 +489,11 @@ func testAccCheckSecurityIpExists(n string, ips []map[string]interface{}) resour
 	}
 }
 
-func testAccCheckKeyValueInMaps(ps []map[string]interface{}, propName, key, value string) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		for _, policy := range ps {
-			if policy[key].(string) != value {
-				return fmt.Errorf("DB %s attribute '%s' expected %#v, got %#v", propName, key, value, policy[key])
-			}
-		}
-		return nil
-	}
-}
-
 var instanceBasicMap = map[string]string{
 	"engine":            "MySQL",
 	"engine_version":    "5.6",
 	"instance_type":     CHECKSET,
-	"instance_storage":  "5",
+	"instance_storage":  "30",
 	"instance_name":     "tf-testAccDBInstanceConfig",
 	"zone_id":           CHECKSET,
 	"connection_string": CHECKSET,

@@ -27,7 +27,7 @@ output "first_slb_server_group_id" {
 
 The following arguments are supported:
 
-* `load_balancer_id` - ID of the SLB.
+* `load_balancer_id` - (Required) ID of the SLB.
 * `ids` - (Optional) A list of VServer group IDs to filter results.
 * `name_regex` - (Optional) A regex string to filter results by VServer group name.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).

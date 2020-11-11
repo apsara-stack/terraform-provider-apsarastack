@@ -361,7 +361,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.VpcEndpoint = "vpc." + domain
 		config.SlbEndpoint = "slb." + domain
 		config.OssEndpoint = "oss." + domain
-		config.StsEndpoint = "sts." + domain
+		config.AscmEndpoint = "ascm." + domain
 		config.RdsEndpoint = "rds." + domain
 		config.OnsEndpoint = "ons." + domain
 		config.KmsEndpoint = "kms." + domain
@@ -379,7 +379,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			endpoints := endpointsSetI.(map[string]interface{})
 			config.EcsEndpoint = strings.TrimSpace(endpoints["ecs"].(string))
 			config.VpcEndpoint = strings.TrimSpace(endpoints["vpc"].(string))
-			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
+			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
 			config.RdsEndpoint = strings.TrimSpace(endpoints["rds"].(string))
 			config.OssEndpoint = strings.TrimSpace(endpoints["oss"].(string))
 			config.OnsEndpoint = strings.TrimSpace(endpoints["ons"].(string))
@@ -395,7 +395,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	if config.RamRoleArn != "" {
-		config.AccessKey, config.SecretKey, config.SecurityToken, err = getAssumeRoleAK(config.AccessKey, config.SecretKey, config.SecurityToken, region, config.RamRoleArn, config.RamRoleSessionName, config.RamRolePolicy, config.RamRoleSessionExpiration, config.StsEndpoint)
+		config.AccessKey, config.SecretKey, config.SecurityToken, err = getAssumeRoleAK(config.AccessKey, config.SecretKey, config.SecurityToken, region, config.RamRoleArn, config.RamRoleSessionName, config.RamRolePolicy, config.RamRoleSessionExpiration, config.AscmEndpoint)
 		if err != nil {
 			return nil, err
 		}
@@ -573,11 +573,11 @@ func endpointsSchema() *schema.Schema {
 					Description: descriptions["pvtz_endpoint"],
 				},
 
-				"sts": {
+				"ascm": {
 					Type:        schema.TypeString,
 					Optional:    true,
 					Default:     "",
-					Description: descriptions["sts_endpoint"],
+					Description: descriptions["ascm_endpoint"],
 				},
 				// log service is sls service
 				"log": {
@@ -738,7 +738,7 @@ func endpointsToHash(v interface{}) int {
 	buf.WriteString(fmt.Sprintf("%s-", m["ots"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["cms"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["pvtz"].(string)))
-	buf.WriteString(fmt.Sprintf("%s-", m["sts"].(string)))
+	buf.WriteString(fmt.Sprintf("%s-", m["ascm"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["log"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["drds"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["dds"].(string)))
@@ -870,14 +870,14 @@ func assumeRoleSchema() *schema.Schema {
 	}
 }
 
-func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionName, policy string, sessionExpiration int, stsEndpoint string) (string, string, string, error) {
+func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionName, policy string, sessionExpiration int, ascmEndpoint string) (string, string, string, error) {
 	request := sts.CreateAssumeRoleRequest()
 	request.RoleArn = roleArn
 	request.RoleSessionName = sessionName
 	request.DurationSeconds = requests.NewInteger(sessionExpiration)
 	request.Policy = policy
-	request.Scheme = "https"
-	request.Domain = stsEndpoint
+	request.Scheme = "http"
+	request.Domain = ascmEndpoint
 
 	var client *sts.Client
 	var err error

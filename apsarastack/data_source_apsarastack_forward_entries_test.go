@@ -10,20 +10,72 @@ import (
 
 func TestAccApsaraStackForwardEntriesDataSourceBasic(t *testing.T) {
 	rand := acctest.RandInt()
+	forwardTableIdConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+			"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+		}),
+		fakeConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+			"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}_fake"`,
+		}),
+	}
 
-	allConf := dataSourceTestAccConfig{
+	externalIpConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
 			"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
 			"external_ip":      `"${apsarastack_forward_entry.default.external_ip}"`,
-			"internal_ip":      `"${apsarastack_forward_entry.default.internal_ip}"`,
 		}),
 		fakeConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
 			"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
-			"external_ip":      `"${apsarastack_forward_entry.default.external_ip}"`,
-			"internal_ip":      `"${apsarastack_forward_entry.default.internal_ip}"`,
+			"external_ip":      ` "${apsarastack_forward_entry.default.external_ip}_fake" `,
 		}),
 	}
-	forwardEntriesCheckInfo.dataSourceTestCheck(t, rand, allConf)
+
+	internalIpConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+			"internal_ip":      `"${apsarastack_forward_entry.default.internal_ip}"`,
+			"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+		}),
+		fakeConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+			"internal_ip":      `"${apsarastack_forward_entry.default.internal_ip}_fake"`,
+			"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+		}),
+	}
+
+	idsConf := dataSourceTestAccConfig{
+		existConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+			"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+			"ids":              `[ "${apsarastack_forward_entry.default.forward_entry_id}" ]`,
+		}),
+		fakeConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+			"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+			"ids":              `[ "${apsarastack_forward_entry.default.forward_entry_id}_fake" ]`,
+		}),
+	}
+
+	//nameRegexConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+	//		"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+	//		"name_regex":       `"${apsarastack_forward_entry.default.name}"`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+	//		"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+	//		"name_regex":       `"${apsarastack_forward_entry.default.name}_fake"`,
+	//	}),
+	//}
+
+	//allConf := dataSourceTestAccConfig{
+	//	existConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+	//		"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+	//		"external_ip":      `"${apsarastack_forward_entry.default.external_ip}"`,
+	//		"internal_ip":      `"${apsarastack_forward_entry.default.internal_ip}"`,
+	//	}),
+	//	fakeConfig: testAccCheckApsaraStackForwardEntriesDataSourceConfigBasic(rand, map[string]string{
+	//		"forward_table_id": `"${apsarastack_forward_entry.default.forward_table_id}"`,
+	//		"external_ip":      `"${apsarastack_forward_entry.default.external_ip}"`,
+	//		"internal_ip":      `"${apsarastack_forward_entry.default.internal_ip}"`,
+	//	}),
+	//}
+	forwardEntriesCheckInfo.dataSourceTestCheck(t, rand, forwardTableIdConf, externalIpConf, internalIpConf, idsConf /*,nameRegexConf/*, allConf*/)
 
 }
 
