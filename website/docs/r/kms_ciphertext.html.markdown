@@ -1,6 +1,6 @@
 ---
 subcategory: "KMS"
-layout: "apsaraStack"
+layout: "apsarastack"
 page_title: "ApsaraStack: apsaraStack_kms_ciphertext"
 sidebar_current: "docs-apsaraStack-resource-kms-ciphertext"
 description: |-
