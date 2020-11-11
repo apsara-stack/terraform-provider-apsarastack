@@ -82,23 +82,6 @@ func testAccPreCheckWithRegions(t *testing.T, supported bool, regions []connecti
 	if v := os.Getenv("APSARASTACK_REGION"); v == "" {
 		log.Println("[INFO] Test: Using cn-beijing as test region")
 	}
-	region := os.Getenv("APSARASTACK_REGION")
-	find := false
-	for _, r := range regions {
-		if region == string(r) {
-			find = true
-			break
-		}
-	}
-
-	if (find && !supported) || (!find && supported) {
-		if supported {
-			t.Skipf("Skipping unsupported region %s. Supported regions: %s.", region, regions)
-		} else {
-			t.Skipf("Skipping unsupported region %s. Unsupported regions: %s.", region, regions)
-		}
-		t.Skipped()
-	}
 }
 
 // Skip automatically the sweep testcases which does not support some known regions.
