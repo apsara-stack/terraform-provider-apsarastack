@@ -232,7 +232,6 @@ func resourceApsaraStackSecurityGroupRuleUpdate(d *schema.ResourceData, meta int
 	if err != nil {
 		return WrapError(err)
 	}
-
 	direction := d.Get("type").(string)
 
 	if direction == string(DirectionIngress) {
@@ -323,6 +322,9 @@ func buildApsaraStackSGRuleRequest(d *schema.ResourceData, meta interface{}) (*r
 	// Get product code from the built request
 	ruleReq := ecs.CreateModifySecurityGroupRuleRequest()
 	request, err := client.NewCommonRequest(ruleReq.GetProduct(), ruleReq.GetLocationServiceCode(), strings.ToUpper(string(Http)), connectivity.ApiVersion20140526)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if err != nil {
 		return request, WrapError(err)
 	}

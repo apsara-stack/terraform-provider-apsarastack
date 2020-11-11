@@ -324,7 +324,6 @@ func slbListenersDescriptionAttributes(d *schema.ResourceData, listeners []slb.L
 			mapping["health_check_http_code"] = response.HealthCheckHttpCode
 			mapping["gzip"] = response.Gzip
 			mapping["server_certificate_id"] = response.ServerCertificateId
-			mapping["ca_certificate_id"] = response.CACertificateId
 			mapping["x_forwarded_for"] = response.XForwardedFor
 			mapping["x_forwarded_for_slb_ip"] = response.XForwardedForSLBIP
 			mapping["x_forwarded_for_slb_id"] = response.XForwardedForSLBID

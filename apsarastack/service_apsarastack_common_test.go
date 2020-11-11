@@ -798,7 +798,7 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.sub_zone_ids.0}"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   name              = "${var.name}"
 }
 `
@@ -1181,21 +1181,7 @@ variable "ip_version" {
 }	
 resource "apsarastack_slb" "default" {
   name = "${var.name}"
-  internet_charge_type = "PayByTraffic"
   address_type = "internet"
-  specification = "slb.s1.small"
-}
-resource "apsarastack_slb_acl" "default" {
-  name = "${var.name}"
-  ip_version = "${var.ip_version}"
-  entry_list {
-      entry="10.10.10.0/24"
-      comment="first"
-  }
-  entry_list {
-      entry="168.10.10.0/24"
-      comment="second"
-  }
 }
 `
 const SlbListenerVserverCommonTestCase = `
@@ -1209,7 +1195,6 @@ data "apsarastack_instance_types" "default" {
 }
 
 data "apsarastack_images" "default" {
-  name_regex = "^ubuntu_18.*64"
   most_recent = true
   owners = "system"
 }
@@ -1237,10 +1222,8 @@ resource "apsarastack_instance" "default" {
   instance_name = "${var.name}"
   count = "2"
   security_groups = "${apsarastack_security_group.default.*.id}"
-  internet_charge_type = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }

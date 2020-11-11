@@ -44,6 +44,7 @@ func TestAccApsaraStackSlbServerGroup_vpc(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
@@ -60,6 +61,7 @@ func TestAccApsaraStackSlbServerGroup_vpc(t *testing.T) {
 						"name": "tf-testAccSlbServerGroupVpcUpdate",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -82,17 +84,9 @@ func TestAccApsaraStackSlbServerGroup_vpc(t *testing.T) {
 						"servers.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"servers": serversMap,
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"servers.#": "14",
-					}),
-				),
-			},
+
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"name": "${var.name}",
@@ -110,6 +104,7 @@ func TestAccApsaraStackSlbServerGroup_vpc(t *testing.T) {
 						"servers.#": "1",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -117,7 +112,7 @@ func TestAccApsaraStackSlbServerGroup_vpc(t *testing.T) {
 
 func TestAccApsaraStackSlbServerGroup_multi_vpc(t *testing.T) {
 	var v *slb.DescribeVServerGroupAttributeResponse
-	resourceId := "apsarastack_slb_server_group.default.9"
+	resourceId := "apsarastack_slb_server_group.default.1"
 	ra := resourceAttrInit(resourceId, serverGroupMultiClassicMap)
 	rc := resourceCheckInit(resourceId, &v, func() interface{} {
 		return &SlbService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -139,7 +134,7 @@ func TestAccApsaraStackSlbServerGroup_multi_vpc(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"load_balancer_id": "${apsarastack_slb.default.id}",
-					"count":            "10",
+					"count":            "2",
 					"servers": []map[string]interface{}{
 						{
 							"server_ids": []string{"${apsarastack_instance.default.0.id}", "${apsarastack_instance.default.1.id}"},
@@ -156,6 +151,7 @@ func TestAccApsaraStackSlbServerGroup_multi_vpc(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -201,6 +197,7 @@ func TestAccApsaraStackSlbServerGroup_classic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:            resourceId,
@@ -217,6 +214,7 @@ func TestAccApsaraStackSlbServerGroup_classic(t *testing.T) {
 						"name": "tf-testAccSlbServerGroupClassicUpdate",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -233,6 +231,7 @@ func TestAccApsaraStackSlbServerGroup_classic(t *testing.T) {
 						"servers.#": "1",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -256,6 +255,7 @@ func TestAccApsaraStackSlbServerGroup_classic(t *testing.T) {
 						"servers.#": "2",
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -302,12 +302,10 @@ resource "apsarastack_instance" "default" {
   image_id = "${data.apsarastack_images.default.images.0.id}"
   instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
   instance_name = "${var.name}"
-  count = "21"
+  count = "2"
   security_groups = "${apsarastack_security_group.default.*.id}"
-  internet_charge_type = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }
@@ -317,10 +315,8 @@ resource "apsarastack_instance" "new" {
   instance_name = "${var.name}"
   count = "1"
   security_groups = "${apsarastack_security_group.default.*.id}"
-  internet_charge_type = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_instance_types.new.instance_types.0.availability_zones.0}"
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }
@@ -332,14 +328,12 @@ resource "apsarastack_network_interface_attachment" "default" {
 resource "apsarastack_slb" "default" {
   name = "${var.name}"
   vswitch_id = "${apsarastack_vswitch.default.id}"
-  specification  = "slb.s2.small"
 }
 `, name)
 }
 
 func resourceServerGroupClassicDependence(name string) string {
 	return fmt.Sprintf(`
-
 variable "name" {
   default = "%s"
 }
@@ -372,10 +366,9 @@ resource "apsarastack_instance" "default" {
   instance_name = "${var.name}"
   count = "2"
   security_groups = "${apsarastack_security_group.default.*.id}"
-  internet_charge_type = "PayByTraffic"
+
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }
@@ -388,7 +381,6 @@ resource "apsarastack_slb" "default" {
 
 func resourceSlbServerGroupMultiVpcDependence(name string) string {
 	return fmt.Sprintf(`
-
 variable "name" {
   default = "tf-testAccSlbServerGroupVpc"
 }
@@ -421,10 +413,8 @@ resource "apsarastack_instance" "default" {
   instance_name = "${var.name}"
   count = "2"
   security_groups = "${apsarastack_security_group.default.*.id}"
-  internet_charge_type = "PayByTraffic"
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-  instance_charge_type = "PostPaid"
   system_disk_category = "cloud_efficiency"
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }
@@ -461,59 +451,59 @@ var serversMap = []map[string]interface{}{
 		"port":       "3",
 		"weight":     "10",
 	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.3.id}"},
-		"port":       "4",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.4.id}"},
-		"port":       "5",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.5.id}"},
-		"port":       "6",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.6.id}"},
-		"port":       "7",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.7.id}"},
-		"port":       "8",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.8.id}"},
-		"port":       "9",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.9.id}"},
-		"port":       "10",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.10.id}"},
-		"port":       "11",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.11.id}"},
-		"port":       "12",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.12.id}"},
-		"port":       "13",
-		"weight":     "10",
-	},
-	{
-		"server_ids": []string{"${apsarastack_instance.default.13.id}"},
-		"port":       "14",
-		"weight":     "10",
-	},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.3.id}"},
+	//	"port":       "4",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.4.id}"},
+	//	"port":       "5",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.5.id}"},
+	//	"port":       "6",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.6.id}"},
+	//	"port":       "7",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.7.id}"},
+	//	"port":       "8",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.8.id}"},
+	//	"port":       "9",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.9.id}"},
+	//	"port":       "10",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.10.id}"},
+	//	"port":       "11",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.11.id}"},
+	//	"port":       "12",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.12.id}"},
+	//	"port":       "13",
+	//	"weight":     "10",
+	//},
+	//{
+	//	"server_ids": []string{"${apsarastack_instance.default.13.id}"},
+	//	"port":       "14",
+	//	"weight":     "10",
+	//},
 }
