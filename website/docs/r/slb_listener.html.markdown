@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_slb_listener"
 sidebar_current: "docs-apsarastack-resource-slb-listener"
 description: |-
-  Provides an Application Load Banlancer resource.
+  Provides an Application Load Balancer resource.
 ---
 
 # apsarastack\_slb\_listener
@@ -17,6 +17,9 @@ For information about slb and how to use it, see [What is Server Load Balancer](
 ## Example Usage
 
 ```
+data "apsarastack_zones" "default" {
+  available_resource_creation = "VSwitch"
+}
 resource "apsarastack_vpc" "vpc" {
   name       = "vpc"
   cidr_block = "10.0.0.0/16"
@@ -26,7 +29,7 @@ resource "apsarastack_vswitch" "vsw" {
   name       = "vsw"
   vpc_id            = apsarastack_vpc.vpc.id
   cidr_block        = apsarastack_vpc.vpc.cidr_block
-  availability_zone = "cn-beijing-b"
+  availability_zone =  "${data.apsarastack_zones.default.zones.0.id}"
 }
 resource "apsarastack_slb" "slb" {
   name          = "slb"

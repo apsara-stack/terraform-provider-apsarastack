@@ -109,9 +109,8 @@ func resourceApsaraStackCrEESyncRuleCreate(d *schema.ResourceData, meta interfac
 	request := cr_ee.CreateCreateRepoSyncRuleRequest()
 	request.RegionId = crService.client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.SyncRuleName = syncRuleName
 	request.InstanceId = instanceId
 	request.NamespaceName = namespaceName
@@ -187,9 +186,8 @@ func resourceApsaraStackCrEESyncRuleDelete(d *schema.ResourceData, meta interfac
 	response := &cr_ee.DeleteRepoSyncRuleResponse{}
 	request := cr_ee.CreateDeleteRepoSyncRuleRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.RegionId = crService.client.RegionId
 	request.InstanceId = instanceId
 	request.SyncRuleId = syncRuleId

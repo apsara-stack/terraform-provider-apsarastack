@@ -103,22 +103,11 @@ func resourceDBAccountConfigDependence(name string) string {
 		default = "%v"
 	}
 
-	data "apsarastack_db_instance_engines" "default" {
-  		instance_charge_type = "PostPaid"
-  		engine               = "MySQL"
-  		engine_version       = "5.6"
-	}
-
-	data "apsarastack_db_instance_classes" "default" {
- 	 	engine = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-		engine_version = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-	}
-
 	resource "apsarastack_db_instance" "instance" {
-		engine = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-		engine_version = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-		instance_type = "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}"
-		instance_storage = "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}"
+		engine               = "MySQL"
+        engine_version       = "5.6"
+        instance_type        = "rds.mysql.s2.large"
+	    instance_storage     = "30"
 		vswitch_id = "${apsarastack_vswitch.default.id}"
 	    instance_name = "${var.name}"
 	}

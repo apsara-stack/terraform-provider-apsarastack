@@ -28,7 +28,6 @@ The following arguments are supported:
 * `ids` - (Optional) A list of server certificates IDs to filter results.
 * `name_regex` - (Optional) A regex string to filter results by server certificate name.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
-* `tags` - (Optional, Available in v1.66.0+) A mapping of tags to assign to the resource.
 ## Attributes Reference
 
 The following attributes are exported in addition to the arguments listed above:
@@ -41,4 +40,3 @@ The following attributes are exported in addition to the arguments listed above:
   * `fingerprint` - Server certificate fingerprint.
   * `created_time` - Server certificate created time.
   * `created_timestamp` - Server certificate created timestamp.
-  * `tags` - (Available in v1.66.0+) A mapping of tags to assign to the resource.

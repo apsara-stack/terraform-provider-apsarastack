@@ -439,7 +439,7 @@ func init() {
 func endpointsSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,
-		Required: true,
+		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"cbn": {
