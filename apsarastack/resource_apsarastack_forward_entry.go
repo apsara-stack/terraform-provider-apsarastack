@@ -37,6 +37,10 @@ func resourceApsaraStackForwardEntry() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"tcp", "udp", "any"}, false),
 			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"internal_ip": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -61,7 +65,6 @@ func resourceApsaraStackForwardEntryCreate(d *schema.ResourceData, meta interfac
 	request := vpc.CreateCreateForwardEntryRequest()
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ForwardTableId = d.Get("forward_table_id").(string)
 	request.ExternalIp = d.Get("external_ip").(string)
@@ -69,6 +72,9 @@ func resourceApsaraStackForwardEntryCreate(d *schema.ResourceData, meta interfac
 	request.IpProtocol = d.Get("ip_protocol").(string)
 	request.InternalIp = d.Get("internal_ip").(string)
 	request.InternalPort = d.Get("internal_port").(string)
+	if name, ok := d.GetOk("name"); ok {
+		request.ForwardEntryName = name.(string)
+	}
 	var raw interface{}
 	var err error
 	if err = resource.Retry(2*time.Minute, func() *resource.RetryError {
@@ -118,6 +124,7 @@ func resourceApsaraStackForwardEntryRead(d *schema.ResourceData, meta interface{
 	d.Set("internal_ip", forwardEntry.InternalIp)
 	d.Set("internal_port", forwardEntry.InternalPort)
 	d.Set("forward_entry_id", forwardEntry.ForwardEntryId)
+	d.Set("name", forwardEntry.ForwardEntryName)
 
 	return nil
 }
@@ -159,6 +166,9 @@ func resourceApsaraStackForwardEntryUpdate(d *schema.ResourceData, meta interfac
 
 	if d.HasChange("internal_port") {
 		request.InternalPort = d.Get("internal_port").(string)
+	}
+	if d.HasChange("name") {
+		request.ForwardEntryName = d.Get("name").(string)
 	}
 
 	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {

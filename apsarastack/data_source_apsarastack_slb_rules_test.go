@@ -1,103 +1,37 @@
 package apsarastack
 
 import (
-	"fmt"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
 )
 
 func TestAccApsaraStackSlbRulesDataSource_basic(t *testing.T) {
-	basicConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSlbRulesDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_rule.default.load_balancer_id}"`,
-			"frontend_port":    `"${apsarastack_slb_rule.default.frontend_port}"`,
-		}),
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckApsaraStackSlbRulesDataSourceConfig,
+				Check: resource.ComposeTestCheckFunc(
 
-	nameRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSlbRulesDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_rule.default.load_balancer_id}"`,
-			"frontend_port":    `"${apsarastack_slb_rule.default.frontend_port}"`,
-			"name_regex":       `"${apsarastack_slb_rule.default.name}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSlbRulesDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_rule.default.load_balancer_id}"`,
-			"frontend_port":    `"${apsarastack_slb_rule.default.frontend_port}"`,
-			"name_regex":       `"${apsarastack_slb_rule.default.name}_fake"`,
-		}),
-	}
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_slb_rules.default"),
+					resource.TestCheckResourceAttr("data.apsarastack_slb_rules.default", "load_balancer_id.#", "0"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
 
-	idsConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSlbRulesDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_rule.default.load_balancer_id}"`,
-			"frontend_port":    `"${apsarastack_slb_rule.default.frontend_port}"`,
-			"ids":              `["${apsarastack_slb_rule.default.id}"]`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSlbRulesDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_rule.default.load_balancer_id}"`,
-			"frontend_port":    `"${apsarastack_slb_rule.default.frontend_port}"`,
-			"ids":              `["${apsarastack_slb_rule.default.id}_fake"]`,
-		}),
-	}
-
-	allConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSlbRulesDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_rule.default.load_balancer_id}"`,
-			"frontend_port":    `"${apsarastack_slb_rule.default.frontend_port}"`,
-			"ids":              `["${apsarastack_slb_rule.default.id}"]`,
-			"name_regex":       `"${apsarastack_slb_rule.default.name}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSlbRulesDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_rule.default.load_balancer_id}"`,
-			"frontend_port":    `"${apsarastack_slb_rule.default.frontend_port}"`,
-			"ids":              `["${apsarastack_slb_rule.default.id}_fake"]`,
-			"name_regex":       `"${apsarastack_slb_rule.default.name}"`,
-		}),
-	}
-
-	var existDnsRecordsMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"slb_rules.#":                 "1",
-			"ids.#":                       "1",
-			"names.#":                     "1",
-			"slb_rules.0.id":              CHECKSET,
-			"slb_rules.0.name":            "tf-testaccslbrulesdatasourcebasic",
-			"slb_rules.0.domain":          "*.aliyun.com",
-			"slb_rules.0.url":             "/image",
-			"slb_rules.0.server_group_id": CHECKSET,
-		}
-	}
-
-	var fakeDnsRecordsMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"slb_rules.#": "0",
-			"ids.#":       "0",
-			"names.#":     "0",
-		}
-	}
-
-	var slbRulesCheckInfo = dataSourceAttr{
-		resourceId:   "data.apsarastack_slb_rules.default",
-		existMapFunc: existDnsRecordsMapFunc,
-		fakeMapFunc:  fakeDnsRecordsMapFunc,
-	}
-
-	slbRulesCheckInfo.dataSourceTestCheck(t, -1, basicConf, nameRegexConf, idsConf, allConf)
 }
 
-func testAccCheckApsaraStackSlbRulesDataSourceConfig(attrMap map[string]string) string {
-	var pairs []string
-	for k, v := range attrMap {
-		pairs = append(pairs, k+" = "+v)
-	}
-
-	config := fmt.Sprintf(`
+const testAccCheckApsaraStackSlbRulesDataSourceConfig = `
 variable "name" {
 	default = "tf-testaccslbrulesdatasourcebasic"
 }
 
 data "apsarastack_images" "default" {
-  name_regex = "^ubuntu_18.*64"
   most_recent = true
   owners = "system"
 }
@@ -156,9 +90,7 @@ resource "apsarastack_instance" "default" {
   image_id = "${data.apsarastack_images.default.images.0.id}"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
   instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-  internet_charge_type = "PayByTraffic"
   system_disk_category = "cloud_efficiency"
-
   security_groups = ["${apsarastack_security_group.default.id}"]
   instance_name = "${var.name}"
   vswitch_id = "${apsarastack_vswitch.default.id}"
@@ -183,8 +115,7 @@ resource "apsarastack_slb_rule" "default" {
 }
 
 data "apsarastack_slb_rules" "default" {
-  %s
+load_balancer_id = "${apsarastack_slb.default.id}"
+frontend_port = 80
 }
-`, strings.Join(pairs, "\n  "))
-	return config
-}
+`

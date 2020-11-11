@@ -72,6 +72,7 @@ func resourceApsaraStackDBConnectionCreate(d *schema.ResourceData, meta interfac
 
 	request := rds.CreateAllocateInstancePublicConnectionRequest()
 	request.RegionId = client.RegionId
+
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = instanceId
@@ -204,8 +205,6 @@ func resourceApsaraStackDBConnectionDelete(d *schema.ResourceData, meta interfac
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 	request := rds.CreateReleaseInstancePublicConnectionRequest()
 	request.RegionId = client.RegionId
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = split[0]
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {

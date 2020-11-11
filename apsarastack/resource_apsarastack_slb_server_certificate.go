@@ -68,6 +68,8 @@ func resourceApsaraStackSlbServerCertificateCreate(d *schema.ResourceData, meta 
 			return WrapError(Error("UploadServerCertificate got an error, as either private_key or private_file  should be not null when apsarastack_certificate_id is null."))
 		}
 	}
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.UploadServerCertificate(request)

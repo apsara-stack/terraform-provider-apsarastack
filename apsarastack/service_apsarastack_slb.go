@@ -88,9 +88,6 @@ func (s *SlbService) DescribeSlbRule(id string) (*slb.DescribeRuleAttributeRespo
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ = raw.(*slb.DescribeRuleAttributeResponse)
-	//if response.RuleId != id {
-	//	return response, WrapErrorf(Error(GetNotFoundMessage("SlbRule", id)), NotFoundMsg, ApsaraStackSdkGoERROR)
-	//}
 	return response, nil
 }
 
@@ -176,6 +173,9 @@ func (s *SlbService) DescribeSlbListener(id string) (listener map[string]interfa
 	protocol := parts[1]
 	request, err := s.BuildSlbCommonRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+
 	if err != nil {
 		err = WrapError(err)
 		return
@@ -585,6 +585,8 @@ func (s *SlbService) DescribeSlbServerCertificate(id string) (*slb.ServerCertifi
 	request := slb.CreateDescribeServerCertificatesRequest()
 	request.RegionId = s.client.RegionId
 	request.ServerCertificateId = id
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 
 	raw, err := s.client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 		return slbClient.DescribeServerCertificates(request)
@@ -594,7 +596,6 @@ func (s *SlbService) DescribeSlbServerCertificate(id string) (*slb.ServerCertifi
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*slb.DescribeServerCertificatesResponse)
-
 	if len(response.ServerCertificates.ServerCertificate) < 1 || response.ServerCertificates.ServerCertificate[0].ServerCertificateId != id {
 		return certificate, WrapErrorf(Error(GetNotFoundMessage("SlbServerCertificate", id)), NotFoundMsg, ProviderERROR)
 	}
@@ -749,8 +750,6 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 		request.ResourceType = string(resourceType)
 		request.RegionId = s.client.RegionId
 
-		request.Headers = map[string]string{"RegionId": s.client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		wait := incrementalWait(1*time.Second, 1*time.Second)
 		err := resource.Retry(10*time.Minute, func() *resource.RetryError {
 			raw, err := s.client.WithSlbClient(func(client *slb.Client) (interface{}, error) {
