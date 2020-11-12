@@ -184,6 +184,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
 			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
 			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
+			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
+			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -268,6 +270,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
 			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
 			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
+			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -366,6 +369,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.CrEndpoint = "cr." + domain
 		config.EssEndpoint = "ess." + domain
 		config.DnsEndpoint = "dns." + domain
+		config.AscmEndpoint = "ascm." + domain
 
 	} else {
 
@@ -385,6 +389,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
 			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
+			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
 
 		}
 	}
@@ -454,6 +459,12 @@ func endpointsSchema() *schema.Schema {
 					Optional:    true,
 					Default:     "",
 					Description: descriptions["ecs_endpoint"],
+				},
+				"ascm": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Default:     "",
+					Description: descriptions["ascm_endpoint"],
 				},
 				"rds": {
 					Type:        schema.TypeString,
@@ -560,13 +571,6 @@ func endpointsSchema() *schema.Schema {
 					Optional:    true,
 					Default:     "",
 					Description: descriptions["pvtz_endpoint"],
-				},
-
-				"ascm": {
-					Type:        schema.TypeString,
-					Optional:    true,
-					Default:     "",
-					Description: descriptions["ascm_endpoint"],
 				},
 				// log service is sls service
 				"log": {
@@ -709,6 +713,7 @@ func endpointsSchema() *schema.Schema {
 func endpointsToHash(v interface{}) int {
 	var buf bytes.Buffer
 	m := v.(map[string]interface{})
+	buf.WriteString(fmt.Sprintf("%s-", m["ascm"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["ecs"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["rds"].(string)))
 	buf.WriteString(fmt.Sprintf("%s-", m["slb"].(string)))
