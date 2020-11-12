@@ -572,13 +572,6 @@ func endpointsSchema() *schema.Schema {
 					Default:     "",
 					Description: descriptions["pvtz_endpoint"],
 				},
-
-				"ascm": {
-					Type:        schema.TypeString,
-					Optional:    true,
-					Default:     "",
-					Description: descriptions["ascm_endpoint"],
-				},
 				// log service is sls service
 				"log": {
 					Type:        schema.TypeString,

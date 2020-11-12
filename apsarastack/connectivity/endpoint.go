@@ -50,7 +50,6 @@ const (
 	FCCode              = ServiceCode("FC")
 	DDSCode             = ServiceCode("DDS")
 	GPDBCode            = ServiceCode("GPDB")
-	ASCMCode            = ServiceCode("ASCM")
 	CENCode             = ServiceCode("CEN")
 	KVSTORECode         = ServiceCode("KVSTORE")
 	POLARDBCode         = ServiceCode("POLARDB")
