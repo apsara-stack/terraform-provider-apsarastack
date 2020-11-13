@@ -16,7 +16,7 @@ func TestAccApsaraStackDBConnectionConfigUpdate(t *testing.T) {
 	name := fmt.Sprintf("tf-testAccDBconnection%s", rand)
 	var basicMap = map[string]string{
 		"instance_id":       CHECKSET,
-		"connection_string": REGEXMATCH + fmt.Sprintf("^tf-testacc%s.mysql.([a-z-A-Z-0-9]+.){0,1}rds.aliyuncs.com", rand),
+		"connection_string": REGEXMATCH + fmt.Sprintf("tf-testacc%s.mysql.rds.intra.env66.shuguang.com", rand),
 		"port":              "3306",
 		"ip_address":        CHECKSET,
 	}
@@ -79,24 +79,15 @@ func resourceDBConnectionConfigDependence(name string) string {
 		default = "%s"
 	}
 
-	data "apsarastack_db_instance_engines" "default" {
-  		instance_charge_type = "PostPaid"
-  		engine               = "MySQL"
-  		engine_version       = "5.6"
-	}
-
-	data "apsarastack_db_instance_classes" "default" {
- 	 	engine = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-		engine_version = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-	}
-
 	resource "apsarastack_db_instance" "instance" {
-		engine = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-		engine_version = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-		instance_type = "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}"
-		instance_storage = "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}"
-		vswitch_id = "${apsarastack_vswitch.default.id}"
-		instance_name = "${var.name}"
+	  engine               = "MySQL"
+	  engine_version       = "5.6"
+	  instance_type        = "rds.mysql.s2.large"
+	  instance_storage     = "5"
+	  instance_charge_type = "Postpaid"
+	  instance_name        = "${var.name}"
+	  vswitch_id           = "${apsarastack_vswitch.default.id}"
+	  monitoring_period    = "60"
 	}
 	`, RdsCommonTestCase, name)
 }
