@@ -835,7 +835,7 @@ resource "apsarastack_vswitch" "this" {
 
 const KVStoreCommonTestCase = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "${var.creation}"
+
 }
 resource "apsarastack_vpc" "default" {
   name       = "${var.name}"
@@ -844,7 +844,7 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${lookup(data.apsarastack_zones.default.zones[(length(data.apsarastack_zones.default.zones)-1)%length(data.apsarastack_zones.default.zones)], "id")}"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   name              = "${var.name}"
 }
 `
