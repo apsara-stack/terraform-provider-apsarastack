@@ -184,8 +184,15 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
 			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
 			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
+
+			"apsarastack_kvstore_instances":              dataSourceApsaraStackKVStoreInstances(),
+			"apsarastack_kvstore_zones":                  dataSourceApsaraStackKVStoreZones(),
+			"apsarastack_kvstore_instance_classes":       dataSourceApsaraStackKVStoreInstanceClasses(),
+			"apsarastack_kvstore_instance_engines":       dataSourceApsaraStackKVStoreInstanceEngines(),
+
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
 			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
+
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -270,7 +277,13 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
 			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
 			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
+
+			"apsarastack_kvstore_instance":                    resourceApsaraStackKVStoreInstance(),
+			"apsarastack_kvstore_backup_policy":               resourceApsaraStackKVStoreBackupPolicy(),
+			"apsarastack_kvstore_account":                     resourceApsaraStackKVstoreAccount(),
+
 			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
+
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -356,6 +369,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		return nil, err
 	}
 	domain := d.Get("domain").(string)
+
 	if domain != "" {
 		config.EcsEndpoint = "ecs." + domain
 		config.VpcEndpoint = "vpc." + domain
@@ -369,7 +383,11 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.CrEndpoint = "cr." + domain
 		config.EssEndpoint = "ess." + domain
 		config.DnsEndpoint = "dns." + domain
+
+		config.KVStoreEndpoint = "kvstore." + domain
+
 		config.AscmEndpoint = "ascm." + domain
+
 
 	} else {
 
@@ -389,7 +407,11 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
 			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
+
+			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
+
 			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
+
 
 		}
 	}
