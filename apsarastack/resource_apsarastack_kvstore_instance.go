@@ -64,6 +64,12 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"engine_version": {
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: true,
+				Default:  KVStore2Dot8,
+			},
 			"availability_zone": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -112,15 +118,9 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"tags": tagsSchema(),
 			"security_ips": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
-				Computed: true,
-				Optional: true,
-			},
-			"security_group_id": {
-				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
@@ -173,6 +173,9 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 	kvstoreService := KvstoreService{client}
 
 	request, err := buildKVStoreCreateRequest(d, meta)
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if err != nil {
 		return WrapError(err)
 	}
@@ -203,9 +206,6 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 	d.Partial(true)
 	stateConf := BuildStateConf([]string{"DBInstanceClassChanging", "DBInstanceNetTypeChanging", "Changing"}, []string{"Normal"}, d.Timeout(schema.TimeoutUpdate), 1*time.Minute, kvstoreService.RdsKvstoreInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}))
 
-	if err := kvstoreService.setInstanceTags(d); err != nil {
-		return WrapError(err)
-	}
 	if d.HasChange("parameters") {
 		config := make(map[string]interface{})
 		documented := d.Get("parameters").(*schema.Set).List()
@@ -231,6 +231,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 		}
 		request := r_kvstore.CreateModifySecurityIpsRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.SecurityIpGroupName = "default"
 		request.InstanceId = d.Id()
 		if len(d.Get("security_ips").(*schema.Set).List()) > 0 {
@@ -252,22 +254,6 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 		}
 	}
 
-	if d.HasChange("security_group_id") {
-		request := r_kvstore.CreateModifySecurityGroupConfigurationRequest()
-		request.RegionId = client.RegionId
-		request.DBInstanceId = d.Id()
-		request.SecurityGroupId = d.Get("security_group_id").(string)
-
-		raw, err := client.WithRkvClient(func(client *r_kvstore.Client) (interface{}, error) {
-			return client.ModifySecurityGroupConfiguration(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("security_group_id")
-	}
-
 	if d.HasChange("vpc_auth_mode") {
 		if vswitchId, ok := d.GetOk("vswitch_id"); ok && vswitchId.(string) != "" {
 			// vpc_auth_mode works only if the network type is VPC
@@ -280,6 +266,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 
 				request := r_kvstore.CreateModifyInstanceVpcAuthModeRequest()
 				request.RegionId = client.RegionId
+				request.Headers = map[string]string{"RegionId": client.RegionId}
+				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 				request.InstanceId = d.Id()
 				request.VpcAuthMode = d.Get("vpc_auth_mode").(string)
 
@@ -304,6 +292,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 		// for now we just support charge change from PostPaid to PrePaid
 		prePaidRequest := r_kvstore.CreateTransformToPrePaidRequest()
 		prePaidRequest.RegionId = client.RegionId
+		prePaidRequest.Headers = map[string]string{"RegionId": client.RegionId}
+		prePaidRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		prePaidRequest.InstanceId = d.Id()
 		prePaidRequest.Period = requests.Integer(strconv.Itoa(d.Get("period").(int)))
 
@@ -326,6 +316,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 	if d.HasChange("maintain_start_time") || d.HasChange("maintain_end_time") {
 		request := r_kvstore.CreateModifyInstanceMaintainTimeRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceId = d.Id()
 		request.MaintainStartTime = d.Get("maintain_start_time").(string)
 		request.MaintainEndTime = d.Get("maintain_end_time").(string)
@@ -354,6 +346,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 
 		request := r_kvstore.CreateModifyInstanceSpecRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceId = d.Id()
 		request.InstanceClass = d.Get("instance_class").(string)
 		request.EffectiveTime = "Immediately"
@@ -400,6 +394,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 
 	request := r_kvstore.CreateModifyInstanceAttributeRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.InstanceId = d.Id()
 	update := false
 	if d.HasChange("instance_name") {
@@ -461,14 +457,6 @@ func resourceApsaraStackKVStoreInstanceRead(d *schema.ResourceData, meta interfa
 		}
 		return WrapError(err)
 	}
-	groupIp, err := kvstoreService.DescribeKVstoreSecurityGroupId(d.Id())
-	if err != nil {
-		if !NotFoundError(err) {
-			return WrapError(err)
-		}
-	} else if len(groupIp.Items.EcsSecurityGroupRelation) > 0 {
-		d.Set("security_group_id", groupIp.Items.EcsSecurityGroupRelation[0].SecurityGroupId)
-	}
 
 	d.Set("instance_name", object.InstanceName)
 	d.Set("instance_class", object.InstanceClass)
@@ -477,20 +465,18 @@ func resourceApsaraStackKVStoreInstanceRead(d *schema.ResourceData, meta interfa
 	d.Set("instance_type", object.InstanceType)
 	d.Set("vswitch_id", object.VSwitchId)
 	d.Set("connection_domain", object.ConnectionDomain)
+	d.Set("engine_version", object.EngineVersion)
 	d.Set("private_ip", object.PrivateIp)
 	d.Set("security_ips", strings.Split(object.SecurityIPList, COMMA_SEPARATED))
 	d.Set("vpc_auth_mode", object.VpcAuthMode)
 	d.Set("maintain_start_time", object.MaintainStartTime)
 	d.Set("maintain_end_time", object.MaintainEndTime)
-	tags, err := kvstoreService.DescribeTags(d.Id(), TagResourceInstance)
-	if err != nil {
-		return WrapError(err)
-	}
-	d.Set("tags", kvstoreService.tagsToMap(tags))
 
 	if object.ChargeType == string(PrePaid) {
 		request := r_kvstore.CreateDescribeInstanceAutoRenewalAttributeRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 
 		raw, err := client.WithRkvClient(func(client *r_kvstore.Client) (interface{}, error) {
@@ -530,6 +516,8 @@ func resourceApsaraStackKVStoreInstanceDelete(d *schema.ResourceData, meta inter
 	}
 	request := r_kvstore.CreateDeleteInstanceRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.InstanceId = d.Id()
 
 	raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
@@ -553,9 +541,13 @@ func buildKVStoreCreateRequest(d *schema.ResourceData, meta interface{}) (*r_kvs
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
 	request := r_kvstore.CreateCreateInstanceRequest()
-	request.InstanceName = Trim(d.Get("instance_name").(string))
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.InstanceName = Trim(d.Get("instance_name").(string))
+
 	request.InstanceType = Trim(d.Get("instance_type").(string))
+	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.InstanceClass = Trim(d.Get("instance_class").(string))
 	request.ChargeType = Trim(d.Get("instance_charge_type").(string))
 
