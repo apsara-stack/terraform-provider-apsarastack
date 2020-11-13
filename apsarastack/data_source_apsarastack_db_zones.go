@@ -66,10 +66,9 @@ func dataSourceApsaraStackDBZonesRead(d *schema.ResourceData, meta interface{}) 
 	multi := d.Get("multi").(bool)
 	var zoneIds []string
 	request := rds.CreateDescribeRegionsRequest()
+	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-	request.RegionId = client.RegionId
 	var response = &rds.DescribeRegionsResponse{}
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (i interface{}, err error) {
