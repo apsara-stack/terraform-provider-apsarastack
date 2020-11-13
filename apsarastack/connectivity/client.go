@@ -169,6 +169,9 @@ func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ECSCode), endpoint)
 		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		ecsconn, err := ecs.NewClientWithOptions(client.config.RegionId, client.getSdkConfig().WithTimeout(time.Duration(60)*time.Second), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ECS client: %#v", err)
@@ -454,6 +457,7 @@ func (client *ApsaraStackClient) WithSlbClient(do func(*slb.Client) (interface{}
 		if endpoint == "" {
 			return nil, fmt.Errorf("unable to initialize the slb client: endpoint or domain is not provided for slb service")
 		}
+
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(SLBCode), endpoint)
 		}
@@ -501,6 +505,39 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 	}
 
 	return do(client.ddsconn)
+}
+
+func (client *ApsaraStackClient) WithOssNewClient(do func(*ecs.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the ECS client if necessary
+	if client.ecsconn == nil {
+		endpoint := client.config.OssEndpoint
+		if endpoint == "" {
+			return nil, fmt.Errorf("unable to initialize the oss client: endpoint or domain is not provided for ecs service")
+		}
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(ECSCode), endpoint)
+		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
+		ecsconn, err := ecs.NewClientWithOptions(client.config.RegionId, client.getSdkConfig().WithTimeout(time.Duration(60)*time.Second), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the ECS client: %#v", err)
+		}
+
+		ecsconn.Domain = endpoint
+		ecsconn.AppendUserAgent(Terraform, terraformVersion)
+		ecsconn.AppendUserAgent(Provider, providerVersion)
+		ecsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		ecsconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			ecsconn.SetHttpsProxy(client.config.Proxy)
+			ecsconn.SetHttpProxy(client.config.Proxy)
+		}
+		client.ecsconn = ecsconn
+	}
+
+	return do(client.ecsconn)
 }
 
 func (client *ApsaraStackClient) describeEndpointForService(serviceCode string) (*location.Endpoint, error) {
