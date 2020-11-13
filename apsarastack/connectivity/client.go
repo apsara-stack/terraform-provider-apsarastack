@@ -84,9 +84,9 @@ type ApsaraStackClient struct {
 	onsconn           *ons.Client
 	logconn           *sls.Client
 	logpopconn        *slsPop.Client
+	dnsconn           *alidns.Client
 	creeconn          *cr_ee.Client
 	crconn            *cr.Client
-	dnsconn           *alidns.Client
 }
 
 const (
@@ -285,11 +285,14 @@ func (client *ApsaraStackClient) WithRkvClient(do func(*r_kvstore.Client) (inter
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, fmt.Sprintf("R-%s", string(KVSTORECode)), endpoint)
 		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		rkvconn, err := r_kvstore.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the RKV client: %#v", err)
 		}
-
+		rkvconn.Domain = endpoint
 		rkvconn.AppendUserAgent(Terraform, terraformVersion)
 		rkvconn.AppendUserAgent(Provider, providerVersion)
 		rkvconn.AppendUserAgent(Module, client.config.ConfigurationSource)

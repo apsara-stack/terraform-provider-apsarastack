@@ -266,6 +266,8 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeRkv)) {
 		request := r_kvstore.CreateDescribeAvailableResourceRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceChargeType = instanceChargeType
 		raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.DescribeAvailableResource(request)
