@@ -317,7 +317,7 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 			"SignatureVersion": "1.0",
 			"OpenApiAction":    "PutBucket",
 			"ProductName":      "oss",
-			"Params":           fmt.Sprintf("{\"%s\":%d,\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}", "Department", client.Department, "ResourceGroup", client.ResourceGroup, "RegionId", client.RegionId, "asVersion", "enterprise", "asArchitechture", "x86", "haApsaraStack", "true", "Language", "en", "BucketName", bucketName, "StorageClass", "Standard", "x-oss-acl", acl), //,"x-one-console-endpoint","http://oss-cn-neimeng-env30-d01-a.intra.env30.shuguang.com"),
+			"Params":           fmt.Sprintf("{\"%s\":%s,\"%s\":%s,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}", "Department", client.Department, "ResourceGroup", client.ResourceGroup, "RegionId", client.RegionId, "asVersion", "enterprise", "asArchitechture", "x86", "haApsaraStack", "true", "Language", "en", "BucketName", bucketName, "StorageClass", "Standard", "x-oss-acl", acl), //,"x-one-console-endpoint","http://oss-cn-neimeng-env30-d01-a.intra.env30.shuguang.com"),
 
 		}
 		request.Method = "POST"        // Set request method
@@ -332,7 +332,7 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 
 			return ossClient.ProcessCommonRequest(request)
 		})
-
+		log.Printf("Roshan response: %s", raw)
 		if err != nil {
 			if ossNotFoundError(err) {
 				return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
@@ -353,14 +353,14 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		if det.BucketInfo.Name != "" {
+		if det.BucketInfo.Name == "" {
 			return resource.RetryableError(Error("Trying to ensure new OSS bucket %#v has been created successfully.", request["bucketName"]))
 		}
 		return nil
 	})
 
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "IsBucketExist", ApsaraStackOssGoSdk)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "Bucket Not Found", ApsaraStackOssGoSdk)
 	}
 
 	// Assign the bucket name as the resource ID
@@ -1079,7 +1079,7 @@ func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}
 			"SignatureVersion": "1.0",
 			"OpenApiAction":    "DeleteBucket",
 			"ProductName":      "oss",
-			"Params":           fmt.Sprintf("{\"%s\":%d,\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}", "Department", client.Department, "ResourceGroup", client.ResourceGroup, "RegionId", client.RegionId, "asVersion", "enterprise", "asArchitechture", "x86", "haApsaraStack", "true", "Language", "en", "BucketName", d.Id(), "StorageClass", "Standard"), //,"x-one-console-endpoint","http://oss-cn-neimeng-env30-d01-a.intra.env30.shuguang.com"),
+			"Params":           fmt.Sprintf("{\"%s\":%s,\"%s\":%s,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}", "Department", client.Department, "ResourceGroup", client.ResourceGroup, "RegionId", client.RegionId, "asVersion", "enterprise", "asArchitechture", "x86", "haApsaraStack", "true", "Language", "en", "BucketName", d.Id(), "StorageClass", "Standard"), //,"x-one-console-endpoint","http://oss-cn-neimeng-env30-d01-a.intra.env30.shuguang.com"),
 
 		}
 		request.Method = "POST"        // Set request method

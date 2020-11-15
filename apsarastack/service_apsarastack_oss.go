@@ -68,6 +68,8 @@ func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoRes
 	if bucketList.Code != "200" || len(bucketList.Data.ListAllMyBucketsResult.Buckets.Bucket) < 1 {
 		return response, WrapError(err)
 	}
+
+	var found = false
 	for _, j := range bucketList.Data.ListAllMyBucketsResult.Buckets.Bucket {
 		if j.Name == id {
 			response.BucketInfo.Name = j.Name
@@ -77,11 +79,13 @@ func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoRes
 			response.BucketInfo.Owner.ID = fmt.Sprint(j.ResourceGroupName)
 			//response.BucketInfo.CreationDate=fmt.Sprint(j.CreationDate.
 			response.BucketInfo.Location = j.Location
-
+			found = true
 			break
 		}
 	}
-
+	if !found {
+		response.BucketInfo.Name = ""
+	}
 	return
 }
 
@@ -129,6 +133,9 @@ func (s *OssService) WaitForOssBucket(id string, status Status, timeout int) err
 		}
 
 		if object.BucketInfo.Name != "" && status != Deleted {
+			return nil
+		}
+		if object.BucketInfo.Name == "" && status == Deleted {
 			return nil
 		}
 		if time.Now().After(deadline) {
