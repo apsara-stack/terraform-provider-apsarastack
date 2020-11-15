@@ -6,7 +6,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"log"
 	"strconv"
 	"time"
 
@@ -60,7 +59,7 @@ func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoRes
 	}
 	addDebug("GetBucketInfo", raw, requestInfo, request)
 	bresponse, _ := raw.(*responses.CommonResponse)
-	log.Printf("Roshan %s", raw)
+
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), bucketList)
 	if err != nil {
 		return response, WrapError(err)

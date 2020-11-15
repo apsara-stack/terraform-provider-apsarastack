@@ -332,7 +332,6 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 
 			return ossClient.ProcessCommonRequest(request)
 		})
-		log.Printf("Roshan response: %s", raw)
 		if err != nil {
 			if ossNotFoundError(err) {
 				return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)

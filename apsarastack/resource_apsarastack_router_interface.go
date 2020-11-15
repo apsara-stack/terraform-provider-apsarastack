@@ -83,19 +83,19 @@ func resourceApsaraStackRouterInterface() *schema.Resource {
 			},
 			"opposite_router_type": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 			"opposite_router_id": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 			"opposite_interface_id": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 			"opposite_interface_owner_id": {
 				Type:     schema.TypeString,
-				Computed: true,
+				Optional: true,
 			},
 		},
 	}
@@ -299,6 +299,18 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 		if response.TotalCount > 0 {
 			request.AccessPointId = response.VirtualBorderRouterSet.VirtualBorderRouterType[0].AccessPointId
 		}
+	}
+	request.OppositeInterfaceId = d.Get("opposite_interface_id").(string)
+	request.OppositeRouterType = d.Get("opposite_router_type").(string)
+	request.OppositeRouterId = d.Get("opposite_router_id").(string)
+	request.OppositeInterfaceOwnerId = d.Get("opposite_interface_owner_id").(string)
+	if request.OppositeInterfaceOwnerId == "" {
+		owner := request.OppositeInterfaceOwnerId
+		owner, err := client.AccountId()
+		if err != nil {
+			//return WrapError(err.Error()
+		}
+		request.OppositeInterfaceOwnerId = owner
 	}
 	request.ClientToken = buildClientToken(request.GetActionName())
 	return request, nil
