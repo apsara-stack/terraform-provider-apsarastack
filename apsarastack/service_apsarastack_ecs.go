@@ -113,7 +113,6 @@ func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err err
 	request := ecs.CreateDescribeInstancesRequest()
 
 	request.RegionId = s.client.RegionId
-
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
 	request.InstanceIds = convertListToJsonString([]interface{}{id})
@@ -616,8 +615,9 @@ func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	request := ecs.CreateDescribeImagesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
 	request.ImageId = id
+	request.ImageOwnerAlias = "self"
 	request.Status = fmt.Sprintf("%s,%s,%s,%s,%s", "Creating", "Waiting", "Available", "UnAvailable", "CreateFailed")
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeImages(request)
@@ -630,6 +630,7 @@ func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	if resp == nil || len(resp.Images.Image) < 1 {
 		return image, GetNotFoundErrorFromString(GetNotFoundMessage("Image", id))
 	}
+
 	return resp.Images.Image[0], nil
 }
 
@@ -855,7 +856,7 @@ func (s *EcsService) DescribeImage(id, region string) (image ecs.Image, err erro
 	request.RegionId = region
 	request.ImageId = id
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
 	request.Status = fmt.Sprintf("%s,%s,%s,%s,%s", "Creating", "Waiting", "Available", "UnAvailable", "CreateFailed")
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeImages(request)
