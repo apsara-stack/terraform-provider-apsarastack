@@ -5,7 +5,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"log"
 	"reflect"
 	"time"
 )
@@ -232,9 +231,7 @@ func (s *DnsService) DescribeDnsDomain(id string) (object alidns.DescribeDomainI
 	raw, err := s.client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
 		return alidnsClient.DescribeDomainInfo(request)
 	})
-	log.Printf("ROshan err %s", raw)
 	if err != nil {
-		log.Printf("ROshan %s", err)
 		if IsExpectedErrors(err, []string{"InvalidDomainName.NoExist"}) {
 			err = WrapErrorf(Error(GetNotFoundMessage("DnsDomain", id)), NotFoundMsg, ProviderERROR)
 			return
@@ -244,6 +241,5 @@ func (s *DnsService) DescribeDnsDomain(id string) (object alidns.DescribeDomainI
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*alidns.DescribeDomainInfoResponse)
-	log.Printf("ROshan2 %s ,id %s,rid %s", response.DomainName, id, response.DomainId)
 	return *response, nil
 }
