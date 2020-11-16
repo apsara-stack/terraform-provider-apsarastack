@@ -184,6 +184,12 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
 			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
 			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
+
+			"apsarastack_kvstore_instances":        dataSourceApsaraStackKVStoreInstances(),
+			"apsarastack_kvstore_zones":            dataSourceApsaraStackKVStoreZones(),
+			"apsarastack_kvstore_instance_classes": dataSourceApsaraStackKVStoreInstanceClasses(),
+			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
+
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
 			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
 		},
@@ -270,6 +276,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
 			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
 			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
+
+			"apsarastack_kvstore_instance":      resourceApsaraStackKVStoreInstance(),
+			"apsarastack_kvstore_backup_policy": resourceApsaraStackKVStoreBackupPolicy(),
+			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
+
 			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
 		},
 		ConfigureFunc: providerConfigure,
@@ -357,19 +368,22 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	domain := d.Get("domain").(string)
 	if domain != "" {
-		config.EcsEndpoint = "ecs." + domain
-		config.VpcEndpoint = "vpc." + domain
-		config.SlbEndpoint = "slb." + domain
-		config.OssEndpoint = "oss." + domain
-		config.AscmEndpoint = "ascm." + domain
-		config.RdsEndpoint = "rds." + domain
-		config.OnsEndpoint = "ons." + domain
-		config.KmsEndpoint = "kms." + domain
-		config.LogEndpoint = "log." + domain
-		config.CrEndpoint = "cr." + domain
-		config.EssEndpoint = "ess." + domain
-		config.DnsEndpoint = "dns." + domain
-		config.AscmEndpoint = "ascm." + domain
+		config.EcsEndpoint = domain
+		config.VpcEndpoint = domain
+		config.SlbEndpoint = domain
+		config.OssEndpoint = domain
+		config.AscmEndpoint = domain
+		config.RdsEndpoint = domain
+		config.OnsEndpoint = domain
+		config.KmsEndpoint = domain
+		config.LogEndpoint = domain
+		config.CrEndpoint = domain
+		config.EssEndpoint = domain
+		config.DnsEndpoint = domain
+
+		config.KVStoreEndpoint = domain
+
+		config.AscmEndpoint = domain
 
 	} else {
 
@@ -389,6 +403,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
 			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
+
+			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
+
 			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
 
 		}
