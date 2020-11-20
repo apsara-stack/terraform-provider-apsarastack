@@ -76,8 +76,8 @@ func resourceApsaraStackVpcCreate(d *schema.ResourceData, meta interface{}) erro
 	var response *vpc.CreateVpcResponse
 	request := buildApsaraStackVpcArgs(d, meta)
 	request.RegionId = string(client.Region)
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//request.Headers = map[string]string{"RegionId": client.RegionId}
+	//request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		args := *request
@@ -262,7 +262,7 @@ func buildApsaraStackVpcArgs(d *schema.ResourceData, meta interface{}) *vpc.Crea
 	if v := d.Get("description").(string); v != "" {
 		request.Description = v
 	}
-	request.ClientToken = buildClientToken(request.GetActionName())
+	//request.ClientToken = buildClientToken(request.GetActionName())
 
 	return request
 }

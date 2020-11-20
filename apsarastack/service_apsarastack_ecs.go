@@ -114,7 +114,7 @@ func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err err
 
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.InstanceIds = convertListToJsonString([]interface{}{id})
 
 	var response *ecs.DescribeInstancesResponse
@@ -143,7 +143,7 @@ func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err err
 	if len(response.Instances.Instance) < 1 {
 		return instance, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 	}
-
+	log.Printf("[ECS Creation]: Getting Instance Details using DescribeInstances API: %s", response.Instances.Instance[0])
 	return response.Instances.Instance[0], nil
 }
 
@@ -171,7 +171,7 @@ func (s *EcsService) DescribeInstanceAttribute(id string) (instance ecs.Describe
 func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, err error) {
 	request := ecs.CreateDescribeDisksRequest()
 	request.InstanceId = id
-	request.DiskType = string(DiskTypeSystem)
+	//request.DiskType = string(DiskTypeSystem)
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -196,6 +196,9 @@ func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, e
 	if err != nil {
 		return disk, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
+	log.Printf("[ECS Creation]: Getting Disks Query Params : %s ", request.GetQueryParams())
+	log.Printf("[ECS Creation]: Getting Disks response : %s ", response)
+	//log.Printf("[ECS Creation]: Getting Disks Details: %s, Instance ID: %s, Id_to_compare: %s ",response.Disks.Disk[0],response.Disks.Disk[0].InstanceId,id)
 	if len(response.Disks.Disk) < 1 || response.Disks.Disk[0].InstanceId != id {
 		return disk, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 	}
@@ -450,7 +453,7 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keyPair string) (
 	request := ecs.CreateDescribeInstancesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	request.InstanceIds = instanceIdsStr
@@ -730,8 +733,23 @@ func (s *EcsService) DescribeNetworkInterface(id string) (networkInterface ecs.N
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response := raw.(*ecs.DescribeNetworkInterfacesResponse)
-	if len(response.NetworkInterfaceSets.NetworkInterfaceSet) < 1 ||
-		response.NetworkInterfaceSets.NetworkInterfaceSet[0].NetworkInterfaceId != id {
+	//if len(response.NetworkInterfaceSets.NetworkInterfaceSet) < 1 ||
+	//	response.NetworkInterfaceSets.NetworkInterfaceSet[0].NetworkInterfaceId != id {
+	//	err = WrapErrorf(Error(GetNotFoundMessage("NetworkInterface", id)), NotFoundMsg, ProviderERROR, response.RequestId)
+	//	return
+	//}
+
+	var found = bool(false)
+	var result = &ecs.DescribeNetworkInterfacesResponse{}
+	for i, k := range response.NetworkInterfaceSets.NetworkInterfaceSet {
+		if /*len(response.NetworkInterfaceSets.NetworkInterfaceSet) < 1 */
+		k.NetworkInterfaceId == id {
+			found = true
+			result.NetworkInterfaceSets.NetworkInterfaceSet[0] = response.NetworkInterfaceSets.NetworkInterfaceSet[i]
+			return
+		}
+	}
+	if !found {
 		err = WrapErrorf(Error(GetNotFoundMessage("NetworkInterface", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 		return
 	}
