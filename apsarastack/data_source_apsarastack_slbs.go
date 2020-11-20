@@ -1,11 +1,13 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 	"regexp"
 )
 
@@ -184,14 +186,16 @@ func dataSourceApsaraStackSlbsRead(d *schema.ResourceData, meta interface{}) err
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DescribeLoadBalancers(request)
 		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_slbs", request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
+		//if err != nil{
+		//	return WrapError(err)
+		//}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*slb.DescribeLoadBalancersResponse)
 		if len(response.LoadBalancers.LoadBalancer) < 1 {
 			break
 		}
+		log.Printf("sss %s", raw)
+		err = json.Unmarshal(response.GetHttpContentBytes(), response)
 
 		allLoadBalancers = append(allLoadBalancers, response.LoadBalancers.LoadBalancer...)
 
