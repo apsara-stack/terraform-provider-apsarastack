@@ -312,7 +312,7 @@ func (client *ApsaraStackClient) WithRkvClient(do func(*r_kvstore.Client) (inter
 func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface{}, error)) (interface{}, error) {
 	// Initialize the GPDB client if necessary
 	if client.gpdbconn == nil {
-		endpoint := client.config.GpdbEnpoint
+		endpoint := client.config.GpdbEndpoint
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(GPDBCode), endpoint)
 		}
@@ -321,6 +321,7 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 			return nil, fmt.Errorf("unable to initialize the GPDB client: %#v", err)
 		}
 
+		gpdbconn.Domain = endpoint
 		gpdbconn.AppendUserAgent(Terraform, terraformVersion)
 		gpdbconn.AppendUserAgent(Provider, providerVersion)
 		gpdbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
