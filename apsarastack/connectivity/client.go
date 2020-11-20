@@ -489,17 +489,21 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(DDSCode), endpoint)
 		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		ddsconn, err := dds.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the DDS client: %#v", err)
 		}
+		ddsconn.Domain = endpoint
 
 		ddsconn.AppendUserAgent(Terraform, terraformVersion)
 		ddsconn.AppendUserAgent(Provider, providerVersion)
 		ddsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ddsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			ddsconn.SetHttpsProxy(client.config.Proxy)
+			ddsconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.ddsconn = ddsconn
 	}
@@ -1028,13 +1032,21 @@ func (client *ApsaraStackClient) WithOnsClient(do func(*ons.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ONSCode), endpoint)
 		}
-		onsconn, err := ons.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
+		onsconn, err := ons.NewClientWithAccessKey(client.RegionId, client.AccessKey, client.SecretKey)
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ONS client: %#v", err)
 		}
 		onsconn.AppendUserAgent(Terraform, terraformVersion)
 		onsconn.AppendUserAgent(Provider, providerVersion)
+		onsconn.Domain = endpoint
 		onsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		onsconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			onsconn.SetHttpProxy(client.config.Proxy)
+		}
 		client.onsconn = onsconn
 	}
 
