@@ -26,6 +26,7 @@ github.com/aliyun/alibaba-cloud-sdk-go/services/bssopenapi
 github.com/aliyun/alibaba-cloud-sdk-go/services/cdn
 github.com/aliyun/alibaba-cloud-sdk-go/services/cr
 github.com/aliyun/alibaba-cloud-sdk-go/services/cr_ee
+github.com/aliyun/alibaba-cloud-sdk-go/services/cs
 github.com/aliyun/alibaba-cloud-sdk-go/services/dds
 github.com/aliyun/alibaba-cloud-sdk-go/services/ecs
 github.com/aliyun/alibaba-cloud-sdk-go/services/elasticsearch
