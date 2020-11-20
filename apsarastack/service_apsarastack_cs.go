@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
@@ -72,6 +73,22 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 			cluster.Name = k.Name
 			cluster.State = k.State
 			cluster.ClusterId = k.ClusterID
+			cluster.ClusterType = cs.KubernetesClusterType(k.ClusterType)
+			cluster.VpcId = k.VpcID
+			cluster.ResourceGroupId = k.ResourceGroupID
+			cluster.ContainerCIDR = k.SubnetCidr
+			cluster.CurrentVersion = k.CurrentVersion
+			cluster.DeletionProtection = k.DeletionProtection
+			cluster.RegionId = common.Region(k.RegionID)
+			cluster.Size = k.Size
+			cluster.IngressLoadbalancerId = k.ExternalLoadbalancerID
+			cluster.InitVersion = k.InitVersion
+			cluster.MetaData = k.MetaData
+			cluster.NetworkMode = k.NetworkMode
+			cluster.PrivateZone = k.PrivateZone
+			cluster.Profile = k.Profile
+			cluster.VSwitchIds = k.VswitchID
+			//cluster.Updated=k.Updated
 			//cluster.Created= k.Created.
 			break
 		}
