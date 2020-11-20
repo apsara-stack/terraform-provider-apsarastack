@@ -4,9 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -114,15 +118,21 @@ func Provider() terraform.ResourceProvider {
 			},
 			"department": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DEPARTMENT", nil),
 				Description: descriptions["department"],
 			},
 			"resource_group": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP", nil),
 				Description: descriptions["resource_group"],
+			},
+			"resource_group_set_name": {
+				Type:        schema.TypeString,
+				Optional:    true, //Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP_SET", nil),
+				Description: descriptions["resource_group_set_name"],
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -184,6 +194,12 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
 			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
 			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
+
+			"apsarastack_kvstore_instances":        dataSourceApsaraStackKVStoreInstances(),
+			"apsarastack_kvstore_zones":            dataSourceApsaraStackKVStoreZones(),
+			"apsarastack_kvstore_instance_classes": dataSourceApsaraStackKVStoreInstanceClasses(),
+			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
+
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
 			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
 		},
@@ -270,6 +286,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
 			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
 			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
+
+			"apsarastack_kvstore_instance":      resourceApsaraStackKVStoreInstance(),
+			"apsarastack_kvstore_backup_policy": resourceApsaraStackKVStoreBackupPolicy(),
+			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
+			"apsarastack_cs_kubernetes":         resourceApsaraStackCSKubernetes(),
 			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
 		},
 		ConfigureFunc: providerConfigure,
@@ -311,6 +332,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Proxy:                d.Get("proxy").(string),
 		Department:           d.Get("department").(string),
 		ResourceGroup:        d.Get("resource_group").(string),
+		ResourceSetName:      d.Get("resource_group_set_name").(string),
 	}
 	token := getProviderConfig(d.Get("security_token").(string), "sts_token")
 	config.SecurityToken = strings.TrimSpace(token)
@@ -357,19 +379,23 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	domain := d.Get("domain").(string)
 	if domain != "" {
-		config.EcsEndpoint = "ecs." + domain
-		config.VpcEndpoint = "vpc." + domain
-		config.SlbEndpoint = "slb." + domain
-		config.OssEndpoint = "oss." + domain
-		config.AscmEndpoint = "ascm." + domain
-		config.RdsEndpoint = "rds." + domain
-		config.OnsEndpoint = "ons." + domain
-		config.KmsEndpoint = "kms." + domain
-		config.LogEndpoint = "log." + domain
-		config.CrEndpoint = "cr." + domain
-		config.EssEndpoint = "ess." + domain
-		config.DnsEndpoint = "dns." + domain
-		config.AscmEndpoint = "ascm." + domain
+		config.EcsEndpoint = domain
+		config.VpcEndpoint = domain
+		config.SlbEndpoint = domain
+		config.OssEndpoint = domain
+		config.AscmEndpoint = domain
+		config.RdsEndpoint = domain
+		config.OnsEndpoint = domain
+		config.KmsEndpoint = domain
+		config.LogEndpoint = domain
+		config.CrEndpoint = domain
+		config.EssEndpoint = domain
+		config.DnsEndpoint = domain
+
+		config.KVStoreEndpoint = domain
+
+		config.AscmEndpoint = domain
+		config.CsEndpoint = domain
 
 	} else {
 
@@ -389,9 +415,21 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
 			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
-			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
 
+			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
+
+			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
+			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
 		}
+	}
+	config.ResourceSetName = d.Get("resource_group_set_name").(string)
+	if config.Department == "" || config.ResourceGroup == "" {
+		dept, rg, err := getResourceCredentials(config)
+		if err != nil {
+			return nil, err
+		}
+		config.Department = dept
+		config.ResourceGroup = rg
 	}
 
 	if config.RamRoleArn != "" {
@@ -890,4 +928,66 @@ func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionNam
 	}
 
 	return response.Credentials.AccessKeyId, response.Credentials.AccessKeySecret, response.Credentials.SecurityToken, nil
+}
+
+func getResourceCredentials(config *connectivity.Config) (string, string, error) {
+	endpoint := config.AscmEndpoint
+	if endpoint == "" {
+		return "", "", fmt.Errorf("unable to initialize the ascm client: endpoint or domain is not provided for ascm service")
+	}
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(config.RegionId, string(connectivity.ASCMCode), endpoint)
+	}
+	ascmClient, err := sdk.NewClientWithAccessKey(config.RegionId, config.AccessKey, config.SecretKey)
+	if err != nil {
+		return "", "", fmt.Errorf("unable to initialize the ascm client: %#v", err)
+	}
+
+	ascmClient.AppendUserAgent(connectivity.Terraform, connectivity.TerraformVersion)
+	ascmClient.AppendUserAgent(connectivity.Provider, connectivity.ProviderVersion)
+	ascmClient.AppendUserAgent(connectivity.Module, config.ConfigurationSource)
+	ascmClient.SetHTTPSInsecure(config.Insecure)
+	ascmClient.Domain = endpoint
+	if config.Proxy != "" {
+		ascmClient.SetHttpProxy(config.Proxy)
+	}
+	if config.ResourceSetName == "" {
+		return "", "", fmt.Errorf("errror while fetching resource group details, resource group set name can not be empty")
+	}
+	request := requests.NewCommonRequest()
+	request.Method = "GET"         // Set request method
+	request.Product = "ascm"       // Specify product
+	request.Domain = endpoint      // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2019-05-10" // Specify product version
+	request.Scheme = "http"        // Set request scheme. Default: http
+	request.ApiName = "ListResourceGroup"
+	request.QueryParams = map[string]string{
+		"AccessKeySecret":   config.SecretKey,
+		"Product":           "ascm",
+		"Department":        config.Department,
+		"ResourceGroup":     config.ResourceGroup,
+		"RegionId":          config.RegionId,
+		"Action":            "ListResourceGroup",
+		"Version":           "2019-05-10",
+		"SignatureVersion":  "1.0",
+		"resourceGroupName": config.ResourceSetName,
+	}
+	resp := responses.BaseResponse{}
+	request.TransToAcsRequest()
+	err = ascmClient.DoAction(request, &resp)
+	if err != nil {
+		return "", "", err
+	}
+	response := &ascm.ResourceGroup{}
+	err = json.Unmarshal(resp.GetHttpContentBytes(), response)
+
+	if len(response.Data) != 1 || response.Code != "200" {
+		if len(response.Data) == 0 {
+			return "", "", fmt.Errorf("resource group ID and organization not found for resource set %s", config.ResourceSetName)
+		}
+		return "", "", fmt.Errorf("unable to initialize the ascm client: department or resource_group is not provided")
+	}
+
+	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ResourceGroupID))
+	return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ResourceGroupID), err
 }

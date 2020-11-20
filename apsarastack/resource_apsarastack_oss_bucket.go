@@ -3,7 +3,9 @@ package apsarastack
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
 	"time"
 
@@ -287,58 +289,81 @@ func resourceApsaraStackOssBucket() *schema.Resource {
 
 func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	request := map[string]string{"bucketName": d.Get("bucket").(string)}
+	ossService := OssService{client}
+	request := map[string]string{"bucketName": d.Get("bucket").(string), "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	var requestInfo *oss.Client
-	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		requestInfo = ossClient
-		return ossClient.IsBucketExist(request["bucketName"])
-	})
+	bucketName := d.Get("bucket").(string)
+	det, err := ossService.DescribeOssBucket(bucketName)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "IsBucketExist", ApsaraStackOssGoSdk)
 	}
-	addDebug("IsBucketExist", raw, requestInfo, request)
-	isExist, _ := raw.(bool)
-	if isExist {
-		return WrapError(Error("[ERROR] The specified bucket name: %#v is not available. The bucket namespace is shared by all users of the OSS system. Please select a different name and try again.", request["bucketName"]))
+	acl := d.Get("acl").(string)
+	if acl == "" {
+		acl = "private"
 	}
-	type Request struct {
-		BucketName string
-		Option     oss.Option
-	}
+	// If not present, Create Bucket
+	if det.BucketInfo.Name == "" {
+		request := requests.NewCommonRequest()
+		request.QueryParams = map[string]string{
 
-	req := Request{
-		d.Get("bucket").(string),
-		oss.StorageClass(oss.StorageClassType(d.Get("storage_class").(string))),
-	}
-	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		return nil, ossClient.CreateBucket(req.BucketName) //req.Option)
-	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "CreateBucket", ApsaraStackOssGoSdk)
-	}
-	addDebug("CreateBucket", raw, requestInfo, req)
-	err = resource.Retry(3*time.Minute, func() *resource.RetryError {
-		raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-			return ossClient.IsBucketExist(request["bucketName"])
+			"AccessKeySecret":  client.SecretKey,
+			"Product":          "OneRouter",
+			"Department":       client.Department,
+			"ResourceGroup":    client.ResourceGroup,
+			"RegionId":         client.RegionId,
+			"Action":           "DoOpenApi",
+			"AccountInfo":      "123456",
+			"Version":          "2018-12-12",
+			"SignatureVersion": "1.0",
+			"OpenApiAction":    "PutBucket",
+			"ProductName":      "oss",
+			"Params":           fmt.Sprintf("{\"%s\":%s,\"%s\":%s,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}", "Department", client.Department, "ResourceGroup", client.ResourceGroup, "RegionId", client.RegionId, "asVersion", "enterprise", "asArchitechture", "x86", "haApsaraStack", "true", "Language", "en", "BucketName", bucketName, "StorageClass", "Standard", "x-oss-acl", acl), //,"x-one-console-endpoint","http://oss-cn-neimeng-env30-d01-a.intra.env30.shuguang.com"),
+
+		}
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.Scheme = "http" // Set request scheme. Default: http
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+
+		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+
+			return ossClient.ProcessCommonRequest(request)
 		})
+		if err != nil {
+			if ossNotFoundError(err) {
+				return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+			}
+			return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+		}
+		addDebug("CreateBucketInfo", raw, requestInfo, request)
+		bresponse, _ := raw.(*responses.CommonResponse)
 
+		if bresponse.GetHttpStatus() != 200 {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "CreateBucket", ApsaraStackOssGoSdk)
+		}
+		addDebug("CreateBucket", raw, requestInfo, bresponse.GetHttpContentString())
+	}
+
+	err = resource.Retry(3*time.Minute, func() *resource.RetryError {
+		det, err := ossService.DescribeOssBucket(bucketName)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		isExist, _ := raw.(bool)
-		if !isExist {
+		if det.BucketInfo.Name == "" {
 			return resource.RetryableError(Error("Trying to ensure new OSS bucket %#v has been created successfully.", request["bucketName"]))
 		}
-		addDebug("IsBucketExist", raw, requestInfo, request)
 		return nil
 	})
 
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "IsBucketExist", ApsaraStackOssGoSdk)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "Bucket Not Found", ApsaraStackOssGoSdk)
 	}
 
 	// Assign the bucket name as the resource ID
-	d.SetId(request["bucketName"])
+	d.SetId(bucketName)
 
 	return resourceApsaraStackOssBucketUpdate(d, meta)
 }
@@ -347,6 +372,10 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ossService := OssService{client}
 	object, err := ossService.DescribeOssBucket(d.Id())
+	acl := d.Get("acl").(string)
+	if acl == "" {
+		acl = "private"
+	}
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -357,7 +386,7 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 
 	d.Set("bucket", d.Id())
 
-	d.Set("acl", object.BucketInfo.ACL)
+	d.Set("acl", acl)
 	d.Set("creation_date", object.BucketInfo.CreationDate.Format("2006-01-02"))
 	d.Set("extranet_endpoint", object.BucketInfo.ExtranetEndpoint)
 	d.Set("intranet_endpoint", object.BucketInfo.IntranetEndpoint)
@@ -365,316 +394,234 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("owner", object.BucketInfo.Owner.ID)
 	d.Set("storage_class", object.BucketInfo.StorageClass)
 
-	if &object.BucketInfo.SseRule != nil {
-		if len(object.BucketInfo.SseRule.SSEAlgorithm) > 0 && object.BucketInfo.SseRule.SSEAlgorithm != "None" {
-			rule := make(map[string]interface{})
-			rule["sse_algorithm"] = object.BucketInfo.SseRule.SSEAlgorithm
-			data := make([]map[string]interface{}, 0)
-			data = append(data, rule)
-			d.Set("server_side_encryption_rule", data)
-		}
-	}
-
-	if object.BucketInfo.Versioning != "" {
-		data := map[string]interface{}{
-			"status": object.BucketInfo.Versioning,
-		}
-		versioning := make([]map[string]interface{}, 0)
-		versioning = append(versioning, data)
-		d.Set("versioning", versioning)
-	}
-	request := map[string]string{"bucketName": d.Id()}
-	var requestInfo *oss.Client
-
-	// Read the CORS
-	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		requestInfo = ossClient
-		return ossClient.GetBucketCORS(request["bucketName"])
-	})
-	if err != nil && !IsExpectedErrors(err, []string{"NoSuchCORSConfiguration"}) {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketCORS", ApsaraStackOssGoSdk)
-	}
-	addDebug("GetBucketCORS", raw, requestInfo, request)
-	cors, _ := raw.(oss.GetBucketCORSResult)
-	rules := make([]map[string]interface{}, 0, len(cors.CORSRules))
-	for _, r := range cors.CORSRules {
-		rule := make(map[string]interface{})
-		rule["allowed_headers"] = r.AllowedHeader
-		rule["allowed_methods"] = r.AllowedMethod
-		rule["allowed_origins"] = r.AllowedOrigin
-		rule["expose_headers"] = r.ExposeHeader
-		rule["max_age_seconds"] = r.MaxAgeSeconds
-
-		rules = append(rules, rule)
-	}
-	if err := d.Set("cors_rule", rules); err != nil {
-		return WrapError(err)
-	}
-
-	// Read the website configuration
-	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		return ossClient.GetBucketWebsite(d.Id())
-	})
-	if err != nil && !IsExpectedErrors(err, []string{"NoSuchWebsiteConfiguration"}) {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketWebsite", ApsaraStackOssGoSdk)
-	}
-	addDebug("GetBucketWebsite", raw, requestInfo, request)
-	ws, _ := raw.(oss.GetBucketWebsiteResult)
-	websites := make([]map[string]interface{}, 0)
-	if err == nil && &ws != nil {
-		w := make(map[string]interface{})
-
-		if v := &ws.IndexDocument; v != nil {
-			w["index_document"] = v.Suffix
-		}
-
-		if v := &ws.ErrorDocument; v != nil {
-			w["error_document"] = v.Key
-		}
-		websites = append(websites, w)
-	}
-	if err := d.Set("website", websites); err != nil {
-		return WrapError(err)
-	}
-
-	// Read the logging configuration
-	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		return ossClient.GetBucketLogging(d.Id())
-	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketLogging", ApsaraStackOssGoSdk)
-	}
-	addDebug("GetBucketLogging", raw, requestInfo, request)
-	logging, _ := raw.(oss.GetBucketLoggingResult)
-
-	if &logging != nil {
-		enable := logging.LoggingEnabled
-		if &enable != nil {
-			lgs := make([]map[string]interface{}, 0)
-			tb := logging.LoggingEnabled.TargetBucket
-			tp := logging.LoggingEnabled.TargetPrefix
-			if tb != "" || tp != "" {
-				lgs = append(lgs, map[string]interface{}{
-					"target_bucket": tb,
-					"target_prefix": tp,
-				})
-			}
-			if err := d.Set("logging", lgs); err != nil {
-				return WrapError(err)
-			}
-		}
-	}
-
-	// Read the bucket referer
-	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		return ossClient.GetBucketReferer(d.Id())
-	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketReferer", ApsaraStackOssGoSdk)
-	}
-	addDebug("GetBucketReferer", raw, requestInfo, request)
-	referers := make([]map[string]interface{}, 0)
-	referer, _ := raw.(oss.GetBucketRefererResult)
-	if len(referer.RefererList) > 0 {
-		referers = append(referers, map[string]interface{}{
-			"allow_empty": referer.AllowEmptyReferer,
-			"referers":    referer.RefererList,
-		})
-		if err := d.Set("referer_config", referers); err != nil {
-			return WrapError(err)
-		}
-	}
-
-	// Read the lifecycle rule configuration
-	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		return ossClient.GetBucketLifecycle(d.Id())
-	})
-	if err != nil && !ossNotFoundError(err) {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketLifecycle", ApsaraStackOssGoSdk)
-	}
-	addDebug("GetBucketLifecycle", raw, requestInfo, request)
-	lrules := make([]map[string]interface{}, 0)
-	lifecycle, _ := raw.(oss.GetBucketLifecycleResult)
-	for _, lifecycleRule := range lifecycle.Rules {
-		rule := make(map[string]interface{})
-		rule["id"] = lifecycleRule.ID
-		rule["prefix"] = lifecycleRule.Prefix
-		if LifecycleRuleStatus(lifecycleRule.Status) == ExpirationStatusEnabled {
-			rule["enabled"] = true
-		} else {
-			rule["enabled"] = false
-		}
-		// expiration
-		if lifecycleRule.Expiration != nil {
-			e := make(map[string]interface{})
-			if lifecycleRule.Expiration.Date != "" {
-				t, err := time.Parse("2006-01-02T15:04:05.000Z", lifecycleRule.Expiration.Date)
-				if err != nil {
-					return WrapError(err)
-				}
-				e["date"] = t.Format("2006-01-02")
-			}
-			e["days"] = int(lifecycleRule.Expiration.Days)
-			rule["expiration"] = schema.NewSet(expirationHash, []interface{}{e})
-		}
-		// transitions
-		//if len(lifecycleRule.Transitions) != 0 {
-		//	var eSli []interface{}
-		//	for _, transition := range lifecycleRule.Transitions {
-		//		e := make(map[string]interface{})
-		//		if transition.CreatedBeforeDate != "" {
-		//			t, err := time.Parse("2006-01-02T15:04:05.000Z", transition.CreatedBeforeDate)
-		//			if err != nil {
-		//				return WrapError(err)
-		//			}
-		//			e["created_before_date"] = t.Format("2006-01-02")
-		//		}
-		//		e["days"] = transition.Days
-		//		e["storage_class"] = string(transition.StorageClass)
-		//		eSli = append(eSli, e)
-		//	}
-		//	rule["transitions"] = schema.NewSet(transitionsHash, eSli)
-		//}
-
-		lrules = append(lrules, rule)
-	}
-
-	if err := d.Set("lifecycle_rule", lrules); err != nil {
-		return WrapError(err)
-	}
-
-	// Read Policy
-	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		params := map[string]interface{}{}
-		params["policy"] = nil
-		return ossClient.Conn.Do("GET", d.Id(), "", params, nil, nil, 0, nil)
-	})
-
-	if err != nil && !ossNotFoundError(err) {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetPolicyByConn", ApsaraStackOssGoSdk)
-	}
-	addDebug("GetPolicyByConn", raw, requestInfo, request)
-	policy := ""
-	if err == nil {
-		rawResp := raw.(*oss.Response)
-		defer rawResp.Body.Close()
-		rawData, err := ioutil.ReadAll(rawResp.Body)
-		if err != nil {
-			return WrapError(err)
-		}
-		policy = string(rawData)
-	}
-
-	if err := d.Set("policy", policy); err != nil {
-		return WrapError(err)
-	}
-
-	// Read tags
-	raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		return ossClient.GetBucketTagging(d.Id())
-	})
-
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketTagging", ApsaraStackOssGoSdk)
-	}
-	addDebug("GetBucketTagging", raw, requestInfo, request)
-	tagging, _ := raw.(oss.GetBucketTaggingResult)
-	tagsMap := make(map[string]string)
-	if len(tagging.Tags) > 0 {
-		for _, t := range tagging.Tags {
-			tagsMap[t.Key] = t.Value
-		}
-	}
-	if err := d.Set("tags", tagsMap); err != nil {
-		return WrapError(err)
-	}
+	//if &object.BucketInfo.SseRule != nil {
+	//	if len(object.BucketInfo.SseRule.SSEAlgorithm) > 0 && object.BucketInfo.SseRule.SSEAlgorithm != "None" {
+	//		rule := make(map[string]interface{})
+	//		rule["sse_algorithm"] = object.BucketInfo.SseRule.SSEAlgorithm
+	//		data := make([]map[string]interface{}, 0)
+	//		data = append(data, rule)
+	//		d.Set("server_side_encryption_rule", data)
+	//	}
+	//}
+	//
+	//if object.BucketInfo.Versioning != "" {
+	//	data := map[string]interface{}{
+	//		"status": object.BucketInfo.Versioning,
+	//	}
+	//	versioning := make([]map[string]interface{}, 0)
+	//	versioning = append(versioning, data)
+	//	d.Set("versioning", versioning)
+	//}
+	//request := map[string]string{"bucketName": d.Id(), "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//var requestInfo *oss.Client
+	//
+	//// Read the CORS
+	//raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	//	requestInfo = ossClient
+	//	return ossClient.GetBucketCORS(request["bucketName"])
+	//})
+	//if err != nil && !IsExpectedErrors(err, []string{"NoSuchCORSConfiguration"}) {
+	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketCORS", ApsaraStackOssGoSdk)
+	//}
+	//addDebug("GetBucketCORS", raw, requestInfo, request)
+	//cors, _ := raw.(oss.GetBucketCORSResult)
+	//rules := make([]map[string]interface{}, 0, len(cors.CORSRules))
+	//for _, r := range cors.CORSRules {
+	//	rule := make(map[string]interface{})
+	//	rule["allowed_headers"] = r.AllowedHeader
+	//	rule["allowed_methods"] = r.AllowedMethod
+	//	rule["allowed_origins"] = r.AllowedOrigin
+	//	rule["expose_headers"] = r.ExposeHeader
+	//	rule["max_age_seconds"] = r.MaxAgeSeconds
+	//
+	//	rules = append(rules, rule)
+	//}
+	//if err := d.Set("cors_rule", rules); err != nil {
+	//	return WrapError(err)
+	//}
+	//
+	//// Read the website configuration
+	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	//	return ossClient.GetBucketWebsite(d.Id())
+	//})
+	//if err != nil && !IsExpectedErrors(err, []string{"NoSuchWebsiteConfiguration"}) {
+	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketWebsite", ApsaraStackOssGoSdk)
+	//}
+	//addDebug("GetBucketWebsite", raw, requestInfo, request)
+	//ws, _ := raw.(oss.GetBucketWebsiteResult)
+	//websites := make([]map[string]interface{}, 0)
+	//if err == nil && &ws != nil {
+	//	w := make(map[string]interface{})
+	//
+	//	if v := &ws.IndexDocument; v != nil {
+	//		w["index_document"] = v.Suffix
+	//	}
+	//
+	//	if v := &ws.ErrorDocument; v != nil {
+	//		w["error_document"] = v.Key
+	//	}
+	//	websites = append(websites, w)
+	//}
+	//if err := d.Set("website", websites); err != nil {
+	//	return WrapError(err)
+	//}
+	//
+	//// Read the logging configuration
+	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	//	return ossClient.GetBucketLogging(d.Id())
+	//})
+	//if err != nil {
+	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketLogging", ApsaraStackOssGoSdk)
+	//}
+	//addDebug("GetBucketLogging", raw, requestInfo, request)
+	//logging, _ := raw.(oss.GetBucketLoggingResult)
+	//
+	//if &logging != nil {
+	//	enable := logging.LoggingEnabled
+	//	if &enable != nil {
+	//		lgs := make([]map[string]interface{}, 0)
+	//		tb := logging.LoggingEnabled.TargetBucket
+	//		tp := logging.LoggingEnabled.TargetPrefix
+	//		if tb != "" || tp != "" {
+	//			lgs = append(lgs, map[string]interface{}{
+	//				"target_bucket": tb,
+	//				"target_prefix": tp,
+	//			})
+	//		}
+	//		if err := d.Set("logging", lgs); err != nil {
+	//			return WrapError(err)
+	//		}
+	//	}
+	//}
+	//
+	//// Read the bucket referer
+	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	//	return ossClient.GetBucketReferer(d.Id())
+	//})
+	//if err != nil {
+	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketReferer", ApsaraStackOssGoSdk)
+	//}
+	//addDebug("GetBucketReferer", raw, requestInfo, request)
+	//referers := make([]map[string]interface{}, 0)
+	//referer, _ := raw.(oss.GetBucketRefererResult)
+	//if len(referer.RefererList) > 0 {
+	//	referers = append(referers, map[string]interface{}{
+	//		"allow_empty": referer.AllowEmptyReferer,
+	//		"referers":    referer.RefererList,
+	//	})
+	//	if err := d.Set("referer_config", referers); err != nil {
+	//		return WrapError(err)
+	//	}
+	//}
+	//
+	//// Read the lifecycle rule configuration
+	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	//	return ossClient.GetBucketLifecycle(d.Id())
+	//})
+	//if err != nil && !ossNotFoundError(err) {
+	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketLifecycle", ApsaraStackOssGoSdk)
+	//}
+	//addDebug("GetBucketLifecycle", raw, requestInfo, request)
+	//lrules := make([]map[string]interface{}, 0)
+	//lifecycle, _ := raw.(oss.GetBucketLifecycleResult)
+	//for _, lifecycleRule := range lifecycle.Rules {
+	//	rule := make(map[string]interface{})
+	//	rule["id"] = lifecycleRule.ID
+	//	rule["prefix"] = lifecycleRule.Prefix
+	//	if LifecycleRuleStatus(lifecycleRule.Status) == ExpirationStatusEnabled {
+	//		rule["enabled"] = true
+	//	} else {
+	//		rule["enabled"] = false
+	//	}
+	//	// expiration
+	//	if lifecycleRule.Expiration != nil {
+	//		e := make(map[string]interface{})
+	//		if lifecycleRule.Expiration.Date != "" {
+	//			t, err := time.Parse("2006-01-02T15:04:05.000Z", lifecycleRule.Expiration.Date)
+	//			if err != nil {
+	//				return WrapError(err)
+	//			}
+	//			e["date"] = t.Format("2006-01-02")
+	//		}
+	//		e["days"] = int(lifecycleRule.Expiration.Days)
+	//		rule["expiration"] = schema.NewSet(expirationHash, []interface{}{e})
+	//	}
+	//	// transitions
+	//	//if len(lifecycleRule.Transitions) != 0 {
+	//	//	var eSli []interface{}
+	//	//	for _, transition := range lifecycleRule.Transitions {
+	//	//		e := make(map[string]interface{})
+	//	//		if transition.CreatedBeforeDate != "" {
+	//	//			t, err := time.Parse("2006-01-02T15:04:05.000Z", transition.CreatedBeforeDate)
+	//	//			if err != nil {
+	//	//				return WrapError(err)
+	//	//			}
+	//	//			e["created_before_date"] = t.Format("2006-01-02")
+	//	//		}
+	//	//		e["days"] = transition.Days
+	//	//		e["storage_class"] = string(transition.StorageClass)
+	//	//		eSli = append(eSli, e)
+	//	//	}
+	//	//	rule["transitions"] = schema.NewSet(transitionsHash, eSli)
+	//	//}
+	//
+	//	lrules = append(lrules, rule)
+	//}
+	//
+	//if err := d.Set("lifecycle_rule", lrules); err != nil {
+	//	return WrapError(err)
+	//}
+	//
+	//// Read Policy
+	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	//	params := map[string]interface{}{}
+	//	params["policy"] = nil
+	//	return ossClient.Conn.Do("GET", d.Id(), "", params, nil, nil, 0, nil)
+	//})
+	//
+	//if err != nil && !ossNotFoundError(err) {
+	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetPolicyByConn", ApsaraStackOssGoSdk)
+	//}
+	//addDebug("GetPolicyByConn", raw, requestInfo, request)
+	//policy := ""
+	//if err == nil {
+	//	rawResp := raw.(*oss.Response)
+	//	defer rawResp.Body.Close()
+	//	rawData, err := ioutil.ReadAll(rawResp.Body)
+	//	if err != nil {
+	//		return WrapError(err)
+	//	}
+	//	policy = string(rawData)
+	//}
+	//
+	//if err := d.Set("policy", policy); err != nil {
+	//	return WrapError(err)
+	//}
+	//
+	//// Read tags
+	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
+	//	return ossClient.GetBucketTagging(d.Id())
+	//})
+	//
+	//if err != nil {
+	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketTagging", ApsaraStackOssGoSdk)
+	//}
+	//addDebug("GetBucketTagging", raw, requestInfo, request)
+	//tagging, _ := raw.(oss.GetBucketTaggingResult)
+	//tagsMap := make(map[string]string)
+	//if len(tagging.Tags) > 0 {
+	//	for _, t := range tagging.Tags {
+	//		tagsMap[t.Key] = t.Value
+	//	}
+	//}
+	//if err := d.Set("tags", tagsMap); err != nil {
+	//	return WrapError(err)
+	//}
 
 	return nil
 }
 
 func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
-
-	d.Partial(true)
-
-	if d.HasChange("acl") {
-		request := map[string]string{"bucketName": d.Id(), "bucketACL": d.Get("acl").(string)}
-		var requestInfo *oss.Client
-		raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-			requestInfo = ossClient
-			return nil, ossClient.SetBucketACL(d.Id(), oss.ACLType(d.Get("acl").(string)))
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), "SetBucketACL", ApsaraStackOssGoSdk)
-		}
-		addDebug("SetBucketACL", raw, requestInfo, request)
-		d.SetPartial("acl")
-	}
-
-	if d.HasChange("cors_rule") {
-		if err := resourceApsaraStackOssBucketCorsUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("cors_rule")
-	}
-
-	if d.HasChange("website") {
-		if err := resourceApsaraStackOssBucketWebsiteUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("website")
-	}
-
-	if d.HasChange("logging") {
-		if err := resourceApsaraStackOssBucketLoggingUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("logging")
-	}
-
-	if d.HasChange("referer_config") {
-		if err := resourceApsaraStackOssBucketRefererUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("referer_config")
-	}
-
-	if d.HasChange("lifecycle_rule") {
-		if err := resourceApsaraStackOssBucketLifecycleRuleUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("lifecycle_rule")
-	}
-
-	if d.HasChange("policy") {
-		if err := resourceApsaraStackOssBucketPolicyUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("policy")
-	}
-
-	if d.HasChange("server_side_encryption_rule") {
-		if err := resourceApsaraStackOssBucketEncryptionUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("server_side_encryption_rule")
-	}
-
-	if d.HasChange("tags") {
-		if err := resourceApsaraStackOssBucketTaggingUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("tags")
-	}
-
-	if d.HasChange("versioning") {
-		if err := resourceApsaraStackOssBucketVersioningUpdate(client, d); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("versioning")
-	}
-
-	d.Partial(false)
 	return resourceApsaraStackOssBucketRead(d, meta)
 }
 
@@ -1107,65 +1054,61 @@ func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 	ossService := OssService{client}
 	var requestInfo *oss.Client
-	raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-		requestInfo = ossClient
-		return ossClient.IsBucketExist(d.Id())
-	})
+	det, err := ossService.DescribeOssBucket(d.Id())
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsBucketExist", ApsaraStackOssGoSdk)
 	}
-	addDebug("IsBucketExist", raw, requestInfo, map[string]string{"bucketName": d.Id()})
-
-	exist, _ := raw.(bool)
-	if !exist {
+	addDebug("IsBucketExist", det.BucketInfo, requestInfo, map[string]string{"bucketName": d.Id()})
+	if det.BucketInfo.Name == "" {
 		return nil
 	}
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-			return nil, ossClient.DeleteBucket(d.Id())
-		})
-		if err != nil {
-			if IsExpectedErrors(err, []string{"BucketNotEmpty"}) {
-				if d.Get("force_destroy").(bool) {
-					raw, er := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-						bucket, _ := ossClient.Bucket(d.Get("bucket").(string))
-						lor, err := bucket.ListObjectVersions()
-						if err != nil {
-							return nil, WrapErrorf(err, DefaultErrorMsg, d.Id(), "ListObjectVersions", ApsaraStackOssGoSdk)
-						}
-						addDebug("ListObjectVersions", lor, requestInfo)
-						objectsToDelete := make([]oss.DeleteObject, 0)
-						for _, object := range lor.ObjectDeleteMarkers {
-							objectsToDelete = append(objectsToDelete, oss.DeleteObject{
-								Key:       object.Key,
-								VersionId: object.VersionId,
-							})
-						}
+		request := requests.NewCommonRequest()
+		request.QueryParams = map[string]string{
 
-						for _, object := range lor.ObjectVersions {
-							objectsToDelete = append(objectsToDelete, oss.DeleteObject{
-								Key:       object.Key,
-								VersionId: object.VersionId,
-							})
-						}
-						return bucket.DeleteObjectVersions(objectsToDelete)
-					})
-					if er != nil {
-						return resource.NonRetryableError(er)
-					}
-					addDebug("DeleteObjectVersions", raw, requestInfo, map[string]string{"bucketName": d.Id()})
-					return resource.RetryableError(err)
-				}
+			"AccessKeySecret":  client.SecretKey,
+			"Product":          "OneRouter",
+			"Department":       client.Department,
+			"ResourceGroup":    client.ResourceGroup,
+			"RegionId":         client.RegionId,
+			"Action":           "DoOpenApi",
+			"AccountInfo":      "123456",
+			"Version":          "2018-12-12",
+			"SignatureVersion": "1.0",
+			"OpenApiAction":    "DeleteBucket",
+			"ProductName":      "oss",
+			"Params":           fmt.Sprintf("{\"%s\":%s,\"%s\":%s,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}", "Department", client.Department, "ResourceGroup", client.ResourceGroup, "RegionId", client.RegionId, "asVersion", "enterprise", "asArchitechture", "x86", "haApsaraStack", "true", "Language", "en", "BucketName", d.Id(), "StorageClass", "Standard"), //,"x-one-console-endpoint","http://oss-cn-neimeng-env30-d01-a.intra.env30.shuguang.com"),
+
+		}
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.Scheme = "http" // Set request scheme. Default: http
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+
+		_, err := client.WithOssNewClient(func(ossClient *ecs.Client) (interface{}, error) {
+
+			return ossClient.ProcessCommonRequest(request)
+		})
+
+		if err != nil {
+			if ossNotFoundError(err) {
+				return resource.NonRetryableError(err)
 			}
+			return resource.RetryableError(err)
+		}
+		det, err := ossService.DescribeOssBucket(d.Id())
+		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		addDebug("DeleteBucket", raw, requestInfo, map[string]string{"bucketName": d.Id()})
+		if det.BucketInfo.Name != "" {
+			return resource.RetryableError(Error("Trying to delete OSS bucket %#v successfully.", d.Id()))
+		}
 		return nil
 	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "DeleteBucket", ApsaraStackOssGoSdk)
-	}
 	return WrapError(ossService.WaitForOssBucket(d.Id(), Deleted, DefaultTimeoutMedium))
 }
 
