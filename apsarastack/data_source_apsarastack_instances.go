@@ -196,7 +196,7 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 	request := ecs.CreateDescribeInstancesRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.Status = d.Get("status").(string)
 
 	if v, ok := d.GetOk("ids"); ok && len(v.([]interface{})) > 0 {
@@ -287,7 +287,7 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 		// DescribeInstanceRamRole parameter InstanceIds supports at most 100 items once
 		request := ecs.CreateDescribeInstanceRamRoleRequest()
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceIds = convertListToJsonString(convertListStringToListInterface(instanceIds[index:IntMin(index+100, len(instanceIds))]))
 		request.RamRoleName = d.Get("ram_role_name").(string)
 		request.PageSize = requests.NewInteger(PageSizeLarge)
