@@ -1,36 +1,28 @@
 package apsarastack
 
 import (
-	"encoding/base64"
+	"encoding/json"
 	"fmt"
-	"log"
-	"regexp"
-	//"strconv"
-	"strings"
-	"time"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-
-	cn "github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-
 	"github.com/denverdino/aliyungo/common"
-	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"regexp"
+
+	//"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	//"strconv"
+	"time"
 )
 
 const (
 	KubernetesClusterNetworkTypeFlannel = "flannel"
 	KubernetesClusterNetworkTypeTerway  = "terway"
-	defaultScalingGroupTag              = "k8s.aliyun.com"
-	KubernetesClusterLoggingTypeSLS     = "SLS"
+
+	KubernetesClusterLoggingTypeSLS = "SLS"
 )
 
 var (
@@ -557,8 +549,8 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 			// single az would be never supported.
 			"vswitch_id": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Removed:  "Field 'vswitch_id' has been removed from provider version 1.75.0. New field 'master_vswitch_ids' and 'worker_vswitch_ids' replaces it.",
+				Required: true,
+				//Removed:  "Field 'vswitch_id' has been removed from provider version 1.75.0. New field 'master_vswitch_ids' and 'worker_vswitch_ids' replaces it.",
 			},
 			// worker_numbers in array is a hell of management
 			"worker_numbers": {
@@ -637,77 +629,131 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 	}
 }
 
-//
 //func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interface{}) error {
 //	client := meta.(*connectivity.ApsaraStackClient)
-//	csService := CsService{client}
-//	invoker := NewInvoker()
 //
-//	var requestInfo *cs.Client
-//	var raw interface{}
-//
-//	// prepare args and set default value
-//	args, err := buildKubernetesArgs(d, meta)
-//	if err != nil {
-//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "PrepareKubernetesClusterArgs", err)
+//	//csService := CsService{client}
+//	Name:= d.Get("name").(string)
+//	vpcId:= d.Get("vpc_id").(string)
+//	vswitchID:= d.Get("vswitch_id").(string)
+//	request:= requests.NewCommonRequest()
+//	request.Method = "POST"                // Set request method
+//	request.Product = "CS"            // Specify product
+//	request.Version = "2015-12-15"            // Specify product version
+//	request.Scheme = "http"
+//	request.ServiceCode = "cs"
+//	request.ApiName = "CreateCluster"
+//	request.Headers = map[string]string{"RegionId": client.RegionId}
+//	//request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "CS", "RegionId": client.RegionId, "Action": "CreateCluster", "Version": cs.CSAPIVersion,  "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+//	//"X-acs-body": "{\"Product\":\"Cs\",\"OsType\":\"Linux\",\"Platform\":\"CentOS\",\"KubernetesVersion\":\"1.14.8-aliyun.1\",\"cluster_type\":\"Kubernetes\",\"RegionId\":\"cn-neimeng-env30-d01\",\"timeout_mins\":60,\"disable_rollback\":true,\"kubernetes_version\":\"1.14.8-aliyun.1\",\"container_cidr\":\"10.16.0.1/16\",\"service_cidr\":\"10.17.0.1/16\",\"name\":\"apsara_Suraj1\",\"vpcid\":\"vpc-0rvua7x0f1ho7pzqi3aap\",\"vswitchid\":\"vsw-0rvhzq0ja4yqxf8q9i6tg\",\"master_instance_type\":\"ecs.n4.4xlarge\",\"master_system_disk_category\":\"cloud_ssd\",\"worker_instance_type\":\"ecs.n4.4xlarge\",\"worker_system_disk_category\":\"cloud_efficiency\",\"worker_data_disk_category\":\"\",\"login_Password\":\"test@123\",\"master_system_disk_size\":200,\"worker_data_disk_size\":0,\"worker_system_disk_size\":40,\"num_of_nodes\":3,\"master_count\":3,\"worker_data_disk\":true,\"snat_entry\":true,\"endpoint_public_access\":true,\"ssh_flags\":true,\"deletion_protection\":true}"
+//	request.QueryParams = map[string]string{
+//		"RegionId":         client.RegionId,
+//		"AccessKeySecret":  client.SecretKey,
+//		"Product":          "CS",
+//		"Department":       client.Department,
+//		"ResourceGroup":    client.ResourceGroup,
+//		"Action":           "CreateCluster",
+//		"AccountInfo":      "123456",
+//		"Version":          "2015-12-15",
+//		"SignatureVersion": "1.0",
+//		"ProductName":      "cs",
+//		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t}",
+//			"Product", "Cs",
+//			"OsType", "Linux",
+//			"Platform", "CentOS",
+//			"KubernetesVersion", KubernetesVersion,
+//			"cluster_type", "Kubernetes",
+//			"RegionId", "cn-neimeng-env30-d01",
+//			"timeout_mins", 60,
+//			"disable_rollback", true,
+//			"kubernetes_version", "1.14.8-aliyun.1",
+//			"container_cidr", "10.14.0.0/16",
+//			"service_cidr", "10.15.0.0/16",
+//			"name", Name,
+//			"vpcid", vpcId,
+//			"vswitchid", vswitchID,
+//			"master_instance_type", MasterInstanceType,
+//			"master_system_disk_category", "cloud_ssd",
+//			"worker_instance_type", WorkerInstanceType,
+//			"worker_system_disk_category", wsysdiskcat,
+//			"worker_data_disk_category", wdatadiskcat,
+//			"login_Password", LoginPassword,
+//			"master_system_disk_size", 200,
+//			"worker_data_disk_size", wdatadisksize,
+//			"worker_system_disk_size", wsysdisksize,
+//			"num_of_nodes", NumOfNodes,
+//			"master_count", 3,
+//			"worker_data_disk", true,
+//			"snat_entry", SnatEntry,
+//			"endpoint_public_access", end,
+//			"ssh_flags", true,
+//			"deletion_protection", true,
+//		),
 //	}
-//	//request := cs.C
-//	//request.RegionId = client.RegionId
-//	//request.Headers = map[string]string{"RegionId": client.RegionId}
-//	//request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+//	request.Method = "POST" // Set request method
+//	request.Product = "CS"  // Specify product
+//	//request.Domain = endpointsSchema().     // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+//	request.Version = "2015-12-15" // Specify product version
+//	request.ServiceCode = "cs"
+//	request.Scheme = "http" // Set request scheme. Default: http
+//	request.ApiName = "CreateCluster"
+//	request.Headers = map[string]string{"RegionId": client.RegionId}
 //
-//	if err = invoker.Run(func() error {
-//		raw, err = client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
-//			args.RegionId = common.Region(client.RegionId)
-//			args.ClusterType = cs.DelicatedKubernetes
+//	request.RegionId = client.RegionId
 //
-//			return csClient.CreateDelicatedKubernetesCluster(args)
+//
+//
+//	Clusterresponse := cs.Cluster{}
+//
+//
+//	for {
+//		raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
+//			return csClient.ProcessCommonRequest(request)
 //		})
-//		return err
-//	}); err != nil {
-//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "CreateKubernetesCluster", raw)
+//		if err != nil {
+//			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cs_kubernetes", request.GetActionName(), ApsaraStackSdkGoERROR)
+//		}
+//		resp, _ := raw.(*responses.CommonResponse)
+//		request.TransToAcsRequest()
+//
+//		err = json.Unmarshal(resp.GetHttpContentBytes(), &Clusterresponse)
+//		if err != nil {
+//			//fmt.Printf("Response %s", resp.GetHttpContentString())
+//			//return WrapError(err)
+//		}
+//		log.Printf("Suraj success Response data %s", Clusterresponse[0].ClusterID)
+//
+//		//resp := responses.BaseResponse{}
+//		if Clusterresponse[0].ClusterID == "" || len(Clusterresponse) < 1 {
+//			break
+//		}
 //	}
-//
-//	if debugOn() {
-//		requestMap := make(map[string]interface{})
-//		requestMap["RegionId"] = common.Region(client.RegionId)
-//		requestMap["Params"] = args
-//		addDebug("CreateKubernetesCluster", raw, requestInfo, requestMap)
-//	}
-//
-//	cluster, ok := raw.(*cs.ClusterCommonResponse)
-//	if ok != true {
-//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "ParseKubernetesClusterResponse", raw)
-//	}
-//
-//	d.SetId(cluster.ClusterID)
-//
-//	// reset interval to 10s
-//	stateConf := BuildStateConf([]string{"initial"}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 10*time.Second, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
-//	if _, err := stateConf.WaitForState(); err != nil {
-//		return WrapErrorf(err, IdMsg, d.Id())
-//	}
-//
+//	//Clusterresponse[0].Name = d.Get("name").(string)
+//	//Clusterresponse[0].ClusterID = d.Get("cluster_id").(string)
 //	return resourceApsaraStackCSKubernetesUpdate(d, meta)
 //}
+
 func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	csService := CsService{client}
+	invoker := NewInvoker()
+	var requestInfo *cs.Client
+	var raw interface{}
 	//request := map[string]string{"bucketName": d.Get("bucket").(string), "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	//request.RegionId = client.RegionId
-
-	var requestInfo *cn.Client
+	//ecsService := EcsService{client}
+	//var requestInfo *cn.Client
 	vpcService := VpcService{client}
-
 	var vswitchID string
 	//if list := expandStringList(d.Get("worker_vswitch_ids").([]interface{})); len(list) > 0 {
 	//	vswitchID = list[0]
 	//} else {
 	//	vswitchID = ""
 	//}
-
+	vswitchID = d.Get("vswitch_id").(string)
 	var vpcId string
-	if vswitchID != "" {
+	vpcId = d.Get("vpc_id").(string)
+	if vpcId == "" {
 		vsw, err := vpcService.DescribeVSwitch(vswitchID)
 		if err != nil {
 			return err
@@ -718,10 +764,10 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	Name := d.Get("name").(string)
 	OsType := "Linux"
 	Platform := "CentOS"
-	wsysdisksize := d.Get("worker_disk_size").(int)
-	wsysdiskcat := d.Get("worker_disk_category").(string)
-	wdatadisksize := d.Get("worker_data_disk_size").(int)
-	wdatadiskcat := d.Get("worker_data_disk_category").(string)
+	//wsysdisksize := d.Get("worker_disk_size").(int)
+	//wsysdiskcat := d.Get("worker_disk_category").(string)
+	//wdatadisksize := d.Get("worker_data_disk_size").(int)
+	//wdatadiskcat := d.Get("worker_data_disk_category").(string)
 	KubernetesVersion := d.Get("version").(string)
 	//NodeCidrMask:= strconv.Itoa(d.Get("node_cidr_mask").(int))
 	VpcId := vpcId
@@ -740,58 +786,59 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	} else {
 		LoginPassword = password
 	}
+
 	end := d.Get("slb_internet_enabled").(bool)
 	SnatEntry := d.Get("new_nat_gateway").(bool)
-
 	//MasterVSwitchIds := expandStringList(d.Get("master_vswitch_ids").([]interface{}))
 	MasterInstanceType := d.Get("master_instance_type").(string)
 	//MasterSystemDiskCategory := d.Get("master_disk_category").(string)
 	//MasterSystemDiskSize := int64(d.Get("master_disk_size").(int))
-
 	//if v, ok := d.GetOk("master_instance_charge_type"); ok {
-	//	MasterInstanceChargeType:= v.(string)
-	//	if MasterInstanceChargeType == string(PrePaid) {
-	//		MasterAutoRenew:= d.Get("master_auto_renew").(bool)
-	//		MasterAutoRenewPeriod:= d.Get("master_auto_renew_period").(int)
-	//		MasterPeriod:= d.Get("master_period").(int)
-	//		MasterPeriodUnit:= d.Get("master_period_unit").(string)
-	//	}
+	// MasterInstanceChargeType:= v.(string)
+	// if MasterInstanceChargeType == string(PrePaid) {
+	//    MasterAutoRenew:= d.Get("master_auto_renew").(bool)
+	//    MasterAutoRenewPeriod:= d.Get("master_auto_renew_period").(int)
+	//    MasterPeriod:= d.Get("master_period").(int)
+	//    MasterPeriodUnit:= d.Get("master_period_unit").(string)
+	// }
 	//}
 	//WorkerVSwitchIds:= expandStringList(d.Get("worker_vswitch_ids").([]interface{}))
 	WorkerInstanceType := d.Get("worker_instance_type").(string)
 	NumOfNodes := int64(d.Get("worker_number").(int))
-	////	WorkerSystemDiskCategory:= d.Get("worker_disk_category").(string)
-	//	WorkerSystemDiskSize:=     int64(d.Get("worker_disk_size").(int))
+	////   WorkerSystemDiskCategory:= d.Get("worker_disk_category").(string)
+	// WorkerSystemDiskSize:=     int64(d.Get("worker_disk_size").(int))
 	//if v, ok := d.GetOk("worker_instance_charge_type"); ok {
-	//	WorkerInstanceChargeType:= v.(string)
-	//	if WorkerInstanceChargeType == string(PrePaid) {
-	//		WorkerAutoRenew := d.Get("worker_auto_renew").(bool)
-	//		WorkerAutoRenewPeriod:= d.Get("worker_auto_renew_period").(int)
-	//		WorkerPeriod:= d.Get("worker_period").(int)
-	//		WorkerPeriodUnit:= d.Get("worker_period_unit").(string)
-	//	}
+	// WorkerInstanceChargeType:= v.(string)
+	// if WorkerInstanceChargeType == string(PrePaid) {
+	//    WorkerAutoRenew := d.Get("worker_auto_renew").(bool)
+	//    WorkerAutoRenewPeriod:= d.Get("worker_auto_renew_period").(int)
+	//    WorkerPeriod:= d.Get("worker_period").(int)
+	//    WorkerPeriodUnit:= d.Get("worker_period_unit").(string)
+	// }
 	//}
 	request := requests.NewCommonRequest()
 	//request.QueryParams = map[string]string{
-	//	"AccessKeySecret":  client.SecretKey,
-	//	"Product":          "cs",
-	//	"Department":       client.Department,
-	//	"ResourceGroup":    client.ResourceGroup,
-	//	"RegionId":         client.RegionId,
-	//	"Action":           "DoOpenApi",
-	//	"Params":           fmt.Sprintf("{\"%s\":%s,\"%s\":%s,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
-	//		"Department", client.Department,
-	//		"ResourceGroup", client.ResourceGroup,
-	//		"RegionId", client.RegionId, "Name", Name,
-	//		"OsType", OsType,
-	//		"Platform", Platform ,
-	//		"KubernetesVersion", KubernetesVersion,
-	//		"VpcId", VpcId,
-	//		"LoginPassword", LoginPassword,
-	//		"Language", "en",
-	//		"","",
-	//	),
+	// "AccessKeySecret":  client.SecretKey,
+	// "Product":          "cs",
+	// "Department":       client.Department,
+	// "ResourceGroup":    client.ResourceGroup,
+	// "RegionId":         client.RegionId,
+	// "Action":           "DoOpenApi",
+	// "Params":           fmt.Sprintf("{\"%s\":%s,\"%s\":%s,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}",
+	//    "Department", client.Department,
+	//    "ResourceGroup", client.ResourceGroup,
+	//    "RegionId", client.RegionId, "Name", Name,
+	//    "OsType", OsType,
+	//    "Platform", Platform ,
+	//    "KubernetesVersion", KubernetesVersion,
+	//    "VpcId", VpcId,
+	//    "LoginPassword", LoginPassword,
+	//    "Language", "en",
+	//    "","",
+	// ),
 	//}
+	scdir := d.Get("service_cidr").(string)
+	pcidr := d.Get("pod_cidr").(string)
 	request.QueryParams = map[string]string{
 		"RegionId":         client.RegionId,
 		"AccessKeySecret":  client.SecretKey,
@@ -803,266 +850,209 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		"Version":          "2015-12-15",
 		"SignatureVersion": "1.0",
 		"ProductName":      "cs",
-		//"name": "afgh",
-		//"vpcid":"vpc-0rvuzw2wep2wfofle24qb",
-		//"vswitchid": "vsw-0rvw06mtyu2yerpmc3a6e",
-		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t}",
+		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\"}",
 			"Product", "Cs",
 			"OsType", OsType,
 			"Platform", Platform,
 			"KubernetesVersion", KubernetesVersion,
 			"cluster_type", "Kubernetes",
-			"RegionId", "cn-neimeng-env30-d01",
+			"RegionId", client.RegionId,
 			"timeout_mins", 60,
 			"disable_rollback", true,
 			"kubernetes_version", "1.14.8-aliyun.1",
-			"container_cidr", "10.14.0.0/16",
-			"service_cidr", "10.15.0.0/16",
+			"container_cidr", pcidr,
+			"service_cidr", scdir,
 			"name", Name,
 			"vpcid", VpcId,
 			"vswitchid", vswitchID,
 			"master_instance_type", MasterInstanceType,
-
-			"master_system_disk_category", "cloud_ssd",
-
 			"worker_instance_type", WorkerInstanceType,
-
-			"worker_system_disk_category", wsysdiskcat,
-
-			"worker_data_disk_category", wdatadiskcat,
 			"login_Password", LoginPassword,
-			"master_system_disk_size", 200,
-			"worker_data_disk_size", wdatadisksize,
-			"worker_system_disk_size", wsysdisksize,
 			"num_of_nodes", NumOfNodes,
 			"master_count", 3,
 			"worker_data_disk", true,
 			"snat_entry", SnatEntry,
 			"endpoint_public_access", end,
 			"ssh_flags", true,
-			"deletion_protection", true,
+			"deletion_protection", false,
+			"zone_id", "cn-neimeng-env30-amtest30001-a",
 		),
 	}
+	//request.QueryParams = map[string]string{
+	//	"RegionId":         client.RegionId,
+	//	"AccessKeySecret":  client.SecretKey,
+	//	"Product":          "CS",
+	//	"Department":       client.Department,
+	//	"ResourceGroup":    client.ResourceGroup,
+	//	"Action":           "CreateCluster",
+	//	"AccountInfo":      "123456",
+	//	"Version":          "2015-12-15",
+	//	"SignatureVersion": "1.0",
+	//	"ProductName":      "cs",
+	//	"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t}",
+	//		"Product", "CS",
+	//		"OsType", OsType,
+	//		"Platform", Platform,
+	//		"KubernetesVersion", KubernetesVersion,
+	//		"cluster_type", "Kubernetes",
+	//		"RegionId", "cn-neimeng-env30-d01",
+	//		"timeout_mins", 60,
+	//		"disable_rollback", true,
+	//		"kubernetes_version", "1.14.8-aliyun.1",
+	//		"container_cidr",pcidr,
+	//		"service_cidr", scdir,
+	//		"name", Name,
+	//		"vpcid", VpcId,
+	//		"vswitchid", vswitchID,
+	//		"master_instance_type", MasterInstanceType,
+	//		"master_system_disk_category", "cloud_ssd",
+	//		"worker_instance_type", WorkerInstanceType,
+	//		"worker_system_disk_category", wsysdiskcat,
+	//		"worker_data_disk_category", wdatadiskcat,
+	//		"login_Password", LoginPassword,
+	//		"master_system_disk_size", 200,
+	//		"worker_data_disk_size", wdatadisksize,
+	//		"worker_system_disk_size", wsysdisksize,
+	//		"num_of_nodes", NumOfNodes,
+	//		"master_count", 3,
+	//		"worker_data_disk", true,
+	//		"snat_entry", SnatEntry,
+	//		"endpoint_public_access", end,
+	//		"ssh_flags", true,
+	//		"deletion_protection", true,
+	//	),
+	//}
 	request.Method = "POST" // Set request method
-	request.Product = "Cs"  // Specify product
+	request.Product = "CS"  // Specify product
 	//request.Domain = endpointsSchema().     // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2015-12-15" // Specify product version
 	request.ServiceCode = "cs"
 	request.Scheme = "http" // Set request scheme. Default: http
 	request.ApiName = "CreateCluster"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+	//raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	//	return ecsClient.ProcessCommonRequest(request)
+	//})
 
-		return ossClient.ProcessCommonRequest(request)
-	})
+	var err error
+	err = nil
+	if err = invoker.Run(func() error {
+		raw, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		return err
+	}); err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "alicloud_cs_kubernetes", "CreateKubernetesCluster", raw)
+	}
+	if debugOn() {
+		requestMap := make(map[string]interface{})
+		requestMap["RegionId"] = common.Region(client.RegionId)
+		requestMap["Params"] = request.GetQueryParams()
+		addDebug("CreateKubernetesCluster", raw, requestInfo, requestMap)
+	}
 	//if err != nil {
-	//	if ossNotFoundError(err) {
-	//		return WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
-	//	}
-	//	return WrapErrorf(err, DefaultErrorMsg, Name, "CreateCluster", ApsaraStackSdkGoERROR)
+	///    if ossNotFoundError(err) {
+	//    return WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+	// }
+	// return WrapErrorf(err, DefaultErrorMsg, Name, "CreateCluster", ApsaraStackSdkGoERROR)
 	//}
 	//addDebug("CreateBucketInfo", raw, requestInfo, request)
 	//bresponse, _ := raw.(*responses.CommonResponse)
 	//if bresponse.GetHttpStatus() != 200 {
-	//	return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "CreateCluster", ApsaraStackSdkGoERROR)
+	// return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "CreateCluster", ApsaraStackSdkGoERROR)
 	//}
 	//addDebug("CreateBucket", raw, requestInfo, bresponse.GetHttpContentString())
 	//err = resource.Retry(3*time.Minute, func() *resource.RetryError {
-	//	det, err := csService.DescribeCsKubernetes(d.Id())
-	//	//det, err := ossService.DescribeOssBucket(bucketName)
-	//	if err != nil {
-	//		return resource.NonRetryableError(err)
-	//	}
-	//	if det.Name == Name {
-	//		return resource.RetryableError(Error("Trying to ensure new OSS bucket %#v has been created successfully.", Name))
-	//	}
-	//	return nil
+	// det, err := csService.DescribeCsKubernetes(d.Id())
+	// //det, err := ossService.DescribeOssBucket(bucketName)
+	// if err != nil {
+	//    return resource.NonRetryableError(err)
+	// }
+	// if det.Name == Name {
+	//    return resource.RetryableError(Error("Trying to ensure new OSS bucket %#v has been created successfully.", Name))
+	// }
+	// return nil
 	//})
-	//if err != nil {
-	//	return WrapErrorf(err, DefaultErrorMsg, "apsarastack_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
-	//}
-	//
+
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_kubernetes", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
 	//stateConf := BuildStateConf([]string{"Pending", "Starting", "Stopped"}, []string{"Running"}, d.Timeout(schema.TimeoutCreate), 10*time.Second, CsService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
 	//
 	//if _, err := stateConf.WaitForState(); err != nil {
-	//	return WrapErrorf(err, IdMsg, d.Id())
+	// return WrapErrorf(err, IdMsg, d.Id())
 	//}
-	//
-	////requestInfo.CreateCluster()
+	//requestInfo.CreateCluster()
 	//d.SetId(Name)
 	//return resourceApsaraStackCSKubernetesUpdate(d, meta)
 	if debugOn() {
-		requestMap := make(map[string]interface{})
-		requestMap["RegionId"] = common.Region(client.RegionId)
-		requestMap["Params"] = request
-		addDebug("CreateKubernetesCluster", raw, requestInfo, requestMap)
+		//requestMap := make(map[string]interface{})
+		//requestMap["RegionId"] = common.Region(client.RegionId)
+		//requestMap["Params"] = request
+		addDebug("CreateKubernetesCluster", raw, request)
 	}
-
-	cluster, ok := raw.(*cs.ClusterCommonResponse)
-	if ok != true {
+	clusterresponse := ClusterCommonResponse{}
+	cluster, _ := raw.(*responses.CommonResponse)
+	ok := json.Unmarshal(cluster.GetHttpContentBytes(), &clusterresponse)
+	if ok != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "ParseKubernetesClusterResponse", raw)
 	}
-
-	d.SetId(cluster.ClusterID)
-
-	// reset interval to 10s
-	stateConf := BuildStateConf([]string{"initial"}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 10*time.Second, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
+	d.SetId(clusterresponse.ClusterID)
+	//stateConf := BuildStateConf([]string{"initial"}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 10*time.Second, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
+	//if _, err := stateConf.WaitForState(); err != nil {
+	// return WrapErrorf(err, IdMsg, d.Id())
+	//}
+	//// reset interval to 10s
+	//stateConf := BuildStateConf([]string{"initial"}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 10*time.Second,(d.Id(),ecsService.InstanceStateRefreshFunc([]string{"deleting", "failed"})) )
+	stateConf := BuildStateConf([]string{"initial"}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 2*time.Minute, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
+	////
+	//response:=responses.NewCommonResponse()
+	//ok=response.IsSuccess()
+	//if ok!=true{
+	// return WrapErrorf(err, DefaultErrorMsg, "apsarastack_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
+	//}
 
 	return resourceApsaraStackCSKubernetesUpdate(d, meta)
 }
+
+type Response struct {
+	RequestId string `json:"request_id"`
+}
+type ClusterCommonResponse struct {
+	Response
+	ClusterID  string `json:"cluster_id"`
+	Token      string `json:"token,omitempty"`
+	TaskId     string `json:"task_id,omitempty"`
+	InstanceId string `json:"instanceId"`
+}
+
 func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
-	csService := CsService{client}
-	d.Partial(true)
-	invoker := NewInvoker()
-	if d.HasChange("worker_number") && !d.IsNewResource() {
-		password := d.Get("password").(string)
-		if password == "" {
-			if v := d.Get("kms_encrypted_password").(string); v != "" {
-				kmsService := KmsService{client}
-				decryptResp, err := kmsService.Decrypt(v, d.Get("kms_encryption_context").(map[string]interface{}))
-				if err != nil {
-					return WrapError(err)
-				}
-				password = decryptResp.Plaintext
-			}
-		}
 
-		keyPair := d.Get("key_name").(string)
+	//client := meta.(*connectivity.ApsaraStackClient)
+	//d.Partial(true)
+	//request:= requests.NewCommonRequest()
+	//request.Method = "POST"                // Set request method
+	//request.Product = "Cs"            // Specify product
+	//request.Version = "2015-12-15"            // Specify product version
+	//request.Scheme = "http"
+	//request.ServiceCode = "cs"
+	//request.ApiName = "CreateCluster"
+	//request.Headers = map[string]string{"RegionId": client.RegionId}
+	//request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "Cs", "RegionId": client.RegionId, "Action": "CreateCluster", "Version": cl.CSAPIVersion,  "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//
 
-		oldV, newV := d.GetChange("worker_number")
-
-		oldValue, ok := oldV.(int)
-		if ok != true {
-			return WrapErrorf(fmt.Errorf("worker_number old value can not be parsed"), "parseError %d", oldValue)
-		}
-		newValue, ok := newV.(int)
-		if ok != true {
-			return WrapErrorf(fmt.Errorf("worker_number new value can not be parsed"), "parseError %d", newValue)
-		}
-
-		if newValue < oldValue {
-			return WrapErrorf(fmt.Errorf("worker_number can not be less than before"), "scaleOutFailed %d:%d", newValue, oldValue)
-		}
-
-		args := &cs.ScaleOutKubernetesClusterRequest{
-			KeyPair:             keyPair,
-			LoginPassword:       password,
-			ImageId:             d.Get("image_id").(string),
-			UserData:            d.Get("user_data").(string),
-			Count:               int64(newValue) - int64(oldValue),
-			WorkerVSwitchIds:    expandStringList(d.Get("worker_vswitch_ids").([]interface{})),
-			WorkerInstanceTypes: expandStringList(d.Get("worker_instance_types").([]interface{})),
-		}
-
-		if v := d.Get("user_data").(string); v != "" {
-			_, base64DecodeError := base64.StdEncoding.DecodeString(v)
-			if base64DecodeError == nil {
-				args.UserData = v
-			} else {
-				args.UserData = base64.StdEncoding.EncodeToString([]byte(v))
-			}
-		}
-
-		if v, ok := d.GetOk("worker_instance_charge_type"); ok {
-			args.WorkerInstanceChargeType = v.(string)
-			if args.WorkerInstanceChargeType == string(PrePaid) {
-				args.WorkerAutoRenew = d.Get("worker_auto_renew").(bool)
-				args.WorkerAutoRenewPeriod = d.Get("worker_auto_renew_period").(int)
-				args.WorkerPeriod = d.Get("worker_period").(int)
-				args.WorkerPeriodUnit = d.Get("worker_period_unit").(string)
-			}
-		}
-
-		if d.HasChange("worker_data_disks") {
-			if dds, ok := d.GetOk("worker_data_disks"); ok {
-				disks := dds.([]interface{})
-				createDataDisks := make([]cs.DataDisk, 0, len(disks))
-				for _, e := range disks {
-					pack := e.(map[string]interface{})
-					dataDisk := cs.DataDisk{
-						Size:                 pack["size"].(string),
-						DiskName:             pack["name"].(string),
-						Category:             pack["category"].(string),
-						Device:               pack["device"].(string),
-						AutoSnapshotPolicyId: pack["auto_snapshot_policy_id"].(string),
-						KMSKeyId:             pack["kms_key_id"].(string),
-						Encrypted:            pack["encrypted"].(string),
-					}
-					createDataDisks = append(createDataDisks, dataDisk)
-				}
-				args.WorkerDataDisks = createDataDisks
-			}
-			d.SetPartial("worker_data_disks")
-		}
-
-		var resoponse interface{}
-		if err := invoker.Run(func() error {
-			var err error
-			resoponse, err = client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
-				resp, err := csClient.ScaleOutKubernetesCluster(d.Id(), args)
-				return resp, err
-			})
-			return err
-		}); err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), "ResizeKubernetesCluster", DenverdinoApsaraStackgo)
-		}
-		if debugOn() {
-			resizeRequestMap := make(map[string]interface{})
-			resizeRequestMap["ClusterId"] = d.Id()
-			resizeRequestMap["Args"] = args
-			addDebug("ResizeKubernetesCluster", resoponse, resizeRequestMap)
-		}
-
-		stateConf := BuildStateConf([]string{"scaling"}, []string{"running"}, d.Timeout(schema.TimeoutUpdate), 10*time.Second, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
-
-		if _, err := stateConf.WaitForState(); err != nil {
-			return WrapErrorf(err, IdMsg, d.Id())
-		}
-		d.SetPartial("worker_number")
-	}
-
-	if !d.IsNewResource() && (d.HasChange("name") || d.HasChange("name_prefix")) {
-		var clusterName string
-		if v, ok := d.GetOk("name"); ok {
-			clusterName = v.(string)
-		} else {
-			clusterName = resource.PrefixedUniqueId(d.Get("name_prefix").(string))
-		}
-		var requestInfo *cs.Client
-		var response interface{}
-		if err := invoker.Run(func() error {
-			raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
-				requestInfo = csClient
-				return nil, csClient.ModifyClusterName(d.Id(), clusterName)
-			})
-			response = raw
-			return err
-		}); err != nil && !IsExpectedErrors(err, []string{"ErrorClusterNameAlreadyExist"}) {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), "ModifyClusterName", DenverdinoApsaraStackgo)
-		}
-		if debugOn() {
-			requestMap := make(map[string]interface{})
-			requestMap["ClusterId"] = d.Id()
-			requestMap["ClusterName"] = clusterName
-			addDebug("ModifyClusterName", response, requestInfo, requestMap)
-		}
-		d.SetPartial("name")
-		d.SetPartial("name_prefix")
-	}
-
-	UpgradeApsaraStackKubernetesCluster(d, meta)
-	d.Partial(false)
 	return resourceApsaraStackCSKubernetesRead(d, meta)
+
 }
 
 func resourceApsaraStackCSKubernetesRead(d *schema.ResourceData, meta interface{}) error {
+
 	client := meta.(*connectivity.ApsaraStackClient)
 	csService := CsService{client}
-	invoker := NewInvoker()
+	//invoker := NewInvoker()
 	object, err := csService.DescribeCsKubernetes(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
@@ -1071,224 +1061,75 @@ func resourceApsaraStackCSKubernetesRead(d *schema.ResourceData, meta interface{
 		}
 		return WrapError(err)
 	}
+	//client1,err:= sdk.NewClientWithAccessKey(region,access,secret)
+	//client1.Domain=endpoint
+	//if err!=nil{
+	//	fmt.Print("Error in client")
+	//}
 
+	//request:= requests.NewCommonRequest()
+	//request.Method = "GET"                // Set request method
+	//request.Product = "Cs"            // Specify product
+	//request.Version = "2015-12-15"            // Specify product version
+	//request.Scheme = "http"
+	//request.ServiceCode = "cs"
+	//request.ApiName = "DescribeClusters"
+	//request.Headers = map[string]string{"RegionId": client.RegionId}
+	//request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "CS", "RegionId": client.RegionId, "Action": "DescribeClusters", "Version": cl.CSAPIVersion,  "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//request.RegionId = client.RegionId
+	//
+	//
+	//Clusterresponse := cl.Cluster{}
+
+	//for {
+	//	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	//		return ecsClient.ProcessCommonRequest(request)
+	//	})
+	//	if err != nil {
+	//		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cs_kubernetes", request.GetActionName(), ApsaraStackSdkGoERROR)
+	//	}
+	//	resp, _ := raw.(*responses.CommonResponse)
+	//	request.TransToAcsRequest()
+	//
+	//	err = json.Unmarshal(resp.GetHttpContentBytes(), &Clusterresponse)
+	//	if err != nil {
+	//	}
+	//	log.Printf("Suraj success Response data %s", Clusterresponse.ClusterID)
+	//
+	//	//resp := responses.BaseResponse{}
+	//	if Clusterresponse.Name!="" || len(Clusterresponse.ClusterID) < 1 {
+	//		break
+	//	}
+	//}
 	d.Set("name", object.Name)
-	d.Set("vpc_id", object.VpcId)
-	d.Set("security_group_id", object.SecurityGroupId)
-	d.Set("version", object.CurrentVersion)
-	d.Set("worker_ram_role_name", object.WorkerRamRoleName)
+	d.Set("id", object.ClusterId)
+	//d.Set("availability_zone", object.ZoneID)
+	d.Set("state", object.State)
+	//d.Set("availability_zone", object[0].ZoneID)
 
-	var masterNodes []map[string]interface{}
-	var workerNodes []map[string]interface{}
-
-	pageNumber := 1
-	for {
-		var result []cs.KubernetesNodeType
-		var pagination *cs.PaginationResult
-		var requestInfo *cs.Client
-		var response interface{}
-		if err := invoker.Run(func() error {
-			raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
-				requestInfo = csClient
-				nodes, paginationResult, err := csClient.GetKubernetesClusterNodes(d.Id(), common.Pagination{PageNumber: pageNumber, PageSize: PageSizeLarge})
-				return []interface{}{nodes, paginationResult}, err
-			})
-			response = raw
-			return err
-		}); err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetKubernetesClusterNodes", DenverdinoApsaraStackgo)
-		}
-		if debugOn() {
-			requestMap := make(map[string]interface{})
-			requestMap["ClusterId"] = d.Id()
-			requestMap["Pagination"] = common.Pagination{PageNumber: pageNumber, PageSize: PageSizeLarge}
-			addDebug("GetKubernetesClusterNodes", response, requestInfo, requestMap)
-		}
-		result, _ = response.([]interface{})[0].([]cs.KubernetesNodeType)
-		pagination, _ = response.([]interface{})[1].(*cs.PaginationResult)
-
-		if pageNumber == 1 && (len(result) == 0 || result[0].InstanceId == "") {
-			err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-				if err := invoker.Run(func() error {
-					raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
-						requestInfo = csClient
-						nodes, _, err := csClient.GetKubernetesClusterNodes(d.Id(), common.Pagination{PageNumber: pageNumber, PageSize: PageSizeLarge})
-						return nodes, err
-					})
-					response = raw
-					return err
-				}); err != nil {
-					return resource.NonRetryableError(err)
-				}
-				tmp, _ := response.([]cs.KubernetesNodeType)
-				if len(tmp) > 0 && tmp[0].InstanceId != "" {
-					result = tmp
-				}
-
-				for _, stableState := range cs.NodeStableClusterState {
-					// If cluster is in NodeStableClusteState, node list will not change
-					if object.State == string(stableState) {
-						if debugOn() {
-							requestMap := make(map[string]interface{})
-							requestMap["ClusterId"] = d.Id()
-							requestMap["Pagination"] = common.Pagination{PageNumber: pageNumber, PageSize: PageSizeLarge}
-							addDebug("GetKubernetesClusterNodes", response, requestInfo, requestMap)
-						}
-						return nil
-					}
-				}
-				time.Sleep(5 * time.Second)
-				return resource.RetryableError(Error("[ERROR] There is no any nodes in kubernetes cluster %s.", d.Id()))
-			})
-			if err != nil {
-				return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetKubernetesClusterNodes", DenverdinoApsaraStackgo)
-			}
-
-		}
-
-		if d.Get("exclude_autoscaler_nodes").(bool) {
-			result, err = knockOffAutoScalerNodes(result, meta)
-			if err != nil {
-				return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetKubernetesClusterNodes", ApsaraStackSdkGoERROR)
-			}
-		}
-
-		for _, node := range result {
-			mapping := map[string]interface{}{
-				"id":         node.InstanceId,
-				"name":       node.InstanceName,
-				"private_ip": node.IpAddress[0],
-			}
-			if node.InstanceRole == "Master" {
-				masterNodes = append(masterNodes, mapping)
-			} else {
-				workerNodes = append(workerNodes, mapping)
-			}
-		}
-
-		if len(result) < pagination.PageSize {
-			break
-		}
-		pageNumber += 1
-	}
-
-	d.Set("master_nodes", masterNodes)
-	d.Set("worker_nodes", workerNodes)
-	d.Set("worker_number", int64(len(workerNodes)))
-
-	// Get slb information
-	connection := make(map[string]string)
-
-	if len(masterNodes) != 0 {
-		request := slb.CreateDescribeLoadBalancersRequest()
-		request.ServerId = masterNodes[0]["id"].(string)
-		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
-			return slbClient.DescribeLoadBalancers(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		lbs, _ := raw.(*slb.DescribeLoadBalancersResponse)
-		for _, lb := range lbs.LoadBalancers.LoadBalancer {
-			if strings.ToLower(lb.AddressType) == strings.ToLower(string(Internet)) {
-				d.Set("slb_internet", lb.LoadBalancerId)
-				connection["api_server_internet"] = fmt.Sprintf("https://%s:6443", lb.Address)
-				connection["master_public_ip"] = lb.Address
-			} else {
-				d.Set("slb_intranet", lb.LoadBalancerId)
-				connection["api_server_intranet"] = fmt.Sprintf("https://%s:6443", lb.Address)
-
-				reqVpc := vpc.CreateDescribeEipAddressesRequest()
-				reqVpc.AssociatedInstanceId = lb.LoadBalancerId
-				reqVpc.AssociatedInstanceType = "SlbInstance"
-				raw, err = client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
-					return vpcClient.DescribeEipAddresses(reqVpc)
-				})
-				eip, _ := raw.(*vpc.DescribeEipAddressesResponse)
-				if eip != nil && len(eip.EipAddresses.EipAddress) > 0 {
-					eipAddr := eip.EipAddresses.EipAddress[0].IpAddress
-					connection["master_public_ip"] = eipAddr
-					connection["api_server_internet"] = fmt.Sprintf("https://%s:6443", eipAddr)
-				}
-			}
-		}
-	}
-
-	connection["service_domain"] = fmt.Sprintf("*.%s.%s.alicontainer.com", d.Id(), object.RegionId)
-
-	d.Set("connections", connection)
-	natRequest := vpc.CreateDescribeNatGatewaysRequest()
-	natRequest.VpcId = object.VpcId
-	raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
-		return vpcClient.DescribeNatGateways(natRequest)
-	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), natRequest.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-	addDebug(natRequest.GetActionName(), raw, natRequest.RpcRequest, natRequest)
-	nat, _ := raw.(*vpc.DescribeNatGatewaysResponse)
-	if nat != nil && len(nat.NatGateways.NatGateway) > 0 {
-		d.Set("nat_gateway_id", nat.NatGateways.NatGateway[0].NatGatewayId)
-	}
-
-	var requestInfo *cs.Client
-	var response interface{}
-	if err := invoker.Run(func() error {
-		raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
-			requestInfo = csClient
-			return csClient.GetClusterCerts(d.Id())
-		})
-		response = raw
-		return err
-	}); err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetClusterCerts", DenverdinoApsaraStackgo)
-	}
-	if debugOn() {
-		requestMap := make(map[string]interface{})
-		requestMap["Id"] = d.Id()
-		addDebug("GetClusterCerts", response, requestInfo, requestMap)
-	}
-	cert, _ := response.(cs.ClusterCerts)
-	if ce, ok := d.GetOk("client_cert"); ok && ce.(string) != "" {
-		if err := writeToFile(ce.(string), cert.Cert); err != nil {
-			return WrapError(err)
-		}
-	}
-	if key, ok := d.GetOk("client_key"); ok && key.(string) != "" {
-		if err := writeToFile(key.(string), cert.Key); err != nil {
-			return WrapError(err)
-		}
-	}
-	if ca, ok := d.GetOk("cluster_ca_cert"); ok && ca.(string) != "" {
-		if err := writeToFile(ca.(string), cert.CA); err != nil {
-			return WrapError(err)
-		}
-	}
-
-	var config cs.ClusterConfig
-	if file, ok := d.GetOk("kube_config"); ok && file.(string) != "" {
-		if err := invoker.Run(func() error {
-			raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
-				requestInfo = csClient
-				return csClient.GetClusterConfig(d.Id())
-			})
-			response = raw
-			return err
-		}); err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetClusterConfig", DenverdinoApsaraStackgo)
-		}
-		if debugOn() {
-			requestMap := make(map[string]interface{})
-			requestMap["Id"] = d.Id()
-			addDebug("GetClusterConfig", response, requestInfo, requestMap)
-		}
-		config, _ = response.(cs.ClusterConfig)
-
-		if err := writeToFile(file.(string), config.Config); err != nil {
-			return WrapError(err)
-		}
-	}
+	//var names []string
+	//var s []map[string]interface{}
+	//for _, kc := range Clusterresponse {
+	//	mapping := map[string]interface{}{
+	//		"id":              kc.ClusterID,
+	//		"name":            kc.Name,
+	//		"vpc_id": 			kc.VpcID,
+	//		"security_group_id": 			kc.SecurityGroupID,
+	//		"availability_zone": 			kc.ZoneID,
+	//		"state" : kc.State,
+	//		"master_instance_types" : []string{kc.Parameters.MasterInstanceType},
+	//
+	//		"nat_gateway_id" : kc.Parameters.NatGatewayID,
+	//		"vswitch_ids" : []string{kc.Parameters.VSwitchID},
+	//
+	//		"master_disk_category": 			kc.Parameters.MasterSystemDiskCategory,
+	//		"cluster_network_type": 			kc.Parameters.Network,
+	//	}
+	//
+	//	names = append(names, kc.Name)
+	//
+	//	s = append(s, mapping)
+	//}
 
 	return nil
 }
@@ -1297,12 +1138,33 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 	client := meta.(*connectivity.ApsaraStackClient)
 	csService := CsService{client}
 	invoker := NewInvoker()
-
+	request := requests.NewCommonRequest()
+	request.QueryParams = map[string]string{
+		"RegionId":         client.RegionId,
+		"AccessKeySecret":  client.SecretKey,
+		"Product":          "CS",
+		"Department":       client.Department,
+		"ResourceGroup":    client.ResourceGroup,
+		"Action":           "DeleteCluster",
+		"Version":          "2015-12-15",
+		"SignatureVersion": "1.0",
+		"ProductName":      "cs",
+		"ClusterId":        d.Id(),
+		"X-acs-body":       fmt.Sprintf("{\"%s\":\"%t\",\"%s\":\"%s\"}", "keep_slb", false, "ClusterId", d.Id()),
+	}
+	request.Method = "POST" // Set request method
+	request.Product = "Cs"  // Specify product
+	// request.Domain =       // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2015-12-15" // Specify product version
+	request.ServiceCode = "cs"
+	request.Scheme = "http" // Set request scheme. Default: http
+	request.ApiName = "DeleteCluster"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
 	var response interface{}
 	err := resource.Retry(30*time.Minute, func() *resource.RetryError {
 		if err := invoker.Run(func() error {
-			raw, err := client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
-				return nil, csClient.DeleteKubernetesCluster(d.Id())
+			raw, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
+				return csClient.ProcessCommonRequest(request)
 			})
 			response = raw
 			return err
@@ -1320,268 +1182,13 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 		if IsExpectedErrors(err, []string{"ErrorClusterNotFound"}) {
 			return nil
 		}
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "DeleteCluster", DenverdinoApsaraStackgo)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "DeleteCluster", ApsaraStackLogGoSdkERROR)
 	}
 
-	stateConf := BuildStateConf([]string{"running", "deleting"}, []string{}, d.Timeout(schema.TimeoutDelete), 10*time.Second, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{}))
+	stateConf := BuildStateConf([]string{"running", "deleting"}, []string{}, d.Timeout(schema.TimeoutDelete), 30*time.Second, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"delete_failed"}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
 	return nil
-}
 
-//func buildKubernetesArgs(d *schema.ResourceData, meta interface{}) (*cs.DelicatedKubernetesClusterCreationRequest, error) {
-//	client := meta.(*connectivity.ApsaraStackClient)
-//	//request := cs.C
-//	//request.RegionId = client.RegionId
-//	//request.Headers = map[string]string{"RegionId": client.RegionId}
-//	//request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-//	vpcService := VpcService{client}
-//
-//	var vswitchID string
-//	if list := expandStringList(d.Get("worker_vswitch_ids").([]interface{})); len(list) > 0 {
-//		vswitchID = list[0]
-//	} else {
-//		vswitchID = ""
-//	}
-//
-//	var vpcId string
-//	if vswitchID != "" {
-//		vsw, err := vpcService.DescribeVSwitch(vswitchID)
-//		if err != nil {
-//			return nil, err
-//		}
-//		vpcId = vsw.VpcId
-//	}
-
-//	var clusterName string
-//	if v, ok := d.GetOk("name"); ok {
-//		clusterName = v.(string)
-//	} else {
-//		clusterName = resource.PrefixedUniqueId(d.Get("name_prefix").(string))
-//	}
-//
-//	addons := make([]cs.Addon, 0)
-//	if v, ok := d.GetOk("addons"); ok {
-//		all, ok := v.([]interface{})
-//		if ok {
-//			for _, a := range all {
-//				addon, ok := a.(map[string]interface{})
-//				if ok {
-//					addons = append(addons, cs.Addon{
-//						Name:     addon["name"].(string),
-//						Config:   addon["config"].(string),
-//						Disabled: addon["disabled"].(bool),
-//					})
-//				}
-//			}
-//		}
-//	}
-//
-//	var apiAudiences string
-//	if list := expandStringList(d.Get("api_audiences").([]interface{})); len(list) > 0 {
-//		apiAudiences = strings.Join(list, ",")
-//	}
-//
-
-//	creationArgs := &cs.DelicatedKubernetesClusterCreationRequest{
-//		ClusterArgs: cs.ClusterArgs{
-//			DisableRollback: true,
-//			Name:            clusterName,
-//			// TODO add windows and other platform support
-//			OsType:   "Linux",
-//			Platform: "CentOS",
-//			VpcId:    vpcId,
-//
-//			// the params below is ok to be empty
-//			KubernetesVersion:         d.Get("version").(string),
-//			NodeCidrMask:              strconv.Itoa(d.Get("node_cidr_mask").(int)),
-//			ImageId:                   d.Get("image_id").(string),
-//			KeyPair:                   d.Get("key_name").(string),
-//			ServiceCidr:               d.Get("service_cidr").(string),
-//			CloudMonitorFlags:         d.Get("install_cloud_monitor").(bool),
-//			SecurityGroupId:           d.Get("security_group_id").(string),
-//			IsEnterpriseSecurityGroup: d.Get("is_enterprise_security_group").(bool),
-//			EndpointPublicAccess:      d.Get("slb_internet_enabled").(bool),
-//			SnatEntry:                 d.Get("new_nat_gateway").(bool),
-//			NodeNameMode:              d.Get("node_name_mode").(string),
-//			Addons:                    addons,
-//			ServiceAccountIssuer:      d.Get("service_account_issuer").(string),
-//			ApiAudiences:              apiAudiences,
-//		},
-//	}
-//
-
-//	if dds, ok := d.GetOk("worker_data_disks"); ok {
-//		disks := dds.([]interface{})
-//		createDataDisks := make([]cs.DataDisk, 0, len(disks))
-//		for _, e := range disks {
-//			pack := e.(map[string]interface{})
-//			dataDisk := cs.DataDisk{
-//				Size:                 pack["size"].(string),
-//				DiskName:             pack["name"].(string),
-//				Category:             pack["category"].(string),
-//				Device:               pack["device"].(string),
-//				AutoSnapshotPolicyId: pack["auto_snapshot_policy_id"].(string),
-//				KMSKeyId:             pack["kms_key_id"].(string),
-//				Encrypted:            pack["encrypted"].(string),
-//			}
-//			createDataDisks = append(createDataDisks, dataDisk)
-//		}
-//		creationArgs.WorkerDataDisks = createDataDisks
-//	}
-//
-
-//	if v := d.Get("user_data").(string); v != "" {
-//		_, base64DecodeError := base64.StdEncoding.DecodeString(v)
-//		if base64DecodeError == nil {
-//			creationArgs.UserData = v
-//		} else {
-//			creationArgs.UserData = base64.StdEncoding.EncodeToString([]byte(v))
-//		}
-//	}
-//
-//	if _, ok := d.GetOk("pod_vswitch_ids"); ok {
-//		creationArgs.PodVswitchIds = expandStringList(d.Get("pod_vswitch_ids").([]interface{}))
-//	} else {
-//		creationArgs.ContainerCidr = d.Get("pod_cidr").(string)
-//	}
-
-////
-//	if password := d.Get("password").(string); password == "" {
-//		if v := d.Get("kms_encrypted_password").(string); v != "" {
-//			kmsService := KmsService{client}
-//			decryptResp, err := kmsService.Decrypt(v, d.Get("kms_encryption_context").(map[string]interface{}))
-//			if err != nil {
-//				return nil, WrapError(err)
-//			}
-//			password = decryptResp.Plaintext
-//		}
-//		creationArgs.LoginPassword = password
-//	} else {
-//		creationArgs.LoginPassword = password
-//	}
-
-//	// CA default is empty
-//	if userCa, ok := d.GetOk("user_ca"); ok {
-//		userCaContent, err := loadFileContent(userCa.(string))
-//		if err != nil {
-//			return nil, fmt.Errorf("reading user_ca file failed %s", err)
-//		}
-//		creationArgs.UserCa = string(userCaContent)
-//	}
-//
-//	// set proxy mode and default is ipvs
-//	if proxyMode := d.Get("proxy_mode").(string); proxyMode != "" {
-//		creationArgs.ProxyMode = cs.ProxyMode(proxyMode)
-//	} else {
-//		creationArgs.ProxyMode = cs.ProxyMode(cs.IPVS)
-//	}
-//
-//	// dedicated kubernetes must provide master_vswitch_ids
-//	if _, ok := d.GetOk("master_vswitch_ids"); ok {
-//		creationArgs.MasterArgs = cs.MasterArgs{
-//			MasterCount:              len(d.Get("master_vswitch_ids").([]interface{})),
-//			MasterVSwitchIds:         expandStringList(d.Get("master_vswitch_ids").([]interface{})),
-//			MasterInstanceTypes:      expandStringList(d.Get("master_instance_types").([]interface{})),
-//			MasterSystemDiskCategory: d.Get("master_disk_category").(string),
-//			MasterSystemDiskSize:     int64(d.Get("master_disk_size").(int)),
-//			// TODO support other params
-//		}
-//	}
-//
-//	if v, ok := d.GetOk("master_instance_charge_type"); ok {
-//		creationArgs.MasterInstanceChargeType = v.(string)
-//		if creationArgs.MasterInstanceChargeType == string(PrePaid) {
-//			creationArgs.MasterAutoRenew = d.Get("master_auto_renew").(bool)
-//			creationArgs.MasterAutoRenewPeriod = d.Get("master_auto_renew_period").(int)
-//			creationArgs.MasterPeriod = d.Get("master_period").(int)
-//			creationArgs.MasterPeriodUnit = d.Get("master_period_unit").(string)
-//		}
-//	}
-//
-//	creationArgs.WorkerArgs = cs.WorkerArgs{
-//		WorkerVSwitchIds:         expandStringList(d.Get("worker_vswitch_ids").([]interface{})),
-//		WorkerInstanceTypes:      expandStringList(d.Get("worker_instance_types").([]interface{})),
-//		NumOfNodes:               int64(d.Get("worker_number").(int)),
-//		WorkerSystemDiskCategory: d.Get("worker_disk_category").(string),
-//		WorkerSystemDiskSize:     int64(d.Get("worker_disk_size").(int)),
-//		// TODO support other params
-//	}
-
-//if v, ok := d.GetOk("worker_instance_charge_type"); ok {
-//	creationArgs.WorkerInstanceChargeType = v.(string)
-//	if creationArgs.WorkerInstanceChargeType == string(PrePaid) {
-//		creationArgs.WorkerAutoRenew = d.Get("worker_auto_renew").(bool)
-//		creationArgs.WorkerAutoRenewPeriod = d.Get("worker_auto_renew_period").(int)
-//		creationArgs.WorkerPeriod = d.Get("worker_period").(int)
-//		creationArgs.WorkerPeriodUnit = d.Get("worker_period_unit").(string)
-//	}
-//}
-//	return creationArgs, nil
-//}
-
-func knockOffAutoScalerNodes(nodes []cs.KubernetesNodeType, meta interface{}) ([]cs.KubernetesNodeType, error) {
-	log.Printf("[DEBUG] start to knock off auto scaler nodes %++v\n", nodes)
-	client := meta.(*connectivity.ApsaraStackClient)
-	scaleNoddesMap := make(map[string]ecs.Instance)
-	result := make([]cs.KubernetesNodeType, 0)
-	instanceIds := make([]interface{}, 0)
-
-	if len(nodes) == 0 {
-		return result, nil
-	}
-
-	for _, node := range nodes {
-		instanceIds = append(instanceIds, node.InstanceId)
-	}
-
-	request := ecs.CreateDescribeInstancesRequest()
-	request.RegionId = client.RegionId
-	request.PageSize = requests.NewInteger(len(nodes))
-	request.InstanceIds = convertListToJsonString(instanceIds)
-	tags := []ecs.DescribeInstancesTag{{Key: defaultScalingGroupTag, Value: "true"}}
-	request.Tag = &tags
-
-	// filter ecs by tags, find all ecs created by autoscaler
-	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-		return ecsClient.DescribeInstances(request)
-	})
-
-	if err != nil {
-		return result, WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instances", request.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-
-	response, _ := raw.(*ecs.DescribeInstancesResponse)
-	for _, instance := range response.Instances.Instance {
-		scaleNoddesMap[instance.InstanceId] = instance
-	}
-
-	for _, node := range nodes {
-		if _, ok := scaleNoddesMap[node.InstanceId]; !ok {
-			result = append(result, node)
-		}
-	}
-
-	return result, nil
-}
-func UpgradeApsaraStackKubernetesCluster(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
-	if d.HasChange("version") {
-		nextVersion := d.Get("version").(string)
-		args := &cs.UpgradeClusterArgs{
-			Version: nextVersion,
-		}
-
-		csService := CsService{client}
-		err := csService.UpgradeCluster(d.Id(), args)
-
-		if err != nil {
-			return WrapError(err)
-		}
-
-		d.SetPartial("version")
-	}
-	return nil
 }
