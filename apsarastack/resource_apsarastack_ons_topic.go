@@ -63,6 +63,9 @@ func resourceApsaraStackOnsTopicCreate(d *schema.ResourceData, meta interface{})
 
 	request := ons.CreateOnsTopicCreateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.Topic = topic
 	request.InstanceId = instanceId
 	request.MessageType = requests.NewInteger(d.Get("message_type").(int))
@@ -131,6 +134,9 @@ func resourceApsaraStackOnsTopicUpdate(d *schema.ResourceData, meta interface{})
 
 	request := ons.CreateOnsTopicUpdateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.InstanceId = instanceId
 	request.Topic = topic
 
@@ -163,6 +169,9 @@ func resourceApsaraStackOnsTopicDelete(d *schema.ResourceData, meta interface{})
 
 	request := ons.CreateOnsTopicDeleteRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.Topic = topic
 	request.InstanceId = instanceId
 

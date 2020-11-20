@@ -192,6 +192,8 @@ func Provider() terraform.ResourceProvider {
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
 			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_mongodb_instances":    dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":        dataSourceApsaraStackMongoDBZones(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -282,6 +284,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
 
 			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
+			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
+			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -384,6 +388,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.KVStoreEndpoint = domain
 
 		config.AscmEndpoint = domain
+		config.DdsEndpoint = domain
 
 	} else {
 
@@ -407,6 +412,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
 
 			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
+			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 
 		}
 	}
