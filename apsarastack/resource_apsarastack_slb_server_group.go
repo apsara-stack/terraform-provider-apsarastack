@@ -27,7 +27,6 @@ func resourceApsaraStackSlbServerGroup() *schema.Resource {
 			"load_balancer_id": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 			},
 
 			"name": {
