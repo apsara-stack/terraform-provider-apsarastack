@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -283,7 +284,7 @@ func resourceApsaraStackInstanceCreate(d *schema.ResourceData, meta interface{})
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 
-	stateConf := BuildStateConf([]string{"Pending", "Starting", "Stopped"}, []string{"Running"}, d.Timeout(schema.TimeoutCreate), 10*time.Second, ecsService.InstanceStateRefreshFunc(d.Id(), []string{"Stopping"}))
+	stateConf := BuildStateConf([]string{"Pending", "Starting", "Stopped"}, []string{"Running"}, d.Timeout(schema.TimeoutCreate), 120*time.Second, ecsService.InstanceStateRefreshFunc(d.Id(), []string{"Stopping"}))
 
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
@@ -304,7 +305,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return WrapError(err)
 	}
-
+	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance)
 	disk, err := ecsService.DescribeInstanceSystemDisk(d.Id(), instance.ResourceGroupId)
 	if err != nil {
 		if NotFoundError(err) {
@@ -313,6 +314,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return WrapError(err)
 	}
+
 	d.Set("system_disk_category", disk.Category)
 	d.Set("system_disk_size", disk.Size)
 	d.Set("system_disk_name", disk.DiskName)
@@ -352,8 +354,6 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		dataRequest.RegionId = client.RegionId
 		dataRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		dataRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		dataRequest.QueryParams["Department"] = client.Department
-		dataRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
 		dataRequest.InstanceId = d.Id()
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeUserData(dataRequest)
@@ -372,8 +372,6 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		request.QueryParams["Department"] = client.Department
-		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.InstanceIds = convertListToJsonString([]interface{}{d.Id()})
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstanceRamRole(request)
@@ -382,7 +380,9 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+
 		response, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
+		log.Printf("[ECS Creation]: Getting Instance RamRole Details: %s ", response.InstanceRamRoleSets.InstanceRamRoleSet)
 		if len(response.InstanceRamRoleSets.InstanceRamRoleSet) >= 1 {
 			d.Set("role_name", response.InstanceRamRoleSets.InstanceRamRoleSet[0].RamRoleName)
 		}
@@ -393,8 +393,6 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		request.QueryParams["Department"] = client.Department
-		request.QueryParams["ResourceGroup"] = client.ResourceGroup
 		request.InstanceId = d.Id()
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DescribeInstanceAutoRenewAttribute(request)
@@ -479,8 +477,7 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 			stopRequest.RegionId = client.RegionId
 			stopRequest.Headers = map[string]string{"RegionId": client.RegionId}
 			stopRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-			stopRequest.QueryParams["Department"] = client.Department
-			stopRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
+
 			stopRequest.InstanceId = d.Id()
 			stopRequest.ForceStop = requests.NewBoolean(false)
 			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

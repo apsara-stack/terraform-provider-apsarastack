@@ -328,7 +328,7 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 		request.ApiName = "DoOpenApi"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 
-		raw, err := client.WithOssNewClient(func(ossClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 
 			return ossClient.ProcessCommonRequest(request)
 		})
