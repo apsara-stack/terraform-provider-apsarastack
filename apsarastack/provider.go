@@ -201,7 +201,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
-			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
