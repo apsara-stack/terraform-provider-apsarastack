@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -185,12 +186,14 @@ func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, e
 			if IsThrottling(err) {
 				wait()
 				return resource.RetryableError(err)
-
 			}
 			return resource.NonRetryableError(err)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ = raw.(*ecs.DescribeDisksResponse)
+		if len(response.Disks.Disk) < 1 {
+			return resource.RetryableError(errors.New("Disk Not Found"))
+		}
 		return nil
 	})
 	if err != nil {

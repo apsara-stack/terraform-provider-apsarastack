@@ -284,7 +284,7 @@ func resourceApsaraStackInstanceCreate(d *schema.ResourceData, meta interface{})
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 
-	stateConf := BuildStateConf([]string{"Pending", "Starting", "Stopped"}, []string{"Running"}, d.Timeout(schema.TimeoutCreate), 60*time.Second, ecsService.InstanceStateRefreshFunc(d.Id(), []string{"Stopping"}))
+	stateConf := BuildStateConf([]string{"Pending", "Starting", "Stopped"}, []string{"Running"}, d.Timeout(schema.TimeoutCreate), 120*time.Second, ecsService.InstanceStateRefreshFunc(d.Id(), []string{"Stopping"}))
 
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
@@ -314,6 +314,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return WrapError(err)
 	}
+
 	d.Set("system_disk_category", disk.Category)
 	d.Set("system_disk_size", disk.Size)
 	d.Set("system_disk_name", disk.DiskName)
