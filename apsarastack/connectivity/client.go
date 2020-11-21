@@ -107,8 +107,8 @@ const Module = "Terraform-Module"
 type ApiVersion string
 
 // The main version number that is being run at the moment.
-var providerVersion = "1.94.0"
-var terraformVersion = strings.TrimSuffix(schema.Provider{}.TerraformVersion, "-dev")
+var ProviderVersion = "1.94.0"
+var TerraformVersion = strings.TrimSuffix(schema.Provider{}.TerraformVersion, "-dev")
 var goSdkMutex = sync.RWMutex{} // The Go SDK is not thread-safe
 
 // Client for ApsaraStackClient
@@ -146,8 +146,8 @@ func (client *ApsaraStackClient) WithAscmClient(do func(*ascm.Client) (interface
 			return nil, fmt.Errorf("unable to initialize the ASCM client AccessKey: %#v", err)
 		}
 		ascmconn.Domain = endpoint
-		ascmconn.AppendUserAgent(Terraform, terraformVersion)
-		ascmconn.AppendUserAgent(Provider, providerVersion)
+		ascmconn.AppendUserAgent(Terraform, TerraformVersion)
+		ascmconn.AppendUserAgent(Provider, ProviderVersion)
 		ascmconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ascmconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -178,8 +178,8 @@ func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}
 		}
 
 		ecsconn.Domain = endpoint
-		ecsconn.AppendUserAgent(Terraform, terraformVersion)
-		ecsconn.AppendUserAgent(Provider, providerVersion)
+		ecsconn.AppendUserAgent(Terraform, TerraformVersion)
+		ecsconn.AppendUserAgent(Provider, ProviderVersion)
 		ecsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ecsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -205,8 +205,8 @@ func (client *ApsaraStackClient) WithPolarDBClient(do func(*polardb.Client) (int
 
 		}
 		polarDBconn.Domain = endpoint
-		polarDBconn.AppendUserAgent(Terraform, terraformVersion)
-		polarDBconn.AppendUserAgent(Provider, providerVersion)
+		polarDBconn.AppendUserAgent(Terraform, TerraformVersion)
+		polarDBconn.AppendUserAgent(Provider, ProviderVersion)
 		polarDBconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		polarDBconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -234,8 +234,8 @@ func (client *ApsaraStackClient) WithElasticsearchClient(do func(*elasticsearch.
 			return nil, fmt.Errorf("unable to initialize the Elasticsearch client: %#v", err)
 		}
 
-		elasticsearchconn.AppendUserAgent(Terraform, terraformVersion)
-		elasticsearchconn.AppendUserAgent(Provider, providerVersion)
+		elasticsearchconn.AppendUserAgent(Terraform, TerraformVersion)
+		elasticsearchconn.AppendUserAgent(Provider, ProviderVersion)
 		elasticsearchconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		elasticsearchconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -264,8 +264,8 @@ func (client *ApsaraStackClient) WithEssClient(do func(*ess.Client) (interface{}
 			return nil, fmt.Errorf("unable to initialize the ESS client: %#v", err)
 		}
 		essconn.Domain = endpoint
-		essconn.AppendUserAgent(Terraform, terraformVersion)
-		essconn.AppendUserAgent(Provider, providerVersion)
+		essconn.AppendUserAgent(Terraform, TerraformVersion)
+		essconn.AppendUserAgent(Provider, ProviderVersion)
 		essconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		essconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -296,8 +296,8 @@ func (client *ApsaraStackClient) WithRkvClient(do func(*r_kvstore.Client) (inter
 			return nil, fmt.Errorf("unable to initialize the RKV client: %#v", err)
 		}
 		rkvconn.Domain = endpoint
-		rkvconn.AppendUserAgent(Terraform, terraformVersion)
-		rkvconn.AppendUserAgent(Provider, providerVersion)
+		rkvconn.AppendUserAgent(Terraform, TerraformVersion)
+		rkvconn.AppendUserAgent(Provider, ProviderVersion)
 		rkvconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		rkvconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -321,8 +321,8 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 			return nil, fmt.Errorf("unable to initialize the GPDB client: %#v", err)
 		}
 
-		gpdbconn.AppendUserAgent(Terraform, terraformVersion)
-		gpdbconn.AppendUserAgent(Provider, providerVersion)
+		gpdbconn.AppendUserAgent(Terraform, TerraformVersion)
+		gpdbconn.AppendUserAgent(Provider, ProviderVersion)
 		gpdbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		gpdbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -346,8 +346,8 @@ func (client *ApsaraStackClient) WithAdbClient(do func(*adb.Client) (interface{}
 
 		}
 		adbconn.Domain = endpoint
-		adbconn.AppendUserAgent(Terraform, terraformVersion)
-		adbconn.AppendUserAgent(Provider, providerVersion)
+		adbconn.AppendUserAgent(Terraform, TerraformVersion)
+		adbconn.AppendUserAgent(Provider, ProviderVersion)
 		adbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		adbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -373,8 +373,8 @@ func (client *ApsaraStackClient) WithHbaseClient(do func(*hbase.Client) (interfa
 			return nil, fmt.Errorf("unable to initialize the hbase client: %#v", err)
 		}
 
-		hbaseconn.AppendUserAgent(Terraform, terraformVersion)
-		hbaseconn.AppendUserAgent(Provider, providerVersion)
+		hbaseconn.AppendUserAgent(Terraform, TerraformVersion)
+		hbaseconn.AppendUserAgent(Provider, ProviderVersion)
 		hbaseconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		hbaseconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -436,8 +436,8 @@ func (client *ApsaraStackClient) WithVpcClient(do func(*vpc.Client) (interface{}
 			return nil, fmt.Errorf("unable to initialize the VPC client: %#v", err)
 		}
 		vpcconn.Domain = endpoint
-		vpcconn.AppendUserAgent(Terraform, terraformVersion)
-		vpcconn.AppendUserAgent(Provider, providerVersion)
+		vpcconn.AppendUserAgent(Terraform, TerraformVersion)
+		vpcconn.AppendUserAgent(Provider, ProviderVersion)
 		vpcconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		vpcconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -466,8 +466,8 @@ func (client *ApsaraStackClient) WithSlbClient(do func(*slb.Client) (interface{}
 			return nil, fmt.Errorf("unable to initialize the SLB client: %#v", err)
 		}
 		slbconn.Domain = endpoint
-		slbconn.AppendUserAgent(Terraform, terraformVersion)
-		slbconn.AppendUserAgent(Provider, providerVersion)
+		slbconn.AppendUserAgent(Terraform, TerraformVersion)
+		slbconn.AppendUserAgent(Provider, ProviderVersion)
 		slbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		slbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -494,8 +494,8 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 			return nil, fmt.Errorf("unable to initialize the DDS client: %#v", err)
 		}
 
-		ddsconn.AppendUserAgent(Terraform, terraformVersion)
-		ddsconn.AppendUserAgent(Provider, providerVersion)
+		ddsconn.AppendUserAgent(Terraform, TerraformVersion)
+		ddsconn.AppendUserAgent(Provider, ProviderVersion)
 		ddsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ddsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -526,8 +526,8 @@ func (client *ApsaraStackClient) WithOssNewClient(do func(*ecs.Client) (interfac
 		}
 
 		ecsconn.Domain = endpoint
-		ecsconn.AppendUserAgent(Terraform, terraformVersion)
-		ecsconn.AppendUserAgent(Provider, providerVersion)
+		ecsconn.AppendUserAgent(Terraform, TerraformVersion)
+		ecsconn.AppendUserAgent(Provider, ProviderVersion)
 		ecsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ecsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -555,8 +555,8 @@ func (client *ApsaraStackClient) describeEndpointForService(serviceCode string) 
 		return nil, fmt.Errorf("Unable to initialize the location client: %#v", err)
 
 	}
-	locationClient.AppendUserAgent(Terraform, terraformVersion)
-	locationClient.AppendUserAgent(Provider, providerVersion)
+	locationClient.AppendUserAgent(Terraform, TerraformVersion)
+	locationClient.AppendUserAgent(Provider, ProviderVersion)
 	locationClient.AppendUserAgent(Module, client.config.ConfigurationSource)
 	locationClient.SetHTTPSInsecure(client.config.Insecure)
 	if client.config.Proxy != "" {
@@ -620,8 +620,8 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ascm", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
 	}
 
-	request.AppendUserAgent(Terraform, terraformVersion)
-	request.AppendUserAgent(Provider, providerVersion)
+	request.AppendUserAgent(Terraform, TerraformVersion)
+	request.AppendUserAgent(Provider, ProviderVersion)
 	request.AppendUserAgent(Module, client.config.ConfigurationSource)
 	request.SetHTTPSInsecure(client.config.Insecure)
 	return request, nil
@@ -719,9 +719,9 @@ func (client *ApsaraStackClient) WithKmsClient(do func(*kms.Client) (interface{}
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the kms client: %#v", err)
 		}
-		kmsconn.AppendUserAgent(Terraform, terraformVersion)
+		kmsconn.AppendUserAgent(Terraform, TerraformVersion)
 		kmsconn.Domain = endpoint
-		kmsconn.AppendUserAgent(Provider, providerVersion)
+		kmsconn.AppendUserAgent(Provider, ProviderVersion)
 		kmsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		kmsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -745,8 +745,8 @@ func (client *ApsaraStackClient) GetCallerIdentity() (string, error) {
 		return "", fmt.Errorf("unable to initialize the ascm client: %#v", err)
 	}
 
-	ascmClient.AppendUserAgent(Terraform, terraformVersion)
-	ascmClient.AppendUserAgent(Provider, providerVersion)
+	ascmClient.AppendUserAgent(Terraform, TerraformVersion)
+	ascmClient.AppendUserAgent(Provider, ProviderVersion)
 	ascmClient.AppendUserAgent(Module, client.config.ConfigurationSource)
 	ascmClient.SetHTTPSInsecure(client.config.Insecure)
 	ascmClient.Domain = endpoint
@@ -810,8 +810,8 @@ func (client *ApsaraStackClient) WithBssopenapiClient(do func(*bssopenapi.Client
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the BSSOPENAPI client: %#v", err)
 		}
-		bssopenapiconn.AppendUserAgent(Terraform, terraformVersion)
-		bssopenapiconn.AppendUserAgent(Provider, providerVersion)
+		bssopenapiconn.AppendUserAgent(Terraform, TerraformVersion)
+		bssopenapiconn.AppendUserAgent(Provider, ProviderVersion)
 		bssopenapiconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		bssopenapiconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -890,8 +890,8 @@ func (client *ApsaraStackClient) WithRamClient(do func(*ram.Client) (interface{}
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the RAM client: %#v", err)
 		}
-		ramconn.AppendUserAgent(Terraform, terraformVersion)
-		ramconn.AppendUserAgent(Provider, providerVersion)
+		ramconn.AppendUserAgent(Terraform, TerraformVersion)
+		ramconn.AppendUserAgent(Provider, ProviderVersion)
 		ramconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ramconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -918,8 +918,8 @@ func (client *ApsaraStackClient) WithRdsClient(do func(*rds.Client) (interface{}
 			return nil, fmt.Errorf("unable to initialize the RDS client: %#v", err)
 		}
 		rdsconn.Domain = endpoint
-		rdsconn.AppendUserAgent(Terraform, terraformVersion)
-		rdsconn.AppendUserAgent(Provider, providerVersion)
+		rdsconn.AppendUserAgent(Terraform, TerraformVersion)
+		rdsconn.AppendUserAgent(Provider, ProviderVersion)
 		rdsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		rdsconn.SetHTTPSInsecure(client.config.Insecure)
 
@@ -948,8 +948,8 @@ func (client *ApsaraStackClient) WithCdnClient_new(do func(*cdn_new.Client) (int
 			return nil, fmt.Errorf("unable to initialize the CDN client: %#v", err)
 		}
 
-		cdnconn.AppendUserAgent(Terraform, terraformVersion)
-		cdnconn.AppendUserAgent(Provider, providerVersion)
+		cdnconn.AppendUserAgent(Terraform, TerraformVersion)
+		cdnconn.AppendUserAgent(Provider, ProviderVersion)
 		cdnconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		cdnconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -961,7 +961,7 @@ func (client *ApsaraStackClient) WithCdnClient_new(do func(*cdn_new.Client) (int
 	return do(client.cdnconn_new)
 }
 func (client *ApsaraStackClient) getUserAgent() string {
-	return fmt.Sprintf("%s/%s %s/%s %s/%s", Terraform, terraformVersion, Provider, providerVersion, Module, client.config.ConfigurationSource)
+	return fmt.Sprintf("%s/%s %s/%s %s/%s", Terraform, TerraformVersion, Provider, ProviderVersion, Module, client.config.ConfigurationSource)
 }
 func (client *ApsaraStackClient) WithCsClient(do func(*cs.Client) (interface{}, error)) (interface{}, error) {
 	goSdkMutex.Lock()
@@ -1032,8 +1032,8 @@ func (client *ApsaraStackClient) WithOnsClient(do func(*ons.Client) (interface{}
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ONS client: %#v", err)
 		}
-		onsconn.AppendUserAgent(Terraform, terraformVersion)
-		onsconn.AppendUserAgent(Provider, providerVersion)
+		onsconn.AppendUserAgent(Terraform, TerraformVersion)
+		onsconn.AppendUserAgent(Provider, ProviderVersion)
 		onsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		client.onsconn = onsconn
 	}
@@ -1084,8 +1084,8 @@ func (client *ApsaraStackClient) WithLogPopClient(do func(*slsPop.Client) (inter
 			return nil, fmt.Errorf("unable to initialize the sls client: %#v", err)
 		}
 
-		logpopconn.AppendUserAgent(Terraform, terraformVersion)
-		logpopconn.AppendUserAgent(Provider, providerVersion)
+		logpopconn.AppendUserAgent(Terraform, TerraformVersion)
+		logpopconn.AppendUserAgent(Provider, ProviderVersion)
 		logpopconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		client.logpopconn = logpopconn
 	}
@@ -1107,8 +1107,8 @@ func (client *ApsaraStackClient) WithCrEEClient(do func(*cr_ee.Client) (interfac
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the CR EE client: %#v", err)
 		}
-		creeconn.AppendUserAgent(Terraform, terraformVersion)
-		creeconn.AppendUserAgent(Provider, providerVersion)
+		creeconn.AppendUserAgent(Terraform, TerraformVersion)
+		creeconn.AppendUserAgent(Provider, ProviderVersion)
 		creeconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		if client.config.Proxy != "" {
 			creeconn.SetHttpProxy(client.config.Proxy)
@@ -1139,8 +1139,8 @@ func (client *ApsaraStackClient) WithCrClient(do func(*cr.Client) (interface{}, 
 		if client.config.Proxy != "" {
 			crconn.SetHttpProxy(client.config.Proxy)
 		}
-		crconn.AppendUserAgent(Terraform, terraformVersion)
-		crconn.AppendUserAgent(Provider, providerVersion)
+		crconn.AppendUserAgent(Terraform, TerraformVersion)
+		crconn.AppendUserAgent(Provider, ProviderVersion)
 		crconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		client.crconn = crconn
 	}
@@ -1159,8 +1159,8 @@ func (client *ApsaraStackClient) WithDnsClient(do func(*alidns.Client) (interfac
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the DNS client: %#v", err)
 		}
-		dnsconn.AppendUserAgent(Terraform, terraformVersion)
-		dnsconn.AppendUserAgent(Provider, providerVersion)
+		dnsconn.AppendUserAgent(Terraform, TerraformVersion)
+		dnsconn.AppendUserAgent(Provider, ProviderVersion)
 		dnsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		dnsconn.Domain = endpoint
 		if client.config.Proxy != "" {

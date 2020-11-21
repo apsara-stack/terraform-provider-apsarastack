@@ -207,7 +207,7 @@ const (
 )
 
 // timeout for common product, ecs e.g.
-const DefaultTimeout = 120
+const DefaultTimeout = 300
 const Timeout5Minute = 300
 const DefaultTimeoutMedium = 500
 
