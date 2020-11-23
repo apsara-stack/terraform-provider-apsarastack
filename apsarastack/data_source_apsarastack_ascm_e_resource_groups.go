@@ -74,11 +74,10 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	request.Scheme = "http"
+	request.RegionId = client.RegionId
 	request.ApiName = "ListResourceGroup"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListResourceGroup", "Version": "2019-05-10"}
-	request.RegionId = client.RegionId
-
 	response := ascm.ResourceGroup{}
 
 	for {

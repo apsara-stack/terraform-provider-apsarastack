@@ -30,6 +30,7 @@ type Config struct {
 	OtsInstanceName          string
 	AccountId                string
 	Protocol                 string
+	ResourceSetName          string
 	RamRoleArn               string
 	RamRoleSessionName       string
 	RamRolePolicy            string

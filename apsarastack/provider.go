@@ -4,9 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -114,15 +118,21 @@ func Provider() terraform.ResourceProvider {
 			},
 			"department": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DEPARTMENT", nil),
 				Description: descriptions["department"],
 			},
 			"resource_group": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP", nil),
 				Description: descriptions["resource_group"],
+			},
+			"resource_group_set_name": {
+				Type:        schema.TypeString,
+				Optional:    true, //Required:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP_SET", nil),
+				Description: descriptions["resource_group_set_name"],
 			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
@@ -191,8 +201,13 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
+
 			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
 			"apsarastack_gpdb_instances":       dataSourceApsaraStackGpdbInstances(),
+			"apsarastack_mongodb_instances":    dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":        dataSourceApsaraStackMongoDBZones(),
+			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -281,10 +296,13 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_instance":      resourceApsaraStackKVStoreInstance(),
 			"apsarastack_kvstore_backup_policy": resourceApsaraStackKVStoreBackupPolicy(),
 			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
+
 			"apsarastack_gpdb_instance":         resourceApsaraStackGpdbInstance(),
 			"apsarastack_gpdb_connection":       resourceApsaraStackGpdbConnection(),
-
+			"apsarastack_cs_kubernetes":         resourceApsaraStackCSKubernetes(),
 			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
+			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
+			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -325,6 +343,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Proxy:                d.Get("proxy").(string),
 		Department:           d.Get("department").(string),
 		ResourceGroup:        d.Get("resource_group").(string),
+		ResourceSetName:      d.Get("resource_group_set_name").(string),
 	}
 	token := getProviderConfig(d.Get("security_token").(string), "sts_token")
 	config.SecurityToken = strings.TrimSpace(token)
@@ -383,11 +402,11 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.CrEndpoint = domain
 		config.EssEndpoint = domain
 		config.DnsEndpoint = domain
-
 		config.KVStoreEndpoint = domain
-
 		config.AscmEndpoint = domain
 		config.GpdbEndpoint = domain
+		config.DdsEndpoint = domain
+		config.CsEndpoint = domain
 
 	} else {
 
@@ -407,13 +426,22 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.CrEndpoint = strings.TrimSpace(endpoints["cr"].(string))
 			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
-
 			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
-
 			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
-			config.GpdbEndpoint = strings.TrimSpace(endpoints["gpdb"].(string))
 
+			config.GpdbEndpoint = strings.TrimSpace(endpoints["gpdb"].(string))
+			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
+			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
 		}
+	}
+	config.ResourceSetName = d.Get("resource_group_set_name").(string)
+	if config.Department == "" || config.ResourceGroup == "" {
+		dept, rg, err := getResourceCredentials(config)
+		if err != nil {
+			return nil, err
+		}
+		config.Department = dept
+		config.ResourceGroup = rg
 	}
 
 	if config.RamRoleArn != "" {
@@ -912,4 +940,66 @@ func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionNam
 	}
 
 	return response.Credentials.AccessKeyId, response.Credentials.AccessKeySecret, response.Credentials.SecurityToken, nil
+}
+
+func getResourceCredentials(config *connectivity.Config) (string, string, error) {
+	endpoint := config.AscmEndpoint
+	if endpoint == "" {
+		return "", "", fmt.Errorf("unable to initialize the ascm client: endpoint or domain is not provided for ascm service")
+	}
+	if endpoint != "" {
+		endpoints.AddEndpointMapping(config.RegionId, string(connectivity.ASCMCode), endpoint)
+	}
+	ascmClient, err := sdk.NewClientWithAccessKey(config.RegionId, config.AccessKey, config.SecretKey)
+	if err != nil {
+		return "", "", fmt.Errorf("unable to initialize the ascm client: %#v", err)
+	}
+
+	ascmClient.AppendUserAgent(connectivity.Terraform, connectivity.TerraformVersion)
+	ascmClient.AppendUserAgent(connectivity.Provider, connectivity.ProviderVersion)
+	ascmClient.AppendUserAgent(connectivity.Module, config.ConfigurationSource)
+	ascmClient.SetHTTPSInsecure(config.Insecure)
+	ascmClient.Domain = endpoint
+	if config.Proxy != "" {
+		ascmClient.SetHttpProxy(config.Proxy)
+	}
+	if config.ResourceSetName == "" {
+		return "", "", fmt.Errorf("errror while fetching resource group details, resource group set name can not be empty")
+	}
+	request := requests.NewCommonRequest()
+	request.Method = "GET"         // Set request method
+	request.Product = "ascm"       // Specify product
+	request.Domain = endpoint      // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2019-05-10" // Specify product version
+	request.Scheme = "http"        // Set request scheme. Default: http
+	request.ApiName = "ListResourceGroup"
+	request.QueryParams = map[string]string{
+		"AccessKeySecret":   config.SecretKey,
+		"Product":           "ascm",
+		"Department":        config.Department,
+		"ResourceGroup":     config.ResourceGroup,
+		"RegionId":          config.RegionId,
+		"Action":            "ListResourceGroup",
+		"Version":           "2019-05-10",
+		"SignatureVersion":  "1.0",
+		"resourceGroupName": config.ResourceSetName,
+	}
+	resp := responses.BaseResponse{}
+	request.TransToAcsRequest()
+	err = ascmClient.DoAction(request, &resp)
+	if err != nil {
+		return "", "", err
+	}
+	response := &ascm.ResourceGroup{}
+	err = json.Unmarshal(resp.GetHttpContentBytes(), response)
+
+	if len(response.Data) != 1 || response.Code != "200" {
+		if len(response.Data) == 0 {
+			return "", "", fmt.Errorf("resource group ID and organization not found for resource set %s", config.ResourceSetName)
+		}
+		return "", "", fmt.Errorf("unable to initialize the ascm client: department or resource_group is not provided")
+	}
+
+	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ResourceGroupID))
+	return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ResourceGroupID), err
 }
