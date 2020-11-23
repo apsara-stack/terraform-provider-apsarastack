@@ -56,6 +56,9 @@ func resourceApsaraStackOnsGroupCreate(d *schema.ResourceData, meta interface{})
 
 	request := ons.CreateOnsGroupCreateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.GroupId = groupId
 	request.InstanceId = instanceId
 
@@ -124,6 +127,9 @@ func resourceApsaraStackOnsGroupUpdate(d *schema.ResourceData, meta interface{})
 
 	request := ons.CreateOnsGroupConsumerUpdateRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.InstanceId = instanceId
 	request.GroupId = groupId
 
@@ -155,6 +161,9 @@ func resourceApsaraStackOnsGroupDelete(d *schema.ResourceData, meta interface{})
 
 	request := ons.CreateOnsGroupDeleteRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.InstanceId = instanceId
 	request.GroupId = groupId
 
