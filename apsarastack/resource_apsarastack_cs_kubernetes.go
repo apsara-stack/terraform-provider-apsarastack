@@ -850,7 +850,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		"Version":          "2015-12-15",
 		"SignatureVersion": "1.0",
 		"ProductName":      "cs",
-		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\"}",
+		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":%t}",
 			"Product", "Cs",
 			"OsType", OsType,
 			"Platform", Platform,
@@ -875,7 +875,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 			"endpoint_public_access", end,
 			"ssh_flags", true,
 			"deletion_protection", false,
-			"zone_id", "cn-neimeng-env30-amtest30001-a",
 		),
 	}
 	//request.QueryParams = map[string]string{
@@ -942,7 +941,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		})
 		return err
 	}); err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "alicloud_cs_kubernetes", "CreateKubernetesCluster", raw)
+		return WrapErrorf(err, DefaultErrorMsg, "apsaracloud_cs_kubernetes", "CreateKubernetesCluster", raw)
 	}
 	if debugOn() {
 		requestMap := make(map[string]interface{})
@@ -1161,6 +1160,7 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 	request.ApiName = "DeleteCluster"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	var response interface{}
+	//var raw interface{}
 	err := resource.Retry(30*time.Minute, func() *resource.RetryError {
 		if err := invoker.Run(func() error {
 			raw, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
@@ -1169,7 +1169,7 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 			response = raw
 			return err
 		}); err != nil {
-			return resource.RetryableError(err)
+			return resource.NonRetryableError(err)
 		}
 		if debugOn() {
 			requestMap := make(map[string]interface{})

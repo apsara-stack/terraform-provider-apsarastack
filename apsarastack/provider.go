@@ -201,9 +201,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
-			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_gpdb_instances":       dataSourceApsaraStackGpdbInstances(),
 			"apsarastack_mongodb_instances":    dataSourceApsaraStackMongoDBInstances(),
 			"apsarastack_mongodb_zones":        dataSourceApsaraStackMongoDBZones(),
+			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -292,6 +294,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_instance":      resourceApsaraStackKVStoreInstance(),
 			"apsarastack_kvstore_backup_policy": resourceApsaraStackKVStoreBackupPolicy(),
 			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
+
+			"apsarastack_gpdb_instance":         resourceApsaraStackGpdbInstance(),
+			"apsarastack_gpdb_connection":       resourceApsaraStackGpdbConnection(),
 			"apsarastack_cs_kubernetes":         resourceApsaraStackCSKubernetes(),
 			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
 			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
@@ -399,9 +404,11 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.KVStoreEndpoint = domain
 
 		config.AscmEndpoint = domain
-		config.CsEndpoint = domain
+		config.GpdbEndpoint = domain
 		config.DdsEndpoint = domain
+		config.CsEndpoint = domain
 
+		config.DdsEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
@@ -424,10 +431,13 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
 
 			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
+
+			config.GpdbEndpoint = strings.TrimSpace(endpoints["gpdb"].(string))
+			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
+		}
 			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 
-		}
 	}
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
