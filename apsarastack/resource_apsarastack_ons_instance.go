@@ -73,7 +73,7 @@ func resourceApsaraStackOnsInstanceCreate(d *schema.ResourceData, meta interface
 		raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
 			return onsClient.OnsInstanceCreate(request)
 		})
-		log.Printf("shubham1 %s", raw)
+		
 		if err != nil {
 			if IsExpectedErrors(err, []string{ThrottlingUser}) {
 				time.Sleep(10 * time.Second)
@@ -89,7 +89,7 @@ func resourceApsaraStackOnsInstanceCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return WrapError(err)
 	}
-	log.Printf("shubham %s", err)
+	
 
 	d.SetId(response.Data.InstanceId)
 
