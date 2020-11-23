@@ -202,12 +202,13 @@ func Provider() terraform.ResourceProvider {
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
 
-			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
-			"apsarastack_gpdb_instances":       dataSourceApsaraStackGpdbInstances(),
-			"apsarastack_mongodb_instances":    dataSourceApsaraStackMongoDBInstances(),
-			"apsarastack_mongodb_zones":        dataSourceApsaraStackMongoDBZones(),
-			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
-			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
+			"apsarastack_ascm_resource_groups":     dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_gpdb_instances":           dataSourceApsaraStackGpdbInstances(),
+			"apsarastack_mongodb_instances":        dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":            dataSourceApsaraStackMongoDBZones(),
+			"apsarastack_cs_kubernetes_clusters":   dataSourceApsaraStackCSKubernetesClusters(),
+			"apsarastack_cms_alarm_contacts":       dataSourceApsaraStackCmsAlarmContacts(),
+			"apsarastack_cms_alarm_contact_groups": dataSourceApsaraStackCmsAlarmContactGroups(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -297,12 +298,17 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_backup_policy": resourceApsaraStackKVStoreBackupPolicy(),
 			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
 
-			"apsarastack_gpdb_instance":         resourceApsaraStackGpdbInstance(),
-			"apsarastack_gpdb_connection":       resourceApsaraStackGpdbConnection(),
-			"apsarastack_cs_kubernetes":         resourceApsaraStackCSKubernetes(),
+			"apsarastack_gpdb_instance":   resourceApsaraStackGpdbInstance(),
+			"apsarastack_gpdb_connection": resourceApsaraStackGpdbConnection(),
+			"apsarastack_cs_kubernetes":   resourceApsaraStackCSKubernetes(),
 			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
 			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
 			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
+			//"apsarastack_ascm_organization":                 resourceApsaraStackAscmOrganization(),
+			"apsarastack_cms_alarm":               resourceApsaraStackCmsAlarm(),
+			"apsarastack_cms_site_monitor":        resourceApsaraStackCmsSiteMonitor(),
+			"apsarastack_cms_alarm_contact":       resourceApsaraStackCmsAlarmContact(),
+			"apsarastack_cms_alarm_contact_group": resourceApsaraStackCmsAlarmContactGroup(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -407,6 +413,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.GpdbEndpoint = domain
 		config.DdsEndpoint = domain
 		config.CsEndpoint = domain
+		config.CmsEndpoint = domain
 
 	} else {
 
@@ -428,6 +435,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
 			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
 			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
+			config.CmsEndpoint = strings.TrimSpace(endpoints["cms"].(string))
 
 			config.GpdbEndpoint = strings.TrimSpace(endpoints["gpdb"].(string))
 			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
