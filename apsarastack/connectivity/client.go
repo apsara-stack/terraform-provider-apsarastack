@@ -312,7 +312,7 @@ func (client *ApsaraStackClient) WithRkvClient(do func(*r_kvstore.Client) (inter
 func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface{}, error)) (interface{}, error) {
 	// Initialize the GPDB client if necessary
 	if client.gpdbconn == nil {
-		endpoint := client.config.GpdbEnpoint
+		endpoint := client.config.GpdbEndpoint
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(GPDBCode), endpoint)
 		}
@@ -321,8 +321,11 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 			return nil, fmt.Errorf("unable to initialize the GPDB client: %#v", err)
 		}
 
+
+		gpdbconn.Domain = endpoint
 		gpdbconn.AppendUserAgent(Terraform, TerraformVersion)
 		gpdbconn.AppendUserAgent(Provider, ProviderVersion)
+
 		gpdbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		gpdbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -489,17 +492,21 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(DDSCode), endpoint)
 		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
 		ddsconn, err := dds.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the DDS client: %#v", err)
 		}
+		ddsconn.Domain = endpoint
 
 		ddsconn.AppendUserAgent(Terraform, TerraformVersion)
 		ddsconn.AppendUserAgent(Provider, ProviderVersion)
 		ddsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ddsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			ddsconn.SetHttpsProxy(client.config.Proxy)
+			ddsconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.ddsconn = ddsconn
 	}
@@ -1028,13 +1035,23 @@ func (client *ApsaraStackClient) WithOnsClient(do func(*ons.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ONSCode), endpoint)
 		}
-		onsconn, err := ons.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
+		onsconn, err := ons.NewClientWithAccessKey(client.RegionId, client.AccessKey, client.SecretKey)
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ONS client: %#v", err)
 		}
-		onsconn.AppendUserAgent(Terraform, TerraformVersion)
-		onsconn.AppendUserAgent(Provider, ProviderVersion)
+
+		onsconn.AppendUserAgent(Terraform, terraformVersion)
+		onsconn.AppendUserAgent(Provider, providerVersion)
+		onsconn.Domain = endpoint
+
 		onsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		onsconn.SetHTTPSInsecure(client.config.Insecure)
+		if client.config.Proxy != "" {
+			onsconn.SetHttpProxy(client.config.Proxy)
+		}
 		client.onsconn = onsconn
 	}
 

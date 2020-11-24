@@ -17,7 +17,6 @@ This data source provides a list of KMS keys in an Apsarastack Cloud account acc
 # Declare the data source
 data "apsarastack_kms_keys" "kms_keys_ds" {
   description_regex = "Hello KMS"
-  output_file       = "kms_keys.json"
 }
 
 output "first_key_id" {

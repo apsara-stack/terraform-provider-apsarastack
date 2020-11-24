@@ -17,8 +17,7 @@ This data source provides a list of KMS aliases in an Apsarastack Cloud account 
 
 ```
 # Declare the data source
-data "apsaraStack_kms_aliases" "kms_aliases" {
-  ids        = ["d89e8a53-b708-41aa-8c67-6873axxx"]
+data "apsaraStack_kms_aliases" "kms_aliases" {  
   name_regex = "alias/tf-testKmsAlias_123"
 }
 
