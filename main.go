@@ -3,10 +3,8 @@
 package main
 
 import (
-	"fmt"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/terraform-provider-apsarastack/apsarastack"
+	"github.com/hashicorp/terraform-plugin-sdk/plugin"
 )
 
 func main() {
