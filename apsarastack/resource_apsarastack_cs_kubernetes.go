@@ -789,9 +789,8 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 				"cluster_network_type", networktype,
 			),
 		}
-		request.Method = "POST" // Set request method
-		request.Product = "CS"  // Specify product
-		//request.Domain = endpointsSchema().     // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+		request.Method = "POST"        // Set request method
+		request.Product = "CS"         // Specify product
 		request.Version = "2015-12-15" // Specify product version
 		request.ServiceCode = "cs"
 		request.Scheme = "http" // Set request scheme. Default: http
@@ -844,7 +843,6 @@ func resourceApsaraStackCSKubernetesRead(d *schema.ResourceData, meta interface{
 	d.Set("name", object.Name)
 	d.Set("id", object.ClusterId)
 	d.Set("state", object.State)
-
 	d.Set("vpc_id", object.VpcId)
 	d.Set("resource_group_id", object.ResourceGroupId)
 	d.Set("pod_cidr", object.ContainerCIDR)
