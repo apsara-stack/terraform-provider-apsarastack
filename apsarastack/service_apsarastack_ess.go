@@ -39,6 +39,9 @@ func (s *EssService) DescribeEssAlarm(id string) (alarm ess.Alarm, err error) {
 
 	AlarmsRequest := ess.CreateDescribeAlarmsRequest()
 	AlarmsRequest.RegionId = s.client.RegionId
+	AlarmsRequest.Headers = map[string]string{"RegionId": s.client.RegionId}
+	AlarmsRequest.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+
 	AlarmsRequest.AlarmTaskId = id
 	AlarmsRequest.MetricType = "custom"
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {

@@ -1,7 +1,6 @@
 package apsarastack
 
 import (
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -73,7 +72,7 @@ func resourceApsaraStackOnsInstanceCreate(d *schema.ResourceData, meta interface
 		raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
 			return onsClient.OnsInstanceCreate(request)
 		})
-		
+
 		if err != nil {
 			if IsExpectedErrors(err, []string{ThrottlingUser}) {
 				time.Sleep(10 * time.Second)
@@ -89,7 +88,6 @@ func resourceApsaraStackOnsInstanceCreate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return WrapError(err)
 	}
-	
 
 	d.SetId(response.Data.InstanceId)
 
