@@ -187,8 +187,12 @@ func resourceApsaraStackRouteEntryDelete(d *schema.ResourceData, meta interface{
 }
 
 func buildApsaraStackRouteEntryDeleteArgs(d *schema.ResourceData, meta interface{}) (*vpc.DeleteRouteEntryRequest, error) {
-
+	client := meta.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDeleteRouteEntryRequest()
+	request.RegionId = client.RegionId
+
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	request.RouteTableId = d.Get("route_table_id").(string)
 	request.DestinationCidrBlock = d.Get("destination_cidrblock").(string)
