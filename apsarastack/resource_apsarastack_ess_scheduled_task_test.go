@@ -86,7 +86,7 @@ func testSweepEssSchedules(region string) error {
 		req := ess.CreateDeleteScheduledTaskRequest()
 
 		req.Headers = map[string]string{"RegionId": client.RegionId}
-		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.QueryParams["Department"] = client.Department
 		req.QueryParams["ResourceGroup"] = client.ResourceGroup
 		req.ScheduledTaskId = id
