@@ -620,7 +620,7 @@ func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	request := ecs.CreateDescribeImagesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ImageId = id
 	request.ImageOwnerAlias = "self"
 	request.Status = fmt.Sprintf("%s,%s,%s,%s,%s", "Creating", "Waiting", "Available", "UnAvailable", "CreateFailed")
@@ -743,12 +743,36 @@ func (s *EcsService) DescribeNetworkInterface(id string) (networkInterface ecs.N
 
 	var found = bool(false)
 	var result = &ecs.DescribeNetworkInterfacesResponse{}
-	for i, k := range response.NetworkInterfaceSets.NetworkInterfaceSet {
+	for _, k := range response.NetworkInterfaceSets.NetworkInterfaceSet {
 		if /*len(response.NetworkInterfaceSets.NetworkInterfaceSet) < 1 */
 		k.NetworkInterfaceId == id {
 			found = true
-			result.NetworkInterfaceSets.NetworkInterfaceSet[0] = response.NetworkInterfaceSets.NetworkInterfaceSet[i]
-			return
+			result.NetworkInterfaceSets.NetworkInterfaceSet = append(result.NetworkInterfaceSets.NetworkInterfaceSet, ecs.NetworkInterfaceSet{
+				NetworkInterfaceId:   k.NetworkInterfaceId,
+				Status:               k.Status,
+				Type:                 k.Type,
+				VpcId:                k.VpcId,
+				VSwitchId:            k.VSwitchId,
+				ZoneId:               k.ZoneId,
+				PrivateIpAddress:     k.PrivateIpAddress,
+				MacAddress:           k.MacAddress,
+				NetworkInterfaceName: k.NetworkInterfaceName,
+				Description:          k.Description,
+				InstanceId:           k.InstanceId,
+				CreationTime:         k.CreationTime,
+				ResourceGroupId:      k.ResourceGroupId,
+				ServiceID:            k.ServiceID,
+				ServiceManaged:       k.ServiceManaged,
+				QueueNumber:          k.QueueNumber,
+				OwnerId:              k.OwnerId,
+				SecurityGroupIds:     k.SecurityGroupIds,
+				AssociatedPublicIp:   k.AssociatedPublicIp,
+				Attachment:           k.Attachment,
+				PrivateIpSets:        k.PrivateIpSets,
+				Ipv6Sets:             k.Ipv6Sets,
+				Tags:                 k.Tags,
+			})
+			return result.NetworkInterfaceSets.NetworkInterfaceSet[0], nil
 		}
 	}
 	if !found {
@@ -782,9 +806,48 @@ func (s *EcsService) DescribeNetworkInterfaceAttachment(id string) (networkInter
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response := raw.(*ecs.DescribeNetworkInterfacesResponse)
-	if len(response.NetworkInterfaceSets.NetworkInterfaceSet) < 1 ||
-		response.NetworkInterfaceSets.NetworkInterfaceSet[0].NetworkInterfaceId != eniId {
+	//if len(response.NetworkInterfaceSets.NetworkInterfaceSet) < 1 ||
+	//	response.NetworkInterfaceSets.NetworkInterfaceSet[0].NetworkInterfaceId != eniId {
+	//	err = WrapErrorf(Error(GetNotFoundMessage("NetworkInterfaceAttachment", id)), NotFoundMsg, ProviderERROR, response.RequestId)
+	//	return
+	//}
+	var found = bool(false)
+	var result = &ecs.DescribeNetworkInterfacesResponse{}
+	for _, k := range response.NetworkInterfaceSets.NetworkInterfaceSet {
+		if /*len(response.NetworkInterfaceSets.NetworkInterfaceSet) < 1 */
+		k.NetworkInterfaceId == eniId {
+			found = true
+			result.NetworkInterfaceSets.NetworkInterfaceSet = append(result.NetworkInterfaceSets.NetworkInterfaceSet, ecs.NetworkInterfaceSet{
+				NetworkInterfaceId:   k.NetworkInterfaceId,
+				Status:               k.Status,
+				Type:                 k.Type,
+				VpcId:                k.VpcId,
+				VSwitchId:            k.VSwitchId,
+				ZoneId:               k.ZoneId,
+				PrivateIpAddress:     k.PrivateIpAddress,
+				MacAddress:           k.MacAddress,
+				NetworkInterfaceName: k.NetworkInterfaceName,
+				Description:          k.Description,
+				InstanceId:           k.InstanceId,
+				CreationTime:         k.CreationTime,
+				ResourceGroupId:      k.ResourceGroupId,
+				ServiceID:            k.ServiceID,
+				ServiceManaged:       k.ServiceManaged,
+				QueueNumber:          k.QueueNumber,
+				OwnerId:              k.OwnerId,
+				SecurityGroupIds:     k.SecurityGroupIds,
+				AssociatedPublicIp:   k.AssociatedPublicIp,
+				Attachment:           k.Attachment,
+				PrivateIpSets:        k.PrivateIpSets,
+				Ipv6Sets:             k.Ipv6Sets,
+				Tags:                 k.Tags,
+			})
+			return result.NetworkInterfaceSets.NetworkInterfaceSet[0], nil
+		}
+	}
+	if !found {
 		err = WrapErrorf(Error(GetNotFoundMessage("NetworkInterfaceAttachment", id)), NotFoundMsg, ProviderERROR, response.RequestId)
+		//err = WrapErrorf(Error(GetNotFoundMessage("NetworkInterface", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 		return
 	}
 
