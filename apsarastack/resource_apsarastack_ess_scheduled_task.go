@@ -168,6 +168,10 @@ func resourceApsaraStackEssScheduledTaskDelete(d *schema.ResourceData, meta inte
 	essService := EssService{client}
 
 	request := ess.CreateDeleteScheduledTaskRequest()
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.ScheduledTaskId = d.Id()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -189,6 +193,7 @@ func resourceApsaraStackEssScheduledTaskDelete(d *schema.ResourceData, meta inte
 
 func buildApsaraStackEssScheduledTaskArgs(d *schema.ResourceData) *ess.CreateScheduledTaskRequest {
 	request := ess.CreateCreateScheduledTaskRequest()
+
 	request.ScheduledAction = d.Get("scheduled_action").(string)
 	request.LaunchTime = d.Get("launch_time").(string)
 

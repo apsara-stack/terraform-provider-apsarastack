@@ -321,7 +321,6 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 			return nil, fmt.Errorf("unable to initialize the GPDB client: %#v", err)
 		}
 
-
 		gpdbconn.Domain = endpoint
 		gpdbconn.AppendUserAgent(Terraform, TerraformVersion)
 		gpdbconn.AppendUserAgent(Provider, ProviderVersion)
@@ -1039,6 +1038,7 @@ func (client *ApsaraStackClient) WithOnsClient(do func(*ons.Client) (interface{}
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ONS client: %#v", err)
 		}
+		onsconn.Domain = endpoint
 		onsconn.AppendUserAgent(Terraform, TerraformVersion)
 		onsconn.AppendUserAgent(Provider, ProviderVersion)
 		onsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
