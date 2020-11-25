@@ -202,13 +202,11 @@ func Provider() terraform.ResourceProvider {
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
 
-			"apsarastack_ascm_resource_groups":     dataSourceApsaraStackAscmResourceGroups(),
-			"apsarastack_gpdb_instances":           dataSourceApsaraStackGpdbInstances(),
-			"apsarastack_mongodb_instances":        dataSourceApsaraStackMongoDBInstances(),
-			"apsarastack_mongodb_zones":            dataSourceApsaraStackMongoDBZones(),
-			"apsarastack_cs_kubernetes_clusters":   dataSourceApsaraStackCSKubernetesClusters(),
-			"apsarastack_cms_alarm_contacts":       dataSourceApsaraStackCmsAlarmContacts(),
-			"apsarastack_cms_alarm_contact_groups": dataSourceApsaraStackCmsAlarmContactGroups(),
+			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_gpdb_instances":         dataSourceApsaraStackGpdbInstances(),
+			"apsarastack_mongodb_instances":      dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":          dataSourceApsaraStackMongoDBZones(),
+			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -305,10 +303,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
 			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
 			//"apsarastack_ascm_organization":                 resourceApsaraStackAscmOrganization(),
-			"apsarastack_cms_alarm":               resourceApsaraStackCmsAlarm(),
-			"apsarastack_cms_site_monitor":        resourceApsaraStackCmsSiteMonitor(),
-			"apsarastack_cms_alarm_contact":       resourceApsaraStackCmsAlarmContact(),
-			"apsarastack_cms_alarm_contact_group": resourceApsaraStackCmsAlarmContactGroup(),
+			"apsarastack_cms_alarm":        resourceApsaraStackCmsAlarm(),
+			"apsarastack_cms_site_monitor": resourceApsaraStackCmsSiteMonitor(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

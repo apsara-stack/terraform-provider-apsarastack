@@ -496,13 +496,13 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the DDS client: %#v", err)
 		}
-
+		ddsconn.Domain = endpoint
 		ddsconn.AppendUserAgent(Terraform, TerraformVersion)
 		ddsconn.AppendUserAgent(Provider, ProviderVersion)
 		ddsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		ddsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
-			ddsconn.SetHttpsProxy(client.config.Proxy)
+			ddsconn.SetHttpProxy(client.config.Proxy)
 		}
 		client.ddsconn = ddsconn
 	}
