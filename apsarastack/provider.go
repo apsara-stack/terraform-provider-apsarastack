@@ -201,11 +201,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
-
-			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
 			"apsarastack_gpdb_instances":         dataSourceApsaraStackGpdbInstances(),
 			"apsarastack_mongodb_instances":      dataSourceApsaraStackMongoDBInstances(),
 			"apsarastack_mongodb_zones":          dataSourceApsaraStackMongoDBZones(),
+			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
 			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -302,6 +301,7 @@ func Provider() terraform.ResourceProvider {
 			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
 			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
 			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
+			"apsarastack_maxcompute_project":        resourceApsaraStackMaxComputeProject(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -406,7 +406,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.GpdbEndpoint = domain
 		config.DdsEndpoint = domain
 		config.CsEndpoint = domain
-
+		config.MaxComputeEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
@@ -427,11 +427,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
 			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
 			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
-
 			config.GpdbEndpoint = strings.TrimSpace(endpoints["gpdb"].(string))
 			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
+			config.MaxComputeEndpoint = strings.TrimSpace(endpoints["maxcompute"].(string))
 		}
+
 	}
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {

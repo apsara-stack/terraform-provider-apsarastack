@@ -18,6 +18,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/gpdb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/hbase"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/location"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/maxcompute"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
@@ -87,6 +88,7 @@ type ApsaraStackClient struct {
 	dnsconn           *alidns.Client
 	creeconn          *cr_ee.Client
 	crconn            *cr.Client
+	maxcomputeconn    *maxcompute.Client
 }
 
 const (
@@ -1181,4 +1183,41 @@ func (client *ApsaraStackClient) WithDnsClient(do func(*alidns.Client) (interfac
 	}
 
 	return do(client.dnsconn)
+}
+
+func (client *ApsaraStackClient) WithMaxComputeClient(do func(*maxcompute.Client) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the MaxCompute client if necessary
+	if client.maxcomputeconn == nil {
+		endpoint := client.config.MaxComputeEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, MAXCOMPUTECode)
+		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "http://"))
+		}
+		if endpoint == "" {
+			endpoint = "server.asapi.cn-neimeng-env30-d01.intra.env30.shuguang.com/asapi/v3"
+		}
+
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(MAXCOMPUTECode), endpoint)
+		}
+		maxcomputeconn, err := maxcompute.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(false))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the MaxCompute client: %#v", err)
+		}
+
+		maxcomputeconn.AppendUserAgent(Terraform, TerraformVersion)
+		maxcomputeconn.AppendUserAgent(Provider, ProviderVersion)
+		maxcomputeconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		if client.config.Proxy != "" {
+			maxcomputeconn.SetHttpProxy(client.config.Proxy)
+		}
+		client.maxcomputeconn = maxcomputeconn
+	}
+
+	return do(client.maxcomputeconn)
 }
