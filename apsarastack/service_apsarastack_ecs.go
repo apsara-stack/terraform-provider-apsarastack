@@ -144,7 +144,6 @@ func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err err
 	if len(response.Instances.Instance) < 1 {
 		return instance, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 	}
-	log.Printf("[ECS Creation]: Getting Instance Details using DescribeInstances API: %s", response.Instances.Instance[0])
 	return response.Instances.Instance[0], nil
 }
 
