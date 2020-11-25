@@ -80,6 +80,10 @@ func testSweepSnapshotPolicy(region string) error {
 		}
 		log.Printf("[INFO] Deleting snapshot: %s (%s)", name, id)
 		req := ecs.CreateDeleteAutoSnapshotPolicyRequest()
+		req.RegionId = client.RegionId
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 		req.AutoSnapshotPolicyId = id
 		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteAutoSnapshotPolicy(req)
