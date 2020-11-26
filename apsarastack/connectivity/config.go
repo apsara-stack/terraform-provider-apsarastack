@@ -30,6 +30,7 @@ type Config struct {
 	OtsInstanceName          string
 	AccountId                string
 	Protocol                 string
+	ResourceSetName          string
 	RamRoleArn               string
 	RamRoleSessionName       string
 	RamRolePolicy            string
@@ -57,7 +58,7 @@ type Config struct {
 	LogEndpoint           string
 	DrdsEndpoint          string
 	DdsEndpoint           string
-	GpdbEnpoint           string
+	GpdbEndpoint          string
 	KVStoreEndpoint       string
 	PolarDBEndpoint       string
 	FcEndpoint            string

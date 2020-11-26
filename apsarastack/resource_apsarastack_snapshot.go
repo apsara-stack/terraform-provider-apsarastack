@@ -76,7 +76,7 @@ func resourceApsaraStackSnapshotCreate(d *schema.ResourceData, meta interface{})
 
 	ecsService := EcsService{client}
 
-	stateConf := BuildStateConf([]string{}, []string{string(SnapshotCreatingAccomplished)}, d.Timeout(schema.TimeoutCreate), 0,
+	stateConf := BuildStateConf([]string{}, []string{string(SnapshotCreatingAccomplished)}, d.Timeout(schema.TimeoutCreate), 300*time.Second,
 		ecsService.SnapshotStateRefreshFunc(d.Id(), []string{string(SnapshotCreatingFailed)}))
 
 	if _, err := stateConf.WaitForState(); err != nil {

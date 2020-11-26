@@ -282,6 +282,11 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 	// Get VBR access point
 	if request.RouterType == string(VBR) {
 		describeVirtualBorderRoutersRequest := vpc.CreateDescribeVirtualBorderRoutersRequest()
+		describeVirtualBorderRoutersRequest.RegionId = client.RegionId
+
+		describeVirtualBorderRoutersRequest.Headers = map[string]string{"RegionId": client.RegionId}
+		describeVirtualBorderRoutersRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 		values := []string{request.RouterId}
 		filters := []vpc.DescribeVirtualBorderRoutersFilter{{
 			Key:   "VbrId",
@@ -325,6 +330,7 @@ func buildApsaraStackRouterInterfaceModifyAttrArgs(d *schema.ResourceData, meta 
 	}
 
 	request := vpc.CreateModifyRouterInterfaceAttributeRequest()
+	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
