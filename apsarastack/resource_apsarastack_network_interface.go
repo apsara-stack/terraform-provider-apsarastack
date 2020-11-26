@@ -109,7 +109,7 @@ func resourceNetworkInterfaceCreate(d *schema.ResourceData, meta interface{}) er
 	object := raw.(*ecs.CreateNetworkInterfaceResponse)
 	d.SetId(object.NetworkInterfaceId)
 
-	if err := ecsService.WaitForNetworkInterface(d.Id(), Available, DefaultTimeout); err != nil {
+	if err := ecsService.WaitForNetworkInterface(d.Id(), Available, 600); err != nil {
 		return WrapError(err)
 	}
 

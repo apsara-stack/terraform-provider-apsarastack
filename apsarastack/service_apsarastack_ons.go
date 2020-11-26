@@ -15,6 +15,8 @@ func (s *OnsService) DescribeOnsInstance(id string) (*ons.OnsInstanceBaseInfoRes
 	response := &ons.OnsInstanceBaseInfoResponse{}
 	request := ons.CreateOnsInstanceBaseInfoRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ons", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.InstanceId = id
 
 	raw, err := s.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
@@ -45,6 +47,8 @@ func (s *OnsService) DescribeOnsTopic(id string) (*ons.PublishInfoDo, error) {
 
 	request := ons.CreateOnsTopicListRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ons", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.InstanceId = instanceId
 
 	raw, err := s.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
@@ -80,6 +84,8 @@ func (s *OnsService) DescribeOnsGroup(id string) (*ons.SubscribeInfoDo, error) {
 
 	request := ons.CreateOnsGroupListRequest()
 	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ons", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.InstanceId = instanceId
 
 	raw, err := s.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {

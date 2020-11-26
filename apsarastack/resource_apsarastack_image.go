@@ -24,7 +24,7 @@ func resourceApsaraStackImage() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(10 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
@@ -179,7 +179,7 @@ func resourceApsaraStackImageCreate(d *schema.ResourceData, meta interface{}) er
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 
-	stateConf := BuildStateConf([]string{"Creating"}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, ecsService.ImageStateRefreshFunc(d.Id(), []string{"CreateFailed", "UnAvailable"}))
+	stateConf := BuildStateConf([]string{"Creating", ""}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 10*time.Minute, ecsService.ImageStateRefreshFunc(d.Id(), []string{"CreateFailed", "UnAvailable"}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}

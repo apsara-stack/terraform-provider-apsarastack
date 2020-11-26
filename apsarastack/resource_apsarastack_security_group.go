@@ -141,6 +141,9 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 		}
 		request := ecs.CreateModifySecurityGroupPolicyRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 		request.SecurityGroupId = d.Id()
 		request.InnerAccessPolicy = string(policy)
 		request.ClientToken = buildClientToken(request.GetActionName())
@@ -163,6 +166,9 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 	update := false
 	request := ecs.CreateModifySecurityGroupAttributeRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.SecurityGroupId = d.Id()
 	if d.HasChange("name") {
 		request.SecurityGroupName = d.Get("name").(string)
