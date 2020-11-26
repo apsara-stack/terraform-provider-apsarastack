@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_cs\_kubernetes\_clusters
 
-This data source provides a list Container Service Kubernetes Clusters on Alibaba Cloud.
+This data source provides a list Container Service Kubernetes Clusters on ApsaraStack.
 
 
 ## Example Usage
