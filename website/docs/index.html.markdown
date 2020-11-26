@@ -133,7 +133,7 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `insecure` - (Optional) Use this to Trust self-signed certificates. It's typically used to allow insecure connections.
 
-* `resource_group_set_name` - (Optional) Use this to Trust self-signed certificates. It's typically used to allow insecure connections.
+* `resource_group_set_name` - (Optional) Use this to give resource_group_set_name for specific user organisation.
 
 * `protocol` - (Optional, Available in 1.72.0+) The Protocol of used by API request. Valid values: `HTTP` and `HTTPS`. Default to `HTTPS`.
 
