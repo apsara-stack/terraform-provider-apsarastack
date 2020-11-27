@@ -30,8 +30,8 @@ func resourceApsaraStackInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -305,7 +305,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return WrapError(err)
 	}
-	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance)
+	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance.Status)
 	disk, err := ecsService.DescribeInstanceSystemDisk(d.Id(), instance.ResourceGroupId)
 	if err != nil {
 		if NotFoundError(err) {
@@ -647,11 +647,11 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 		request.InternetMaxBandwidthIn = requests.NewInteger(v.(int))
 	}
 
-	if v := d.Get("host_name").(string); v != " " {
+	if v := d.Get("host_name").(string); v != "" {
 		request.HostName = v
 	}
 
-	if v := d.Get("password").(string); v != " " {
+	if v := d.Get("password").(string); v != "" {
 		request.Password = v
 	}
 
