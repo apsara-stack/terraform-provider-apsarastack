@@ -202,12 +202,15 @@ func Provider() terraform.ResourceProvider {
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
 
-			"apsarastack_ascm_resource_groups": dataSourceApsaraStackAscmResourceGroups(),
-			"apsarastack_gpdb_instances":       dataSourceApsaraStackGpdbInstances(),
-			"apsarastack_mongodb_instances":    dataSourceApsaraStackMongoDBInstances(),
-			"apsarastack_mongodb_zones":        dataSourceApsaraStackMongoDBZones(),
 			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_gpdb_instances":         dataSourceApsaraStackGpdbInstances(),
+			"apsarastack_mongodb_instances":      dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":          dataSourceApsaraStackMongoDBZones(),
 			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
+			"apsarastack_ascm_users":             dataSourceApsaraStackAscmUsers(),
+			"apsarastack_ascm_logon_policies":    dataSourceApsaraStackAscmLogonPolicies(),
+			"apsarastack_ascm_roles":             dataSourceApsaraStackAscmRoles(),
+			"apsarastack_ascm_organizations":     dataSourceApsaraStackAscmOrganizations(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -297,10 +300,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_backup_policy": resourceApsaraStackKVStoreBackupPolicy(),
 			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
 
-			"apsarastack_gpdb_instance":         resourceApsaraStackGpdbInstance(),
-			"apsarastack_gpdb_connection":       resourceApsaraStackGpdbConnection(),
-			"apsarastack_cs_kubernetes":         resourceApsaraStackCSKubernetes(),
-			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
+			"apsarastack_gpdb_instance":             resourceApsaraStackGpdbInstance(),
+			"apsarastack_gpdb_connection":           resourceApsaraStackGpdbConnection(),
+			"apsarastack_cs_kubernetes":             resourceApsaraStackCSKubernetes(),
 			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
 			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
 		},
