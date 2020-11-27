@@ -130,7 +130,7 @@ func Provider() terraform.ResourceProvider {
 			},
 			"resource_group_set_name": {
 				Type:        schema.TypeString,
-				Optional:    true, //Required:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP_SET", nil),
 				Description: descriptions["resource_group_set_name"],
 			},
@@ -966,6 +966,7 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		return "", "", fmt.Errorf("errror while fetching resource group details, resource group set name can not be empty")
 	}
 	request := requests.NewCommonRequest()
+	request.RegionId = config.RegionId
 	request.Method = "GET"         // Set request method
 	request.Product = "ascm"       // Specify product
 	request.Domain = endpoint      // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
