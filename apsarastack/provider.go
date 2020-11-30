@@ -130,7 +130,7 @@ func Provider() terraform.ResourceProvider {
 			},
 			"resource_group_set_name": {
 				Type:        schema.TypeString,
-				Optional:    true, //Required:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP_SET", nil),
 				Description: descriptions["resource_group_set_name"],
 			},
@@ -201,11 +201,16 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
-			"apsarastack_gpdb_instances":         dataSourceApsaraStackGpdbInstances(),
-			"apsarastack_mongodb_instances":      dataSourceApsaraStackMongoDBInstances(),
-			"apsarastack_mongodb_zones":          dataSourceApsaraStackMongoDBZones(),
+
+			"apsarastack_gpdb_instances":       dataSourceApsaraStackGpdbInstances(),
+			"apsarastack_mongodb_instances":    dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":        dataSourceApsaraStackMongoDBZones(),
 			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
 			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
+			"apsarastack_ascm_users":             dataSourceApsaraStackAscmUsers(),
+			"apsarastack_ascm_logon_policies":    dataSourceApsaraStackAscmLogonPolicies(),
+			"apsarastack_ascm_roles":             dataSourceApsaraStackAscmRoles(),
+			"apsarastack_ascm_organizations":     dataSourceApsaraStackAscmOrganizations(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -295,10 +300,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_backup_policy": resourceApsaraStackKVStoreBackupPolicy(),
 			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
 
-			"apsarastack_gpdb_instance":   resourceApsaraStackGpdbInstance(),
-			"apsarastack_gpdb_connection": resourceApsaraStackGpdbConnection(),
-			"apsarastack_cs_kubernetes":   resourceApsaraStackCSKubernetes(),
-			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
+			"apsarastack_gpdb_instance":             resourceApsaraStackGpdbInstance(),
+			"apsarastack_gpdb_connection":           resourceApsaraStackGpdbConnection(),
+			"apsarastack_cs_kubernetes":             resourceApsaraStackCSKubernetes(),
 			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
 			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
 			"apsarastack_maxcompute_project":        resourceApsaraStackMaxComputeProject(),
@@ -427,12 +431,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
 			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
 			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
+
 			config.GpdbEndpoint = strings.TrimSpace(endpoints["gpdb"].(string))
 			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
 			config.MaxComputeEndpoint = strings.TrimSpace(endpoints["maxcompute"].(string))
 		}
-
 	}
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
@@ -967,6 +971,7 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		return "", "", fmt.Errorf("errror while fetching resource group details, resource group set name can not be empty")
 	}
 	request := requests.NewCommonRequest()
+	request.RegionId = config.RegionId
 	request.Method = "GET"         // Set request method
 	request.Product = "ascm"       // Specify product
 	request.Domain = endpoint      // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified

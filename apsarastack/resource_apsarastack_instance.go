@@ -305,6 +305,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return WrapError(err)
 	}
+	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance.Status)
 	disk, err := ecsService.DescribeInstanceSystemDisk(d.Id(), instance.ResourceGroupId)
 	if err != nil {
 		if NotFoundError(err) {
@@ -646,11 +647,11 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 		request.InternetMaxBandwidthIn = requests.NewInteger(v.(int))
 	}
 
-	if v := d.Get("host_name").(string); v != " " {
+	if v := d.Get("host_name").(string); v != "" {
 		request.HostName = v
 	}
 
-	if v := d.Get("password").(string); v != " " {
+	if v := d.Get("password").(string); v != "" {
 		request.Password = v
 	}
 
