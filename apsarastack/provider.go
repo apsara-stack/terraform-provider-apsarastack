@@ -202,9 +202,9 @@ func Provider() terraform.ResourceProvider {
 
 			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
 
-			"apsarastack_gpdb_instances":       dataSourceApsaraStackGpdbInstances(),
-			"apsarastack_mongodb_instances":    dataSourceApsaraStackMongoDBInstances(),
-			"apsarastack_mongodb_zones":        dataSourceApsaraStackMongoDBZones(),
+			"apsarastack_gpdb_instances":         dataSourceApsaraStackGpdbInstances(),
+			"apsarastack_mongodb_instances":      dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":          dataSourceApsaraStackMongoDBZones(),
 			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
 			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
 			"apsarastack_ascm_users":             dataSourceApsaraStackAscmUsers(),
@@ -977,10 +977,10 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 	request.Scheme = "http"        // Set request scheme. Default: http
 	request.ApiName = "ListResourceGroup"
 	request.QueryParams = map[string]string{
-		"AccessKeySecret":   config.SecretKey,
-		"Product":           "ascm",
-		"Department":        config.Department,
-		"ResourceGroup":     config.ResourceGroup,
+		"AccessKeySecret": config.SecretKey,
+		"Product":         "ascm",
+		//"Department":        config.Department,
+		//"ResourceGroup":     config.ResourceGroup,
 		"RegionId":          config.RegionId,
 		"Action":            "ListResourceGroup",
 		"Version":           "2019-05-10",
