@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 
 // functions for a given region
 func sharedClientForRegion(region string) (interface{}, error) {
-	var accessKey, secretKey, proxy, domain, ossEndpoint, essEndpoint, slbEndpoint, crEndpoint, vpcEndpoint, rdsEndpoint, ecsEndpoint string
+	var accessKey, secretKey, proxy, domain, ossEndpoint, essEndpoint, slbEndpoint, crEndpoint, vpcEndpoint, rdsEndpoint, ecsEndpoint, rgsName string
 	var insecure bool
 	if accessKey = os.Getenv("APSARASTACK_ACCESS_KEY"); accessKey == "" {
 		return nil, fmt.Errorf("empty APSARASTACK_ACCESS_KEY")
@@ -57,23 +57,27 @@ func sharedClientForRegion(region string) (interface{}, error) {
 	if domain = os.Getenv("APSARASTACK_DOMAIN"); domain == "" {
 		//return nil, fmt.Errorf("empty APSARASTACK_DOMAIN")
 	}
+	if rgsName = os.Getenv("APSARASTACK_RESOURCE_GROUP_SET"); rgsName == "" {
+		return nil, fmt.Errorf("empty APSARASTACK_RESOURCE_GROUP_SET")
+	}
 
 	conf := connectivity.Config{
-		Region:      connectivity.Region(region),
-		RegionId:    region,
-		AccessKey:   accessKey,
-		SecretKey:   secretKey,
-		Proxy:       proxy,
-		Insecure:    insecure,
-		Domain:      domain,
-		Protocol:    "HTTP",
-		OssEndpoint: ossEndpoint,
-		EssEndpoint: essEndpoint,
-		RdsEndpoint: rdsEndpoint,
-		EcsEndpoint: ecsEndpoint,
-		VpcEndpoint: vpcEndpoint,
-		CrEndpoint:  crEndpoint,
-		SlbEndpoint: slbEndpoint,
+		Region:          connectivity.Region(region),
+		RegionId:        region,
+		AccessKey:       accessKey,
+		SecretKey:       secretKey,
+		Proxy:           proxy,
+		Insecure:        insecure,
+		Domain:          domain,
+		Protocol:        "HTTP",
+		OssEndpoint:     ossEndpoint,
+		EssEndpoint:     essEndpoint,
+		RdsEndpoint:     rdsEndpoint,
+		EcsEndpoint:     ecsEndpoint,
+		VpcEndpoint:     vpcEndpoint,
+		CrEndpoint:      crEndpoint,
+		SlbEndpoint:     slbEndpoint,
+		ResourceSetName: rgsName,
 	}
 	if accountId := os.Getenv("APSARASTACK_ACCOUNT_ID"); accountId != "" {
 		conf.AccountId = accountId
