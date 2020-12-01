@@ -84,6 +84,7 @@ func resourceApsaraStackRouterInterface() *schema.Resource {
 			"opposite_router_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"opposite_router_id": {
 				Type:     schema.TypeString,
