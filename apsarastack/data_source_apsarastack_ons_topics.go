@@ -87,6 +87,9 @@ func dataSourceApsaraStackOnsTopicsRead(d *schema.ResourceData, meta interface{}
 
 	request := ons.CreateOnsTopicListRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	request.InstanceId = d.Get("instance_id").(string)
 
 	raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {

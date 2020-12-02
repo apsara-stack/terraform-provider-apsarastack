@@ -80,6 +80,8 @@ func dataSourceApsaraStackOnsInstancesRead(d *schema.ResourceData, meta interfac
 
 	request := ons.CreateOnsInstanceInServiceListRequest()
 	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {

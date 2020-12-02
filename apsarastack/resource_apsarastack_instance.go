@@ -30,8 +30,8 @@ func resourceApsaraStackInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
@@ -305,7 +305,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return WrapError(err)
 	}
-	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance)
+	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance.Status)
 	disk, err := ecsService.DescribeInstanceSystemDisk(d.Id(), instance.ResourceGroupId)
 	if err != nil {
 		if NotFoundError(err) {
@@ -364,7 +364,19 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		addDebug(dataRequest.GetActionName(), raw, dataRequest.RpcRequest, dataRequest)
 		response, _ := raw.(*ecs.DescribeUserDataResponse)
-		d.Set("user_data", userDataHashSum(response.UserData))
+		old_s := base64.StdEncoding.EncodeToString([]byte(response.UserData))
+
+		//log.Printf("User data : %s old data: %s", fmt.Sprint(d.Get("user_data").(string)),old_s)
+		d.Set("user_data", d.Get("user_data").(string))
+		//if d.Get("user_data").(string) == old_s {
+		//	d.Set("user_data", old_s)
+		//	log.Printf("set1")
+		//} else  {
+		//	d.Set("user_data", userDataHashSum(response.UserData))
+		//	log.Printf("set2")
+		//}
+		log.Printf("Roshan data : %s", old_s)
+
 	}
 
 	if len(instance.VpcAttributes.VSwitchId) > 0 && (!d.IsNewResource() || d.HasChange("role_name")) {
@@ -647,11 +659,11 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 		request.InternetMaxBandwidthIn = requests.NewInteger(v.(int))
 	}
 
-	if v := d.Get("host_name").(string); v != " " {
+	if v := d.Get("host_name").(string); v != "" {
 		request.HostName = v
 	}
 
-	if v := d.Get("password").(string); v != " " {
+	if v := d.Get("password").(string); v != "" {
 		request.Password = v
 	}
 
@@ -849,16 +861,21 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 
 	if d.HasChange("user_data") {
 		d.SetPartial("user_data")
-		if v, ok := d.GetOk("user_data"); ok && v.(string) != "" {
-			_, base64DecodeError := base64.StdEncoding.DecodeString(v.(string))
-			if base64DecodeError == nil {
-				request.UserData = v.(string)
-			} else {
-				request.UserData = base64.StdEncoding.EncodeToString([]byte(v.(string)))
+		old, new := d.GetChange("user_data")
+		old_s := base64.StdEncoding.EncodeToString([]byte(fmt.Sprint(old)))
+		if fmt.Sprint(new) != old_s {
+
+			if v, ok := d.GetOk("user_data"); ok && v.(string) != "" {
+				_, base64DecodeError := base64.StdEncoding.DecodeString(v.(string))
+				if base64DecodeError == nil {
+					request.UserData = v.(string)
+				} else {
+					request.UserData = base64.StdEncoding.EncodeToString([]byte(v.(string)))
+				}
 			}
+			update = true
+			reboot = true
 		}
-		update = true
-		reboot = true
 	}
 
 	if d.HasChange("host_name") {

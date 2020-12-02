@@ -717,9 +717,6 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 		request.TagKey = &tagKey
 		request.RegionId = s.client.RegionId
 
-		request.Headers = map[string]string{"RegionId": s.client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-
 		wait := incrementalWait(1*time.Second, 1*time.Second)
 		err := resource.Retry(10*time.Minute, func() *resource.RetryError {
 			raw, err := s.client.WithSlbClient(func(client *slb.Client) (interface{}, error) {
