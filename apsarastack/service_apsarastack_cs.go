@@ -2,17 +2,23 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"log"
+	"time"
 )
 
 type CsService struct {
 	client *connectivity.ApsaraStackClient
 }
+
+const UpgradeClusterTimeout = 30 * time.Minute
 
 func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDetail, err error) {
 	invoker := NewInvoker()
@@ -63,7 +69,7 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 	_ = json.Unmarshal(clusterdetails.GetHttpContentBytes(), &Cdetails)
 
 	if len(Cdetails) < 1 {
-		return
+		return cluster, nil
 	}
 
 	cluster = &cs.KubernetesClusterDetail{}
@@ -72,6 +78,22 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 			cluster.Name = k.Name
 			cluster.State = k.State
 			cluster.ClusterId = k.ClusterID
+			cluster.ClusterType = cs.KubernetesClusterType(k.ClusterType)
+			cluster.VpcId = k.VpcID
+			cluster.ResourceGroupId = k.ResourceGroupID
+			cluster.ContainerCIDR = k.SubnetCidr
+			cluster.CurrentVersion = k.CurrentVersion
+			cluster.DeletionProtection = k.DeletionProtection
+			cluster.RegionId = common.Region(k.RegionID)
+			cluster.Size = k.Size
+			cluster.IngressLoadbalancerId = k.ExternalLoadbalancerID
+			cluster.InitVersion = k.InitVersion
+			cluster.MetaData = k.MetaData
+			cluster.NetworkMode = k.NetworkMode
+			cluster.PrivateZone = k.PrivateZone
+			cluster.Profile = k.Profile
+			cluster.VSwitchIds = k.VswitchID
+			//cluster.Updated=k.Updated
 			//cluster.Created= k.Created.
 			break
 		}
@@ -94,7 +116,7 @@ func (s *CsService) CsKubernetesInstanceStateRefreshFunc(id string, failStates [
 		}
 
 		for _, failState := range failStates {
-			if string(object.State) == failState {
+			if (object.State) == failState {
 				return object, string(object.State), WrapError(Error(FailedToReachTargetStatus, string(object.State)))
 			}
 		}
@@ -247,4 +269,79 @@ type Cluster struct {
 	VswitchCidr string `json:"vswitch_cidr"`
 	VswitchID   string `json:"vswitch_id"`
 	ZoneID      string `json:"zone_id"`
+}
+
+func (s *CsService) UpgradeCluster(clusterId string, args *cs.UpgradeClusterArgs) error {
+	invoker := NewInvoker()
+	err := invoker.Run(func() error {
+		_, e := s.client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return nil, csClient.UpgradeCluster(clusterId, args)
+		})
+		if e != nil {
+			return e
+		}
+		return nil
+	})
+
+	if err != nil {
+		return WrapError(err)
+	}
+
+	state, upgradeError := s.WaitForUpgradeCluster(clusterId, "Upgrade")
+	if state == cs.Task_Status_Success && upgradeError == nil {
+		return nil
+	}
+
+	// if upgrade failed cancel the task
+	err = invoker.Run(func() error {
+		_, e := s.client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return nil, csClient.CancelUpgradeCluster(clusterId)
+		})
+		if e != nil {
+			return e
+		}
+		return nil
+	})
+	if err != nil {
+		return WrapError(upgradeError)
+	}
+
+	if state, err := s.WaitForUpgradeCluster(clusterId, "CancelUpgrade"); err != nil || state != cs.Task_Status_Success {
+		log.Printf("[WARN] %s ACK Cluster cancel upgrade error: %#v", clusterId, err)
+	}
+
+	return WrapError(upgradeError)
+}
+
+func (s *CsService) WaitForUpgradeCluster(clusterId string, action string) (string, error) {
+	err := resource.Retry(UpgradeClusterTimeout, func() *resource.RetryError {
+		resp, err := s.client.WithCsClient(func(csClient *cs.Client) (interface{}, error) {
+			return csClient.QueryUpgradeClusterResult(clusterId)
+		})
+		if err != nil || resp == nil {
+			return resource.RetryableError(err)
+		}
+
+		upgradeResult := resp.(*cs.UpgradeClusterResult)
+		if upgradeResult.UpgradeStep == cs.UpgradeStep_Success {
+			return nil
+		}
+
+		if upgradeResult.UpgradeStep == cs.UpgradeStep_Pause && upgradeResult.UpgradeStatus.Failed == "true" {
+			msg := ""
+			events := upgradeResult.UpgradeStatus.Events
+			if len(events) > 0 {
+				msg = events[len(events)-1].Message
+			}
+			return resource.NonRetryableError(fmt.Errorf("faild to %s cluster, error: %s", action, msg))
+		}
+		return resource.RetryableError(fmt.Errorf("%s cluster state not matched", action))
+	})
+
+	if err == nil {
+		log.Printf("[INFO] %s ACK Cluster %s successed", action, clusterId)
+		return cs.Task_Status_Success, nil
+	}
+
+	return cs.Task_Status_Failed, WrapError(err)
 }
