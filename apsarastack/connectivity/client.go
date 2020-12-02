@@ -53,6 +53,7 @@ import (
 type ApsaraStackClient struct {
 	Region            Region
 	RegionId          string
+	Domain            string
 	AccessKey         string
 	SecretKey         string
 	Department        string
@@ -130,6 +131,7 @@ func (c *Config) Client() (*ApsaraStackClient, error) {
 		SecretKey:     c.SecretKey,
 		Department:    c.Department,
 		ResourceGroup: c.ResourceGroup,
+		Domain:        c.Domain,
 	}, nil
 }
 func (client *ApsaraStackClient) WithAscmClient(do func(*ascm.Client) (interface{}, error)) (interface{}, error) {
