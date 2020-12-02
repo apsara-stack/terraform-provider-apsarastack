@@ -14,6 +14,7 @@ type ResourceGroup struct {
 	Code string `json:"code"`
 	Cost int    `json:"cost"`
 	Data []struct {
+		Status            string `json:"Status"`
 		Creator           string `json:"creator"`
 		GmtCreated        int64  `json:"gmtCreated"`
 		ResourceGroupID   int    `json:"id"`
@@ -31,7 +32,8 @@ type ResourceGroup struct {
 		Total       int   `json:"total"`
 		TotalPage   int   `json:"totalPage"`
 	} `json:"pageInfo"`
-	PureListData bool `json:"pureListData"`
-	Redirect     bool `json:"redirect"`
-	Success      bool `json:"success"`
+	PureListData bool   `json:"pureListData"`
+	Redirect     bool   `json:"redirect"`
+	Success      bool   `json:"success"`
+	Status       string `json:"Status"`
 }
