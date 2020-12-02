@@ -199,18 +199,15 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kvstore_zones":            dataSourceApsaraStackKVStoreZones(),
 			"apsarastack_kvstore_instance_classes": dataSourceApsaraStackKVStoreInstanceClasses(),
 			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
-
-			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
-
-			"apsarastack_gpdb_instances":         dataSourceApsaraStackGpdbInstances(),
-			"apsarastack_mongodb_instances":      dataSourceApsaraStackMongoDBInstances(),
-			"apsarastack_mongodb_zones":          dataSourceApsaraStackMongoDBZones(),
-			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
-			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
-			"apsarastack_ascm_users":             dataSourceApsaraStackAscmUsers(),
-			"apsarastack_ascm_logon_policies":    dataSourceApsaraStackAscmLogonPolicies(),
-			"apsarastack_ascm_roles":             dataSourceApsaraStackAscmRoles(),
-			"apsarastack_ascm_organizations":     dataSourceApsaraStackAscmOrganizations(),
+			"apsarastack_gpdb_instances":           dataSourceApsaraStackGpdbInstances(),
+			"apsarastack_mongodb_instances":        dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":            dataSourceApsaraStackMongoDBZones(),
+			"apsarastack_ascm_resource_groups":     dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_cs_kubernetes_clusters":   dataSourceApsaraStackCSKubernetesClusters(),
+			"apsarastack_ascm_users":               dataSourceApsaraStackAscmUsers(),
+			"apsarastack_ascm_logon_policies":      dataSourceApsaraStackAscmLogonPolicies(),
+			"apsarastack_ascm_roles":               dataSourceApsaraStackAscmRoles(),
+			"apsarastack_ascm_organizations":       dataSourceApsaraStackAscmOrganizations(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -305,6 +302,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_cs_kubernetes":             resourceApsaraStackCSKubernetes(),
 			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
 			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
+			"apsarastack_ascm_resource_group":       resourceApsaraStackAscmResourceGroup(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -977,10 +975,10 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 	request.Scheme = "http"        // Set request scheme. Default: http
 	request.ApiName = "ListResourceGroup"
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": config.SecretKey,
-		"Product":         "ascm",
-		//"Department":        config.Department,
-		//"ResourceGroup":     config.ResourceGroup,
+		"AccessKeySecret":   config.SecretKey,
+		"Product":           "ascm",
+		"Department":        config.Department,
+		"ResourceGroup":     config.ResourceGroup,
 		"RegionId":          config.RegionId,
 		"Action":            "ListResourceGroup",
 		"Version":           "2019-05-10",
