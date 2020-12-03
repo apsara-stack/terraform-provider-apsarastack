@@ -34,33 +34,4 @@ type InstanceFamily struct {
 	HTTPOk    bool        `json:"httpOk"`
 }
 
-//type InstanceFamilies struct {
-//	Success      bool `json:"success"`
-//	Data []struct {
-//		Id          int `json:"id"`
-//		GmtCreate        string `json:"gmtCreate"`
-//		GmtModified       string  `json:"gmtModified,omitempty"`
-//		Creator           string `json:"creator"`
-//		Modifier  string `json:"modifier"`
-//		IsDeleted string `json:"isDeleted"`
-//		PageStart int `json:"pageStart"`
-//		PageSize int `json:"pageSize"`
-//		PageSort string `json:"pageSort"`
-//		PageOrder string `json:"pageOrder"`
-//		OrderBy struct{
-//			Id string `json:"id"`
-//		} `json:"orderBy"`
-//		SeriesId string`json:"seriesId"`
-//		SeriesName string`json:"seriesName"`
-//		SeriesNameLabel string`json:"seriesNameLabel"`
-//		ResourceType	string `json:"resourceType"`
-//		Deleted bool 	`json:"deleted"`
-//	} `json:"data"`
-//	Message  string `json:"message"`
-//	Code string `json:"code"`
-//	HttpCode string `json:"httpCode"`
-//	Ip  string `json:"ip"`
-//	RequestId string `json:"requestId"`
-//	HttpOk bool `json:"httpOk"`
-//	AsapiRequestId string `json:"asapiRequestId"`
-//}
+
