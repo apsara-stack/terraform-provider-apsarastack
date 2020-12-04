@@ -72,7 +72,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				ValidateFunc:     validation.StringInSlice([]string{string(common.PrePaid), string(common.PostPaid)}, false),
-				Default:          PostPaid,
+				Default:          PrePaid,
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 			},
 			"master_period_unit": {
@@ -177,10 +177,8 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 			},
 			"node_cidr_mask": {
-				Type:             schema.TypeInt,
+				Type:             schema.TypeString,
 				Optional:         true,
-				Default:          KubernetesClusterNodeCIDRMasksByDefault,
-				ValidateFunc:     validation.IntBetween(24, 28),
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 			},
 			"new_nat_gateway": {
@@ -259,6 +257,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:     schema.TypeString,
+							Default:  "flannel",
 							Optional: true,
 						},
 						"config": {
@@ -470,12 +469,6 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 				Removed:          "Field 'log_config' has been removed from provider version 1.75.0. New field 'addons' replaces it.",
 			},
-			"cluster_network_type": {
-				Type:             schema.TypeString,
-				Optional:         true,
-				ValidateFunc:     validation.StringInSlice([]string{KubernetesClusterNetworkTypeFlannel, KubernetesClusterNetworkTypeTerway}, false),
-				DiffSuppressFunc: csForceUpdateSuppressFunc,
-			},
 			"user_data": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -527,6 +520,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	Name := d.Get("name").(string)
 	OsType := "Linux"
 	Platform := "CentOS"
+	instcharge := d.Get("master_instance_charge_type").(string)
 	mastercount := d.Get("master_count").(int)
 	msysdiskcat := d.Get("master_disk_category").(string)
 	msysdisksize := d.Get("master_disk_size").(int)
@@ -535,6 +529,22 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	delete_pro := d.Get("delete_protection").(bool)
 	KubernetesVersion := d.Get("version").(string)
 	workerdata := d.Get("worker_data_disk").(bool)
+	addons := make([]cs.Addon, 0)
+	if v, ok := d.GetOk("addons"); ok {
+		all, ok := v.([]interface{})
+		if ok {
+			for _, a := range all {
+				addon, ok := a.(map[string]interface{})
+				if ok {
+					addons = append(addons, cs.Addon{
+						Name:     addon["name"].(string),
+						Config:   addon["config"].(string),
+						Disabled: addon["disabled"].(bool),
+					})
+				}
+			}
+		}
+	}
 	var wdatadisksize int
 	var wdatadiskcat string
 	if workerdata == true {
@@ -557,6 +567,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	} else {
 		LoginPassword = password
 	}
+	nodecidr := d.Get("node_cidr_mask").(string)
 	enabSsh := d.Get("enable_ssh").(bool)
 	end := d.Get("slb_internet_enabled").(bool)
 	SnatEntry := d.Get("new_nat_gateway").(bool)
@@ -565,7 +576,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	MasterInstanceType := d.Get("master_instance_type").(string)
 	WorkerInstanceType := d.Get("worker_instance_type").(string)
 	NumOfNodes := int64(d.Get("worker_number").(int))
-	networktype := d.Get("cluster_network_type").(string)
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":         client.RegionId,
@@ -578,7 +588,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		"Version":          "2015-12-15",
 		"SignatureVersion": "1.0",
 		"ProductName":      "cs",
-		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":%d,\"%s\":\"%s\"}",
+		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[{\"%s\":\"%s\"}]}",
 			"Product", "Cs",
 			"OsType", OsType,
 			"Platform", Platform,
@@ -600,16 +610,18 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 			"snat_entry", SnatEntry,
 			"endpoint_public_access", end,
 			"ssh_flags", enabSsh,
-			"master_disk_category", msysdiskcat,
-			"master_disk_size", msysdisksize,
-			"worker_disk_category", wsysdiskcat,
+			"master_system_disk_category", msysdiskcat,
+			"master_system_disk_size", msysdisksize,
+			"worker_system_disk_category", wsysdiskcat,
 			"worker_data_disk", workerdata,
 			"worker_data_disk_category", wdatadiskcat,
-			"worker_disk_size", wsysdisksize,
+			"worker_system_disk_size", wsysdisksize,
 			"image_id", ImageId,
 			"deletion_protection", delete_pro,
 			"worker_data_disk_size", wdatadisksize,
-			"cluster_network_type", networktype,
+			"instance_charge_type", instcharge,
+			"node_cidr_mask", nodecidr,
+			"addons", "name", addons[0].Name,
 		),
 	}
 	request.Method = "POST"        // Set request method
@@ -678,39 +690,10 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 	d.Partial(true)
 	var raw interface{}
 	invoker := NewInvoker()
-	vpcService := VpcService{client}
-	var vswitchID string
-	vswitchID = d.Get("vswitch_id").(string)
-
-	var vpcId string
-	if vpcId == "" {
-		vsw, err := vpcService.DescribeVSwitch(vswitchID)
-		if err != nil {
-			return err
-		}
-		vpcId = vsw.VpcId
-	}
 	var timeout int
-	var Name string
-	var workerdata bool
 	if d.HasChange("timeout_mins") {
 		timeout = d.Get("timeout_mins").(int)
 	}
-	if d.HasChange("name") {
-		Name = d.Get("name").(string)
-	}
-	if d.HasChange("worker_data_disk") {
-		workerdata = d.Get("worker_data_disk").(bool)
-	}
-	var wdatadisksize int
-	var wdatadiskcat string
-	networktype := d.Get("cluster_network_type").(string)
-
-	if workerdata == true {
-		wdatadisksize = d.Get("worker_data_disk_size").(int)
-		wdatadiskcat = d.Get("worker_data_disk_category").(string)
-	}
-	ImageId := d.Get("image_id").(string)
 	var LoginPassword string
 	if password := d.Get("password").(string); password == "" {
 		if v := d.Get("kms_encrypted_password").(string); v != "" {
@@ -741,8 +724,6 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 			}
 		}
 
-		keyPair := d.Get("key_name").(string)
-
 		oldV, newV := d.GetChange("worker_number")
 		oldValue, ok := oldV.(int)
 		if ok != true {
@@ -771,22 +752,14 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 			"Version":          "2015-12-15",
 			"SignatureVersion": "1.0",
 			"ProductName":      "cs",
-			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\"}",
-				"vpcid", vpcId,
-				"vswitchid", vswitchID,
-				"key_name", keyPair,
+			"ClusterId":        d.Id(),
+			"X-acs-body": fmt.Sprintf("{\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d}",
+				"count", int64(newValue)-int64(oldValue),
 				"timeout_mins", timeout,
 				"disable_rollback", true,
-				"name", Name,
-				"worker_instance_type", WorkerInstanceType,
+				"worker_instance_types", WorkerInstanceType,
 				"login_Password", LoginPassword,
 				"num_of_nodes", NumOfNodes,
-				"worker_data_disk", workerdata,
-				"worker_data_disk_category", wdatadiskcat,
-				"image_id", ImageId,
-				"worker_data_disk_size", wdatadisksize,
-				"ClusterId", d.Id(),
-				"cluster_network_type", networktype,
 			),
 		}
 		request.Method = "POST"        // Set request method
@@ -794,7 +767,7 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 		request.Version = "2015-12-15" // Specify product version
 		request.ServiceCode = "cs"
 		request.Scheme = "http" // Set request scheme. Default: http
-		request.ApiName = "CreateCluster"
+		request.ApiName = "ScaleOutCluster"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		var err error
 		err = nil
