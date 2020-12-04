@@ -317,6 +317,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_cms_alarm":        resourceApsaraStackCmsAlarm(),
 			"apsarastack_cms_site_monitor": resourceApsaraStackCmsSiteMonitor(),
 			//"apsarastack_quota": resourceApsaraStackQuota(),
+			"apsarastack_ascm_login_policy": resourceApsaraStackLogInPolicy(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
