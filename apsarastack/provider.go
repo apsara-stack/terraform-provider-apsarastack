@@ -208,6 +208,16 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_logon_policies":      dataSourceApsaraStackAscmLogonPolicies(),
 			"apsarastack_ascm_roles":               dataSourceApsaraStackAscmRoles(),
 			"apsarastack_ascm_organizations":       dataSourceApsaraStackAscmOrganizations(),
+			//"apsarastack_quota":  				dataSourceApsaraStackQuota(),
+			//"apsarastack_modifiable_instance_type":	dataSourceApsaraStackModifiableInstanceType(),
+			"apsarastack_instance_families":     dataSourceApsaraStackInstanceFamilies(),
+			"apsarastack_environment_services":  dataSourceApsaraStackEnvironmentServices(),
+			"apsarastack_regions":               dataSourceApsaraStackRegions(),
+			"apsarastack_service_cluster":       dataSourceApsaraStackServiceCluster(),
+			"apsarastack_ecs_instance_families": dataSourceApsaraStackEcsInstanceFamilies(),
+			"apsarastack_specific_fields":       dataSourceApsaraStackSpecificFields(),
+			//"apsarastack_service_urls":  dataSourceApsaraStackServiceUrls(),
+
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -303,6 +313,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
 			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
 			"apsarastack_ascm_resource_group":       resourceApsaraStackAscmResourceGroup(),
+			//"apsarastack_ascm_organization":                 resourceApsaraStackAscmOrganization(),
+			"apsarastack_cms_alarm":        resourceApsaraStackCmsAlarm(),
+			"apsarastack_cms_site_monitor": resourceApsaraStackCmsSiteMonitor(),
+			//"apsarastack_quota": resourceApsaraStackQuota(),
+			"apsarastack_ascm_login_policy": resourceApsaraStackLogInPolicy(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

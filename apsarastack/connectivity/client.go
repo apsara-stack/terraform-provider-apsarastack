@@ -10,6 +10,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/bssopenapi"
 	cdn_new "github.com/aliyun/alibaba-cloud-sdk-go/services/cdn"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr_ee"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
@@ -88,6 +89,7 @@ type ApsaraStackClient struct {
 	dnsconn           *alidns.Client
 	creeconn          *cr_ee.Client
 	crconn            *cr.Client
+	cmsconn           *cms.Client
 }
 
 const (
@@ -326,7 +328,6 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 		gpdbconn.Domain = endpoint
 		gpdbconn.AppendUserAgent(Terraform, TerraformVersion)
 		gpdbconn.AppendUserAgent(Provider, ProviderVersion)
-
 		gpdbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		gpdbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -493,15 +494,11 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(DDSCode), endpoint)
 		}
-		if strings.HasPrefix(endpoint, "http") {
-			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
-		}
 		ddsconn, err := dds.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the DDS client: %#v", err)
 		}
 		ddsconn.Domain = endpoint
-
 		ddsconn.AppendUserAgent(Terraform, TerraformVersion)
 		ddsconn.AppendUserAgent(Provider, ProviderVersion)
 		ddsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
@@ -1188,4 +1185,31 @@ func (client *ApsaraStackClient) WithDnsClient(do func(*alidns.Client) (interfac
 	}
 
 	return do(client.dnsconn)
+}
+func (client *ApsaraStackClient) WithCmsClient(do func(*cms.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the CMS client if necessary
+	if client.cmsconn == nil {
+		endpoint := client.config.CmsEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, CMSCode)
+		}
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(CMSCode), endpoint)
+		}
+		cmsconn, err := cms.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the CMS client: %#v", err)
+		}
+
+		cmsconn.Domain = endpoint
+		cmsconn.AppendUserAgent(Terraform, TerraformVersion)
+		cmsconn.AppendUserAgent(Provider, ProviderVersion)
+		cmsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		client.cmsconn = cmsconn
+		if client.config.Proxy != "" {
+			cmsconn.SetHttpProxy(client.config.Proxy)
+		}
+	}
+
+	return do(client.cmsconn)
 }
