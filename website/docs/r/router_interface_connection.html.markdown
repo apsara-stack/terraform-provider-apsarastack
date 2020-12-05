@@ -87,7 +87,7 @@ The following arguments are supported:
 
 * `interface_id` - (Required, ForceNew) One side router interface ID.
 * `opposite_interface_id` - (Required, ForceNew) Another side router interface ID. It must belong the specified "opposite_interface_owner_id" account.
-* `opposite_interface_owner_id` - (Optional, ForceNew) Another side router interface account ID. Log on to the ApsaraStack Cloud console, select User Info > Account Management to check the account ID. Default to [Provider account_id](https://www.terraform.io/docs/providers/alicloud/index.html#account_id).
+* `opposite_interface_owner_id` - (Optional, ForceNew) Another side router interface account ID. Log on to the ApsaraStack Cloud console, select User Info > Account Management to check the account ID. Default to [Provider account_id](https://www.terraform.io/docs/providers/apsarastack/index.html#account_id).
 * `opposite_router_id` - (Optional, ForceNew) Another side router ID. It must belong the specified "opposite_interface_owner_id" account. It is valid when field "opposite_interface_owner_id" is specified.
 * `opposite_router_type` - (Optional, ForceNew) Another side router Type. Optional value: VRouter, VBR. It is valid when field "opposite_interface_owner_id" is specified.
 

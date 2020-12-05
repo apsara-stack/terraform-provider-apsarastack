@@ -44,10 +44,10 @@ func testSweepCRNamespace(region string) error {
 	}
 
 	req := cr.CreateGetNamespaceListRequest()
+	req.RegionId = client.RegionId
 	req.Headers = map[string]string{"RegionId": client.RegionId}
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr"}
-	req.QueryParams["Department"] = client.Department
-	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
 		return crClient.GetNamespaceList(req)
 	})
@@ -76,6 +76,10 @@ func testSweepCRNamespace(region string) error {
 	for _, n := range ns {
 		err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 			req := cr.CreateDeleteNamespaceRequest()
+			req.RegionId = client.RegionId
+			req.Headers = map[string]string{"RegionId": client.RegionId}
+			req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 			req.Namespace = n
 
 			_, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
