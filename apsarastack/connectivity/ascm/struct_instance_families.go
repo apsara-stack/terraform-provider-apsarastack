@@ -33,5 +33,3 @@ type InstanceFamily struct {
 	RequestID interface{} `json:"requestId"`
 	HTTPOk    bool        `json:"httpOk"`
 }
-
-
