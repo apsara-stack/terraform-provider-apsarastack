@@ -5,7 +5,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -28,6 +27,10 @@ func resourceApsaraStackAscmResourceGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"rg_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -35,7 +38,7 @@ func resourceApsaraStackAscmResourceGroup() *schema.Resource {
 func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	var requestInfo *ascm.Client
+	var requestInfo *ecs.Client
 
 	name := d.Get("name").(string)
 	check, err := ascmService.DescribeAscmResourceGroup(name)
@@ -124,6 +127,7 @@ func resourceApsaraStackAscmResourceGroupRead(d *schema.ResourceData, meta inter
 		return nil
 	}
 
+	d.Set("rg_id", object.Data[0].ID)
 	d.Set("name", object.Data[0].ResourceGroupName)
 	d.Set("organization_id", object.Data[0].OrganizationID)
 
@@ -133,13 +137,13 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	var requestInfo *ascm.Client
+	var requestInfo *ecs.Client
 	check, err := ascmService.DescribeAscmResourceGroup(d.Id())
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsResourceGroupExist", ApsaraStackSdkGoERROR)
 	}
 	addDebug("IsResourceGroupExist", check, requestInfo, map[string]string{"resourceGroupName": d.Id()})
-	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
+	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
 		request.QueryParams = map[string]string{

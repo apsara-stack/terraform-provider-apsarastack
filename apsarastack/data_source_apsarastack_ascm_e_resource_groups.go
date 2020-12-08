@@ -6,7 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
 )
@@ -78,7 +78,7 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 	request.ApiName = "ListResourceGroup"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListResourceGroup", "Version": "2019-05-10"}
-	response := ascm.ResourceGroup{}
+	response := ResourceGroup{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -111,11 +111,11 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":              rg.ResourceGroupID,
+			"id":              rg.ID,
 			"name":            rg.ResourceGroupName,
 			"organization_id": rg.OrganizationID,
 		}
-		ids = append(ids, string(rune(rg.ResourceGroupID)))
+		ids = append(ids, string(rune(rg.ID)))
 		s = append(s, mapping)
 	}
 
