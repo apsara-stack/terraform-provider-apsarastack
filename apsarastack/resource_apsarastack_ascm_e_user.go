@@ -6,7 +6,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"time"
@@ -58,7 +57,7 @@ func resourceApsaraStackAscmUser() *schema.Resource {
 func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	var requestInfo *ascm.Client
+	var requestInfo *ecs.Client
 	lname := d.Get("login_name").(string)
 	check, err := ascmService.DescribeAscmUser(lname)
 	if err != nil {
@@ -236,7 +235,7 @@ func resourceApsaraStackAscmUserDelete(d *schema.ResourceData, meta interface{})
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	var requestInfo *ascm.Client
+	var requestInfo *ecs.Client
 	check, err := ascmService.DescribeAscmUser(d.Id())
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsUserExist", ApsaraStackSdkGoERROR)
@@ -276,10 +275,11 @@ func resourceApsaraStackAscmUserDelete(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		if check.Data[0].LoginName != "" {
+		if check.Data[0].LoginName == "" {
+			return nil
+		} else {
 			return resource.RetryableError(Error("Trying to delete User %#v successfully.", d.Id()))
 		}
-		return nil
 	})
 	return nil
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
 )
@@ -43,11 +43,6 @@ func dataSourceApsaraStackAscmLogonPolicies() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			//"time_ranges": {
-			//	Type:     schema.TypeList,
-			//	Computed: true,
-			//	Elem:     &schema.Schema{Type: schema.TypeString},
-			//},
 			"rule": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -132,7 +127,7 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 	request.ApiName = "ListLoginPolicies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListLoginPolicies", "Version": "2019-05-10"}
-	response := ascm.LogonPolicy{}
+	response := LoginPolicy{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -205,9 +200,7 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 	if err := d.Set("policies", s); err != nil {
 		return WrapError(err)
 	}
-	//if err := d.Set("time_ranges", t); err != nil {
-	//	return WrapError(err)
-	//}
+
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}

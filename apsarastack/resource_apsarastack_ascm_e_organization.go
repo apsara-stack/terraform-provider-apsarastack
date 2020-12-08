@@ -6,7 +6,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -50,7 +49,7 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 
-	var requestInfo *ascm.Client
+	var requestInfo *ecs.Client
 	name := d.Get("name").(string)
 	check, err := ascmService.DescribeAscmOrganization(name)
 	if err != nil {
@@ -146,7 +145,7 @@ func resourceApsaraStackAscmOrganizationDelete(d *schema.ResourceData, meta inte
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	var requestInfo *ascm.Client
+	var requestInfo *ecs.Client
 	check, err := ascmService.DescribeAscmOrganization(d.Id())
 	did := strings.Split(d.Id(), SLASH_SEPARATED)
 	if err != nil {
