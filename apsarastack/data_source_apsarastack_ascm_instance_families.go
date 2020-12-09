@@ -6,13 +6,13 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"regexp"
 )
 
-func dataSourceApsaraStackEcsInstanceFamilies() *schema.Resource {
+func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackEcsInstanceFamiliesRead,
+		Read: dataSourceApsaraStackInstanceFamiliesRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
@@ -22,6 +22,10 @@ func dataSourceApsaraStackEcsInstanceFamilies() *schema.Resource {
 				ForceNew: true,
 				MinItems: 1,
 			},
+			"resource_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"status": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -30,16 +34,21 @@ func dataSourceApsaraStackEcsInstanceFamilies() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"groups": {
+
+			"families": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"instance_type_family_id": {
+						"id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"generation": {
+						"status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"resource_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -50,25 +59,25 @@ func dataSourceApsaraStackEcsInstanceFamilies() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackEcsInstanceFamiliesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
-	request.Method = "GET"
+	request.Method = "POST"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	request.Scheme = "http"
 	request.RegionId = client.RegionId
-	request.ApiName = "DescribeInstanceTypeFamilies"
+	request.ApiName = "DescribeSeriesIdFamilies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Action": "DescribeInstanceTypeFamilies", "Version": "2019-05-10"}
-	response := ascm.EcsInstanceFamily{}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "DescribeSeriesIdFamilies", "Version": "2019-05-10"}
+	response := InstanceFamily{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ecs_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
@@ -77,25 +86,33 @@ func dataSourceApsaraStackEcsInstanceFamiliesRead(d *schema.ResourceData, meta i
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Code == 200 || len(response.Data.InstanceTypeFamilies) < 1 {
+		if response.Success == true || len(response.Data) < 1 {
 			break
 		}
 
 	}
 
+	var r *regexp.Regexp
+	if rt, ok := d.GetOk("resource_type"); ok && rt.(string) != "" {
+		r = regexp.MustCompile(rt.(string))
+	}
 	var ids []string
 	var s []map[string]interface{}
-	for _, rg := range response.Data.InstanceTypeFamilies {
-		mapping := map[string]interface{}{
-			"instance_type_family_id": rg.InstanceTypeFamilyID,
-			"generation":              rg.Generation,
+	for _, rg := range response.Data {
+		if r != nil && !r.MatchString(rg.ResourceType) {
+			continue
 		}
-		ids = append(ids, string(rg.InstanceTypeFamilyID))
+		mapping := map[string]interface{}{
+			"id":            rg.OrderBy.ID,
+			"resource_type": rg.ResourceType,
+			"status":        rg.Status,
+		}
+		ids = append(ids, rg.OrderBy.ID)
 		s = append(s, mapping)
 	}
 
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("groups", s); err != nil {
+	if err := d.Set("families", s); err != nil {
 		return WrapError(err)
 	}
 

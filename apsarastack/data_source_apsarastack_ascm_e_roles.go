@@ -6,7 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
 )
@@ -103,7 +103,7 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 	request.ApiName = "ListRoles"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListRoles", "Version": "2019-05-10"}
-	response := ascm.Role{}
+	response := Roles{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

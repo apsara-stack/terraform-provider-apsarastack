@@ -6,44 +6,39 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceApsaraStackRegions() *schema.Resource {
+func dataSourceApsaraStackEcsInstanceFamilies() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackRegionsRead,
+		Read: dataSourceApsaraStackEcsInstanceFamiliesRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 				ForceNew: true,
 				MinItems: 1,
 			},
-			"product_name": {
+			"status": {
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"organization": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"region_list": {
+			"families": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"region_id": {
+						"instance_type_family_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"region_type": {
+						"generation": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -54,7 +49,7 @@ func dataSourceApsaraStackRegions() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackRegionsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackEcsInstanceFamiliesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
 	request.Method = "GET"
@@ -62,17 +57,17 @@ func dataSourceApsaraStackRegionsRead(d *schema.ResourceData, meta interface{}) 
 	request.Version = "2019-05-10"
 	request.Scheme = "http"
 	request.RegionId = client.RegionId
-	request.ApiName = "GetRegionsByProduct"
+	request.ApiName = "DescribeInstanceTypeFamilies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Action": "GetRegionsByProduct", "Version": "2019-05-10"}
-	response := ascm.RegionsByProduct{}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Action": "DescribeInstanceTypeFamilies", "Version": "2019-05-10"}
+	response := EcsInstanceFamily{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_regions", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ecs_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
@@ -81,7 +76,7 @@ func dataSourceApsaraStackRegionsRead(d *schema.ResourceData, meta interface{}) 
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Code == 200 || len(response.Body.RegionList) < 1 {
+		if response.Code == 200 || len(response.Data.InstanceTypeFamilies) < 1 {
 			break
 		}
 
@@ -89,17 +84,17 @@ func dataSourceApsaraStackRegionsRead(d *schema.ResourceData, meta interface{}) 
 
 	var ids []string
 	var s []map[string]interface{}
-	for _, rg := range response.Body.RegionList {
+	for _, rg := range response.Data.InstanceTypeFamilies {
 		mapping := map[string]interface{}{
-			"region_id":   rg.RegionID,
-			"region_type": rg.RegionType,
+			"instance_type_family_id": rg.InstanceTypeFamilyID,
+			"generation":              rg.Generation,
 		}
-		ids = append(ids, rg.RegionID)
+		ids = append(ids, string(rg.InstanceTypeFamilyID))
 		s = append(s, mapping)
 	}
 
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("region_list", s); err != nil {
+	if err := d.Set("families", s); err != nil {
 		return WrapError(err)
 	}
 

@@ -6,7 +6,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	//"log"
@@ -61,7 +60,7 @@ func dataSourceApsaraStackServiceClusterRead(d *schema.ResourceData, meta interf
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	productName := d.Get("product_name").(string)
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "productName": productName, "Action": "GetClustersByProduct", "Version": "2019-05-10"}
-	response := ascm.ClustersByProduct{}
+	response := ClustersByProduct{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
