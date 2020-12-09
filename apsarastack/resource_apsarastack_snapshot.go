@@ -22,7 +22,7 @@ func resourceApsaraStackSnapshot() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(DefaultTimeout * time.Second),
+			Create: schema.DefaultTimeout(20 * time.Minute),
 			Delete: schema.DefaultTimeout(DefaultTimeout * time.Second),
 		},
 
@@ -76,7 +76,7 @@ func resourceApsaraStackSnapshotCreate(d *schema.ResourceData, meta interface{})
 
 	ecsService := EcsService{client}
 
-	stateConf := BuildStateConf([]string{}, []string{string(SnapshotCreatingAccomplished)}, d.Timeout(schema.TimeoutCreate), 300*time.Second,
+	stateConf := BuildStateConf([]string{}, []string{string(SnapshotCreatingAccomplished)}, d.Timeout(schema.TimeoutCreate), 2*time.Minute,
 		ecsService.SnapshotStateRefreshFunc(d.Id(), []string{string(SnapshotCreatingFailed)}))
 
 	if _, err := stateConf.WaitForState(); err != nil {
