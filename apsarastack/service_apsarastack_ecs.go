@@ -1322,7 +1322,12 @@ func (s *EcsService) DescribeSnapshot(id string) (*ecs.Snapshot, error) {
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response := raw.(*ecs.DescribeSnapshotsResponse)
-	if len(response.Snapshots.Snapshot) != 1 || response.Snapshots.Snapshot[0].SnapshotId != id {
+	for _, k := range response.Snapshots.Snapshot {
+		if k.SnapshotId == id {
+			return &k, nil
+		}
+	}
+	if response.Snapshots.Snapshot[0].SnapshotId != id {
 		return snapshot, WrapErrorf(Error(GetNotFoundMessage("Snapshot", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 	}
 	return &response.Snapshots.Snapshot[0], nil

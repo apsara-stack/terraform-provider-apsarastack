@@ -364,7 +364,19 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		addDebug(dataRequest.GetActionName(), raw, dataRequest.RpcRequest, dataRequest)
 		response, _ := raw.(*ecs.DescribeUserDataResponse)
-		d.Set("user_data", userDataHashSum(response.UserData))
+		old_s := base64.StdEncoding.EncodeToString([]byte(response.UserData))
+
+		//log.Printf("User data : %s old data: %s", fmt.Sprint(d.Get("user_data").(string)),old_s)
+		d.Set("user_data", d.Get("user_data").(string))
+		//if d.Get("user_data").(string) == old_s {
+		//	d.Set("user_data", old_s)
+		//	log.Printf("set1")
+		//} else  {
+		//	d.Set("user_data", userDataHashSum(response.UserData))
+		//	log.Printf("set2")
+		//}
+		log.Printf("Roshan data : %s", old_s)
+
 	}
 
 	if len(instance.VpcAttributes.VSwitchId) > 0 && (!d.IsNewResource() || d.HasChange("role_name")) {
@@ -849,16 +861,21 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 
 	if d.HasChange("user_data") {
 		d.SetPartial("user_data")
-		if v, ok := d.GetOk("user_data"); ok && v.(string) != "" {
-			_, base64DecodeError := base64.StdEncoding.DecodeString(v.(string))
-			if base64DecodeError == nil {
-				request.UserData = v.(string)
-			} else {
-				request.UserData = base64.StdEncoding.EncodeToString([]byte(v.(string)))
+		old, new := d.GetChange("user_data")
+		old_s := base64.StdEncoding.EncodeToString([]byte(fmt.Sprint(old)))
+		if fmt.Sprint(new) != old_s {
+
+			if v, ok := d.GetOk("user_data"); ok && v.(string) != "" {
+				_, base64DecodeError := base64.StdEncoding.DecodeString(v.(string))
+				if base64DecodeError == nil {
+					request.UserData = v.(string)
+				} else {
+					request.UserData = base64.StdEncoding.EncodeToString([]byte(v.(string)))
+				}
 			}
+			update = true
+			reboot = true
 		}
-		update = true
-		reboot = true
 	}
 
 	if d.HasChange("host_name") {

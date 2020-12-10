@@ -69,7 +69,7 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 	_ = json.Unmarshal(clusterdetails.GetHttpContentBytes(), &Cdetails)
 
 	if len(Cdetails) < 1 {
-		return
+		return cluster, nil
 	}
 
 	cluster = &cs.KubernetesClusterDetail{}
@@ -101,6 +101,7 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 	if cluster.ClusterId != id {
 		return cluster, WrapErrorf(Error(GetNotFoundMessage("CsKubernetes", id)), NotFoundMsg, ProviderERROR)
 	}
+
 	return cluster, nil
 }
 
@@ -114,13 +115,12 @@ func (s *CsService) CsKubernetesInstanceStateRefreshFunc(id string, failStates [
 			}
 			return nil, "", WrapError(err)
 		}
-
 		for _, failState := range failStates {
-			if string(object.State) == failState {
-				return object, string(object.State), WrapError(Error(FailedToReachTargetStatus, string(object.State)))
+			if object.State == failState {
+				return object, object.State, WrapError(Error(FailedToReachTargetStatus, object.State))
 			}
 		}
-		return object, string(object.State), nil
+		return object, object.State, nil
 	}
 }
 
