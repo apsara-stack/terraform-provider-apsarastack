@@ -139,7 +139,8 @@ func (c *CrService) DescribeCrNamespace(id string) (*cr.GetNamespaceResponse, er
 	request := cr.CreateGetNamespaceRequest()
 	request.RegionId = c.client.RegionId
 	request.Headers = map[string]string{"RegionId": c.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr", "Department": c.client.Department, "ResourceGroup": c.client.ResourceGroup}
+
 	request.Namespace = id
 
 	var err error
@@ -195,7 +196,8 @@ func (c *CrService) DescribeCrRepo(id string) (*cr.GetRepoResponse, error) {
 	request := cr.CreateGetRepoRequest()
 	request.RegionId = c.client.RegionId
 	request.Headers = map[string]string{"RegionId": c.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr"}
+	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr", "Department": c.client.Department, "ResourceGroup": c.client.ResourceGroup}
+
 	request.RepoNamespace = repoNamespace
 	request.RepoName = repoName
 

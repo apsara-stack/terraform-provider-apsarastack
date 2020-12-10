@@ -1,13 +1,13 @@
 ---
 subcategory: "KMS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsaraStack_kms_alias"
-sidebar_current: "docs-apsaraStack-resource-kms-alias"
+page_title: "ApsaraStack: apsarastack_kms_alias"
+sidebar_current: "docs-apsarastack-resource-kms-alias"
 description: |-
   Provides a ApsaraStack KMS Alias resource.
 ---
 
-# apsaraStack\_kms\_alias
+# apsarastack\_kms\_alias
 
 Create an alias for the master key (CMK).
 
@@ -18,11 +18,11 @@ Create an alias for the master key (CMK).
 Basic Usage
 
 ```
-resource "apsaraStack_kms_key" "this" {}
+resource "apsarastack_kms_key" "this" {}
 
-resource "apsaraStack_kms_alias" "this" {
+resource "apsarastack_kms_alias" "this" {
   alias_name = "alias/test_kms_alias"
-  key_id     = apsaraStack_kms_key.this.id
+  key_id     = apsarastack_kms_key.this.id
 }
 ```
 

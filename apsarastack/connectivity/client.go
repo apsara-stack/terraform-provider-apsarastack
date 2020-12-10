@@ -10,6 +10,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/bssopenapi"
 	cdn_new "github.com/aliyun/alibaba-cloud-sdk-go/services/cdn"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr_ee"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
@@ -18,7 +19,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/gpdb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/hbase"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/location"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/maxcompute"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
@@ -28,7 +28,6 @@ import (
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/aliyun/fc-go-sdk"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"log"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -54,13 +53,13 @@ import (
 type ApsaraStackClient struct {
 	Region            Region
 	RegionId          string
+	Domain            string
 	AccessKey         string
 	SecretKey         string
 	Department        string
 	ResourceGroup     string
 	config            *Config
 	accountId         string
-	ascmconn          *ascm.Client
 	ecsconn           *ecs.Client
 	accountIdMutex    sync.RWMutex
 	vpcconn           *vpc.Client
@@ -88,7 +87,7 @@ type ApsaraStackClient struct {
 	dnsconn           *alidns.Client
 	creeconn          *cr_ee.Client
 	crconn            *cr.Client
-	maxcomputeconn    *maxcompute.Client
+	cmsconn           *cms.Client
 }
 
 const (
@@ -132,33 +131,8 @@ func (c *Config) Client() (*ApsaraStackClient, error) {
 		SecretKey:     c.SecretKey,
 		Department:    c.Department,
 		ResourceGroup: c.ResourceGroup,
+		Domain:        c.Domain,
 	}, nil
-}
-func (client *ApsaraStackClient) WithAscmClient(do func(*ascm.Client) (interface{}, error)) (interface{}, error) {
-	// Initialize the ASCM client if necessary
-	if client.ascmconn == nil {
-		endpoint := client.config.AscmEndpoint
-		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(ASCMCode), endpoint)
-		}
-		//ascmconn, err := ascm.NewClientWithOptions(client.config.RegionId, client.getSdkConfig().WithTimeout(time.Duration(60)*time.Second), client.config.getAuthCredential(true))
-		ascmconn, err := sdk.NewClientWithAccessKey(client.RegionId, client.AccessKey, client.SecretKey)
-
-		if err != nil {
-			return nil, fmt.Errorf("unable to initialize the ASCM client AccessKey: %#v", err)
-		}
-		ascmconn.Domain = endpoint
-		ascmconn.AppendUserAgent(Terraform, TerraformVersion)
-		ascmconn.AppendUserAgent(Provider, ProviderVersion)
-		ascmconn.AppendUserAgent(Module, client.config.ConfigurationSource)
-		ascmconn.SetHTTPSInsecure(client.config.Insecure)
-		if client.config.Proxy != "" {
-			ascmconn.SetHttpsProxy(client.config.Proxy)
-			ascmconn.SetHttpProxy(client.config.Proxy)
-		}
-
-	}
-	return do(client.ascmconn)
 }
 
 func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}, error)) (interface{}, error) {
@@ -326,7 +300,6 @@ func (client *ApsaraStackClient) WithGpdbClient(do func(*gpdb.Client) (interface
 		gpdbconn.Domain = endpoint
 		gpdbconn.AppendUserAgent(Terraform, TerraformVersion)
 		gpdbconn.AppendUserAgent(Provider, ProviderVersion)
-
 		gpdbconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		gpdbconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -493,15 +466,11 @@ func (client *ApsaraStackClient) WithDdsClient(do func(*dds.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(DDSCode), endpoint)
 		}
-		if strings.HasPrefix(endpoint, "http") {
-			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
-		}
 		ddsconn, err := dds.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the DDS client: %#v", err)
 		}
 		ddsconn.Domain = endpoint
-
 		ddsconn.AppendUserAgent(Terraform, TerraformVersion)
 		ddsconn.AppendUserAgent(Provider, ProviderVersion)
 		ddsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
@@ -1036,13 +1005,18 @@ func (client *ApsaraStackClient) WithOnsClient(do func(*ons.Client) (interface{}
 		if endpoint != "" {
 			endpoints.AddEndpointMapping(client.config.RegionId, string(ONSCode), endpoint)
 		}
-		onsconn, err := ons.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = strings.TrimPrefix(strings.TrimPrefix(endpoint, "http://"), "https://")
+		}
+		onsconn, err := ons.NewClientWithAccessKey(client.RegionId, client.AccessKey, client.SecretKey)
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the ONS client: %#v", err)
 		}
-		onsconn.Domain = endpoint
+
 		onsconn.AppendUserAgent(Terraform, TerraformVersion)
 		onsconn.AppendUserAgent(Provider, ProviderVersion)
+		onsconn.Domain = endpoint
+
 		onsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
 		onsconn.SetHTTPSInsecure(client.config.Insecure)
 		if client.config.Proxy != "" {
@@ -1184,40 +1158,30 @@ func (client *ApsaraStackClient) WithDnsClient(do func(*alidns.Client) (interfac
 
 	return do(client.dnsconn)
 }
-
-func (client *ApsaraStackClient) WithMaxComputeClient(do func(*maxcompute.Client) (interface{}, error)) (interface{}, error) {
-	goSdkMutex.Lock()
-	defer goSdkMutex.Unlock()
-
-	// Initialize the MaxCompute client if necessary
-	if client.maxcomputeconn == nil {
-		endpoint := client.config.MaxComputeEndpoint
+func (client *ApsaraStackClient) WithCmsClient(do func(*cms.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the CMS client if necessary
+	if client.cmsconn == nil {
+		endpoint := client.config.CmsEndpoint
 		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, MAXCOMPUTECode)
+			endpoint = loadEndpoint(client.config.RegionId, CMSCode)
 		}
-		if strings.HasPrefix(endpoint, "http") {
-			endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "http://"))
-		}
-		if endpoint == "" {
-			endpoint = "server.asapi.cn-neimeng-env30-d01.intra.env30.shuguang.com/asapi/v3"
-		}
-
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(MAXCOMPUTECode), endpoint)
+			endpoints.AddEndpointMapping(client.config.RegionId, string(CMSCode), endpoint)
 		}
-		maxcomputeconn, err := maxcompute.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(false))
+		cmsconn, err := cms.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(true))
 		if err != nil {
-			return nil, fmt.Errorf("unable to initialize the MaxCompute client: %#v", err)
+			return nil, fmt.Errorf("unable to initialize the CMS client: %#v", err)
 		}
 
-		maxcomputeconn.AppendUserAgent(Terraform, TerraformVersion)
-		maxcomputeconn.AppendUserAgent(Provider, ProviderVersion)
-		maxcomputeconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		cmsconn.Domain = endpoint
+		cmsconn.AppendUserAgent(Terraform, TerraformVersion)
+		cmsconn.AppendUserAgent(Provider, ProviderVersion)
+		cmsconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		client.cmsconn = cmsconn
 		if client.config.Proxy != "" {
-			maxcomputeconn.SetHttpProxy(client.config.Proxy)
+			cmsconn.SetHttpProxy(client.config.Proxy)
 		}
-		client.maxcomputeconn = maxcomputeconn
 	}
 
-	return do(client.maxcomputeconn)
+	return do(client.cmsconn)
 }
