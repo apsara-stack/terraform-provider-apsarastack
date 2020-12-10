@@ -1,13 +1,13 @@
 ---
 subcategory: "KMS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsaraStack_kms_aliases"
-sidebar_current: "docs-apsaraStack-datasource-kms-aliases"
+page_title: "ApsaraStack: apsarastack_kms_aliases"
+sidebar_current: "docs-apsarastack-datasource-kms-aliases"
 description: |-
     Provides a list of available KMS Aliases.
 ---
 
-# apsaraStack\_kms\aliases
+# apsarastack\_kms\aliases
 
 This data source provides a list of KMS aliases in an Apsarastack Cloud account according to the specified filters.
  
@@ -17,12 +17,12 @@ This data source provides a list of KMS aliases in an Apsarastack Cloud account 
 
 ```
 # Declare the data source
-data "apsaraStack_kms_aliases" "kms_aliases" {  
+data "apsarastack_kms_aliases" "kms_aliases" {  
   name_regex = "alias/tf-testKmsAlias_123"
 }
 
 output "first_key_id" {
-  value = "${data.apsaraStack_kms_keys.kms_keys_ds.keys.0.id}"
+  value = "${data.apsarastack_kms_keys.kms_keys_ds.keys.0.id}"
 }
 ```
 

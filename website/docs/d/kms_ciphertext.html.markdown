@@ -1,13 +1,13 @@
 ---
 subcategory: "KMS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsaraStack_kms_ciphertext"
-sidebar_current: "docs-apsaraStack-datasource-kms-ciphertext"
+page_title: "ApsaraStack: apsarastack_kms_ciphertext"
+sidebar_current: "docs-apsarastack-datasource-kms-ciphertext"
 description: |-
     Encrypt data with KMS.
 ---
 
-# apsaraStack\_kms\_ciphertext
+# apsarastack\_kms\_ciphertext
 
 Encrypt a given plaintext with KMS. 
 
@@ -16,13 +16,13 @@ Encrypt a given plaintext with KMS.
 ## Example Usage
 
 ```
-resource "apsaraStack_kms_key" "key" {
+resource "apsarastack_kms_key" "key" {
   description             = "example key"
   is_enabled              = true
 }
 
-data "apsaraStack_kms_ciphertext" "encrypted" {
-  key_id    = apsaraStack_kms_key.key.id
+data "apsarastack_kms_ciphertext" "encrypted" {
+  key_id    = apsarastack_kms_key.key.id
   plaintext = "example"
 }
 ```

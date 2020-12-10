@@ -28,7 +28,6 @@ import (
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/aliyun/fc-go-sdk"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"log"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -61,7 +60,6 @@ type ApsaraStackClient struct {
 	ResourceGroup     string
 	config            *Config
 	accountId         string
-	ascmconn          *ascm.Client
 	ecsconn           *ecs.Client
 	accountIdMutex    sync.RWMutex
 	vpcconn           *vpc.Client
@@ -135,32 +133,6 @@ func (c *Config) Client() (*ApsaraStackClient, error) {
 		ResourceGroup: c.ResourceGroup,
 		Domain:        c.Domain,
 	}, nil
-}
-func (client *ApsaraStackClient) WithAscmClient(do func(*ascm.Client) (interface{}, error)) (interface{}, error) {
-	// Initialize the ASCM client if necessary
-	if client.ascmconn == nil {
-		endpoint := client.config.AscmEndpoint
-		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(ASCMCode), endpoint)
-		}
-		//ascmconn, err := ascm.NewClientWithOptions(client.config.RegionId, client.getSdkConfig().WithTimeout(time.Duration(60)*time.Second), client.config.getAuthCredential(true))
-		ascmconn, err := sdk.NewClientWithAccessKey(client.RegionId, client.AccessKey, client.SecretKey)
-
-		if err != nil {
-			return nil, fmt.Errorf("unable to initialize the ASCM client AccessKey: %#v", err)
-		}
-		ascmconn.Domain = endpoint
-		ascmconn.AppendUserAgent(Terraform, TerraformVersion)
-		ascmconn.AppendUserAgent(Provider, ProviderVersion)
-		ascmconn.AppendUserAgent(Module, client.config.ConfigurationSource)
-		ascmconn.SetHTTPSInsecure(client.config.Insecure)
-		if client.config.Proxy != "" {
-			ascmconn.SetHttpsProxy(client.config.Proxy)
-			ascmconn.SetHttpProxy(client.config.Proxy)
-		}
-
-	}
-	return do(client.ascmconn)
 }
 
 func (client *ApsaraStackClient) WithEcsClient(do func(*ecs.Client) (interface{}, error)) (interface{}, error) {
