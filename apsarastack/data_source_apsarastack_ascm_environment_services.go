@@ -6,13 +6,12 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func dataSourceApsaraStackEnvironmentServices() *schema.Resource {
+func dataSourceApsaraStackAscmEnvironmentServices() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackEnvironmentServicesRead,
+		Read: dataSourceApsaraStackAscmEnvironmentServicesRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
@@ -36,7 +35,7 @@ func dataSourceApsaraStackEnvironmentServices() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackEnvironmentServicesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackAscmEnvironmentServicesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
 	request.Method = "GET"
@@ -47,14 +46,14 @@ func dataSourceApsaraStackEnvironmentServicesRead(d *schema.ResourceData, meta i
 	request.ApiName = "GetEnvProducts"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Action": "GetEnvProducts", "Version": "2019-05-10"}
-	response := ascm.EnvironmentProduct{}
+	response := EnvironmentProduct{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_environment_services", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_environment_services", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
