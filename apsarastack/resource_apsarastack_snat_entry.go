@@ -58,7 +58,11 @@ func resourceApsaraStackSnatEntryCreate(d *schema.ResourceData, meta interface{}
 	vpcService := VpcService{client}
 
 	request := vpc.CreateCreateSnatEntryRequest()
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -140,7 +144,11 @@ func resourceApsaraStackSnatEntryUpdate(d *schema.ResourceData, meta interface{}
 	request := vpc.CreateModifySnatEntryRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SnatTableId = parts[0]
 	request.SnatEntryId = parts[1]
@@ -179,7 +187,11 @@ func resourceApsaraStackSnatEntryDelete(d *schema.ResourceData, meta interface{}
 	request := vpc.CreateDeleteSnatEntryRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SnatTableId = parts[0]
 	request.SnatEntryId = parts[1]

@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -110,6 +111,11 @@ func dataSourceApsaraStackSlbAclsRead(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := slb.CreateDescribeAccessControlListsRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	tags := d.Get("tags").(map[string]interface{})
@@ -185,6 +191,11 @@ func slbAclsDescriptionAttributes(d *schema.ResourceData, acls []slb.Acl, client
 
 	request := slb.CreateDescribeAccessControlListAttributeRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	for _, item := range acls {
 		request.AclId = item.AclId

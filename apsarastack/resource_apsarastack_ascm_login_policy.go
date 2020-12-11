@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 	"time"
 )
 
@@ -61,6 +62,14 @@ func resourceApsaraStackLogInPolicyCreate(d *schema.ResourceData, meta interface
 	if len(object.Data) == 0 {
 
 		request := requests.NewCommonRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
 			"AccessKeySecret":  client.SecretKey,
@@ -81,7 +90,11 @@ func resourceApsaraStackLogInPolicyCreate(d *schema.ResourceData, meta interface
 		request.Product = "ascm"
 		request.Version = "2019-05-10"
 		request.ServiceCode = "ascm"
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "AddLoginPolicy"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -122,6 +135,14 @@ func resourceApsaraStackLogInPolicyUpdate(d *schema.ResourceData, meta interface
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	request := requests.NewCommonRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	var name, rule, desc string
 	if d.HasChange("name") {
 		name = d.Get("name").(string)
@@ -155,7 +176,11 @@ func resourceApsaraStackLogInPolicyUpdate(d *schema.ResourceData, meta interface
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	request.ServiceCode = "ascm"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ModifyLoginPolicy"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -213,6 +238,14 @@ func resourceApsaraStackLogInPolicyDelete(d *schema.ResourceData, meta interface
 	addDebug("IsLoginPolicyExist", check, requestInfo, map[string]string{"loginpolicyName": d.Id()})
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		request := requests.NewCommonRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
 			"AccessKeySecret":  client.SecretKey,
@@ -231,7 +264,11 @@ func resourceApsaraStackLogInPolicyDelete(d *schema.ResourceData, meta interface
 		request.Product = "ascm"
 		request.Version = "2019-05-10"
 		request.ServiceCode = "ascm"
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "RemoveLoginPolicyByName"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {

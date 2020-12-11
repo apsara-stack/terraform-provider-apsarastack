@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -23,6 +24,9 @@ func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoRes
 	var requestInfo *oss.Client
 
 	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
 	request.QueryParams = map[string]string{
 
 		"AccessKeySecret":  s.client.SecretKey,
@@ -41,7 +45,11 @@ func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoRes
 	request.Product = "OneRouter"  // Specify product
 	request.Version = "2018-12-12" // Specify product version
 	request.ServiceCode = "OneRouter"
-	request.Scheme = "http" // Set request scheme. Default: http
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	} // Set request scheme. Default: http
 	request.ApiName = "DoOpenApi"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 

@@ -96,6 +96,11 @@ func resourceApsaraStackNatGatewayCreate(d *schema.ResourceData, meta interface{
 	vpcService := VpcService{client}
 
 	request := vpc.CreateCreateNatGatewayRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -193,6 +198,11 @@ func resourceApsaraStackNatGatewayUpdate(d *schema.ResourceData, meta interface{
 	d.Partial(true)
 	attributeUpdate := false
 	modifyNatGatewayAttributeRequest := vpc.CreateModifyNatGatewayAttributeRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		modifyNatGatewayAttributeRequest.Scheme = "https"
+	} else {
+		modifyNatGatewayAttributeRequest.Scheme = "http"
+	}
 	modifyNatGatewayAttributeRequest.RegionId = natGateway.RegionId
 	modifyNatGatewayAttributeRequest.NatGatewayId = natGateway.NatGatewayId
 	modifyNatGatewayAttributeRequest.Headers = map[string]string{"RegionId": client.RegionId}
@@ -239,6 +249,11 @@ func resourceApsaraStackNatGatewayUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial("specification")
 		modifyNatGatewaySpecRequest := vpc.CreateModifyNatGatewaySpecRequest()
 		modifyNatGatewaySpecRequest.RegionId = natGateway.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			modifyNatGatewaySpecRequest.Scheme = "https"
+		} else {
+			modifyNatGatewaySpecRequest.Scheme = "http"
+		}
 		modifyNatGatewaySpecRequest.NatGatewayId = natGateway.NatGatewayId
 		modifyNatGatewaySpecRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		modifyNatGatewaySpecRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -268,13 +283,21 @@ func resourceApsaraStackNatGatewayDelete(d *schema.ResourceData, meta interface{
 	}
 	request := vpc.CreateDeleteNatGatewayRequest()
 	request.RegionId = string(client.Region)
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.NatGatewayId = d.Id()
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		request := vpc.CreateDeleteNatGatewayRequest()
-
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.RegionId = string(client.Region)
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -303,6 +326,11 @@ func resourceApsaraStackNatGatewayDelete(d *schema.ResourceData, meta interface{
 func deleteBandwidthPackages(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	packRequest := vpc.CreateDescribeBandwidthPackagesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		packRequest.Scheme = "https"
+	} else {
+		packRequest.Scheme = "http"
+	}
 	packRequest.RegionId = string(client.Region)
 	packRequest.Headers = map[string]string{"RegionId": client.RegionId}
 	packRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -321,6 +349,11 @@ func deleteBandwidthPackages(d *schema.ResourceData, meta interface{}) error {
 			for _, pack := range response.BandwidthPackages.BandwidthPackage {
 				request := vpc.CreateDeleteBandwidthPackageRequest()
 				request.RegionId = string(client.Region)
+				if strings.ToLower(client.Config.Protocol) == "https" {
+					request.Scheme = "https"
+				} else {
+					request.Scheme = "http"
+				}
 				request.BandwidthPackageId = pack.BandwidthPackageId
 				request.Headers = map[string]string{"RegionId": client.RegionId}
 				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -382,6 +415,11 @@ func flattenBandWidthPackages(bandWidthPackageIds []string, meta interface{}, d 
 func getPackage(packageId string, meta interface{}, d *schema.ResourceData) (pack vpc.BandwidthPackage, err error) {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeBandwidthPackagesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}

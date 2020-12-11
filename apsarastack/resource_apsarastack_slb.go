@@ -55,6 +55,11 @@ func resourceApsaraStackSlbCreate(d *schema.ResourceData, meta interface{}) erro
 	client := meta.(*connectivity.ApsaraStackClient)
 	slbService := SlbService{client}
 	request := slb.CreateCreateLoadBalancerRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -146,6 +151,11 @@ func resourceApsaraStackSlbUpdate(d *schema.ResourceData, meta interface{}) erro
 
 	if d.HasChange("name") {
 		request := slb.CreateSetLoadBalancerNameRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -162,6 +172,11 @@ func resourceApsaraStackSlbUpdate(d *schema.ResourceData, meta interface{}) erro
 	}
 	update := false
 	modifyLoadBalancerInternetSpecRequest := slb.CreateModifyLoadBalancerInternetSpecRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		modifyLoadBalancerInternetSpecRequest.Scheme = "https"
+	} else {
+		modifyLoadBalancerInternetSpecRequest.Scheme = "http"
+	}
 	modifyLoadBalancerInternetSpecRequest.Headers = map[string]string{"RegionId": client.RegionId}
 	modifyLoadBalancerInternetSpecRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	modifyLoadBalancerInternetSpecRequest.RegionId = client.RegionId
@@ -179,6 +194,11 @@ func resourceApsaraStackSlbUpdate(d *schema.ResourceData, meta interface{}) erro
 	update = false
 	modifyLoadBalancerPayTypeRequest := slb.CreateModifyLoadBalancerPayTypeRequest()
 	modifyLoadBalancerPayTypeRequest.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		modifyLoadBalancerPayTypeRequest.Scheme = "https"
+	} else {
+		modifyLoadBalancerPayTypeRequest.Scheme = "http"
+	}
 	modifyLoadBalancerInternetSpecRequest.Headers = map[string]string{"RegionId": client.RegionId}
 	modifyLoadBalancerInternetSpecRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	modifyLoadBalancerPayTypeRequest.LoadBalancerId = d.Id()
@@ -203,6 +223,11 @@ func resourceApsaraStackSlbDelete(d *schema.ResourceData, meta interface{}) erro
 
 	request := slb.CreateDeleteLoadBalancerRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = d.Id()

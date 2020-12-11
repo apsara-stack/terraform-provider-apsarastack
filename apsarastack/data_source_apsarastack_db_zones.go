@@ -67,6 +67,11 @@ func dataSourceApsaraStackDBZonesRead(d *schema.ResourceData, meta interface{}) 
 	var zoneIds []string
 	request := rds.CreateDescribeRegionsRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	var response = &rds.DescribeRegionsResponse{}

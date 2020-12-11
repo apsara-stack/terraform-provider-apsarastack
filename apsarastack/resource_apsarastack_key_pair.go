@@ -84,6 +84,16 @@ func resourceApsaraStackKeyPairCreate(d *schema.ResourceData, meta interface{}) 
 	if publicKey, ok := d.GetOk("public_key"); ok {
 		request := ecs.CreateImportKeyPairRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.KeyPairName = keyName
@@ -100,6 +110,12 @@ func resourceApsaraStackKeyPairCreate(d *schema.ResourceData, meta interface{}) 
 	} else {
 		request := ecs.CreateCreateKeyPairRequest()
 		request.RegionId = client.RegionId
+
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.KeyPairName = keyName
@@ -156,6 +172,11 @@ func resourceApsaraStackKeyPairDelete(d *schema.ResourceData, meta interface{}) 
 
 	request := ecs.CreateDeleteKeyPairsRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.KeyPairNames = convertListToJsonString(append(make([]interface{}, 0, 1), d.Id()))

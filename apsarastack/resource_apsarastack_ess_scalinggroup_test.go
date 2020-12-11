@@ -38,6 +38,7 @@ func testSweepEssGroups(region string) error {
 
 	var groups []ess.ScalingGroup
 	req := ess.CreateDescribeScalingGroupsRequest()
+
 	req.RegionId = client.RegionId
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)

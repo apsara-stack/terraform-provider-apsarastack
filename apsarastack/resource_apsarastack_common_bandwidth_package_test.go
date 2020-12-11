@@ -42,8 +42,11 @@ func testSweepCommonBandwidthPackage(region string) error {
 	var commonBandwidthPackages []vpc.CommonBandwidthPackage
 	req := vpc.CreateDescribeCommonBandwidthPackagesRequest()
 	req.RegionId = client.RegionId
-	req.QueryParams["Department"] = client.Department
-	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
@@ -88,6 +91,11 @@ func testSweepCommonBandwidthPackage(region string) error {
 		}
 		log.Printf("[INFO] Deleting Common Bandwidth Package: %s (%s)", name, id)
 		req := vpc.CreateDeleteCommonBandwidthPackageRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		req.Headers = map[string]string{"RegionId": client.RegionId}
 		req.QueryParams["Department"] = client.Department
 		req.QueryParams["ResourceGroup"] = client.ResourceGroup

@@ -3,6 +3,7 @@ package apsarastack
 import (
 	"encoding/json"
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
@@ -190,7 +191,11 @@ func dataSourceApsaraStackDBInstancesRead(d *schema.ResourceData, meta interface
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := rds.CreateDescribeDBInstancesRequest()
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

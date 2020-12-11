@@ -41,6 +41,11 @@ func testSweepSecurityGroups(region string) error {
 
 	var groups []ecs.SecurityGroup
 	req := ecs.CreateDescribeSecurityGroupsRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.RegionId = client.RegionId

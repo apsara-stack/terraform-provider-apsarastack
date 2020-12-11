@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -67,6 +68,11 @@ func resourceApsaraStackCommonBandwidthPackageCreate(d *schema.ResourceData, met
 	vpcService := VpcService{client}
 
 	request := vpc.CreateCreateCommonBandwidthPackageRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
@@ -138,6 +144,11 @@ func resourceApsaraStackCommonBandwidthPackageUpdate(d *schema.ResourceData, met
 	d.Partial(true)
 	update := false
 	request := vpc.CreateModifyCommonBandwidthPackageAttributeRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
@@ -167,6 +178,11 @@ func resourceApsaraStackCommonBandwidthPackageUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("bandwidth") {
 		request := vpc.CreateModifyCommonBandwidthPackageSpecRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 
@@ -192,6 +208,11 @@ func resourceApsaraStackCommonBandwidthPackageDelete(d *schema.ResourceData, met
 	vpcService := VpcService{client}
 
 	request := vpc.CreateDeleteCommonBandwidthPackageRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
