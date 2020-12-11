@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/denverdino/aliyungo/common"
 
@@ -273,6 +274,11 @@ func resourceApsaraStackLaunchTemplateCreate(d *schema.ResourceData, meta interf
 
 	request := ecs.CreateCreateLaunchTemplateRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LaunchTemplateName = d.Get("name").(string)
@@ -485,7 +491,11 @@ func resourceApsaraStackLaunchTemplateDelete(d *schema.ResourceData, meta interf
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LaunchTemplateId = d.Id()
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DeleteLaunchTemplate(request)
 	})
@@ -504,6 +514,11 @@ func getLaunchTemplateVersions(id string, meta interface{}) ([]ecs.LaunchTemplat
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateDescribeLaunchTemplateVersionsRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(50)
@@ -526,6 +541,11 @@ func getLaunchTemplateVersions(id string, meta interface{}) ([]ecs.LaunchTemplat
 func deleteLaunchTemplateVersion(id string, version int, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateDeleteLaunchTemplateVersionRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -544,6 +564,11 @@ func deleteLaunchTemplateVersion(id string, version int, meta interface{}) error
 func createLaunchTemplateVersion(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateCreateLaunchTemplateVersionRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

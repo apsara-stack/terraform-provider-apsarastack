@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 )
 
 func resourceApsaraStackEssScheduledTask() *schema.Resource {
@@ -72,6 +73,11 @@ func resourceApsaraStackEssScheduledTaskCreate(d *schema.ResourceData, meta inte
 	request := buildApsaraStackEssScheduledTaskArgs(d)
 	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -121,6 +127,11 @@ func resourceApsaraStackEssScheduledTaskUpdate(d *schema.ResourceData, meta inte
 
 	request := ess.CreateModifyScheduledTaskRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -169,6 +180,11 @@ func resourceApsaraStackEssScheduledTaskDelete(d *schema.ResourceData, meta inte
 
 	request := ess.CreateDeleteScheduledTaskRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 

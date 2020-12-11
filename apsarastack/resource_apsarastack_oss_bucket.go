@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -304,6 +305,9 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 	// If not present, Create Bucket
 	if det.BucketInfo.Name == "" {
 		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 
 			"AccessKeySecret":  client.SecretKey,
@@ -324,7 +328,11 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 		request.Product = "OneRouter"  // Specify product
 		request.Version = "2018-12-12" // Specify product version
 		request.ServiceCode = "OneRouter"
-		request.Scheme = "http" // Set request scheme. Default: http
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		} // Set request scheme. Default: http
 		request.ApiName = "DoOpenApi"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 
@@ -1065,6 +1073,9 @@ func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 
 			"AccessKeySecret":  client.SecretKey,
@@ -1085,7 +1096,11 @@ func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}
 		request.Product = "OneRouter"  // Specify product
 		request.Version = "2018-12-12" // Specify product version
 		request.ServiceCode = "OneRouter"
-		request.Scheme = "http" // Set request scheme. Default: http
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		} // Set request scheme. Default: http
 		request.ApiName = "DoOpenApi"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 

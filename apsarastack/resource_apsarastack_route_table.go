@@ -5,6 +5,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 )
 
 func resourceApsaraStackRouteTable() *schema.Resource {
@@ -45,7 +46,11 @@ func resourceAliyunRouteTableCreate(d *schema.ResourceData, meta interface{}) er
 
 	request := vpc.CreateCreateRouteTableRequest()
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -101,7 +106,11 @@ func resourceAliyunRouteTableUpdate(d *schema.ResourceData, meta interface{}) er
 	}
 	request := vpc.CreateModifyRouteTableAttributesRequest()
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouteTableId = d.Id()
@@ -130,7 +139,11 @@ func resourceAliyunRouteTableDelete(d *schema.ResourceData, meta interface{}) er
 	routeTableService := VpcService{client}
 	request := vpc.CreateDeleteRouteTableRequest()
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouteTableId = d.Id()

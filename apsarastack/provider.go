@@ -10,7 +10,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -441,6 +440,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
 		}
 	}
+	if strings.ToLower(config.Protocol) == "https" {
+		config.Protocol = "HTTPS"
+	} else {
+		config.Protocol = "HTTP"
+	}
+
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
 		dept, rg, err := getResourceCredentials(config)
@@ -926,7 +931,7 @@ func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionNam
 	request.RoleSessionName = sessionName
 	request.DurationSeconds = requests.NewInteger(sessionExpiration)
 	request.Policy = policy
-	request.Scheme = "http"
+	request.Scheme = "https"
 	request.Domain = ascmEndpoint
 
 	var client *sts.Client
@@ -974,12 +979,25 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		return "", "", fmt.Errorf("errror while fetching resource group details, resource group set name can not be empty")
 	}
 	request := requests.NewCommonRequest()
+	if config.Insecure {
+		request.SetHTTPSInsecure(config.Insecure)
+	}
 	request.RegionId = config.RegionId
 	request.Method = "GET"         // Set request method
 	request.Product = "ascm"       // Specify product
 	request.Domain = endpoint      // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2019-05-10" // Specify product version
-	request.Scheme = "http"        // Set request scheme. Default: http
+	// Set request scheme. Default: http
+	if strings.ToLower(config.Protocol) == "https" {
+		log.Printf("PROTOCOL SET TO HTTPS")
+		request.Scheme = "https"
+	} else {
+		log.Printf("PROTOCOL SET TO HTTP")
+		request.Scheme = "http"
+	}
+	if config.Insecure {
+		ascmClient.SetHTTPSInsecure(config.Insecure)
+	}
 	request.ApiName = "ListResourceGroup"
 	request.QueryParams = map[string]string{
 		"AccessKeySecret":   config.SecretKey,
@@ -993,6 +1011,9 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		"resourceGroupName": config.ResourceSetName,
 	}
 	resp := responses.BaseResponse{}
+	if config.Insecure {
+		request.SetHTTPSInsecure(config.Insecure)
+	}
 	request.TransToAcsRequest()
 	err = ascmClient.DoAction(request, &resp)
 	if err != nil {

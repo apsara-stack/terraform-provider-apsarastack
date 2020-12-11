@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -80,11 +81,17 @@ func resourceApsaraStackEssScalingGroup() *schema.Resource {
 func resourceApsaraStackEssScalingGroupCreate(d *schema.ResourceData, meta interface{}) error {
 
 	request, err := buildApsaraStackEssScalingGroupArgs(d, meta)
+
 	if err != nil {
 		return WrapError(err)
 	}
 
 	client := meta.(*connectivity.ApsaraStackClient)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	essService := EssService{client}
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -166,6 +173,11 @@ func resourceApsaraStackEssScalingGroupUpdate(d *schema.ResourceData, meta inter
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateModifyScalingGroupRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -238,6 +250,11 @@ func resourceApsaraStackEssScalingGroupDelete(d *schema.ResourceData, meta inter
 
 	request := ess.CreateDeleteScalingGroupRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -263,6 +280,11 @@ func buildApsaraStackEssScalingGroupArgs(d *schema.ResourceData, meta interface{
 	client := meta.(*connectivity.ApsaraStackClient)
 	slbService := SlbService{client}
 	request := ess.CreateCreateScalingGroupRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

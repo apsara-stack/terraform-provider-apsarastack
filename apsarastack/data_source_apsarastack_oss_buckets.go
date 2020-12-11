@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"regexp"
+	"strings"
 )
 
 func dataSourceApsaraStackOssBuckets() *schema.Resource {
@@ -252,6 +253,10 @@ func dataSourceApsaraStackOssBucketsRead(d *schema.ResourceData, meta interface{
 			options = append(options, oss.Marker(nextMarker))
 		}
 		request := requests.NewCommonRequest()
+
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 
 			"AccessKeySecret":  client.SecretKey,
@@ -270,7 +275,11 @@ func dataSourceApsaraStackOssBucketsRead(d *schema.ResourceData, meta interface{
 		request.Product = "OneRouter"  // Specify product
 		request.Version = "2018-12-12" // Specify product version
 		request.ServiceCode = "OneRouter"
-		request.Scheme = "http" // Set request scheme. Default: http
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		} // Set request scheme. Default: http
 		request.ApiName = "DoOpenApi"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 

@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
@@ -85,6 +86,11 @@ func dataSourceApsaraStackSlbRulesRead(d *schema.ResourceData, meta interface{})
 	request := slb.CreateDescribeRulesRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 	request.ListenerPort = requests.NewInteger(d.Get("frontend_port").(int))

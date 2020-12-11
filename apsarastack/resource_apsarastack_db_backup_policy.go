@@ -218,6 +218,11 @@ func resourceApsaraStackDBBackupPolicyDelete(d *schema.ResourceData, meta interf
 	client := meta.(*connectivity.ApsaraStackClient)
 	rdsService := RdsService{client}
 	request := rds.CreateModifyBackupPolicyRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

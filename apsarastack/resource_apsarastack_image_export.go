@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -45,6 +46,11 @@ func resourceApsaraStackImageExportCreate(d *schema.ResourceData, meta interface
 
 	request := ecs.CreateExportImageRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ImageId = d.Get("image_id").(string)

@@ -45,6 +45,11 @@ func testSweepRouteTable(region string) error {
 	var routeTables []vpc.RouterTableListType
 	req := vpc.CreateDescribeRouteTableListRequest()
 	req.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
@@ -89,6 +94,11 @@ func testSweepRouteTable(region string) error {
 		}
 		log.Printf("[INFO] Deleting Route Table: %s (%s)", name, id)
 		req := vpc.CreateDeleteRouteTableRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		req.Headers = map[string]string{"RegionId": client.RegionId}
 		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.QueryParams["Department"] = client.Department
