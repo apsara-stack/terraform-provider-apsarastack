@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strings"
 	"time"
 )
 
@@ -72,6 +73,9 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 	if len(check.Data) == 0 {
 
 		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
 			"AccessKeySecret":  client.SecretKey,
@@ -91,7 +95,11 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 		request.Version = "2019-05-10"
 		request.ServiceCode = "ascm"
 		request.Domain = client.Domain
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "AddUser"
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -156,6 +164,9 @@ func resourceApsaraStackAscmUserUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 
 	request.QueryParams = map[string]string{
 		"RegionId":         client.RegionId,
@@ -178,7 +189,11 @@ func resourceApsaraStackAscmUserUpdate(d *schema.ResourceData, meta interface{})
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	request.ServiceCode = "ascm"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ModifyUserInformation"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -244,6 +259,9 @@ func resourceApsaraStackAscmUserDelete(d *schema.ResourceData, meta interface{})
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"AccessKeySecret": client.SecretKey,
@@ -259,7 +277,11 @@ func resourceApsaraStackAscmUserDelete(d *schema.ResourceData, meta interface{})
 		request.Version = "2019-05-10"
 		request.ServiceCode = "ascm"
 		request.Domain = client.Domain
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "RemoveUserByLoginName"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId

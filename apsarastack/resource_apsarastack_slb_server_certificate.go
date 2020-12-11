@@ -43,6 +43,11 @@ func resourceApsaraStackSlbServerCertificateCreate(d *schema.ResourceData, meta 
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := slb.CreateUploadServerCertificateRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -111,6 +116,11 @@ func resourceApsaraStackSlbServerCertificateUpdate(d *schema.ResourceData, meta 
 	if !d.IsNewResource() && d.HasChange("name") {
 		request := slb.CreateSetServerCertificateNameRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.ServerCertificateId = d.Id()
@@ -132,6 +142,11 @@ func resourceApsaraStackSlbServerCertificateDelete(d *schema.ResourceData, meta 
 
 	request := slb.CreateDeleteServerCertificateRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ServerCertificateId = d.Id()

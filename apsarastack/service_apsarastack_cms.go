@@ -21,6 +21,9 @@ type IspCities []map[string]string
 
 func (s *CmsService) BuildCmsCommonRequest(region string) *requests.CommonRequest {
 	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
 	return request
 }
 

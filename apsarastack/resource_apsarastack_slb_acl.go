@@ -63,6 +63,11 @@ func resourceApsaraStackSlbAclCreate(d *schema.ResourceData, meta interface{}) e
 
 	request := slb.CreateCreateAccessControlListRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers["RegionId"] = client.RegionId
 	request.QueryParams["AccessKeySecret"] = client.SecretKey
 	request.QueryParams["Product"] = "Slb"
@@ -124,6 +129,11 @@ func resourceApsaraStackSlbAclUpdate(d *schema.ResourceData, meta interface{}) e
 	if !d.IsNewResource() && d.HasChange("name") {
 		request := slb.CreateSetAccessControlListAttributeRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.AclId = d.Id()
@@ -168,6 +178,11 @@ func resourceApsaraStackSlbAclDelete(d *schema.ResourceData, meta interface{}) e
 	client := meta.(*connectivity.ApsaraStackClient)
 	slbService := SlbService{client}
 	request := slb.CreateDeleteAccessControlListRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

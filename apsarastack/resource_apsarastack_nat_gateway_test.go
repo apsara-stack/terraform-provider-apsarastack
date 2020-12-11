@@ -43,8 +43,11 @@ func testSweepNatGateways(region string) error {
 	var gws []vpc.NatGateway
 	req := vpc.CreateDescribeNatGatewaysRequest()
 	req.RegionId = client.RegionId
-	req.QueryParams["Department"] = client.Department
-	req.QueryParams["ResourceGroup"] = client.ResourceGroup
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)

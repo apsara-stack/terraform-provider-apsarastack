@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -60,6 +61,11 @@ func resourceApsaraStackSlbBackendServersCreate(d *schema.ResourceData, meta int
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := slb.CreateAddBackendServersRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
@@ -146,6 +152,11 @@ func resourceApsaraStackSlbBackendServersUpdate(d *schema.ResourceData, meta int
 			}
 			request := slb.CreateRemoveBackendServersRequest()
 			request.RegionId = client.RegionId
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.LoadBalancerId = d.Id()
@@ -184,6 +195,11 @@ func resourceApsaraStackSlbBackendServersUpdate(d *schema.ResourceData, meta int
 			}
 			request := slb.CreateAddBackendServersRequest()
 			request.RegionId = client.RegionId
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.LoadBalancerId = d.Id()
@@ -230,6 +246,11 @@ func resourceApsaraStackSlbBackendServersUpdate(d *schema.ResourceData, meta int
 				}
 				request := slb.CreateSetBackendServersRequest()
 				request.RegionId = client.RegionId
+				if strings.ToLower(client.Config.Protocol) == "https" {
+					request.Scheme = "https"
+				} else {
+					request.Scheme = "http"
+				}
 				request.Headers = map[string]string{"RegionId": client.RegionId}
 				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 				request.LoadBalancerId = d.Id()
@@ -282,6 +303,11 @@ func resourceApsaraStackSlbBackendServersDelete(d *schema.ResourceData, meta int
 
 		request := slb.CreateRemoveBackendServersRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.LoadBalancerId = d.Id()

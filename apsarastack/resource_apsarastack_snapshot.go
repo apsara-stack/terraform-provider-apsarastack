@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -57,6 +58,11 @@ func resourceApsaraStackSnapshotCreate(d *schema.ResourceData, meta interface{})
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DiskId = d.Get("disk_id").(string)
 	request.ClientToken = buildClientToken(request.GetActionName())
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if name, ok := d.GetOk("name"); ok {
 		request.SnapshotName = name.(string)
 	}
@@ -130,7 +136,11 @@ func resourceApsaraStackSnapshotDelete(d *schema.ResourceData, meta interface{})
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SnapshotId = d.Id()
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	var raw interface{}
 	var err error
 	err = resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {

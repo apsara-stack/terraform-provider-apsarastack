@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/denverdino/aliyungo/cs"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -305,10 +306,18 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 	//}
 
 	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	request.Method = "GET"         // Set request method
 	request.Product = "Cs"         // Specify product
 	request.Version = "2015-12-15" // Specify product version
-	request.Scheme = "http"
+
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ServiceCode = "cs"
 	request.ApiName = "DescribeClusters"
 	request.Headers = map[string]string{"RegionId": client.RegionId}

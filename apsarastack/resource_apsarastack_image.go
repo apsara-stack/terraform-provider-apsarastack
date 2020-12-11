@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -118,6 +119,11 @@ func resourceApsaraStackImageCreate(d *schema.ResourceData, meta interface{}) er
 	}
 	request := ecs.CreateCreateImageRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if instanceId, ok := d.GetOk("instance_id"); ok {

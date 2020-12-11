@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -23,6 +24,11 @@ func (s *VpcService) DescribeEip(id string) (eip vpc.EipAddress, err error) {
 
 	request := vpc.CreateDescribeEipAddressesRequest()
 	request.RegionId = string(s.client.Region)
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 
@@ -63,6 +69,11 @@ func (s *VpcService) DescribeEipAssociation(id string) (object vpc.EipAddress, e
 func (s *VpcService) DescribeNatGateway(id string) (nat vpc.NatGateway, err error) {
 	request := vpc.CreateDescribeNatGatewaysRequest()
 	request.RegionId = string(s.client.Region)
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.NatGatewayId = id
@@ -92,6 +103,11 @@ func (s *VpcService) DescribeNatGateway(id string) (nat vpc.NatGateway, err erro
 func (s *VpcService) DescribeVpc(id string) (v vpc.Vpc, err error) {
 	request := vpc.CreateDescribeVpcsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.VpcId = id
@@ -142,6 +158,11 @@ func (s *VpcService) VpcStateRefreshFunc(id string, failStates []string) resourc
 func (s *VpcService) DescribeVSwitch(id string) (v vpc.DescribeVSwitchAttributesResponse, err error) {
 	request := vpc.CreateDescribeVSwitchAttributesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.VSwitchId = id
@@ -196,6 +217,11 @@ func (s *VpcService) DescribeSnatEntry(id string) (snat vpc.SnatTableEntry, err 
 	}
 	request := vpc.CreateDescribeSnatTableEntriesRequest()
 	request.RegionId = string(s.client.Region)
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.SnatTableId = parts[0]
@@ -255,6 +281,11 @@ func (s *VpcService) DescribeForwardEntry(id string) (entry vpc.ForwardTableEntr
 	forwardTableId, forwardEntryId := parts[0], parts[1]
 	request := vpc.CreateDescribeForwardTableEntriesRequest()
 	request.RegionId = string(s.client.Region)
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ForwardTableId = forwardTableId
@@ -289,6 +320,11 @@ func (s *VpcService) DescribeForwardEntry(id string) (entry vpc.ForwardTableEntr
 func (s *VpcService) QueryRouteTableById(routeTableId string) (rt vpc.RouteTable, err error) {
 	request := vpc.CreateDescribeRouteTablesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.RouteTableId = routeTableId
@@ -323,6 +359,11 @@ func (s *VpcService) DescribeRouteEntry(id string) (*vpc.RouteEntry, error) {
 
 	request := vpc.CreateDescribeRouteTablesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.RouteTableId = rtId
@@ -368,6 +409,11 @@ func (s *VpcService) DescribeRouteEntry(id string) (*vpc.RouteEntry, error) {
 func (s *VpcService) DescribeRouterInterface(id, regionId string) (ri vpc.RouterInterfaceType, err error) {
 	request := vpc.CreateDescribeRouterInterfacesRequest()
 	request.RegionId = regionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 
@@ -414,7 +460,11 @@ func (s *VpcService) DescribeRouterInterfaceConnection(id, regionId string) (ri 
 
 func (s *VpcService) DescribeCenInstanceGrant(id string) (rule vpc.CbnGrantRule, err error) {
 	request := vpc.CreateDescribeGrantRulesToCenRequest()
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	parts, err := ParseResourceId(id, 3)
 	if err != nil {
 		return rule, WrapError(err)
@@ -492,6 +542,11 @@ func (s *VpcService) WaitForCenInstanceGrant(id string, status Status, timeout i
 func (s *VpcService) DescribeCommonBandwidthPackage(id string) (v vpc.CommonBandwidthPackage, err error) {
 	request := vpc.CreateDescribeCommonBandwidthPackagesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.BandwidthPackageId = id
@@ -542,6 +597,11 @@ func (s *VpcService) DescribeCommonBandwidthPackageAttachment(id string) (v vpc.
 func (s *VpcService) DescribeRouteTable(id string) (v vpc.RouterTableListType, err error) {
 	request := vpc.CreateDescribeRouteTableListRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.RouteTableId = id
@@ -783,6 +843,11 @@ func (s *VpcService) WaitForEipAssociation(id string, status Status, timeout int
 func (s *VpcService) DeactivateRouterInterface(interfaceId string) error {
 	request := vpc.CreateDeactivateRouterInterfaceRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.RouterInterfaceId = interfaceId
@@ -800,6 +865,11 @@ func (s *VpcService) DeactivateRouterInterface(interfaceId string) error {
 func (s *VpcService) ActivateRouterInterface(interfaceId string) error {
 	request := vpc.CreateActivateRouterInterfaceRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -977,7 +1047,11 @@ func (s *VpcService) DescribeNetworkAcl(id string) (networkAcl vpc.NetworkAcl, e
 	request := vpc.CreateDescribeNetworkAclsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.NetworkAclId = id
 
@@ -1089,7 +1163,11 @@ func (s *VpcService) WaitForNetworkAclAttachment(id string, resource []vpc.Resou
 func (s *VpcService) DescribeTags(resourceId string, resourceTags map[string]interface{}, resourceType TagResourceType) (tags []vpc.TagResource, err error) {
 	request := vpc.CreateListTagResourcesRequest()
 	request.RegionId = s.client.RegionId
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ResourceType = string(resourceType)
@@ -1146,6 +1224,11 @@ func (s *VpcService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 			request := vpc.CreateUnTagResourcesRequest()
 			request.ResourceId = &[]string{d.Id()}
 			request.ResourceType = string(resourceType)
+			if strings.ToLower(s.client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.TagKey = &tagKey
 			request.RegionId = s.client.RegionId
 			request.Headers = map[string]string{"RegionId": s.client.RegionId}
@@ -1175,6 +1258,11 @@ func (s *VpcService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 		if len(create) > 0 {
 			request := vpc.CreateTagResourcesRequest()
 			request.ResourceId = &[]string{d.Id()}
+			if strings.ToLower(s.client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.Tag = &create
 			request.ResourceType = string(resourceType)
 			request.RegionId = s.client.RegionId

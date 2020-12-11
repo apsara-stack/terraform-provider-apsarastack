@@ -34,6 +34,11 @@ func testApsaraStackNetworkInterface(region string) error {
 
 	req := ecs.CreateDescribeNetworkInterfacesRequest()
 	req.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
@@ -93,6 +98,11 @@ func testApsaraStackNetworkInterface(region string) error {
 		sweeped = true
 		if eni.InstanceId != "" {
 			req := ecs.CreateDetachNetworkInterfaceRequest()
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				req.Scheme = "https"
+			} else {
+				req.Scheme = "http"
+			}
 			req.Headers = map[string]string{"RegionId": client.RegionId}
 			req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			req.InstanceId = eni.InstanceId
@@ -114,6 +124,11 @@ func testApsaraStackNetworkInterface(region string) error {
 
 		log.Printf("[INFO] Deleting NetworkInterface %s", name)
 		req := ecs.CreateDeleteNetworkInterfaceRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		req.Headers = map[string]string{"RegionId": client.RegionId}
 		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.NetworkInterfaceId = eni.NetworkInterfaceId

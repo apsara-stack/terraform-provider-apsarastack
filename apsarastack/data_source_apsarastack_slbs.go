@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
 	"regexp"
+	"strings"
 )
 
 func dataSourceApsaraStackSlbs() *schema.Resource {
@@ -138,6 +139,11 @@ func dataSourceApsaraStackSlbsRead(d *schema.ResourceData, meta interface{}) err
 
 	request := slb.CreateDescribeLoadBalancersRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	//request.ResourceGroupId = d.Get("resource_group_id").(string)

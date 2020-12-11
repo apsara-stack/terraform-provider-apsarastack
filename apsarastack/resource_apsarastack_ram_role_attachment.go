@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -38,6 +39,11 @@ func resourceApsaraStackInstanceRoleAttachmentCreate(d *schema.ResourceData, met
 	instanceIds := convertListToJsonString(d.Get("instance_ids").(*schema.Set).List())
 
 	request := ecs.CreateAttachInstanceRamRoleRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -106,6 +112,11 @@ func resourceApsaraStackInstanceRoleAttachmentDelete(d *schema.ResourceData, met
 
 	request := ecs.CreateDetachInstanceRamRoleRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RamRoleName = roleName

@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -51,6 +52,11 @@ func resourceApsaraStackSnapshotPolicyCreate(d *schema.ResourceData, meta interf
 
 	request := ecs.CreateCreateAutoSnapshotPolicyRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AutoSnapshotPolicyName = d.Get("name").(string)
@@ -115,6 +121,11 @@ func resourceApsaraStackSnapshotPolicyUpdate(d *schema.ResourceData, meta interf
 	if d.HasChange("name") {
 		request.AutoSnapshotPolicyName = d.Get("name").(string)
 	}
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if d.HasChange("repeat_weekdays") {
 		request.RepeatWeekdays = convertListToJsonString(d.Get("repeat_weekdays").(*schema.Set).List())
 	}
@@ -140,6 +151,11 @@ func resourceApsaraStackSnapshotPolicyDelete(d *schema.ResourceData, meta interf
 
 	request := ecs.CreateDeleteAutoSnapshotPolicyRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AutoSnapshotPolicyId = d.Id()

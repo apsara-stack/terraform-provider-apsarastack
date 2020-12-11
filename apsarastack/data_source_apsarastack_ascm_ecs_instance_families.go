@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strings"
 )
 
 func dataSourceApsaraStackEcsInstanceFamilies() *schema.Resource {
@@ -52,10 +53,17 @@ func dataSourceApsaraStackEcsInstanceFamilies() *schema.Resource {
 func dataSourceApsaraStackEcsInstanceFamiliesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	request.Method = "GET"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.ApiName = "DescribeInstanceTypeFamilies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
