@@ -362,3 +362,29 @@ type ClustersByProduct struct {
 	Code            int  `json:"code"`
 	SuccessResponse bool `json:"successResponse"`
 }
+
+type QuotaData struct {
+	Code string `json:"code"`
+	Cost int    `json:"cost"`
+	Data struct {
+		UsedVipInternal     int    `json:"usedVipInternal"`
+		Cluster             string `json:"cluster"`
+		AllocateVipPublic   int    `json:"allocateVipPublic"`
+		QuotaTypeID         int    `json:"quotaTypeId"`
+		TotalVipPublic      int    `json:"totalVipPublic"`
+		TotalVipInternal    int    `json:"totalVipInternal"`
+		UsedVipPublic       int    `json:"usedVipPublic"`
+		AllocateVipInternal int    `json:"allocateVipInternal"`
+		TargetType          string `json:"targetType"`
+		QuotaType           string `json:"quotaType"`
+		DtFlag              bool   `json:"dtFlag"`
+		Ctime               int64  `json:"ctime"`
+		ID                  int    `json:"id"`
+		Region              string `json:"region"`
+	} `json:"data"`
+	Message      string `json:"message"`
+	PureListData bool   `json:"pureListData"`
+	Redirect     bool   `json:"redirect"`
+	RequestID    string `json:"requestId"`
+	Success      bool   `json:"success"`
+}
