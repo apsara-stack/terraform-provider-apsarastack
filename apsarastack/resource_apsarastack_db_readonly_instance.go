@@ -72,8 +72,8 @@ func resourceApsaraStackDBReadonlyInstance() *schema.Resource {
 			},
 			"db_instance_storage_type": {
 				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
+				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"local_ssd", "cloud_ssd", "cloud_essd", "cloud_essd2", "cloud_essd3"}, false),
 			},
 

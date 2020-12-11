@@ -116,8 +116,6 @@ The multiple zone ID can be retrieved by setting `multi` to "true" in the data s
     - Value: It can be up to 128 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It can be a null string.
 
    Note: From 1.63.0, the tag key and value are case sensitive. Before that, they are not case sensitive.
-
-* `security_group_ids` - (Optional, List(string), Available in 1.69.0+) The list IDs to join ECS Security Group. At most supports three security groups.
 * `maintain_time` - (Optional, Available in 1.56.0+) Maintainable time period format of the instance: HH:MMZ-HH:MMZ (UTC time)
 
 -> **NOTE:** Because of data backup and migration, change DB instance type and storage would cost 15~20 minutes. Please make full preparation before changing them.
