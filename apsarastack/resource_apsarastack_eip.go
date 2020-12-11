@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -53,6 +54,11 @@ func resourceApsaraStackEipCreate(d *schema.ResourceData, meta interface{}) erro
 	vpcService := VpcService{client}
 
 	request := vpc.CreateAllocateEipAddressRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
@@ -103,7 +109,11 @@ func resourceApsaraStackEipUpdate(d *schema.ResourceData, meta interface{}) erro
 	update := false
 	request := vpc.CreateModifyEipAddressAttributeRequest()
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AllocationId = d.Id()
@@ -139,7 +149,11 @@ func resourceApsaraStackEipDelete(d *schema.ResourceData, meta interface{}) erro
 	request := vpc.CreateReleaseEipAddressRequest()
 	request.AllocationId = d.Id()
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {

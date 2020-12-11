@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -44,6 +45,11 @@ func resourceApsaraStackNetworkInterfaceAttachmentCreate(d *schema.ResourceData,
 
 	request := ecs.CreateAttachNetworkInterfaceRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.InstanceId = instanceId
@@ -110,6 +116,11 @@ func resourceApsaraStackNetworkInterfaceAttachmentDelete(d *schema.ResourceData,
 
 	request := ecs.CreateDetachNetworkInterfaceRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.InstanceId = instanceId
 	request.NetworkInterfaceId = eniId
 	request.Headers = map[string]string{"RegionId": client.RegionId}

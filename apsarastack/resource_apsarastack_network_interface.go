@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 	"time"
 )
 
@@ -81,6 +82,11 @@ func resourceNetworkInterfaceCreate(d *schema.ResourceData, meta interface{}) er
 	ecsService := EcsService{client}
 	request := ecs.CreateCreateNetworkInterfaceRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.VSwitchId = d.Get("vswitch_id").(string)
@@ -165,6 +171,11 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 	attributeUpdate := false
 	request := ecs.CreateModifyNetworkInterfaceAttributeRequest()
 	request.NetworkInterfaceId = d.Id()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -209,6 +220,11 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 			unAssignIpList := expandStringList(unAssignIps.List())
 			unAssignPrivateIpAddressesRequest := ecs.CreateUnassignPrivateIpAddressesRequest()
 			unAssignPrivateIpAddressesRequest.RegionId = client.RegionId
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				unAssignPrivateIpAddressesRequest.Scheme = "https"
+			} else {
+				unAssignPrivateIpAddressesRequest.Scheme = "http"
+			}
 			unAssignPrivateIpAddressesRequest.Headers = map[string]string{"RegionId": client.RegionId}
 			unAssignPrivateIpAddressesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			unAssignPrivateIpAddressesRequest.NetworkInterfaceId = d.Id()
@@ -236,6 +252,11 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 			assignIpList := expandStringList(assignIps.List())
 			assignPrivateIpAddressesRequest := ecs.CreateAssignPrivateIpAddressesRequest()
 			assignPrivateIpAddressesRequest.RegionId = client.RegionId
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				assignPrivateIpAddressesRequest.Scheme = "https"
+			} else {
+				assignPrivateIpAddressesRequest.Scheme = "http"
+			}
 			assignPrivateIpAddressesRequest.Headers = map[string]string{"RegionId": client.RegionId}
 			assignPrivateIpAddressesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			assignPrivateIpAddressesRequest.NetworkInterfaceId = d.Id()
@@ -273,6 +294,11 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 			if diff > 0 {
 				assignPrivateIpAddressesRequest := ecs.CreateAssignPrivateIpAddressesRequest()
 				assignPrivateIpAddressesRequest.RegionId = client.RegionId
+				if strings.ToLower(client.Config.Protocol) == "https" {
+					assignPrivateIpAddressesRequest.Scheme = "https"
+				} else {
+					assignPrivateIpAddressesRequest.Scheme = "http"
+				}
 				assignPrivateIpAddressesRequest.Headers = map[string]string{"RegionId": client.RegionId}
 				assignPrivateIpAddressesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 				assignPrivateIpAddressesRequest.NetworkInterfaceId = d.Id()
@@ -301,6 +327,11 @@ func resourceNetworkInterfaceUpdate(d *schema.ResourceData, meta interface{}) er
 				unAssignIps := privateIpList[:diff]
 				unAssignPrivateIpAddressesRequest := ecs.CreateUnassignPrivateIpAddressesRequest()
 				unAssignPrivateIpAddressesRequest.RegionId = client.RegionId
+				if strings.ToLower(client.Config.Protocol) == "https" {
+					unAssignPrivateIpAddressesRequest.Scheme = "https"
+				} else {
+					unAssignPrivateIpAddressesRequest.Scheme = "http"
+				}
 				unAssignPrivateIpAddressesRequest.Headers = map[string]string{"RegionId": client.RegionId}
 				unAssignPrivateIpAddressesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 				err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
@@ -349,6 +380,11 @@ func resourceNetworkInterfaceDelete(d *schema.ResourceData, meta interface{}) er
 
 	request := ecs.CreateDeleteNetworkInterfaceRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.NetworkInterfaceId = d.Id()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

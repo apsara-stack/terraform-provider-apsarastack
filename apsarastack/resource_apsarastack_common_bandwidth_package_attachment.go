@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -37,6 +38,11 @@ func resourceApsaraStackCommonBandwidthPackageAttachmentCreate(d *schema.Resourc
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
 	request := vpc.CreateAddCommonBandwidthPackageIpRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
@@ -91,6 +97,11 @@ func resourceApsaraStackCommonBandwidthPackageAttachmentDelete(d *schema.Resourc
 	bandwidthPackageId, ipInstanceId := parts[0], parts[1]
 
 	request := vpc.CreateRemoveCommonBandwidthPackageIpRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

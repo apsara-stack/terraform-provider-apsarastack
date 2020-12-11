@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -73,6 +74,11 @@ func resourceApsaraStackDBReadWriteSplittingConnectionCreate(d *schema.ResourceD
 
 	request := rds.CreateAllocateReadWriteSplittingConnectionRequest()
 	request.RegionId = string(client.Region)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = Trim(d.Get("instance_id").(string))
@@ -178,6 +184,11 @@ func resourceApsaraStackDBReadWriteSplittingConnectionUpdate(d *schema.ResourceD
 
 	request := rds.CreateModifyReadWriteSplittingConnectionRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
@@ -244,6 +255,11 @@ func resourceApsaraStackDBReadWriteSplittingConnectionDelete(d *schema.ResourceD
 	client := meta.(*connectivity.ApsaraStackClient)
 	rdsService := RdsService{client}
 	request := rds.CreateReleaseReadWriteSplittingConnectionRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

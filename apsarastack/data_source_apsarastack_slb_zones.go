@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -59,6 +60,11 @@ func dataSourceApsaraStackSlbZonesRead(d *schema.ResourceData, meta interface{})
 	localName := make(map[string][]string)
 	request := slb.CreateDescribeZonesRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
