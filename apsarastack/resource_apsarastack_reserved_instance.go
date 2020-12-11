@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -90,6 +91,11 @@ func resourceApsaraStackReservedInstanceCreate(d *schema.ResourceData, meta inte
 	client := meta.(*connectivity.ApsaraStackClient)
 	ecsService := EcsService{client}
 	request := ecs.CreatePurchaseReservedInstancesOfferingRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if v, ok := d.GetOk("instance_type"); ok {
@@ -151,6 +157,11 @@ func resourceApsaraStackReservedInstanceCreate(d *schema.ResourceData, meta inte
 func resourceApsaraStackReservedInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateModifyReservedInstanceAttributeRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ReservedInstanceId = d.Id()

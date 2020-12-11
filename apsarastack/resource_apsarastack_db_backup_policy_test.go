@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
@@ -17,6 +18,11 @@ func testAccCheckDBBackupPolicyDestroy(s *terraform.State) error {
 			continue
 		}
 		request := rds.CreateDescribeBackupPolicyRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = rs.Primary.ID

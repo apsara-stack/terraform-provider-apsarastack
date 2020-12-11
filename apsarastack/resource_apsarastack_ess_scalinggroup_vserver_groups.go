@@ -245,6 +245,11 @@ func attachVserverGroups(d *schema.ResourceData, client *connectivity.ApsaraStac
 		}
 		request := ess.CreateAttachVServerGroupsRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.ScalingGroupId = d.Id()
@@ -283,6 +288,11 @@ func detachVserverGroups(d *schema.ResourceData, client *connectivity.ApsaraStac
 		}
 		request := ess.CreateDetachVServerGroupsRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 

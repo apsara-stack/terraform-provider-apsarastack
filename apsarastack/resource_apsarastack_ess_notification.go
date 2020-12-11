@@ -44,6 +44,12 @@ func resourceApsaraStackEssNotificationCreate(d *schema.ResourceData, meta inter
 
 	request := ess.CreateCreateNotificationConfigurationRequest()
 	request.RegionId = client.RegionId
+
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -93,6 +99,11 @@ func resourceApsaraStackEssNotificationRead(d *schema.ResourceData, meta interfa
 func resourceApsaraStackEssNotificationUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateModifyNotificationConfigurationRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -128,6 +139,11 @@ func resourceApsaraStackEssNotificationDelete(d *schema.ResourceData, meta inter
 	essService := EssService{client}
 	request := ess.CreateDeleteNotificationConfigurationRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 

@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -57,6 +58,11 @@ func resourceApsaraStackImageCopyCreate(d *schema.ResourceData, meta interface{}
 	ecsService := EcsService{client}
 
 	request := ecs.CreateCopyImageRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

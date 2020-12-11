@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"regexp"
+	"strings"
 )
 
 func dataSourceApsaraStackInstances() *schema.Resource {
@@ -194,6 +195,11 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := ecs.CreateDescribeInstancesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -286,6 +292,11 @@ func dataSourceApsaraStackInstancesRead(d *schema.ResourceData, meta interface{}
 	for index := 0; index < len(instanceIds); index += 100 {
 		// DescribeInstanceRamRole parameter InstanceIds supports at most 100 items once
 		request := ecs.CreateDescribeInstanceRamRoleRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceIds = convertListToJsonString(convertListStringToListInterface(instanceIds[index:IntMin(index+100, len(instanceIds))]))
@@ -389,6 +400,11 @@ func instancessDescriptionAttributes(d *schema.ResourceData, instances []ecs.Ins
 func getInstanceDisksMappings(instanceMap map[string]string, meta interface{}) (map[string][]map[string]interface{}, error) {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ecs.CreateDescribeDisksRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeXLarge)

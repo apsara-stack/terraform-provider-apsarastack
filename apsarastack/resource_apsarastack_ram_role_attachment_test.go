@@ -115,6 +115,11 @@ func testAccCheckRamRoleAttachmentDestroy(s *terraform.State) error {
 		client := testAccProvider.Meta().(*connectivity.ApsaraStackClient)
 
 		request := ecs.CreateDescribeInstanceRamRoleRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.InstanceIds = strings.Split(rs.Primary.ID, ":")[1]
 
 		for {

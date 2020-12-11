@@ -202,6 +202,11 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeRds)) {
 		request := rds.CreateDescribeRegionsRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		//if instanceChargeType == string(PostPaid) {
@@ -435,6 +440,11 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeSlb)) {
 		request := slb.CreateDescribeAvailableResourceRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		if ipVersion, ok := d.GetOk("available_slb_address_ip_version"); ok {
@@ -467,6 +477,11 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	}
 
 	req := ecs.CreateDescribeZonesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.RegionId = client.RegionId

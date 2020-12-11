@@ -37,6 +37,11 @@ func testSweepSnapshots(region string) error {
 	var snapshots []ecs.Snapshot
 	request := ecs.CreateDescribeSnapshotsRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
@@ -84,6 +89,11 @@ func testSweepSnapshots(region string) error {
 		log.Printf("[INFO] Deleting snapshot: %s (%s)", name, id)
 		req := ecs.CreateDeleteSnapshotRequest()
 		req.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		req.Headers = map[string]string{"RegionId": client.RegionId}
 		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 

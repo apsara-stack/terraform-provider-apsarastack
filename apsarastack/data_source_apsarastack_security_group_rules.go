@@ -123,6 +123,11 @@ func dataSourceApsaraStackSecurityGroupRulesRead(d *schema.ResourceData, meta in
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	req := ecs.CreateDescribeSecurityGroupAttributeRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.RegionId = client.RegionId
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

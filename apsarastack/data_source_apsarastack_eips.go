@@ -5,6 +5,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strings"
 )
 
 func dataSourceApsaraStackEips() *schema.Resource {
@@ -78,6 +79,11 @@ func dataSourceApsaraStackEipsRead(d *schema.ResourceData, meta interface{}) err
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := vpc.CreateDescribeEipAddressesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

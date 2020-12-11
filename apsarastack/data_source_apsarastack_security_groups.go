@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -87,6 +88,11 @@ func dataSourceApsaraStackSecurityGroupsRead(d *schema.ResourceData, meta interf
 	ecsService := EcsService{client}
 
 	request := ecs.CreateDescribeSecurityGroupsRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId

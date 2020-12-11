@@ -636,7 +636,11 @@ func (s *VpcService) sweepVSwitch(id string) error {
 	request := vpc.CreateDeleteVSwitchRequest()
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.VSwitchId = id
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 		return vpcClient.DeleteVSwitch(request)
@@ -654,7 +658,11 @@ func (s *VpcService) sweepNatGateway(id string) error {
 
 	log.Printf("[INFO] Deleting Nat Gateway %s ...", id)
 	request := vpc.CreateDeleteNatGatewayRequest()
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.NatGatewayId = id
 	request.Force = requests.NewBoolean(true)
 	_, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -672,6 +680,11 @@ func (s *EcsService) sweepSecurityGroup(id string) error {
 	}
 	log.Printf("[DEBUG] Deleting Security Group %s ...", id)
 	request := ecs.CreateDeleteSecurityGroupRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.SecurityGroupId = id
 	_, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DeleteSecurityGroup(request)
@@ -688,6 +701,7 @@ func (s *SlbService) sweepSlb(id string) error {
 	}
 	log.Printf("[DEBUG] Set SLB DeleteProtection to off before deleting %s ...", id)
 	request := slb.CreateSetLoadBalancerDeleteProtectionRequest()
+
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.LoadBalancerId = id
@@ -700,6 +714,7 @@ func (s *SlbService) sweepSlb(id string) error {
 	}
 	log.Printf("[DEBUG] Deleting SLB %s ...", id)
 	delRequest := slb.CreateDeleteLoadBalancerRequest()
+
 	delRequest.Headers = map[string]string{"RegionId": s.client.RegionId}
 	delRequest.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	delRequest.LoadBalancerId = id

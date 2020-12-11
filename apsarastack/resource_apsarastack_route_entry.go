@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -73,7 +74,11 @@ func resourceApsaraStackRouteEntryCreate(d *schema.ResourceData, meta interface{
 	}
 	request := vpc.CreateCreateRouteEntryRequest()
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouteTableId = rtId
@@ -152,7 +157,11 @@ func resourceApsaraStackRouteEntryDelete(d *schema.ResourceData, meta interface{
 	}
 	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	vpcService := VpcService{client}
@@ -190,6 +199,11 @@ func buildApsaraStackRouteEntryDeleteArgs(d *schema.ResourceData, meta interface
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDeleteRouteEntryRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
