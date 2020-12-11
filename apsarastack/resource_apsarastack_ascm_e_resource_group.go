@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 	"time"
 )
 
@@ -50,6 +51,9 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 	if len(check.Data) == 0 {
 
 		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 			"RegionId":            client.RegionId,
 			"AccessKeySecret":     client.SecretKey,
@@ -65,7 +69,11 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		request.Version = "2019-05-10"
 		request.ServiceCode = "ascm"
 		request.Domain = client.Domain
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "CreateResourceGroup"
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -146,6 +154,9 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 			"RegionId":          client.RegionId,
 			"AccessKeySecret":   client.SecretKey,
@@ -161,7 +172,11 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 		request.Version = "2019-05-10"
 		request.ServiceCode = "ascm"
 		request.Domain = client.Domain
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "RemoveResourceGroup"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId

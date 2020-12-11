@@ -176,6 +176,11 @@ func testAccPreCheckWithNoDefaultVpc(t *testing.T) {
 	}
 	client := rawClient.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeVpcsRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -208,6 +213,11 @@ func testAccPreCheckWithNoDefaultVswitch(t *testing.T) {
 	}
 	client := rawClient.(*connectivity.ApsaraStackClient)
 	request := vpc.CreateDescribeVSwitchesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 

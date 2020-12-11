@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -58,7 +59,11 @@ func resourceApsaraStackSwitchCreate(d *schema.ResourceData, meta interface{}) e
 
 	request := vpc.CreateCreateVSwitchRequest()
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -134,6 +139,11 @@ func resourceApsaraStackSwitchUpdate(d *schema.ResourceData, meta interface{}) e
 	update := false
 	request := vpc.CreateModifyVSwitchAttributeRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -166,6 +176,11 @@ func resourceApsaraStackSwitchDelete(d *schema.ResourceData, meta interface{}) e
 	vpcService := VpcService{client}
 	request := vpc.CreateDeleteVSwitchRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

@@ -176,6 +176,11 @@ func resourceApsaraStackEssScalingConfigurationCreate(d *schema.ResourceData, me
 	// Ensure instance_type is generation three
 	client := meta.(*connectivity.ApsaraStackClient)
 	request, err := buildApsaraStackEssScalingConfigurationArgs(d, meta)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if err != nil {
 		return WrapError(err)
 	}
@@ -259,6 +264,11 @@ func resourceApsaraStackEssScalingConfigurationUpdate(d *schema.ResourceData, me
 func modifyEssScalingConfiguration(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateModifyScalingConfigurationRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -423,6 +433,11 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 
 				request := ess.CreateEnableScalingGroupRequest()
 				request.RegionId = client.RegionId
+				if strings.ToLower(client.Config.Protocol) == "https" {
+					request.Scheme = "https"
+				} else {
+					request.Scheme = "http"
+				}
 				request.Headers = map[string]string{"RegionId": client.RegionId}
 				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -446,6 +461,11 @@ func enableEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 			if group.LifecycleState == string(Active) {
 				request := ess.CreateDisableScalingGroupRequest()
 				request.RegionId = client.RegionId
+				if strings.ToLower(client.Config.Protocol) == "https" {
+					request.Scheme = "https"
+				} else {
+					request.Scheme = "http"
+				}
 				request.Headers = map[string]string{"RegionId": client.RegionId}
 				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -543,6 +563,11 @@ func resourceApsaraStackEssScalingConfigurationDelete(d *schema.ResourceData, me
 
 	request := ess.CreateDescribeScalingConfigurationsRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -561,6 +586,11 @@ func resourceApsaraStackEssScalingConfigurationDelete(d *schema.ResourceData, me
 	} else if len(response.ScalingConfigurations.ScalingConfiguration) == 1 {
 		if d.Get("force_delete").(bool) {
 			request := ess.CreateDeleteScalingGroupRequest()
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -589,6 +619,11 @@ func resourceApsaraStackEssScalingConfigurationDelete(d *schema.ResourceData, me
 
 	deleteScalingConfigurationRequest := ess.CreateDeleteScalingConfigurationRequest()
 	deleteScalingConfigurationRequest.ScalingConfigurationId = d.Id()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		deleteScalingConfigurationRequest.Scheme = "https"
+	} else {
+		deleteScalingConfigurationRequest.Scheme = "http"
+	}
 	deleteScalingConfigurationRequest.Headers = map[string]string{"RegionId": client.RegionId}
 	deleteScalingConfigurationRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -614,7 +649,11 @@ func buildApsaraStackEssScalingConfigurationArgs(d *schema.ResourceData, meta in
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ScalingGroupId = d.Get("scaling_group_id").(string)
 	request.ImageId = d.Get("image_id").(string)
 	request.SecurityGroupId = d.Get("security_group_id").(string)
@@ -722,6 +761,11 @@ func activeSubstituteScalingConfiguration(d *schema.ResourceData, meta interface
 	}
 
 	request := ess.CreateDescribeScalingConfigurationsRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

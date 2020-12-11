@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -93,7 +94,11 @@ func resourceApsaraStackRouterInterfaceConnectionCreate(d *schema.ResourceData, 
 
 	request := vpc.CreateModifyRouterInterfaceAttributeRequest()
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -149,7 +154,11 @@ func resourceApsaraStackRouterInterfaceConnectionCreate(d *schema.ResourceData, 
 	if object.Role == string(InitiatingSide) {
 		connectRequest := vpc.CreateConnectRouterInterfaceRequest()
 		connectRequest.RegionId = client.RegionId
-
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			connectRequest.Scheme = "https"
+		} else {
+			connectRequest.Scheme = "http"
+		}
 		connectRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		connectRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
