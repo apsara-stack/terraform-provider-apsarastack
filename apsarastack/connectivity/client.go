@@ -19,6 +19,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/gpdb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/hbase"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/location"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/maxcompute"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
@@ -88,6 +89,7 @@ type ApsaraStackClient struct {
 	creeconn          *cr_ee.Client
 	crconn            *cr.Client
 	cmsconn           *cms.Client
+	maxcomputeconn    *maxcompute.Client
 }
 
 const (
@@ -1205,4 +1207,37 @@ func (client *ApsaraStackClient) WithCmsClient(do func(*cms.Client) (interface{}
 	}
 
 	return do(client.cmsconn)
+}
+func (client *ApsaraStackClient) WithMaxComputeClient(do func(*maxcompute.Client) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the MaxCompute client if necessary
+	if client.maxcomputeconn == nil {
+		endpoint := client.config.MaxComputeEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.config.RegionId, MAXCOMPUTECode)
+		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "http://"))
+		}
+		if endpoint == "" {
+			endpoint = "maxcompute.aliyuncs.com"
+		}
+
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.config.RegionId, string(MAXCOMPUTECode), endpoint)
+		}
+		maxcomputeconn, err := maxcompute.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(false))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the MaxCompute client: %#v", err)
+		}
+
+		maxcomputeconn.AppendUserAgent(Terraform, TerraformVersion)
+		maxcomputeconn.AppendUserAgent(Provider, ProviderVersion)
+		maxcomputeconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		client.maxcomputeconn = maxcomputeconn
+	}
+
+	return do(client.maxcomputeconn)
 }
