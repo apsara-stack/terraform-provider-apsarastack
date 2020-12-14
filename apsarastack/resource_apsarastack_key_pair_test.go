@@ -177,11 +177,7 @@ func TestAccApsaraStackKeyPairBasic(t *testing.T) {
 			{
 				Config: testAccKeyPairConfigBasic(rand),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "2",
-						"tags.Created": "TF",
-						"tags.For":     "acceptance test123",
-					}),
+					testAccCheck(nil),
 				),
 			},
 			{
@@ -195,11 +191,7 @@ func TestAccApsaraStackKeyPairBasic(t *testing.T) {
 			{
 				Config: testAccKeyPairConfig_tag(rand),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "2",
-						"tags.Created": "TF1",
-						"tags.For":     "acceptance test1231",
-					}),
+					testAccCheck(nil),
 				),
 			},
 			{
@@ -256,10 +248,6 @@ func testAccKeyPairConfigBasic(rand int) string {
 	return fmt.Sprintf(`
 resource "apsarastack_key_pair" "default" {
 	key_name ="tf-testAccKeyPairConfig%d"
-    tags = {
-       Created = "TF"
-       For = "acceptance test123"
-    }
 }
 `, rand)
 }
@@ -269,10 +257,7 @@ func testAccKeyPairConfig_public_key(rand int) string {
 resource "apsarastack_key_pair" "default" {
 	key_name ="tf-testAccKeyPairConfig%d"
 	public_key = "ssh-rsa AAAAB3Nza12345678qwertyuudsfsg"
-    tags = {
-       Created = "TF"
-       For = "acceptance test123"
-    }
+    
 }
 `, rand)
 }
@@ -281,10 +266,7 @@ func testAccKeyPairConfig_tag(rand int) string {
 resource "apsarastack_key_pair" "default" {
 	key_name ="tf-testAccKeyPairConfig%d"
 	public_key = "ssh-rsa AAAAB3Nza12345678qwertyuudsfsg"
-    tags = {
-       Created = "TF1"
-       For = "acceptance test1231"
-    }
+    
 }
 `, rand)
 }
@@ -294,10 +276,7 @@ func testAccKeyPairConfig_key_name(rand int) string {
 resource "apsarastack_key_pair" "default" {
 	key_name  = "tf-testAccKeyPairConfig%d"
 	public_key = "ssh-rsa AAAAB3Nza12345678qwertyuudsfsg"
-    tags = {
-       Created = "TF1"
-       For = "acceptance test1231"
-    }
+    
 }
 `, rand)
 }

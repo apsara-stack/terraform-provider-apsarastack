@@ -30,6 +30,14 @@ const testAccCheckApsaraStackSlbMasterSlaveServerGroupsDataSourceBasic = `
 variable "name" {
   default = "tf-testAccslbmasterslaveservergroupsdatasourcebasic"
 }
+data "apsarastack_images" "default" {
+  most_recent = true
+  owners = "system"
+}
+data "apsarastack_instance_types" "default" {
+  cpu_core_count    = 1
+  memory_size       = 2
+}
 
 resource "apsarastack_vpc" "default" {
   name = "${var.name}"
@@ -40,7 +48,7 @@ resource "apsarastack_vswitch" "default" {
   name = "${var.name}"
   vpc_id = "${apsarastack_vpc.default.id}"
   cidr_block = "172.16.0.0/16"
-   availability_zone = "cn-qingdao-env66-amtest66001-a"
+   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
 }
 
 resource "apsarastack_security_group" "default" {
@@ -54,11 +62,11 @@ resource "apsarastack_slb" "default" {
 }
 
 resource "apsarastack_instance" "default" {
-  availability_zone = "cn-qingdao-env66-amtest66001-a"
+  availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
   security_groups = ["${apsarastack_security_group.default.id}"]
   count                      = "2"
   instance_type              = "ecs.n4.large"
-  image_id                   =  "m-9fx0253j413yavd1t8ba"
+  image_id                   =  "${data.apsarastack_images.default.images.0.id}"
   instance_name              = "${var.name}"
   vswitch_id                 = apsarastack_vswitch.default.id
   internet_max_bandwidth_out = 10

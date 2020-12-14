@@ -152,6 +152,7 @@ func TestAccApsaraStackEssScheduledTask_basic(t *testing.T) {
 						"scheduled_task_name": fmt.Sprintf("tf-testAccEssSchedule-%d", rand),
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScheduleUpdateDescription(EcsInstanceCommonTestCase,
