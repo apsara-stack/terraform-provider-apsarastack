@@ -31,6 +31,7 @@ const (
 	DenverdinoApsaraStackgo    = ErrorSource("[SDK denverdino/aliyungo ERROR]")
 	ThrottlingUser             = "Throttling.User"
 	LogClientTimeout           = "Client.Timeout exceeded while awaiting headers"
+	ApsarastackMaxComputeSdkGo = ErrorSource("[SDK aliyun-maxcompute-sdk-go ERROR]")
 )
 
 var SlbIsBusy = []string{"SystemBusy", "OperationBusy", "ServiceIsStopping", "BackendServer.configuring", "ServiceIsConfiguring"}
