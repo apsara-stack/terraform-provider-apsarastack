@@ -175,7 +175,7 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 			"role_id":            u.DefaultRole.ID,
 			"login_policy_id":    u.LoginPolicy.ID,
 		}
-		ids = append(ids, string(u.ID))
+		//ids = append(ids, string(u.ID))
 		roleids = append(roleids, u.DefaultRole.ID)
 		s = append(s, mapping)
 	}
