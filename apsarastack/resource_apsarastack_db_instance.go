@@ -223,6 +223,11 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	payType := PayType(d.Get("instance_charge_type").(string))
 	if !d.IsNewResource() && d.HasChange("instance_charge_type") && payType == Prepaid {
 		prePaidRequest := rds.CreateModifyDBInstancePayTypeRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			prePaidRequest.Scheme = "https"
+		} else {
+			prePaidRequest.Scheme = "http"
+		}
 		prePaidRequest.RegionId = client.RegionId
 		prePaidRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		prePaidRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -255,6 +260,11 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if payType == Prepaid && (d.HasChange("auto_renew") || d.HasChange("auto_renew_period")) {
 		request := rds.CreateModifyInstanceAutoRenewalAttributeRequest()
 		request.DBInstanceId = d.Id()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -282,6 +292,11 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		period := d.Get("monitoring_period").(int)
 		request := rds.CreateModifyDBInstanceMonitorRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
@@ -299,6 +314,11 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("maintain_time") {
 		request := rds.CreateModifyDBInstanceMaintainTimeRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
@@ -318,6 +338,11 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("security_ip_mode") && d.Get("security_ip_mode").(string) == SafetyMode {
 		request := rds.CreateMigrateSecurityIPModeRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
@@ -339,6 +364,11 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	if d.HasChange("instance_name") {
 		request := rds.CreateModifyDBInstanceDescriptionRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
@@ -372,6 +402,11 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	update := false
 	request := rds.CreateModifyDBInstanceSpecRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
@@ -483,6 +518,11 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 	if instance.PayType == string(Prepaid) {
 		request := rds.CreateDescribeInstanceAutoRenewalAttributeRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
@@ -527,6 +567,11 @@ func resourceApsaraStackDBInstanceDelete(d *schema.ResourceData, meta interface{
 
 	request := rds.CreateDeleteDBInstanceRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
@@ -563,6 +608,11 @@ func buildDBCreateRequest(d *schema.ResourceData, meta interface{}) (*rds.Create
 	vpcService := VpcService{client}
 	request := rds.CreateCreateDBInstanceRequest()
 	request.RegionId = string(client.Region)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.EngineVersion = Trim(d.Get("engine_version").(string))

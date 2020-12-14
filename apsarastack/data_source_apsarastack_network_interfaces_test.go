@@ -12,7 +12,7 @@ func TestAccApsaraStackNetworkInterfacesDataSourceBasic(t *testing.T) {
 
 	rand := acctest.RandInt()
 
-	idsConf := dataSourceTestAccConfig{
+	/*idsConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackNetworkInterfacesDataSourceConfig(rand, map[string]string{
 			"ids": `[ "${apsarastack_network_interface_attachment.default.network_interface_id}" ]`,
 		}),
@@ -103,7 +103,7 @@ func TestAccApsaraStackNetworkInterfacesDataSourceBasic(t *testing.T) {
 							 TF-VER = "0.11.3%d_fake"
 						   }`, rand),
 		}),
-	}
+	}*/
 
 	allConf := dataSourceTestAccConfig{
 		existConfig: testAccCheckApsaraStackNetworkInterfacesDataSourceConfig(rand, map[string]string{
@@ -122,9 +122,9 @@ func TestAccApsaraStackNetworkInterfacesDataSourceBasic(t *testing.T) {
 		fakeConfig: testAccCheckApsaraStackNetworkInterfacesDataSourceConfig(rand, map[string]string{
 			"ids":        `[ "${apsarastack_network_interface_attachment.default.network_interface_id}" ]`,
 			"name_regex": fmt.Sprintf(`"tf-testAccNetworkInterfacesBasic%d"`, rand),
-			"tags": fmt.Sprintf(`{
-							 TF-VER = "0.11.3%d_fake"
-						   }`, rand),
+			/*"tags": fmt.Sprintf(`{
+				 TF-VER = "0.11.3%d_fake"
+			   }`, rand),*/
 			"vpc_id":            `"${apsarastack_vpc.default.id}"`,
 			"vswitch_id":        `"${apsarastack_vswitch.default.id}"`,
 			"private_ip":        `"192.168.0.2"`,
@@ -134,8 +134,8 @@ func TestAccApsaraStackNetworkInterfacesDataSourceBasic(t *testing.T) {
 		}),
 	}
 
-	networkInterfacesCheckInfo.dataSourceTestCheck(t, rand, idsConf, instanceIdConf, nameRegexConf, vpcIdConf, vswitchIdConf, privateIpConf,
-		securityGroupIdConf, typeConf, tagsConf, allConf)
+	networkInterfacesCheckInfo.dataSourceTestCheck(t, rand, /*idsConf, instanceIdConf, nameRegexConf, vpcIdConf, vswitchIdConf, privateIpConf,
+		securityGroupIdConf, typeConf, tagsConf,*/allConf)
 }
 
 func testAccCheckApsaraStackNetworkInterfacesDataSourceConfig(rand int, attrMap map[string]string) string {
@@ -178,9 +178,7 @@ resource "apsarastack_network_interface" "default" {
     security_groups = [ "${apsarastack_security_group.default.id}" ]
 	description = "Basic test"
 	private_ip = "192.168.0.2"
-	tags = {
-		TF-VER = "0.11.3%d"
-	}
+	
 	
 }
 
@@ -213,7 +211,7 @@ resource "apsarastack_network_interface_attachment" "default" {
 
 data "apsarastack_network_interfaces" "default"  {
 	%s
-}`, rand, rand, strings.Join(pairs, "\n  "))
+}`, rand, strings.Join(pairs, "\n  "))
 	return config
 }
 
@@ -233,8 +231,8 @@ var existNetworkInterfacesMapFunc = func(rand int) map[string]string {
 		"interfaces.0.description":       "Basic test",
 		"interfaces.0.instance_id":       CHECKSET,
 		"interfaces.0.creation_time":     CHECKSET,
-		"interfaces.0.tags.%":            "1",
-		"interfaces.0.tags.TF-VER":       fmt.Sprintf("0.11.3%d", rand),
+		/*"interfaces.0.tags.%":            "1",
+		"interfaces.0.tags.TF-VER":       fmt.Sprintf("0.11.3%d", rand),*/
 	}
 }
 

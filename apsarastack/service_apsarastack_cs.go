@@ -11,6 +11,7 @@ import (
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -27,6 +28,9 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 	var requestInfo *cs.Client
 	var response interface{}
 	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
 	request.QueryParams = map[string]string{
 		"RegionId":         s.client.RegionId,
 		"AccessKeySecret":  s.client.SecretKey,
@@ -44,7 +48,11 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 	// request.Domain =       // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2015-12-15" // Specify product version
 	request.ServiceCode = "cs"
-	request.Scheme = "http" // Set request scheme. Default: http
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	} // Set request scheme. Default: http
 	request.ApiName = "DescribeClusters"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	if err := invoker.Run(func() error {

@@ -75,6 +75,11 @@ func resourceApsaraStackDBAccountCreate(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 	rdsService := RdsService{client}
 	request := rds.CreateCreateAccountRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -169,6 +174,11 @@ func resourceApsaraStackDBAccountUpdate(d *schema.ResourceData, meta interface{}
 		}
 		request := rds.CreateModifyAccountDescriptionRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = instanceId
@@ -195,7 +205,11 @@ func resourceApsaraStackDBAccountUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = instanceId
 		request.AccountName = accountName
-
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		password := d.Get("password").(string)
 		kmsPassword := d.Get("kms_encrypted_password").(string)
 
@@ -244,7 +258,11 @@ func resourceApsaraStackDBAccountDelete(d *schema.ResourceData, meta interface{}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	request.AccountName = parts[1]
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DeleteAccount(request)
 	})

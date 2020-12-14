@@ -249,6 +249,11 @@ func resourceApsaraStackMongoDBInstanceCreate(d *schema.ResourceData, meta inter
 	ddsService := MongoDBService{client}
 
 	request, err := buildMongoDBCreateRequest(d, meta)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if err != nil {
 		return WrapError(err)
 	}

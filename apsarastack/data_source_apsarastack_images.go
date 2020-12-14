@@ -4,6 +4,7 @@ import (
 	"log"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -184,8 +185,13 @@ func dataSourceApsaraStackImagesRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	request := ecs.CreateDescribeImagesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs"}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageNumber = requests.NewInteger(1)
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 

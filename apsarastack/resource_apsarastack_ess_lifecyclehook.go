@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -69,6 +70,11 @@ func resourceApsaraStackEssLifeCycleHookCreate(d *schema.ResourceData, meta inte
 
 	request := buildApsaraStackEssLifeCycleHookArgs(d)
 	client := meta.(*connectivity.ApsaraStackClient)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -123,6 +129,12 @@ func resourceApsaraStackEssLifeCycleHookUpdate(d *schema.ResourceData, meta inte
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateModifyLifecycleHookRequest()
+	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.LifecycleHookId = d.Id()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -164,6 +176,18 @@ func resourceApsaraStackEssLifeCycleHookDelete(d *schema.ResourceData, meta inte
 	essService := EssService{client}
 	request := ess.CreateDeleteLifecycleHookRequest()
 	request.LifecycleHookId = d.Id()
+	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

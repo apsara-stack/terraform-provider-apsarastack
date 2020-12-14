@@ -1,107 +1,51 @@
 package apsarastack
 
 import (
-	"fmt"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
 func TestAccApsaraStackEssScheduledtasksDataSource(t *testing.T) {
-	rand := acctest.RandIntRange(0, 500)
-	idConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"scheduled_task_id": `"${apsarastack_ess_scheduled_task.default.id}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"scheduled_task_id": `"${apsarastack_ess_scheduled_task.default.id}_fake"`,
-		}),
-	}
-	actionConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"scheduled_action": `"${apsarastack_ess_scheduled_task.default.scheduled_action}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"scheduled_action": `"${apsarastack_ess_scheduled_task.default.scheduled_action}_fake"`,
-		}),
-	}
-	nameRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_ess_scheduled_task.default.scheduled_task_name}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_ess_scheduled_task.default.scheduled_task_name}_fake"`,
-		}),
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckApsaraStackEssScheduledTasksDataSource,
+				Check: resource.ComposeTestCheckFunc(
 
-	idsConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"ids": `["${apsarastack_ess_scheduled_task.default.id}"]`,
-		}),
-		fakeConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"ids": `["${apsarastack_ess_scheduled_task.default.id}_fake"]`,
-		}),
-	}
-
-	allConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"scheduled_action":  `"${apsarastack_ess_scheduled_task.default.scheduled_action}"`,
-			"ids":               `["${apsarastack_ess_scheduled_task.default.id}"]`,
-			"name_regex":        `"${apsarastack_ess_scheduled_task.default.scheduled_task_name}"`,
-			"scheduled_task_id": `"${apsarastack_ess_scheduled_task.default.id}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand, map[string]string{
-			"scheduled_action":  `"${apsarastack_ess_scheduled_task.default.scheduled_action}_fake"`,
-			"ids":               `["${apsarastack_ess_scheduled_task.default.id}"]`,
-			"name_regex":        `"${apsarastack_ess_scheduled_task.default.scheduled_task_name}"`,
-			"scheduled_task_id": `"${apsarastack_ess_scheduled_task.default.id}"`,
-		}),
-	}
-
-	var existEssScheduledTasksMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"ids.#":                          "1",
-			"tasks.#":                        "1",
-			"tasks.0.name":                   fmt.Sprintf("tf-testAccDataSourceEssSchT-%d", rand),
-			"tasks.0.id":                     CHECKSET,
-			"tasks.0.scheduled_action":       CHECKSET,
-			"tasks.0.launch_expiration_time": CHECKSET,
-			"tasks.0.launch_time":            "2020-11-21T11:37Z",
-			"tasks.0.max_value":              CHECKSET,
-			"tasks.0.min_value":              CHECKSET,
-			"tasks.0.task_enabled":           CHECKSET,
-		}
-	}
-
-	var fakeEssScheduledTasksMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"tasks.#": "0",
-			"ids.#":   "0",
-			"names.#": "0",
-		}
-	}
-
-	var essScheduledTasksCheckInfo = dataSourceAttr{
-		resourceId:   "data.apsarastack_ess_scheduled_tasks.default",
-		existMapFunc: existEssScheduledTasksMapFunc,
-		fakeMapFunc:  fakeEssScheduledTasksMapFunc,
-	}
-
-	essScheduledTasksCheckInfo.dataSourceTestCheck(t, rand, idConf, actionConf, nameRegexConf, idsConf, allConf)
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_ess_scheduled_tasks.default"),
+					resource.TestCheckResourceAttr("data.apsarastack_ess_scheduled_tasks.default", "tasks.#", "1"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ess_scheduled_tasks.default", "tasks.1.id"),
+					resource.TestCheckResourceAttrSet("data.apsarastack_ess_scheduled_tasks.default", "ids.#"),
+				),
+			},
+		},
+	})
 }
 
-func testAccCheckApsaraStackEssScheduledTasksDataSourceConfig(rand int, attrMap map[string]string) string {
-	var pairs []string
-	for k, v := range attrMap {
-		pairs = append(pairs, k+" = "+v)
-	}
-
-	config := fmt.Sprintf(`
-%s
+const testAccCheckApsaraStackEssScheduledTasksDataSource = `
 
 variable "name" {
-	default = "tf-testAccDataSourceEssSchT-%d"
+	default = "tf-testAccDataSourceScheduledtas"
+}
+
+data "apsarastack_zones" "default" {
+  available_resource_creation = "VSwitch"
+}
+
+resource "apsarastack_vpc" "default" {
+  name = "${var.name}"
+  cidr_block = "10.0.0.0/8"
+}
+
+resource "apsarastack_vswitch" "default" {
+  vpc_id = "${apsarastack_vpc.default.id}"
+  cidr_block = "10.1.0.0/16"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name = "${var.name}"
 }
 
 resource "apsarastack_ess_scaling_group" "default" {
@@ -112,6 +56,7 @@ resource "apsarastack_ess_scaling_group" "default" {
 	scaling_group_name = "${var.name}"
 	vswitch_ids = ["${apsarastack_vswitch.default.id}"]
 }
+
 resource "apsarastack_ess_scaling_rule" "default" {
   scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
   adjustment_type  = "TotalCapacity"
@@ -121,13 +66,11 @@ resource "apsarastack_ess_scaling_rule" "default" {
 
 resource "apsarastack_ess_scheduled_task" "default" {
   scheduled_action    = "${apsarastack_ess_scaling_rule.default.ari}"
-  launch_time         = "2020-11-21T11:37Z"
+  launch_time         = "2020-12-07T12:50Z"
   scheduled_task_name = "${var.name}"
 }
 
 data "apsarastack_ess_scheduled_tasks" "default"{
-  %s
+  ids = ["${apsarastack_ess_scheduled_task.default.id}"]
 }
-`, EcsInstanceCommonTestCase, rand, strings.Join(pairs, "\n  "))
-	return config
-}
+`

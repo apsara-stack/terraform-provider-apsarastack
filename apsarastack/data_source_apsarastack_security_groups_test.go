@@ -1,145 +1,55 @@
 package apsarastack
 
 import (
-	"fmt"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
 func TestAccApsaraStackSecurityGroupsDataSourceBasic(t *testing.T) {
-	rand := acctest.RandIntRange(1000, 9999)
 
-	nameRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}_fake"`,
-		}),
-	}
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckApsaraStackSecurityGroupsDataSourceConfig,
+				Check: resource.ComposeTestCheckFunc(
 
-	idsConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"ids": `[ "${apsarastack_security_group.default.id}" ]`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"ids": `[ "${apsarastack_security_group.default.id}_fake" ]`,
-		}),
-	}
-
-	vpcIdConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}"`,
-			"vpc_id":     `"${apsarastack_security_group.default.vpc_id}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}"`,
-			"vpc_id":     `"${apsarastack_security_group.default.vpc_id}_fake"`,
-		}),
-	}
-
-	tagsConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}"`,
-			"tags": `{
-                         from = "datasource"
-                         usage1 = "test"
-                         usage2 = "test"
-                        }`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}"`,
-			"tags": `{
-                         from = "datasource"
-                         usage1 = "test"
-                         usage2 = "test_fake"
-                        }`,
-		}),
-	}
-
-	allConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}"`,
-			"ids":        `[ "${apsarastack_security_group.default.id}" ]`,
-			"vpc_id":     `"${apsarastack_security_group.default.vpc_id}"`,
-			"tags": `{
-                         from = "datasource"
-                         usage1 = "test"
-                         usage2 = "test"
-                        }`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand, map[string]string{
-			"name_regex": `"${apsarastack_security_group.default.name}_fake"`,
-			"ids":        `[ "${apsarastack_security_group.default.id}" ]`,
-			"vpc_id":     `"${apsarastack_security_group.default.vpc_id}"`,
-			"tags": `{
-                         from = "datasource"
-                         usage1 = "test"
-                         usage2 = "test_fake"
-                        }`,
-		}),
-	}
-
-	securityGroupsCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, idsConf, vpcIdConf, tagsConf, allConf)
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_security_groups.default"),
+					resource.TestCheckResourceAttr("data.apsarastack_security_groups.default", "groups.#", "1"),
+					resource.TestCheckResourceAttrSet("data.apsarastack_security_groups.default", "ids.#"),
+				),
+			},
+		},
+	})
 }
 
-func testAccCheckApsaraStackSecurityGroupsDataSourceConfig(rand int, attrMap map[string]string) string {
-	var pairs []string
-	for k, v := range attrMap {
-		pairs = append(pairs, k+" = "+v)
-	}
+const testAccCheckApsaraStackSecurityGroupsDataSourceConfig = `
 
-	config := fmt.Sprintf(`
 variable "name" {
-	default = "tf-testAccCheckApsaraStackSecurityGroupsDataSourceConfig%d"
+  default = "tf-securityGroupdatasource"
 }
-resource "apsarastack_vpc" "default" {
-  cidr_block = "172.16.0.0/12"
-  name = "${var.name}"
+data "apsarastack_zones" "default" {
+	available_resource_creation = "VSwitch"
 }
-
-resource "apsarastack_security_group" "default" {
-  name        = "${var.name}"
-  description = "test security group"
-  vpc_id      = "${apsarastack_vpc.default.id}"
-  tags = {
-		from = "datasource"
-		usage1 = "test"
-		usage2 = "test"
-  }
+resource "apsarastack_vpc" "vpc" {
+  name       = var.name
+  cidr_block = "172.16.0.0/16"
 }
-
+resource "apsarastack_vswitch" "vswitch" {
+  vpc_id            = apsarastack_vpc.vpc.id
+  cidr_block        = "172.16.0.0/24"
+  availability_zone =  data.apsarastack_zones.default.zones.0.id
+  name              = "test45"
+}
+resource "apsarastack_security_group" "group" {
+  name        = var.name
+  description = "foo"
+  vpc_id      = apsarastack_vpc.vpc.id
+}
 data "apsarastack_security_groups" "default" {
-  %s
-}`, rand, strings.Join(pairs, "\n  "))
-	return config
+  ids = [apsarastack_security_group.group.id]
 }
-
-var existSecurityGroupsMapFunc = func(rand int) map[string]string {
-	return map[string]string{
-		"names.#":                "1",
-		"groups.#":               "1",
-		"groups.0.vpc_id":        CHECKSET,
-		"groups.0.name":          fmt.Sprintf("tf-testAccCheckApsaraStackSecurityGroupsDataSourceConfig%d", rand),
-		"groups.0.tags.from":     "datasource",
-		"groups.0.tags.usage1":   "test",
-		"groups.0.tags.usage2":   "test",
-		"groups.0.creation_time": CHECKSET,
-		"groups.0.description":   "test security group",
-	}
-}
-
-var fakeSecurityGroupsMapFunc = func(rand int) map[string]string {
-	return map[string]string{
-		"names.#":  "0",
-		"groups.#": "0",
-	}
-}
-
-var securityGroupsCheckInfo = dataSourceAttr{
-	resourceId:   "data.apsarastack_security_groups.default",
-	existMapFunc: existSecurityGroupsMapFunc,
-	fakeMapFunc:  fakeSecurityGroupsMapFunc,
-}
+`

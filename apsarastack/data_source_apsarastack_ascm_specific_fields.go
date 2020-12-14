@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 )
 
 func dataSourceApsaraStackSpecificFields() *schema.Resource {
@@ -54,10 +55,17 @@ func dataSourceApsaraStackSpecificFields() *schema.Resource {
 func dataSourceApsaraStackSpecificFieldsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	request.Method = "POST"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.ApiName = "GroupCommonSpec"
 	request.Headers = map[string]string{"RegionId": client.RegionId}

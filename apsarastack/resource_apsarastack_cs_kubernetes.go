@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"log"
+	"strings"
+
 	//	"github.com/aliyun/alibaba-cloud-sdk-go/services/cs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -552,7 +555,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		wdatadiskcat = d.Get("worker_data_disk_category").(string)
 	}
 	VpcId := vpcId
-	ImageId := d.Get("image_id").(string)
+	//ImageId := d.Get("image_id").(string)
 	var LoginPassword string
 	if password := d.Get("password").(string); password == "" {
 		if v := d.Get("kms_encrypted_password").(string); v != "" {
@@ -577,18 +580,21 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	WorkerInstanceType := d.Get("worker_instance_type").(string)
 	NumOfNodes := int64(d.Get("worker_number").(int))
 	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	request.QueryParams = map[string]string{
-		"RegionId":         client.RegionId,
-		"AccessKeySecret":  client.SecretKey,
-		"Product":          "CS",
-		"Department":       client.Department,
-		"ResourceGroup":    client.ResourceGroup,
-		"Action":           "CreateCluster",
-		"AccountInfo":      "123456",
+		"RegionId":        client.RegionId,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "CS",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Action":          "CreateCluster",
+		//"AccountInfo":      "123456",
 		"Version":          "2015-12-15",
 		"SignatureVersion": "1.0",
 		"ProductName":      "cs",
-		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[{\"%s\":\"%s\"}]}",
+		"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[{\"%s\":\"%s\"}]}",
 			"Product", "Cs",
 			"OsType", OsType,
 			"Platform", Platform,
@@ -616,7 +622,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 			"worker_data_disk", workerdata,
 			"worker_data_disk_category", wdatadiskcat,
 			"worker_system_disk_size", wsysdisksize,
-			"image_id", ImageId,
 			"deletion_protection", delete_pro,
 			"worker_data_disk_size", wdatadisksize,
 			"instance_charge_type", instcharge,
@@ -628,12 +633,18 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	request.Product = "CS"         // Specify product
 	request.Version = "2015-12-15" // Specify product version
 	request.ServiceCode = "cs"
-	request.Scheme = "http" // Set request scheme. Default: http
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	} // Set request scheme. Default: http
 	request.ApiName = "CreateCluster"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	var err error
 	err = nil
+	log.Printf("ACK Create Cluster params : %s", request.GetQueryParams())
+	log.Printf("ACK Create Cluster headers : %s", request.GetHeaders())
 	if err = invoker.Run(func() error {
 		raw, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
@@ -665,7 +676,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(clusterresponse.ClusterID)
 
-	stateConf := BuildStateConf([]string{"initial", ""}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 5*time.Minute, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
+	stateConf := BuildStateConf([]string{"initial", ""}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 15*time.Minute, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
@@ -741,6 +752,9 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 
 		}
 		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
 			"AccessKeySecret":  client.SecretKey,
@@ -766,7 +780,11 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 		request.Product = "CS"         // Specify product
 		request.Version = "2015-12-15" // Specify product version
 		request.ServiceCode = "cs"
-		request.Scheme = "http" // Set request scheme. Default: http
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		} // Set request scheme. Default: http
 		request.ApiName = "ScaleOutCluster"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		var err error
@@ -832,6 +850,9 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 	csService := CsService{client}
 	invoker := NewInvoker()
 	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	request.QueryParams = map[string]string{
 		"RegionId":         client.RegionId,
 		"AccessKeySecret":  client.SecretKey,
@@ -849,7 +870,11 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 	request.Product = "Cs"         // Specify product
 	request.Version = "2015-12-15" // Specify product version
 	request.ServiceCode = "cs"
-	request.Scheme = "http" // Set request scheme. Default: http
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	} // Set request scheme. Default: http
 	request.ApiName = "DeleteCluster"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	var response interface{}
