@@ -27,6 +27,11 @@ func testApsaraStackLaunchTemplate(region string) error {
 	client := rawClient.(*connectivity.ApsaraStackClient)
 
 	request := ecs.CreateDescribeLaunchTemplatesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -47,6 +52,11 @@ func testApsaraStackLaunchTemplate(region string) error {
 
 	for i := range ids {
 		templateRequest := ecs.CreateDeleteLaunchTemplateRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			templateRequest.Scheme = "https"
+		} else {
+			templateRequest.Scheme = "http"
+		}
 		templateRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		templateRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		templateRequest.LaunchTemplateId = ids[i]
@@ -144,12 +154,12 @@ func TestAccApsaraStackLaunchTemplateBasic(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":                    name,
-						"description":             name,
-						"host_name":               name,
-						"instance_name":           name,
-						"key_pair_name":           name,
-						"ram_role_name":           name,
+						"name":          name,
+						"description":   name,
+						"host_name":     name,
+						"instance_name": name,
+						"key_pair_name": name,
+						//"ram_role_name":           name,
 						"system_disk_description": name,
 						"system_disk_name":        name,
 					}),
@@ -705,7 +715,7 @@ func TestAccApsaraStackLaunchTemplateMulti(t *testing.T) {
 					"userdata":                      "xxxxxxxxxxxxxx",
 					"vswitch_id":                    "sw-ljkngaksdjfj0nnasdf",
 					"vpc_id":                        "vpc-asdfnbg0as8dfk1nb2",
-					"zone_id":                       "beijing-a",
+					"zone_id":                       "cn-neimeng-env30-amtest30001-a",
 
 					"tags": map[string]string{
 						"tag1": "hello",
@@ -761,7 +771,7 @@ data "apsarastack_instance_types" "default" {
   availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 }
 data "apsarastack_images" "default" {
-  name_regex  = "^ubuntu_18.*64"
+name_regex  = "^ubuntu_18.*64"
   most_recent = true
   owners      = "system"
 }

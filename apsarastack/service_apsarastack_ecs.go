@@ -25,6 +25,11 @@ type EcsService struct {
 func (s *EcsService) JudgeRegionValidation(key, region string) error {
 	request := ecs.CreateDescribeRegionsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -53,6 +58,11 @@ func (s *EcsService) JudgeRegionValidation(key, region string) error {
 func (s *EcsService) DescribeZone(id string) (zone ecs.Zone, err error) {
 	request := ecs.CreateDescribeZonesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -81,6 +91,11 @@ func (s *EcsService) DescribeZone(id string) (zone ecs.Zone, err error) {
 func (s *EcsService) DescribeZones(d *schema.ResourceData) (zones []ecs.Zone, err error) {
 	request := ecs.CreateDescribeZonesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	//request.SpotStrategy = d.Get("spot_strategy").(string)
@@ -112,7 +127,11 @@ func (s *EcsService) DescribeZones(d *schema.ResourceData) (zones []ecs.Zone, er
 
 func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err error) {
 	request := ecs.CreateDescribeInstancesRequest()
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -151,6 +170,11 @@ func (s *EcsService) DescribeInstance(id string) (instance ecs.Instance, err err
 func (s *EcsService) DescribeInstanceAttribute(id string) (instance ecs.DescribeInstanceAttributeResponse, err error) {
 	request := ecs.CreateDescribeInstanceAttributeRequest()
 	request.InstanceId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -173,6 +197,11 @@ func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, e
 	request := ecs.CreateDescribeDisksRequest()
 	request.InstanceId = id
 	//request.DiskType = string(DiskTypeSystem)
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -230,6 +259,11 @@ func (s *EcsService) DiskAvailable(zone ecs.Zone, diskCategory DiskCategory) err
 func (s *EcsService) JoinSecurityGroups(instanceId string, securityGroupIds []string) error {
 	request := ecs.CreateJoinSecurityGroupRequest()
 	request.InstanceId = instanceId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -250,6 +284,11 @@ func (s *EcsService) JoinSecurityGroups(instanceId string, securityGroupIds []st
 func (s *EcsService) LeaveSecurityGroups(instanceId string, securityGroupIds []string) error {
 	request := ecs.CreateLeaveSecurityGroupRequest()
 	request.InstanceId = instanceId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -270,6 +309,11 @@ func (s *EcsService) LeaveSecurityGroups(instanceId string, securityGroupIds []s
 func (s *EcsService) DescribeSecurityGroup(id string) (group ecs.DescribeSecurityGroupAttributeResponse, err error) {
 	request := ecs.CreateDescribeSecurityGroupAttributeRequest()
 	request.SecurityGroupId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -304,6 +348,11 @@ func (s *EcsService) DescribeSecurityGroupRule(id string) (rule ecs.Permission, 
 	}
 	request := ecs.CreateDescribeSecurityGroupAttributeRequest()
 	request.SecurityGroupId = groupId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Direction = direction
 	request.NicType = nicType
 	request.RegionId = s.client.RegionId
@@ -351,6 +400,11 @@ func (s *EcsService) DescribeAvailableResources(d *schema.ResourceData, meta int
 	// If availability zone is nil, it will return all of supported resources in the current.
 	request := ecs.CreateDescribeAvailableResourceRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DestinationResource = string(destination)
@@ -455,6 +509,11 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keyPair string) (
 
 	request := ecs.CreateDescribeInstancesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeLarge)
@@ -494,6 +553,11 @@ func (s *EcsService) QueryInstancesWithKeyPair(instanceIdsStr, keyPair string) (
 func (s *EcsService) DescribeKeyPair(id string) (keyPair ecs.KeyPair, err error) {
 	request := ecs.CreateDescribeKeyPairsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.KeyPairName = id
@@ -536,6 +600,11 @@ func (s *EcsService) DescribeDisk(id string) (disk ecs.Disk, err error) {
 	request := ecs.CreateDescribeDisksRequest()
 	request.DiskIds = convertListToJsonString([]interface{}{id})
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -572,6 +641,11 @@ func (s *EcsService) DescribeDiskAttachment(id string) (disk ecs.Disk, err error
 func (s *EcsService) DescribeDisksByType(instanceId string, diskType DiskType) (disk []ecs.Disk, err error) {
 	request := ecs.CreateDescribeDisksRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	if instanceId != "" {
@@ -595,6 +669,11 @@ func (s *EcsService) DescribeDisksByType(instanceId string, diskType DiskType) (
 
 func (s *EcsService) DescribeTags(resourceId string, resourceType TagResourceType) (tags []ecs.Tag, err error) {
 	request := ecs.CreateDescribeTagsRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -620,6 +699,11 @@ func (s *EcsService) DescribeTags(resourceId string, resourceType TagResourceTyp
 func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	request := ecs.CreateDescribeImagesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ImageId = id
@@ -651,7 +735,11 @@ func (s *EcsService) deleteImage(d *schema.ResourceData) error {
 		return WrapError(err)
 	}
 	request := ecs.CreateDeleteImageRequest()
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if force, ok := d.GetOk("force"); ok {
 		request.Force = requests.NewBoolean(force.(bool))
 	}
@@ -689,6 +777,11 @@ func (s *EcsService) updateImage(d *schema.ResourceData) error {
 
 	request := ecs.CreateModifyImageAttributeRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ImageId = d.Id()
@@ -723,6 +816,11 @@ func (s *EcsService) updateImage(d *schema.ResourceData) error {
 func (s *EcsService) DescribeNetworkInterface(id string) (networkInterface ecs.NetworkInterfaceSet, err error) {
 	request := ecs.CreateDescribeNetworkInterfacesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	eniIds := []string{id}
@@ -793,6 +891,11 @@ func (s *EcsService) DescribeNetworkInterfaceAttachment(id string) (networkInter
 	eniId, instanceId := parts[0], parts[1]
 	request := ecs.CreateDescribeNetworkInterfacesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.InstanceId = instanceId
@@ -917,6 +1020,11 @@ func (s *EcsService) deleteImageforDest(d *schema.ResourceData, region string) e
 	if force, ok := d.GetOk("force"); ok {
 		request.Force = requests.NewBoolean(force.(bool))
 	}
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = region
 	request.ImageId = object.ImageId
 
@@ -938,6 +1046,11 @@ func (s *EcsService) deleteImageforDest(d *schema.ResourceData, region string) e
 func (s *EcsService) DescribeImage(id, region string) (image ecs.Image, err error) {
 	request := ecs.CreateDescribeImagesRequest()
 	request.RegionId = region
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ImageId = id
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs"}
@@ -1205,6 +1318,11 @@ func (s *EcsService) WaitForModifySecurityGroupPolicy(id, target string, timeout
 func (s *EcsService) AttachKeyPair(keyName string, instanceIds []interface{}) error {
 	request := ecs.CreateAttachKeyPairRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.KeyPairName = keyName
@@ -1290,6 +1408,11 @@ func (s *EcsService) TaskStateRefreshFunc(id string, failStates []string) resour
 func (s *EcsService) DescribeTaskById(id string) (task *ecs.DescribeTaskAttributeResponse, err error) {
 	request := ecs.CreateDescribeTaskAttributeRequest()
 	request.TaskId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -1310,6 +1433,11 @@ func (s *EcsService) DescribeTaskById(id string) (task *ecs.DescribeTaskAttribut
 func (s *EcsService) DescribeSnapshot(id string) (*ecs.Snapshot, error) {
 	snapshot := &ecs.Snapshot{}
 	request := ecs.CreateDescribeSnapshotsRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -1322,7 +1450,12 @@ func (s *EcsService) DescribeSnapshot(id string) (*ecs.Snapshot, error) {
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response := raw.(*ecs.DescribeSnapshotsResponse)
-	if len(response.Snapshots.Snapshot) != 1 || response.Snapshots.Snapshot[0].SnapshotId != id {
+	for _, k := range response.Snapshots.Snapshot {
+		if k.SnapshotId == id {
+			return &k, nil
+		}
+	}
+	if response.Snapshots.Snapshot[0].SnapshotId != id {
 		return snapshot, WrapErrorf(Error(GetNotFoundMessage("Snapshot", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 	}
 	return &response.Snapshots.Snapshot[0], nil
@@ -1332,6 +1465,11 @@ func (s *EcsService) DescribeSnapshotPolicy(id string) (*ecs.AutoSnapshotPolicy,
 	policy := &ecs.AutoSnapshotPolicy{}
 	request := ecs.CreateDescribeAutoSnapshotPolicyExRequest()
 	request.AutoSnapshotPolicyId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -1355,6 +1493,11 @@ func (s *EcsService) DescribeSnapshotPolicy(id string) (*ecs.AutoSnapshotPolicy,
 func (s *EcsService) DescribeReservedInstance(id string) (reservedInstance ecs.ReservedInstance, err error) {
 	request := ecs.CreateDescribeReservedInstancesRequest()
 	var balance = &[]string{id}
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ReservedInstanceId = balance
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
@@ -1428,6 +1571,11 @@ func (s *EcsService) DescribeLaunchTemplate(id string) (set ecs.LaunchTemplateSe
 
 	request := ecs.CreateDescribeLaunchTemplatesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.LaunchTemplateId = &[]string{id}
@@ -1455,6 +1603,11 @@ func (s *EcsService) DescribeLaunchTemplateVersion(id string, version int) (set 
 
 	request := ecs.CreateDescribeLaunchTemplateVersionsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.LaunchTemplateId = id
@@ -1509,6 +1662,11 @@ func (s *EcsService) WaitForLaunchTemplate(id string, status Status, timeout int
 func (s *EcsService) DescribeImageShareByImageId(id string) (imageShare *ecs.DescribeImageSharePermissionResponse, err error) {
 	request := ecs.CreateDescribeImageSharePermissionRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	parts, err := ParseResourceId(id, 2)
@@ -1560,6 +1718,11 @@ func (s *EcsService) WaitForAutoProvisioningGroup(id string, status Status, time
 func (s *EcsService) DescribeAutoProvisioningGroup(id string) (group ecs.AutoProvisioningGroup, err error) {
 	request := ecs.CreateDescribeAutoProvisioningGroupsRequest()
 	ids := []string{id}
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.AutoProvisioningGroupId = &ids
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
@@ -1622,6 +1785,11 @@ func (s *EcsService) SetResourceTags(d *schema.ResourceData, resourceType string
 	if len(removed) > 0 {
 		request := ecs.CreateUntagResourcesRequest()
 		request.RegionId = s.client.RegionId
+		if strings.ToLower(s.client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.ResourceId = &[]string{d.Id()}
@@ -1641,6 +1809,11 @@ func (s *EcsService) SetResourceTags(d *schema.ResourceData, resourceType string
 	if len(added) > 0 {
 		request := ecs.CreateTagResourcesRequest()
 		request.RegionId = s.client.RegionId
+		if strings.ToLower(s.client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.ResourceId = &[]string{d.Id()}
@@ -1663,6 +1836,11 @@ func (s *EcsService) SetResourceTags(d *schema.ResourceData, resourceType string
 func (s *EcsService) DescribeEcsDedicatedHost(id string) (object ecs.DedicatedHost, err error) {
 	request := ecs.CreateDescribeDedicatedHostsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 

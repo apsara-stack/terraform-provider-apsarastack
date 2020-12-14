@@ -42,7 +42,11 @@ func testSweepDisks(region string) error {
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.QueryParams["Department"] = client.Department
 	req.QueryParams["ResourceGroup"] = client.ResourceGroup
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -90,6 +94,11 @@ func testSweepDisks(region string) error {
 		req.QueryParams["Department"] = client.Department
 		req.QueryParams["ResourceGroup"] = client.ResourceGroup
 		req.DiskId = id
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteDisk(req)
 		})
@@ -215,7 +224,7 @@ func TestAccApsaraStackDisk_basic(t *testing.T) {
 					}),
 				),
 			},
-			{
+			/*{
 				Config: testAccDiskConfig_all(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -230,7 +239,7 @@ func TestAccApsaraStackDisk_basic(t *testing.T) {
 						"enable_auto_snapshot": "false",
 					}),
 				),
-			},
+			},*/
 		},
 	})
 
@@ -374,6 +383,8 @@ data "apsarastack_zones" "default" {
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
+
 
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"

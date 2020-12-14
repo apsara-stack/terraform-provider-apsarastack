@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
@@ -123,10 +124,20 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	request.Method = "Get"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.ApiName = "ListUsers"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -175,7 +186,7 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 			"role_id":            u.DefaultRole.ID,
 			"login_policy_id":    u.LoginPolicy.ID,
 		}
-		ids = append(ids, string(u.ID))
+		//ids = append(ids, string(u.ID))
 		roleids = append(roleids, u.DefaultRole.ID)
 		s = append(s, mapping)
 	}

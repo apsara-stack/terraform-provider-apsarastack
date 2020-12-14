@@ -53,6 +53,11 @@ func resourceApsaraStackDiskAttachmentCreate(d *schema.ResourceData, meta interf
 	request := ecs.CreateAttachDiskRequest()
 	request.RegionId = client.RegionId
 	request.InstanceId = instanceID
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DiskId = diskID
@@ -85,6 +90,11 @@ func resourceApsaraStackDiskAttachmentCreate(d *schema.ResourceData, meta interf
 	}
 	if newDisk.DeleteAutoSnapshot != oldDisk.DeleteAutoSnapshot {
 		request := ecs.CreateModifyDiskAttributeRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -133,6 +143,11 @@ func resourceApsaraStackDiskAttachmentDelete(d *schema.ResourceData, meta interf
 		return WrapError(err)
 	}
 	request := ecs.CreateDetachDiskRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

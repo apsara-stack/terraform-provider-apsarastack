@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"log"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -71,6 +72,11 @@ func setVolumeTags(client *connectivity.ApsaraStackClient, resourceType TagResou
 	ecsService := EcsService{client}
 	if d.HasChange("volume_tags") {
 		request := ecs.CreateDescribeDisksRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceId = d.Id()
@@ -132,6 +138,11 @@ func updateTags(client *connectivity.ApsaraStackClient, ids []string, resourceTy
 	if len(remove) > 0 {
 		request := ecs.CreateUntagResourcesRequest()
 		request.ResourceType = string(resourceType)
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ResourceId = &ids
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -166,6 +177,11 @@ func updateTags(client *connectivity.ApsaraStackClient, ids []string, resourceTy
 
 	if len(create) > 0 {
 		request := ecs.CreateTagResourcesRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ResourceType = string(resourceType)
 		request.ResourceId = &ids
 		request.Headers = map[string]string{"RegionId": client.RegionId}

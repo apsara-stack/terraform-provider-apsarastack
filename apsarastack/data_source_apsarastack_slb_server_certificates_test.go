@@ -40,15 +40,13 @@ func TestAccApsaraStackSlbServerCertificatesDataSource_basic(t *testing.T) {
 
 	var existDnsRecordsMapFunc = func(rand int) map[string]string {
 		return map[string]string{
-			"certificates.#":                            "1",
-			"ids.#":                                     "1",
-			"names.#":                                   "1",
-			"certificates.0.id":                         CHECKSET,
-			"certificates.0.name":                       fmt.Sprintf("tf-testAccSlbServerCertificatesDataSourceBasic-%d", rand),
-			"certificates.0.fingerprint":                CHECKSET,
-			"certificates.0.created_time":               CHECKSET,
-			"certificates.0.created_timestamp":          CHECKSET,
-			"certificates.0.is_apsarastack_certificate": CHECKSET,
+			"certificates.#":                   "1",
+			"ids.#":                            "1",
+			"names.#":                          "1",
+			"certificates.0.id":                CHECKSET,
+			"certificates.0.name":              fmt.Sprintf("tf-testAccSlbServerCertificatesDataSourceBasic-%d", rand),
+			"certificates.0.fingerprint":       CHECKSET,
+			"certificates.0.created_timestamp": CHECKSET,
 		}
 	}
 

@@ -16,10 +16,17 @@ type AscmService struct {
 func (s *AscmService) ListLoginPolicies(id string) (response *LoginPolicy, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
 	request.Method = "POST"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ListLoginPolicies"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{
@@ -59,6 +66,9 @@ func (s *AscmService) ListLoginPolicies(id string) (response *LoginPolicy, err e
 func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGroup, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
 	request.QueryParams = map[string]string{
 		"RegionId":          s.client.RegionId,
 		"AccessKeySecret":   s.client.SecretKey,
@@ -72,7 +82,11 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 	request.Version = "2019-05-10"
 	request.ServiceCode = "ascm"
 	request.Domain = s.client.Domain
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ListResourceGroup"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
@@ -105,6 +119,9 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 func (s *AscmService) DescribeAscmUser(id string) (response *User, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
 		"AccessKeySecret": s.client.SecretKey,
@@ -118,7 +135,11 @@ func (s *AscmService) DescribeAscmUser(id string) (response *User, err error) {
 	request.Version = "2019-05-10"
 	request.ServiceCode = "ascm"
 	request.Domain = s.client.Domain
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ListUsers"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
@@ -152,6 +173,9 @@ func (s *AscmService) DescribeAscmOrganization(id string) (response *Organizatio
 	var requestInfo *ecs.Client
 	did := strings.Split(id, SLASH_SEPARATED)
 	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
 		"AccessKeySecret": s.client.SecretKey,
@@ -167,7 +191,11 @@ func (s *AscmService) DescribeAscmOrganization(id string) (response *Organizatio
 	request.Version = "2019-05-10"
 	request.ServiceCode = "ascm"
 	request.Domain = s.client.Domain
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "GetOrganizationList"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId

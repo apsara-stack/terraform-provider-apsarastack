@@ -41,6 +41,11 @@ func testSweepDBInstances(region string) error {
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.PageNumber = requests.NewInteger(1)
 	for {
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -94,6 +99,11 @@ func testSweepDBInstances(region string) error {
 		log.Printf("[INFO] Deleting RDS Instance: %s (%s)", name, id)
 		if len(v.ReadOnlyDBInstanceIds.ReadOnlyDBInstanceId) > 0 {
 			request := rds.CreateReleaseReadWriteSplittingConnectionRequest()
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.DBInstanceId = id
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -107,6 +117,11 @@ func testSweepDBInstances(region string) error {
 		}
 		req := rds.CreateDeleteDBInstanceRequest()
 		req.DBInstanceId = id
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		req.Headers = map[string]string{"RegionId": client.RegionId}
 		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {

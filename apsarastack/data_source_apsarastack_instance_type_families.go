@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -64,6 +65,11 @@ func dataSourceApsaraStackInstanceTypeFamiliesRead(d *schema.ResourceData, meta 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ecsService := EcsService{client}
 	request := ecs.CreateDescribeInstanceTypeFamiliesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

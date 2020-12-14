@@ -59,12 +59,19 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 
 	if len(check.Data) == 0 {
 		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
 		request.Method = "POST"
 		request.Domain = client.Domain
 		request.RegionId = client.RegionId
 		request.Product = "Ascm"
 		request.Version = "2019-05-10"
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "CreateOrganization"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
@@ -156,6 +163,9 @@ func resourceApsaraStackAscmOrganizationDelete(d *schema.ResourceData, meta inte
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 		if len(check.Data) != 0 {
 			request := requests.NewCommonRequest()
+			if client.Config.Insecure {
+				request.SetHTTPSInsecure(client.Config.Insecure)
+			}
 			request.QueryParams = map[string]string{
 				"RegionId":        client.RegionId,
 				"AccessKeySecret": client.SecretKey,
@@ -173,7 +183,11 @@ func resourceApsaraStackAscmOrganizationDelete(d *schema.ResourceData, meta inte
 			request.Version = "2019-05-10"
 			request.ServiceCode = "ascm"
 			request.Domain = client.Domain
-			request.Scheme = "http"
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.ApiName = "RemoveOrganization"
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.RegionId = client.RegionId
