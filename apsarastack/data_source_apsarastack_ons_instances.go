@@ -1,12 +1,14 @@
 package apsarastack
 
 import (
-	"regexp"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
+	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"regexp"
 )
 
 func dataSourceApsaraStackOnsInstances() *schema.Resource {
@@ -51,11 +53,31 @@ func dataSourceApsaraStackOnsInstances() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"independent_naming": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"topic_capacity": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"tps_receive_max": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"tps_send_max": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"cluster": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"instance_status": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"release_time": {
+						"create_time": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -76,72 +98,74 @@ func dataSourceApsaraStackOnsInstances() *schema.Resource {
 
 func dataSourceApsaraStackOnsInstancesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	onsService := OnsService{client}
 
-	request := ons.CreateOnsInstanceInServiceListRequest()
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "Ons-inner"
+	request.Version = "2018-02-05"
+	request.Scheme = "http"
 	request.RegionId = client.RegionId
+	request.ApiName = "ConsoleInstanceList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "Ons-inner",
+		"RegionId":        client.RegionId,
+		"Action":          "ConsoleInstanceList",
+		"Version":         "2018-02-05",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"OnsRegionId":     client.RegionId,
+		"PreventCache":    "",
+	}
+	response := OInstance{}
 
-	idsMap := make(map[string]string)
-	if v, ok := d.GetOk("ids"); ok {
-		for _, vv := range v.([]interface{}) {
-			idsMap[Trim(vv.(string))] = Trim(vv.(string))
+	for {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ons_instances", request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		bresponse, _ := raw.(*responses.CommonResponse)
+
+		err = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
+
+		if err != nil {
+			return WrapError(err)
+		}
+		if response.Code == "200" || len(response.Data) < 1 {
+			break
 		}
 	}
-
-	raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-		return onsClient.OnsInstanceInServiceList(request)
-	})
-	if err != nil {
-		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ons_instances", request.GetActionName(), ApsaraStackSdkGoERROR)
+	var r *regexp.Regexp
+	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
 	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	response, _ := raw.(*ons.OnsInstanceInServiceListResponse)
-
-	var filteredInstances []ons.InstanceVO
-	nameRegex, ok := d.GetOk("name_regex")
-	if (ok && nameRegex.(string) != "") || (len(idsMap) > 0) {
-		var r *regexp.Regexp
-		if nameRegex != "" {
-			r = regexp.MustCompile(nameRegex.(string))
-		}
-		for _, instance := range response.Data.InstanceVO {
-			if r != nil && !r.MatchString(instance.InstanceName) {
-				continue
-			}
-			if len(idsMap) > 0 {
-				if _, ok := idsMap[instance.InstanceId]; !ok {
-					continue
-				}
-			}
-
-			filteredInstances = append(filteredInstances, instance)
-		}
-	} else {
-		filteredInstances = response.Data.InstanceVO
-	}
-
-	return onsInstancesDecriptionAttributes(d, filteredInstances, meta)
-}
-
-func onsInstancesDecriptionAttributes(d *schema.ResourceData, instancesInfo []ons.InstanceVO, meta interface{}) error {
 	var ids []string
 	var names []string
 	var s []map[string]interface{}
 
-	for _, item := range instancesInfo {
+	for _, item := range response.Data {
+		if r != nil && !r.MatchString(item.InstanceName) {
+			continue
+		}
 		mapping := map[string]interface{}{
-			"id":              item.InstanceId,
-			"instance_id":     item.InstanceId,
-			"instance_status": item.InstanceStatus,
-			"release_time":    item.ReleaseTime,
-			"instance_type":   item.InstanceType,
-			"instance_name":   item.InstanceName,
+			"id":                 item.InstanceID,
+			"instance_id":        item.InstanceID,
+			"instance_status":    item.InstanceStatus,
+			"create_time":        item.CreateTime,
+			"instance_type":      item.InstanceType,
+			"instance_name":      item.InstanceName,
+			"cluster":            item.Cluster,
+			"tps_receive_max":    item.TpsReceiveMax,
+			"tps_send_max":       item.TpsMax,
+			"topic_capacity":     item.TopicCapacity,
+			"independent_naming": item.IndependentNaming,
 		}
 
 		names = append(names, item.InstanceName)
-		ids = append(ids, item.InstanceId)
+		ids = append(ids, item.InstanceID)
 		s = append(s, mapping)
 	}
 
@@ -156,10 +180,9 @@ func onsInstancesDecriptionAttributes(d *schema.ResourceData, instancesInfo []on
 	if err := d.Set("instances", s); err != nil {
 		return WrapError(err)
 	}
-	// create a json file in current directory and write data source to it
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
-	return nil
 
+	return nil
 }

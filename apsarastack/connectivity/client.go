@@ -754,14 +754,10 @@ func (client *ApsaraStackClient) GetCallerIdentity() (string, error) {
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
 	request.Method = "GET"         // Set request method
 	request.Product = "ascm"       // Specify product
 	request.Domain = endpoint      // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2019-05-10" // Specify product version
-	request.Scheme = "http"        // Set request scheme. Default: http
 	request.ApiName = "GetUserInfo"
 	request.QueryParams = map[string]string{
 		"AccessKeySecret":  client.Config.SecretKey,
