@@ -36,8 +36,7 @@ func resourceApsaraStackDBDatabase() *schema.Resource {
 
 			"character_set": {
 				Type:     schema.TypeString,
-				Optional: true,
-				Default:  "utf8",
+				Required: true,
 				ForceNew: true,
 			},
 

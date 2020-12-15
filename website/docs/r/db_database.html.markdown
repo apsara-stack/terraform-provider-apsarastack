@@ -69,7 +69,7 @@ The following arguments are supported:
   
    More details refer to [API Docs](https://www.alibabacloud.com/help/zh/doc-detail/26258.htm)
 
-* `description` - (ForceNew) Database description. It cannot begin with https://. It must start with a Chinese character or English letter. It can include Chinese and English characters, underlines (_), hyphens (-), and numbers. The length may be 2-256 characters.
+* `description` - (Optional) Database description. It cannot begin with https://. It must start with a Chinese character or English letter. It can include Chinese and English characters, underlines (_), hyphens (-), and numbers. The length may be 2-256 characters.
 
 -> **NOTE:** The value of "name" or "character_set"  does not support modification.
 
