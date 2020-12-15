@@ -2,9 +2,12 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"log"
 	"regexp"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -61,29 +64,38 @@ func dataSourceApsaraStackCRNamespaces() *schema.Resource {
 func dataSourceApsaraStackCRNamespacesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	crService := CrService{client}
-	invoker := NewInvoker()
-
-	var (
-		request  *cr.GetNamespaceListRequest
-		response *cr.GetNamespaceListResponse
-	)
-	if err := invoker.Run(func() error {
-		raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
-			request = cr.CreateGetNamespaceListRequest()
-			request.RegionId = client.RegionId
-			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-			return crClient.GetNamespaceList(request)
-		})
-		response, _ = raw.(*cr.GetNamespaceListResponse)
-		return err
-	}); err != nil {
-		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cr_namespaces", "GetNamespaceList", ApsaraStackSdkGoERROR)
+	//invoker := NewInvoker()
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "cr"
+	request.Domain = client.Domain
+	request.Version = "2016-06-07"
+	request.Scheme = "http"
+	request.ApiName = "GetNamespaceList"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "cr",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"RegionId":        client.RegionId,
+		"Action":          "GetNamespaceList",
+		"Version":         "2016-06-07",
 	}
-	addDebug(request.GetActionName(), response)
-	var crResp crDescribeNamespaceListResponse
-	err := json.Unmarshal(response.GetHttpContentBytes(), &crResp)
+	raw, err := client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
+		return crClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cr_namespace", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	var crResp crListResponse
+	bresponse, _ := raw.(*responses.CommonResponse)
+	log.Printf("response for datasource %v", bresponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), &crResp)
+	log.Printf("umarshalled response for datasource %v", crResp)
+
+	addDebug(request.GetActionName(), bresponse)
 	if err != nil {
 		return WrapError(err)
 	}
@@ -91,7 +103,7 @@ func dataSourceApsaraStackCRNamespacesRead(d *schema.ResourceData, meta interfac
 	var names []string
 	var s []map[string]interface{}
 
-	for _, ns := range crResp.Data.Namespace {
+	for _, ns := range crResp.Data.Namespaces {
 		if nameRegex, ok := d.GetOk("name_regex"); ok {
 			r := regexp.MustCompile(nameRegex.(string))
 			if !r.MatchString(ns.Namespace) {
@@ -110,15 +122,8 @@ func dataSourceApsaraStackCRNamespacesRead(d *schema.ResourceData, meta interfac
 			}
 			return WrapError(err)
 		}
-
-		var resp crDescribeNamespaceResponse
-		err = json.Unmarshal(raw.GetHttpContentBytes(), &resp)
-		if err != nil {
-			return WrapError(err)
-		}
-
-		mapping["auto_create"] = resp.Data.Namespace.AutoCreate
-		mapping["default_visibility"] = resp.Data.Namespace.DefaultVisibility
+		mapping["auto_create"] = raw.Data.Namespace.AutoCreate
+		mapping["default_visibility"] = raw.Data.Namespace.DefaultVisibility
 
 		names = append(names, ns.Namespace)
 		s = append(s, mapping)
