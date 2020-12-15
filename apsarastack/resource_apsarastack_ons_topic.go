@@ -1,12 +1,13 @@
 package apsarastack
 
 import (
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -25,24 +26,21 @@ func resourceApsaraStackOnsTopic() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"instance_id": {
 				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Optional: true,
 			},
 			"topic": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.StringLenBetween(1, 64),
 			},
 			"message_type": {
-				Type:         schema.TypeInt,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntInSlice([]int{0, 1, 2, 4, 5}),
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"remark": {
 				Type:         schema.TypeString,
-				Optional:     true,
+				Required:     true,
 				ValidateFunc: validation.StringLenBetween(1, 128),
 			},
 			"perm": {
@@ -57,53 +55,84 @@ func resourceApsaraStackOnsTopic() *schema.Resource {
 func resourceApsaraStackOnsTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	onsService := OnsService{client}
+	var requestInfo *ecs.Client
 
+	ordertype := d.Get("message_type").(string)
 	instanceId := d.Get("instance_id").(string)
+	remark := d.Get("remark").(string)
 	topic := d.Get("topic").(string)
-
-	request := ons.CreateOnsTopicCreateRequest()
-	request.RegionId = client.RegionId
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-	request.Topic = topic
-	request.InstanceId = instanceId
-	request.MessageType = requests.NewInteger(d.Get("message_type").(int))
-
-	if v, ok := d.GetOk("remark"); ok {
-		request.Remark = v.(string)
+	check, err := onsService.DescribeOnsTopic(topic, instanceId)
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", "TOPIC alreadyExist", ApsaraStackSdkGoERROR)
 	}
+	if len(check.Data) == 0 {
 
-	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-			return onsClient.OnsTopicCreate(request)
+		request := requests.NewCommonRequest()
+		request.QueryParams = map[string]string{
+			"RegionId":        client.RegionId,
+			"AccessKeySecret": client.SecretKey,
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
+			"Product":         "Ons-inner",
+			"Action":          "ConsoleTopicCreate",
+			"Version":         "2018-02-05",
+			"ProductName":     "Ons-inner",
+			"PreventCache":    "",
+			"OrderType":       ordertype,
+			"Topic":           topic,
+			"Remark":          remark,
+			"OnsRegionId":     client.RegionId,
+			"InstanceId":      instanceId,
+		}
+		request.Method = "POST"
+		request.Product = "Ons-inner"
+		request.Version = "2018-02-05"
+		request.ServiceCode = "Ons-inner"
+		request.Domain = client.Domain
+		request.Scheme = "http"
+		request.SetHTTPSInsecure(true)
+		request.ApiName = "ConsoleTopicCreate"
+		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			if IsExpectedErrors(err, []string{ThrottlingUser}) {
-				time.Sleep(10 * time.Second)
-				return resource.RetryableError(err)
-			}
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", "ConsoleTopicCreate", raw)
+		}
+		addDebug("ConsoleTopicCreate", raw, requestInfo, request)
+
+		bresponse, _ := raw.(*responses.CommonResponse)
+		if bresponse.GetHttpStatus() != 200 {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", "ConsoleTopicCreate", ApsaraStackSdkGoERROR)
+		}
+		addDebug("ConsoleTopicCreate", raw, requestInfo, bresponse.GetHttpContentString())
+	}
+	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
+		check, err = onsService.DescribeOnsTopic(topic, instanceId)
+		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		return nil
+		if len(check.Data) != 0 {
+			return nil
+		}
+		return resource.RetryableError(Error("New Topic has been created successfully."))
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", request.GetActionName(), ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", "Failed to create ONS Topic", ApsaraStackSdkGoERROR)
 	}
-	d.SetId(instanceId + ":" + topic)
 
-	if err = onsService.WaitForOnsTopic(d.Id(), Available, DefaultTimeout); err != nil {
-		return WrapError(err)
-	}
-	return resourceApsaraStackOnsTopicRead(d, meta)
+	d.SetId(check.Data[0].Topic)
+
+	return resourceApsaraStackOnsTopicUpdate(d, meta)
 }
 
 func resourceApsaraStackOnsTopicRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	onsService := OnsService{client}
+	instanceId := d.Get("instance_id").(string)
 
-	object, err := onsService.DescribeOnsTopic(d.Id())
+	object, err := onsService.DescribeOnsTopic(d.Id(), instanceId)
 	if err != nil {
 		// Handle exceptions
 		if NotFoundError(err) {
@@ -113,88 +142,69 @@ func resourceApsaraStackOnsTopicRead(d *schema.ResourceData, meta interface{}) e
 		return WrapError(err)
 	}
 
-	d.Set("instance_id", object.InstanceId)
-	d.Set("topic", object.Topic)
-	d.Set("message_type", object.MessageType)
-	d.Set("remark", object.Remark)
+	d.Set("instance_id", object.Data[0].NamespaceID)
+	d.Set("topic", object.Data[0].Topic)
+	d.Set("message_type", object.Data[0].OrderType)
+	d.Set("remark", object.Data[0].Remark)
 
 	return nil
 }
 
 func resourceApsaraStackOnsTopicUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
-	onsService := OnsService{client}
-
-	parts, err := ParseResourceId(d.Id(), 2)
-	if err != nil {
-		return WrapError(err)
-	}
-	instanceId := parts[0]
-	topic := parts[1]
-
-	request := ons.CreateOnsTopicUpdateRequest()
-	request.RegionId = client.RegionId
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-	request.InstanceId = instanceId
-	request.Topic = topic
-
-	var perm int
-	if d.HasChange("perm") {
-		perm = d.Get("perm").(int)
-		request.Perm = requests.NewInteger(perm)
-		raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-			return onsClient.OnsTopicUpdate(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	}
-
 	return resourceApsaraStackOnsTopicRead(d, meta)
 }
 
 func resourceApsaraStackOnsTopicDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	onsService := OnsService{client}
+	var requestInfo *ecs.Client
+	instanceId := d.Get("instance_id").(string)
 
-	parts, err := ParseResourceId(d.Id(), 2)
+	check, err := onsService.DescribeOnsTopic(d.Id(), instanceId)
 	if err != nil {
-		return WrapError(err)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsTopicExist", ApsaraStackSdkGoERROR)
 	}
-	instanceId := parts[0]
-	topic := parts[1]
+	addDebug("IsTopicExist", check, requestInfo, map[string]string{"Topic": d.Id()})
+	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
 
-	request := ons.CreateOnsTopicDeleteRequest()
-	request.RegionId = client.RegionId
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request := requests.NewCommonRequest()
+		request.QueryParams = map[string]string{
+			"RegionId":        client.RegionId,
+			"AccessKeySecret": client.SecretKey,
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
+			"Product":         "Ons-inner",
+			"Action":          "ConsoleTopicDelete",
+			"Version":         "2018-02-05",
+			"ProductName":     "Ons-inner",
+			"PreventCache":    "",
+			"Topic":           d.Id(),
+			"OnsRegionId":     client.RegionId,
+			"InstanceId":      instanceId,
+		}
 
-	request.Topic = topic
-	request.InstanceId = instanceId
+		request.Method = "POST"
+		request.Product = "Ons-inner"
+		request.Version = "2018-02-05"
+		request.ServiceCode = "Ons-inner"
+		request.Domain = client.Domain
+		request.Scheme = "http"
+		request.ApiName = "ConsoleTopicDelete"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.RegionId = client.RegionId
 
-	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-			return onsClient.OnsTopicDelete(request)
+		_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
+			return csClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			if IsExpectedErrors(err, []string{ThrottlingUser}) {
-				time.Sleep(10 * time.Second)
-				return resource.RetryableError(err)
-			}
+			return resource.RetryableError(err)
+		}
+		check, err = onsService.DescribeOnsTopic(d.Id(), instanceId)
+
+		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		return nil
 	})
-	if err != nil {
-		if IsExpectedErrors(err, []string{"AUTH_RESOURCE_OWNER_ERROR"}) {
-			return nil
-		}
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-
-	return WrapError(onsService.WaitForOnsTopic(d.Id(), Deleted, DefaultTimeoutMedium))
+	return nil
 }
