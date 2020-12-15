@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -186,7 +187,7 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 			"role_id":            u.DefaultRole.ID,
 			"login_policy_id":    u.LoginPolicy.ID,
 		}
-		ids = append(ids, string(u.ID))
+		ids = append(ids, fmt.Sprint(u.ID))
 		roleids = append(roleids, u.DefaultRole.ID)
 		s = append(s, mapping)
 	}
