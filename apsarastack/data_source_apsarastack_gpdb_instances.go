@@ -1,12 +1,14 @@
 package apsarastack
 
 import (
+	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"regexp"
 	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/gpdb"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -109,122 +111,72 @@ func dataSourceApsaraStackGpdbInstances() *schema.Resource {
 }
 
 func dataSourceApsaraStackGpdbInstancesRead(d *schema.ResourceData, meta interface{}) error {
-	// name regex
-	var nameRegex *regexp.Regexp
-	if v, ok := d.GetOk("name_regex"); ok {
-		if r, err := regexp.Compile(v.(string)); err == nil {
-			nameRegex = r
-		} else {
-			return WrapError(err)
-		}
-	}
-	// availability zone
-	availabilityZone := d.Get("availability_zone").(string)
-	// vSwitchId
-	vSwitchId := d.Get("vswitch_id").(string)
-	// ids
-	idsMap := make(map[string]string)
-	if v, ok := d.GetOk("ids"); ok {
-		for _, vv := range v.([]interface{}) {
-			idsMap[Trim(vv.(string))] = Trim(vv.(string))
-		}
-	}
-
 	client := meta.(*connectivity.ApsaraStackClient)
-	gpdbService := GpdbService{client}
-	request := gpdb.CreateDescribeDBInstancesRequest()
-	request.RegionId = client.RegionId
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	request.PageSize = requests.NewInteger(PageSizeLarge)
-	request.PageNumber = requests.NewInteger(1)
-	if v, ok := d.GetOk("tags"); ok {
-		var reqTags []gpdb.DescribeDBInstancesTag
-		for key, value := range v.(map[string]interface{}) {
-			reqTags = append(reqTags, gpdb.DescribeDBInstancesTag{
-				Key:   key,
-				Value: value.(string),
-			})
-		}
-		request.Tag = &reqTags
+	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
+	request.Method = "POST"
+	request.Product = "gpdb"
+	request.Version = "2016-05-03"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.RegionId = client.RegionId
+	request.ApiName = "DescribeDBInstances"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "gpdb", "RegionId": client.RegionId, "Action": "DescribeDBInstances", "Version": "2016-05-03"}
+	response := GpdbInstance{}
 
-	var dbi []gpdb.DBInstanceAttribute
 	for {
-		raw, err := client.WithGpdbClient(func(gpdbClient *gpdb.Client) (interface{}, error) {
-			return gpdbClient.DescribeDBInstances(request)
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_gpdb_instances", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		response, _ := raw.(*gpdb.DescribeDBInstancesResponse)
-		addDebug(request.GetActionName(), response)
-		if len(response.Items.DBInstance) < 1 {
-			break
-		}
 
-		for _, item := range response.Items.DBInstance {
-			// filter by description regex
-			if nameRegex != nil {
-				if !nameRegex.MatchString(item.DBInstanceDescription) {
-					continue
-				}
-			}
-			// filter by instance id
-			if len(idsMap) > 0 {
-				if _, ok := idsMap[item.DBInstanceId]; !ok {
-					continue
-				}
-			}
-			// filter by availability zone
-			if availabilityZone != "" && availabilityZone != strings.ToLower(string(item.ZoneId)) {
-				continue
-			}
-			// filter by vSwitchId
-			if vSwitchId != "" && vSwitchId != string(item.VSwitchId) {
-				continue
-			}
+		bresponse, _ := raw.(*responses.CommonResponse)
 
-			// describe instance
-			instanceAttribute, err := gpdbService.DescribeGpdbInstance(item.DBInstanceId)
-			if err != nil {
-				return WrapError(err)
-			}
-			dbi = append(dbi, instanceAttribute)
-		}
-
-		if len(response.Items.DBInstance) < PageSizeLarge {
-			break
-		}
-		if page, err := getNextpageNumber(request.PageNumber); err != nil {
+		err = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
+		if err != nil {
 			return WrapError(err)
-		} else {
-			request.PageNumber = page
 		}
+		if response.Code == "200" || len(response.Items.DBInstance) < 1 {
+			break
+		}
+
 	}
 
-	return describeGpdbInstances(d, dbi)
-}
-
-func describeGpdbInstances(d *schema.ResourceData, dbi []gpdb.DBInstanceAttribute) error {
+	var r *regexp.Regexp
+	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
+	}
 	var ids []string
 	var names []string
 	var instances []map[string]interface{}
-	for _, item := range dbi {
+	for _, item := range response.Items.DBInstance {
+		if r != nil && !r.MatchString(item.DBInstanceID) {
+			continue
+		}
 		mapping := map[string]interface{}{
-			"id":                    item.DBInstanceId,
+			"id":                    item.DBInstanceID,
 			"description":           item.DBInstanceDescription,
-			"region_id":             item.RegionId,
-			"availability_zone":     item.ZoneId,
-			"creation_time":         item.CreationTime,
+			"region_id":             item.RegionID,
+			"availability_zone":     item.ZoneID,
+			"creation_time":         item.CreateTime,
 			"status":                item.DBInstanceStatus,
 			"engine":                item.Engine,
 			"engine_version":        item.EngineVersion,
 			"charge_type":           item.PayType,
-			"instance_class":        item.DBInstanceClass,
-			"instance_group_count":  item.DBInstanceGroupCount,
 			"instance_network_type": item.InstanceNetworkType,
 		}
-		ids = append(ids, item.DBInstanceId)
+		ids = append(ids, item.DBInstanceID)
 		names = append(names, item.DBInstanceDescription)
 		instances = append(instances, mapping)
 	}
@@ -239,7 +191,6 @@ func describeGpdbInstances(d *schema.ResourceData, dbi []gpdb.DBInstanceAttribut
 	if err := d.Set("names", names); err != nil {
 		return WrapError(err)
 	}
-	// create a json file in current directory and write data source to it
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), instances)
 	}
