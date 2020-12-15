@@ -1,13 +1,14 @@
 package apsarastack
 
 import (
-	"regexp"
-	"time"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
+	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"regexp"
 )
 
 func dataSourceApsaraStackOnsTopics() *schema.Resource {
@@ -37,12 +38,35 @@ func dataSourceApsaraStackOnsTopics() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"topic": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
+			"remark": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
+			"message_type": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Optional: true,
+			},
 			"topics": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 						"topic": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"instance_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -67,7 +91,7 @@ func dataSourceApsaraStackOnsTopics() *schema.Resource {
 							Computed: true,
 						},
 						"create_time": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"remark": {
@@ -83,77 +107,80 @@ func dataSourceApsaraStackOnsTopics() *schema.Resource {
 
 func dataSourceApsaraStackOnsTopicsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	onsService := OnsService{client}
+	namespaceid := d.Get("instance_id").(string)
 
-	request := ons.CreateOnsTopicListRequest()
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "Ons-inner"
+	request.Version = "2018-02-05"
+	request.Scheme = "http"
 	request.RegionId = client.RegionId
+	request.ApiName = "ConsoleTopicList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-	request.InstanceId = d.Get("instance_id").(string)
-
-	raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-		return onsClient.OnsTopicList(request)
-	})
-	if err != nil {
-		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ons_topics", request.GetActionName(), ApsaraStackSdkGoERROR)
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "Ons-inner",
+		"RegionId":        client.RegionId,
+		"Action":          "ConsoleTopicList",
+		"Version":         "2018-02-05",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"OnsRegionId":     client.RegionId,
+		"PreventCache":    "",
+		"namespaceId":     namespaceid,
 	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	response, _ := raw.(*ons.OnsTopicListResponse)
+	response := Topic{}
 
-	var filteredTopics []ons.PublishInfoDo
-	nameRegex, ok := d.GetOk("name_regex")
-	if ok && nameRegex.(string) != "" {
-		var r *regexp.Regexp
-		if nameRegex != "" {
-			r = regexp.MustCompile(nameRegex.(string))
+	for {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ons_topics", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		for _, topic := range response.Data.PublishInfoDo {
-			if r != nil && !r.MatchString(topic.Topic) {
-				continue
-			}
+		bresponse, _ := raw.(*responses.CommonResponse)
+		err = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
 
-			filteredTopics = append(filteredTopics, topic)
+		if err != nil {
+			return WrapError(err)
 		}
-	} else {
-		filteredTopics = response.Data.PublishInfoDo
+		if response.Code == 200 || len(response.Data) < 1 {
+			break
+		}
 	}
-	return onsTopicsDecriptionAttributes(d, filteredTopics, meta)
-}
-
-func onsTopicsDecriptionAttributes(d *schema.ResourceData, topicsInfo []ons.PublishInfoDo, meta interface{}) error {
-	var names []string
+	var r *regexp.Regexp
+	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
+	}
+	var ids []string
 	var s []map[string]interface{}
-
-	for _, item := range topicsInfo {
-		mapping := map[string]interface{}{
-			"topic":              item.Topic,
-			"owner":              item.Owner,
-			"relation":           item.Relation,
-			"relation_name":      item.RelationName,
-			"message_type":       item.MessageType,
-			"independent_naming": item.IndependentNaming,
-			"create_time":        time.Unix(int64(item.CreateTime)/1000, 0).Format("2006-01-02 03:04:05"),
-			"remark":             item.Remark,
+	for _, ons := range response.Data {
+		if r != nil && !r.MatchString(ons.Topic) {
+			continue
 		}
-
-		names = append(names, item.Topic)
+		mapping := map[string]interface{}{
+			"id":                 ons.ID,
+			"topic":              ons.Topic,
+			"remark":             ons.Remark,
+			"instance_id":        ons.NamespaceID,
+			"owner":              ons.Owner,
+			"relation":           ons.Relation,
+			"relation_name":      ons.RelationName,
+			"message_type":       ons.OrderType,
+			"independent_naming": ons.IndependentNaming,
+			"create_time":        ons.CreateTime,
+		}
+		ids = append(ids, string(rune(ons.ID)))
 		s = append(s, mapping)
 	}
 
-	d.SetId(dataResourceIdHash(names))
-
-	if err := d.Set("names", names); err != nil {
-		return WrapError(err)
-	}
+	d.SetId(dataResourceIdHash(ids))
 	if err := d.Set("topics", s); err != nil {
 		return WrapError(err)
 	}
 
-	// create a json file in current directory and write data source to it
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
-		writeToFile(output.(string), s)
+		_ = writeToFile(output.(string), s)
 	}
 	return nil
-
 }
