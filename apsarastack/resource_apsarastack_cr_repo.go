@@ -3,13 +3,11 @@ package apsarastack
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -80,105 +78,68 @@ func resourceApsaraStackCRRepo() *schema.Resource {
 func resourceApsaraStackCRRepoCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 
-	resp := ResponseCr{}
 	repoNamespace := d.Get("namespace").(string)
 	repoName := d.Get("name").(string)
-	summary := d.Get("summary").(string)
-	repoType := d.Get("repo_type").(string)
-	detail := d.Get("detail").(string)
-	request := requests.NewCommonRequest()
-	request.Method = "POST"
-	request.Product = "cr"
-	request.Domain = client.Domain
-	request.Version = "2016-06-07"
-	request.Scheme = "http"
-	request.ApiName = "CreateRepo"
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
-		"Product":         "cr",
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
-		"RegionId":        client.RegionId,
-		"Action":          "CreateRepo",
-		"Version":         "2016-06-07",
-		"X-acs-body":      fmt.Sprintf("{\"%s\":{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}}", "repo", "RepoName", repoName, "RepoNamespace", repoNamespace, "repoType", repoType, "summary", summary, "detail", detail),
+
+	payload := &crCreateRepoRequestPayload{}
+	payload.Repo.RepoNamespace = repoNamespace
+	payload.Repo.RepoName = repoName
+	payload.Repo.Summary = d.Get("summary").(string)
+	payload.Repo.Detail = d.Get("detail").(string)
+	payload.Repo.RepoType = d.Get("repo_type").(string)
+	serialized, err := json.Marshal(payload)
+	if err != nil {
+		return WrapError(err)
 	}
 
-	raw, err := client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
-		return crClient.ProcessCommonRequest(request)
+	request := cr.CreateCreateRepoRequest()
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
+	request.RegionId = client.RegionId
+	request.SetContent(serialized)
+
+	raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
+		return crClient.CreateRepo(request)
 	})
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cr_repo", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	response := raw.(*responses.CommonResponse)
-	log.Printf("repo create response %v", response)
-	err = json.Unmarshal(response.GetHttpContentBytes(), &resp)
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cr_repo", request.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-	log.Printf("repo create unmarshalled response %v", &resp)
-	addDebug(request.GetActionName(), raw, request)
+	addDebug(request.GetActionName(), raw, request.RoaRequest, request)
 	d.SetId(fmt.Sprintf("%s%s%s", repoNamespace, SLASH_SEPARATED, repoName))
 
 	return resourceApsaraStackCRRepoRead(d, meta)
 }
 
-type ResponseCr struct {
-	Code string `json:"code"`
-	Data struct {
-		Data struct {
-			RepoID int `json:"repoId"`
-		} `json:"data"`
-	} `json:"data"`
-	SuccessResponse bool `json:"successResponse"`
-}
-
 func resourceApsaraStackCRRepoUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	resp := ResponseCr{}
-	repoNamespace := d.Get("namespace").(string)
-	repoName := d.Get("name").(string)
-	summary := d.Get("summary").(string)
-	repoType := d.Get("repo_type").(string)
-	detail := d.Get("detail").(string)
+
 	if d.HasChange("summary") || d.HasChange("detail") || d.HasChange("repo_type") {
-		request := requests.NewCommonRequest()
-		request.Method = "POST"
-		request.Product = "cr"
-		request.Domain = client.Domain
-		request.Version = "2016-06-07"
-		request.Scheme = "http"
-		request.ApiName = "UpdateRepo"
-		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{
-			"AccessKeySecret": client.SecretKey,
-			"AccessKeyId":     client.AccessKey,
-			"Product":         "cr",
-			"Department":      client.Department,
-			"ResourceGroup":   client.ResourceGroup,
-			"RegionId":        client.RegionId,
-			"Action":          "UpdateRepo",
-			"Version":         "2016-06-07",
-			"RepoNamespace":   repoNamespace,
-			"RepoName":        repoName,
-			"X-acs-body":      fmt.Sprintf("{\"%s\":{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}}", "repo", "repoType", repoType, "summary", summary, "detail", detail),
+		payload := &crUpdateRepoRequestPayload{}
+		payload.Repo.Summary = d.Get("summary").(string)
+		payload.Repo.Detail = d.Get("detail").(string)
+		payload.Repo.RepoType = d.Get("repo_type").(string)
+
+		serialized, err := json.Marshal(payload)
+		if err != nil {
+			return WrapError(err)
 		}
-		raw, err := client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
-			return crClient.ProcessCommonRequest(request)
+		request := cr.CreateUpdateRepoRequest()
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
+		request.RegionId = client.RegionId
+		request.SetContent(serialized)
+		request.RepoName = d.Get("name").(string)
+		request.RepoNamespace = d.Get("namespace").(string)
+
+		raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
+			return crClient.UpdateRepo(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cr_repo", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		response := raw.(*responses.CommonResponse)
-		log.Printf("repo create response %v", response)
-		err = json.Unmarshal(response.GetHttpContentBytes(), &resp)
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cr_repo", request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		log.Printf("repo create unmarshalled response %v", &resp)
-		addDebug(request.GetActionName(), raw, request)
+		addDebug(request.GetActionName(), raw, request.RoaRequest, request)
 	}
 	return resourceApsaraStackCRRepoRead(d, meta)
 }
@@ -196,16 +157,22 @@ func resourceApsaraStackCRRepoRead(d *schema.ResourceData, meta interface{}) err
 		return WrapError(err)
 	}
 
-	d.Set("namespace", object.Data.Repo.RepoNamespace)
-	d.Set("name", object.Data.Repo.RepoName)
-	d.Set("detail", object.Data.Repo.Detail)
-	d.Set("summary", object.Data.Repo.Summary)
-	d.Set("repo_type", object.Data.Repo.RepoType)
+	var response crDescribeRepoResponse
+	err = json.Unmarshal(object.GetHttpContentBytes(), &response)
+	if err != nil {
+		return WrapError(err)
+	}
+
+	d.Set("namespace", response.Data.Repo.RepoNamespace)
+	d.Set("name", response.Data.Repo.RepoName)
+	d.Set("detail", response.Data.Repo.Detail)
+	d.Set("summary", response.Data.Repo.Summary)
+	d.Set("repo_type", response.Data.Repo.RepoType)
 
 	domainList := make(map[string]string)
-	domainList["public"] = object.Data.Repo.RepoDomainList.Public
-	domainList["internal"] = object.Data.Repo.RepoDomainList.Internal
-	domainList["vpc"] = object.Data.Repo.RepoDomainList.Vpc
+	domainList["public"] = response.Data.Repo.RepoDomainList.Public
+	domainList["internal"] = response.Data.Repo.RepoDomainList.Internal
+	domainList["vpc"] = response.Data.Repo.RepoDomainList.Vpc
 
 	d.Set("domain_list", domainList)
 
@@ -214,38 +181,29 @@ func resourceApsaraStackCRRepoRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceApsaraStackCRRepoDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+	crService := CrService{client}
 
 	sli := strings.Split(d.Id(), SLASH_SEPARATED)
 	repoNamespace := sli[0]
 	repoName := sli[1]
-	//
-	request := requests.NewCommonRequest()
-	request.Method = "POST"
-	request.Product = "cr"
-	request.Domain = client.Domain
-	request.Version = "2016-06-07"
-	request.Scheme = "http"
-	request.ApiName = "DeleteRepo"
+
+	request := cr.CreateDeleteRepoRequest()
+	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
-		"Product":         "cr",
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
-		"RegionId":        client.RegionId,
-		"Action":          "DeleteRepo",
-		"Version":         "2016-06-07",
-		"RepoNamespace":   repoNamespace,
-		"RepoName":        repoName,
-	}
-	raw, err := client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
-		return crClient.ProcessCommonRequest(request)
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
+	request.RepoNamespace = repoNamespace
+	request.RepoName = repoName
+
+	raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
+		return crClient.DeleteRepo(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cr_repo", request.GetActionName(), ApsaraStackSdkGoERROR)
+		if IsExpectedErrors(err, []string{"REPO_NOT_EXIST"}) {
+			return nil
+		}
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	addDebug(request.GetActionName(), raw, request)
-
-	return nil
+	addDebug(request.GetActionName(), raw, request.RoaRequest, request)
+	return WrapError(crService.WaitForCrRepo(d.Id(), Deleted, DefaultTimeout))
 }
