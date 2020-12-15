@@ -1,9 +1,10 @@
 package apsarastack
 
 import (
-	"time"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
+	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 )
 
@@ -11,185 +12,152 @@ type OnsService struct {
 	client *connectivity.ApsaraStackClient
 }
 
-func (s *OnsService) DescribeOnsInstance(id string) (*ons.OnsInstanceBaseInfoResponse, error) {
-	response := &ons.OnsInstanceBaseInfoResponse{}
-	request := ons.CreateOnsInstanceBaseInfoRequest()
-	request.RegionId = s.client.RegionId
+func (s *OnsService) DescribeOnsInstance(instanceid string) (response *OnsInstance, err error) {
+	var requestInfo *ecs.Client
+
+	request := requests.NewCommonRequest()
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"Product":         "Ons-inner",
+		"Action":          "ConsoleInstanceBaseInfo",
+		"Version":         "2018-02-05",
+		"OnsRegionId":     s.client.RegionId,
+		"PreventCache":    "",
+		"InstanceId":      instanceid,
+	}
+	request.Method = "POST"
+	request.Product = "Ons-inner"
+	request.Version = "2018-02-05"
+	request.ServiceCode = "Ons-inner"
+	request.Domain = s.client.Domain
+	request.Scheme = "http"
+	request.ApiName = "ConsoleInstanceBaseInfo"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ons", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	request.InstanceId = id
-
-	raw, err := s.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-		return onsClient.OnsInstanceBaseInfo(request)
-	})
-
-	if err != nil {
-		if IsExpectedErrors(err, []string{"InvalidDomainName.NoExist"}) {
-			return response, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
-		}
-		return response, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-
-	response, _ = raw.(*ons.OnsInstanceBaseInfoResponse)
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	return response, nil
-
-}
-
-func (s *OnsService) DescribeOnsTopic(id string) (*ons.PublishInfoDo, error) {
-	onsTopic := &ons.PublishInfoDo{}
-	parts, err := ParseResourceId(id, 2)
-	if err != nil {
-		return onsTopic, WrapError(err)
-	}
-	instanceId := parts[0]
-	topic := parts[1]
-
-	request := ons.CreateOnsTopicListRequest()
 	request.RegionId = s.client.RegionId
-	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ons", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	request.InstanceId = instanceId
-
-	raw, err := s.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-		return onsClient.OnsTopicList(request)
-	})
-
-	if err != nil {
-		if IsExpectedErrors(err, []string{"AUTH_RESOURCE_OWNER_ERROR", "INSTANCE_NOT_FOUND"}) {
-			return onsTopic, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
-		}
-		return onsTopic, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-
-	topicListResp, _ := raw.(*ons.OnsTopicListResponse)
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-
-	for _, v := range topicListResp.Data.PublishInfoDo {
-		if v.Topic == topic {
-			return &v, nil
-		}
-	}
-	return onsTopic, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
-}
-
-func (s *OnsService) DescribeOnsGroup(id string) (*ons.SubscribeInfoDo, error) {
-	onsGroup := &ons.SubscribeInfoDo{}
-	parts, err := ParseResourceId(id, 2)
-	if err != nil {
-		return onsGroup, WrapError(err)
-	}
-	instanceId := parts[0]
-	groupId := parts[1]
-
-	request := ons.CreateOnsGroupListRequest()
-	request.RegionId = s.client.RegionId
-	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ons", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	request.InstanceId = instanceId
-
-	raw, err := s.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-		return onsClient.OnsGroupList(request)
+	var resp = &OnsInstance{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
-		if IsExpectedErrors(err, []string{"AUTH_RESOURCE_OWNER_ERROR", "INSTANCE_NOT_FOUND"}) {
-			return onsGroup, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		if IsExpectedErrors(err, []string{"ErrorInstanceNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return onsGroup, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+		return resp, WrapErrorf(err, DefaultErrorMsg, instanceid, "ConsoleInstanceBaseInfo", ApsaraStackSdkGoERROR)
+
 	}
-
-	groupListResp, _ := raw.(*ons.OnsGroupListResponse)
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-
-	for _, v := range groupListResp.Data.SubscribeInfoDo {
-		if v.GroupId == groupId {
-			return &v, nil
-		}
-	}
-
-	return onsGroup, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
-}
-
-func (s *OnsService) WaitForOnsInstance(id string, status Status, timeout int) error {
-	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
-	for {
-		response, err := s.DescribeOnsInstance(id)
-
-		if err != nil {
-			if NotFoundError(err) {
-				if status == Deleted {
-					return nil
-				}
-			} else {
-				return WrapError(err)
-			}
-		}
-
-		if response.InstanceBaseInfo.InstanceId == id && status != Deleted {
-			return nil
-		}
-
-		if time.Now().After(deadline) {
-			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, response.InstanceBaseInfo.InstanceId, id, ProviderERROR)
-		}
-		time.Sleep(DefaultIntervalShort * time.Second)
-	}
-
-}
-
-func (s *OnsService) WaitForOnsTopic(id string, status Status, timeout int) error {
-	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
-	parts, err := ParseResourceId(id, 2)
+	addDebug("ConsoleInstanceBaseInfo", response, requestInfo, request)
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
-		return WrapError(err)
+		return resp, WrapError(err)
 	}
-	instanceId := parts[0]
-	topic := parts[1]
-	for {
-		response, err := s.DescribeOnsTopic(id)
-		if err != nil {
-			if NotFoundError(err) {
-				if status == Deleted {
-					return nil
-				}
-			} else {
-				return WrapError(err)
-			}
-		}
 
-		if response.InstanceId+":"+response.Topic == id && status != Deleted {
-			return nil
-		}
-
-		if time.Now().After(deadline) {
-			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, instanceId+":"+topic, id, ProviderERROR)
-		}
-		time.Sleep(DefaultIntervalShort * time.Second)
+	if bresponse != nil || resp.Success != true {
+		return resp, WrapError(err)
 	}
+
+	return resp, nil
 }
+func (s *OnsService) DescribeOnsTopic(id string, instanceid string) (response *Topic, err error) {
+	var requestInfo *ecs.Client
 
-func (s *OnsService) WaitForOnsGroup(id string, status Status, timeout int) error {
-	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
-
-	for {
-		response, err := s.DescribeOnsGroup(id)
-		if err != nil {
-			if NotFoundError(err) {
-				if status == Deleted {
-					return nil
-				}
-			} else {
-				return WrapError(err)
-			}
-		}
-
-		if response.InstanceId+":"+response.GroupId == id && status != Deleted {
-			return nil
-		}
-
-		if time.Now().After(deadline) {
-			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, response.InstanceId+":"+response.GroupId, id, ProviderERROR)
-		}
-		time.Sleep(DefaultIntervalShort * time.Second)
+	request := requests.NewCommonRequest()
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"Product":         "Ons-inner",
+		"Action":          "ConsoleTopicList",
+		"Version":         "2018-02-05",
+		"topic":           id,
+		"OnsRegionId":     s.client.RegionId,
+		"PreventCache":    "",
+		"InstanceId":      instanceid,
 	}
+	request.Method = "POST"
+	request.Product = "Ons-inner"
+	request.Version = "2018-02-05"
+	request.ServiceCode = "Ons-inner"
+	request.Domain = s.client.Domain
+	request.Scheme = "http"
+	request.ApiName = "ConsoleTopicList"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &Topic{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorTopicNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ConsoleTopicList", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ConsoleTopicList", response, requestInfo, request)
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code == 200 {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
+func (s *OnsService) DescribeOnsGroup(gid string, instanceid string) (response *OnsGroup, err error) {
+	var requestInfo *ecs.Client
+
+	request := requests.NewCommonRequest()
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"Product":         "Ons-inner",
+		"Action":          "ConsoleGroupList",
+		"Version":         "2018-02-05",
+		"GroupId":         gid,
+		"OnsRegionId":     s.client.RegionId,
+		"PreventCache":    "",
+		"InstanceId":      instanceid,
+	}
+	request.Method = "POST"
+	request.Product = "Ons-inner"
+	request.Version = "2018-02-05"
+	request.ServiceCode = "Ons-inner"
+	request.Domain = s.client.Domain
+	request.Scheme = "http"
+	request.ApiName = "ConsoleGroupList"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &OnsGroup{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorGroupNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, gid, "ConsoleGroupList", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ConsoleGroupList", response, requestInfo, request)
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code == 200 {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
 }

@@ -181,15 +181,15 @@ func TestAccApsaraStackSecurityGroupBasic(t *testing.T) {
 					}),
 				),
 			},
-			{
-				Config: testAccCheckSecurityGroupConfigTags(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":    "1",
-						"tags.Test": REMOVEKEY,
-					}),
-				),
-			},
+			//{
+			//	Config: testAccCheckSecurityGroupConfigTags(),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		testAccCheck(map[string]string{
+			//			"tags.%":    "1",
+			//			"tags.Test": REMOVEKEY,
+			//		}),
+			//	),
+			//},
 
 			{
 				Config: testAccCheckSecurityGroupConfigAll(),
@@ -245,10 +245,7 @@ resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
   name = "${var.name}"
   description = "${var.name}_describe"
-  tags = {
-		foo  = "foo"
-        Test = "Test"
-  }
+  
 }
 `)
 }
@@ -270,10 +267,7 @@ resource "apsarastack_security_group" "default" {
   inner_access_policy = "Accept"
   name = "${var.name}"
   description = "${var.name}_describe"
-  tags = {
-		foo  = "foo"
-        Test = "Test"
-  }
+  
 }`)
 }
 
@@ -294,10 +288,7 @@ resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
   name = "${var.name}_change"
   description = "${var.name}_describe"
-  tags = {
-		foo  = "foo"
-        Test = "Test"
-  }
+  
 }`)
 }
 
@@ -318,10 +309,6 @@ resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
   name = "${var.name}_change"
   description = "${var.name}_describe_change"
-  tags = {
-		foo  = "foo"
-        Test = "Test"
-  }
 }`)
 }
 func testAccCheckSecurityGroupConfigTags() string {
@@ -341,9 +328,7 @@ resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
   name = "${var.name}_change"
   description = "${var.name}_describe_change"
-  tags = {
-		foo  = "foo"
-  }
+
 }`)
 }
 
@@ -364,10 +349,6 @@ resource "apsarastack_security_group" "default" {
   inner_access_policy = "Accept"
   name = "${var.name}"
   description = "${var.name}_describe"
-  tags = {
-		foo  = "foo"
-        Test = "Test"
-  }
 }`)
 }
 
@@ -389,10 +370,6 @@ resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
   name = "${var.name}"
   description = "${var.name}_describe"
-  tags = {
-		foo  = "foo"
-        Test = "Test"
-  }
 }`)
 }
 
@@ -401,7 +378,7 @@ var testAccCheckSecurityBasicMap = map[string]string{
 	"inner_access_policy": "Accept",
 	"name":                "tf-testAccCheckSecurityGroupName",
 	"description":         "tf-testAccCheckSecurityGroupName_describe",
-	"tags.%":              "2",
-	"tags.foo":            "foo",
-	"tags.Test":           "Test",
+	//"tags.%":              "2",
+	//"tags.foo":            "foo",
+	//"tags.Test":           "Test",
 }

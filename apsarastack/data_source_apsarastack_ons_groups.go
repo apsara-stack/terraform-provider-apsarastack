@@ -1,9 +1,12 @@
 package apsarastack
 
 import (
+	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"regexp"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -34,7 +37,7 @@ func dataSourceApsaraStackOnsGroups() *schema.Resource {
 			"ids": {
 				Type:     schema.TypeList,
 				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 			"groups": {
 				Type:     schema.TypeList,
@@ -42,10 +45,14 @@ func dataSourceApsaraStackOnsGroups() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"owner": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"group_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -57,6 +64,14 @@ func dataSourceApsaraStackOnsGroups() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"instance_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"create_time": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -66,73 +81,77 @@ func dataSourceApsaraStackOnsGroups() *schema.Resource {
 
 func dataSourceApsaraStackOnsGroupsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	onsService := OnsService{client}
+	namespaceid := d.Get("instance_id").(string)
 
-	request := ons.CreateOnsGroupListRequest()
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "Ons-inner"
+	request.Version = "2018-02-05"
+	request.Scheme = "http"
 	request.RegionId = client.RegionId
+	request.ApiName = "ConsoleGroupList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ons", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-	request.InstanceId = d.Get("instance_id").(string)
-
-	raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-		return onsClient.OnsGroupList(request)
-	})
-	if err != nil {
-		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ons_groups", request.GetActionName(), ApsaraStackSdkGoERROR)
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "Ons-inner",
+		"RegionId":        client.RegionId,
+		"Action":          "ConsoleGroupList",
+		"Version":         "2018-02-05",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"OnsRegionId":     client.RegionId,
+		"PreventCache":    "",
+		"InstanceId":      namespaceid,
 	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	response, _ := raw.(*ons.OnsGroupListResponse)
+	response := OnsGroup{}
 
-	var filteredGroups []ons.SubscribeInfoDo
-	nameRegex, ok := d.GetOk("group_id_regex")
-	if ok && nameRegex.(string) != "" {
-		var r *regexp.Regexp
-		if nameRegex != "" {
-			r = regexp.MustCompile(nameRegex.(string))
+	for {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ons_groups", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		for _, group := range response.Data.SubscribeInfoDo {
-			if r != nil && !r.MatchString(group.GroupId) {
-				continue
-			}
+		bresponse, _ := raw.(*responses.CommonResponse)
+		err = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
 
-			filteredGroups = append(filteredGroups, group)
+		if err != nil {
+			return WrapError(err)
 		}
-	} else {
-		filteredGroups = response.Data.SubscribeInfoDo
+		if response.Code == 200 || len(response.Data) < 1 {
+			break
+		}
 	}
-
-	return onsGroupsDecriptionAttributes(d, filteredGroups, meta)
-}
-
-func onsGroupsDecriptionAttributes(d *schema.ResourceData, topicsInfo []ons.SubscribeInfoDo, meta interface{}) error {
+	var r *regexp.Regexp
+	if nameRegex, ok := d.GetOk("group_id_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
+	}
 	var ids []string
 	var s []map[string]interface{}
-
-	for _, item := range topicsInfo {
-		mapping := map[string]interface{}{
-			"id":                 item.GroupId,
-			"owner":              item.Owner,
-			"independent_naming": item.IndependentNaming,
-			"remark":             item.Remark,
+	for _, ons := range response.Data {
+		if r != nil && !r.MatchString(ons.GroupID) {
+			continue
 		}
-
-		ids = append(ids, item.GroupId)
+		mapping := map[string]interface{}{
+			"id":                 ons.ID,
+			"remark":             ons.Remark,
+			"instance_id":        ons.NamespaceID,
+			"group_id":           ons.GroupID,
+			"owner":              ons.Owner,
+			"independent_naming": ons.IndependentNaming,
+			"create_time":        ons.CreateTime,
+		}
+		ids = append(ids, string(rune(ons.ID)))
 		s = append(s, mapping)
 	}
 
 	d.SetId(dataResourceIdHash(ids))
-
-	if err := d.Set("ids", ids); err != nil {
-		return WrapError(err)
-	}
 	if err := d.Set("groups", s); err != nil {
 		return WrapError(err)
 	}
 
-	// create a json file in current directory and write data source to it
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
-		writeToFile(output.(string), s)
+		_ = writeToFile(output.(string), s)
 	}
 	return nil
 
