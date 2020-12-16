@@ -1210,9 +1210,9 @@ func (client *ApsaraStackClient) WithMaxComputeClient(do func(*maxcompute.Client
 
 	// Initialize the MaxCompute client if necessary
 	if client.maxcomputeconn == nil {
-		endpoint := client.config.MaxComputeEndpoint
+		endpoint := client.Config.MaxComputeEndpoint
 		if endpoint == "" {
-			endpoint = loadEndpoint(client.config.RegionId, MAXCOMPUTECode)
+			endpoint = loadEndpoint(client.Config.RegionId, MAXCOMPUTECode)
 		}
 		if strings.HasPrefix(endpoint, "http") {
 			endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "http://"))
@@ -1222,16 +1222,16 @@ func (client *ApsaraStackClient) WithMaxComputeClient(do func(*maxcompute.Client
 		}
 
 		if endpoint != "" {
-			endpoints.AddEndpointMapping(client.config.RegionId, string(MAXCOMPUTECode), endpoint)
+			endpoints.AddEndpointMapping(client.Config.RegionId, string(MAXCOMPUTECode), endpoint)
 		}
-		maxcomputeconn, err := maxcompute.NewClientWithOptions(client.config.RegionId, client.getSdkConfig(), client.config.getAuthCredential(false))
+		maxcomputeconn, err := maxcompute.NewClientWithOptions(client.Config.RegionId, client.getSdkConfig(), client.Config.getAuthCredential(false))
 		if err != nil {
 			return nil, fmt.Errorf("unable to initialize the MaxCompute client: %#v", err)
 		}
 
 		maxcomputeconn.AppendUserAgent(Terraform, TerraformVersion)
 		maxcomputeconn.AppendUserAgent(Provider, ProviderVersion)
-		maxcomputeconn.AppendUserAgent(Module, client.config.ConfigurationSource)
+		maxcomputeconn.AppendUserAgent(Module, client.Config.ConfigurationSource)
 		client.maxcomputeconn = maxcomputeconn
 	}
 
