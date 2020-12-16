@@ -2,9 +2,9 @@ package apsarastack
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"log"
 	"testing"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 
@@ -13,8 +13,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
+func testAccCheckRepoDestroy(s *terraform.State) error {
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "apsarastack_cr_repo" {
+			continue
+		}
+
+		// Try to find the Disk
+		client := testAccProvider.Meta().(*connectivity.ApsaraStackClient)
+		crService := CrService{client}
+		log.Printf("repo ID %s", rs.Primary.ID)
+		_, err := crService.DescribeCrRepo(rs.Primary.ID)
+
+		if err == nil {
+			if NotFoundError(err) {
+				continue
+			}
+			return WrapError(err)
+		}
+	}
+
+	return nil
+}
 func TestAccApsaraStackCRRepo_Basic(t *testing.T) {
-	var v *cr.GetRepoResponse
+	var v GetRepoResponse
 	resourceId := "apsarastack_cr_repo.default"
 	ra := resourceAttrInit(resourceId, crRepoMap)
 	serviceFunc := func() interface{} {
@@ -34,7 +57,7 @@ func TestAccApsaraStackCRRepo_Basic(t *testing.T) {
 		},
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  rac.checkResourceDestroy(),
+		CheckDestroy:  testAccCheckRepoDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -85,37 +108,13 @@ func TestAccApsaraStackCRRepo_Basic(t *testing.T) {
 					}),
 				),
 			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"detail": "detail update",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"detail": "detail update",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"summary":   "summary",
-					"repo_type": "PUBLIC",
-					"detail":    REMOVEKEY,
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"summary":   "summary",
-						"repo_type": "PUBLIC",
-						"detail":    REMOVEKEY,
-					}),
-				),
-			},
 		},
 	})
 }
 
 func TestAccApsaraStackCRRepo_Multi(t *testing.T) {
-	var v *cr.GetRepoResponse
-	resourceId := "apsarastack_cr_repo.default.4"
+	var v GetRepoResponse
+	resourceId := "apsarastack_cr_repo.default.2"
 	ra := resourceAttrInit(resourceId, crRepoMap)
 	serviceFunc := func() interface{} {
 		return &CrService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -134,7 +133,7 @@ func TestAccApsaraStackCRRepo_Multi(t *testing.T) {
 		},
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  rac.checkResourceDestroy(),
+		CheckDestroy:  testAccCheckRepoDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -142,7 +141,7 @@ func TestAccApsaraStackCRRepo_Multi(t *testing.T) {
 					"name":      "${var.name}${count.index}",
 					"summary":   "summary",
 					"repo_type": "PUBLIC",
-					"count":     "5",
+					"count":     "3",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
