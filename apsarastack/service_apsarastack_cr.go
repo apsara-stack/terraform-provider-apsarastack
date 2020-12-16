@@ -2,11 +2,12 @@ package apsarastack
 
 import (
 	"encoding/json"
-	"strings"
-	"time"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"log"
+	"strings"
 )
 
 type CrService struct {
@@ -25,7 +26,31 @@ type crUpdateNamespaceRequestPayload struct {
 		DefaultVisibility string `json:"DefaultVisibility"`
 	} `json:"Namespace"`
 }
-
+type crListResponse struct {
+	Code string `json:"code"`
+	Cost int    `json:"cost"`
+	Data struct {
+		Code       string `json:"code"`
+		Cost       int    `json:"cost"`
+		Message    string `json:"message"`
+		Namespaces []struct {
+			AuthorizeType     string `json:"authorizeType"`
+			Department        int    `json:"Department"`
+			NamespaceStatus   string `json:"namespaceStatus"`
+			Namespace         string `json:"namespace"`
+			DepartmentName    string `json:"DepartmentName"`
+			ResourceGroup     int    `json:"ResourceGroup"`
+			ResourceGroupName string `json:"ResourceGroupName"`
+		} `json:"namespaces"`
+		PureListData bool `json:"pureListData"`
+		Redirect     bool `json:"redirect"`
+		Success      bool `json:"success"`
+	} `json:"data"`
+	Message      string `json:"message"`
+	PureListData bool   `json:"pureListData"`
+	Redirect     bool   `json:"redirect"`
+	Success      bool   `json:"success"`
+}
 type crDescribeNamespaceResponse struct {
 	RequestId string `json:"requestId"`
 	Data      struct {
@@ -73,6 +98,34 @@ type crUpdateRepoRequestPayload struct {
 	} `json:"Repo"`
 }
 
+type GetRepoResponse struct {
+	Data struct {
+		Repo struct {
+			Stars          int    `json:"stars"`
+			Logo           string `json:"logo"`
+			RepoStatus     string `json:"repoStatus"`
+			GmtCreate      int64  `json:"gmtCreate"`
+			Detail         string `json:"detail"`
+			GmtModified    int64  `json:"gmtModified"`
+			Summary        string `json:"summary"`
+			RepoBuildType  string `json:"repoBuildType"`
+			RepoName       string `json:"repoName"`
+			RepoNamespace  string `json:"repoNamespace"`
+			RepoType       string `json:"repoType"`
+			RepoID         int    `json:"repoId"`
+			RegionID       string `json:"regionId"`
+			RepoOriginType string `json:"repoOriginType"`
+			RepoDomainList struct {
+				Internal string `json:"internal"`
+				Public   string `json:"public"`
+				Vpc      string `json:"vpc"`
+			} `json:"repoDomainList"`
+			RepoAuthorizeType string `json:"repoAuthorizeType"`
+			Downloads         int    `json:"downloads"`
+		} `json:"repo"`
+	} `json:"data"`
+}
+
 type crDescribeRepoResponse struct {
 	RequestId string `json:"requestId"`
 	Data      struct {
@@ -100,7 +153,47 @@ type crDescribeReposResponse struct {
 		Page     int      `json:"page"`
 	} `json:"data"`
 }
-
+type crResponseList struct {
+	Code string `json:"code"`
+	Cost int    `json:"cost"`
+	Data struct {
+		Code         string `json:"code"`
+		Cost         int    `json:"cost"`
+		Message      string `json:"message"`
+		Page         int    `json:"page"`
+		PageSize     int    `json:"pageSize"`
+		PureListData bool   `json:"pureListData"`
+		Redirect     bool   `json:"redirect"`
+		Repos        []struct {
+			Summary        string `json:"summary"`
+			RepoID         int    `json:"repoId"`
+			GmtModified    int64  `json:"gmtModified"`
+			RepoNamespace  string `json:"repoNamespace"`
+			RepoName       string `json:"repoName"`
+			RepoOriginType string `json:"repoOriginType"`
+			Stars          int    `json:"stars"`
+			GmtCreate      int64  `json:"gmtCreate"`
+			RepoBuildType  string `json:"repoBuildType"`
+			RepoType       string `json:"repoType"`
+			RepoDomainList struct {
+				Internal string `json:"internal"`
+				Public   string `json:"public"`
+				Vpc      string `json:"vpc"`
+			} `json:"repoDomainList"`
+			Downloads         int    `json:"downloads"`
+			RegionID          string `json:"regionId"`
+			Logo              string `json:"logo"`
+			RepoStatus        string `json:"repoStatus"`
+			RepoAuthorizeType string `json:"repoAuthorizeType"`
+		} `json:"repos"`
+		Success bool `json:"success"`
+		Total   int  `json:"total"`
+	} `json:"data"`
+	Message      string `json:"message"`
+	PureListData bool   `json:"pureListData"`
+	Redirect     bool   `json:"redirect"`
+	Success      bool   `json:"success"`
+}
 type crRepo struct {
 	Summary        string `json:"summary"`
 	RepoNamespace  string `json:"repoNamespace"`
@@ -134,111 +227,105 @@ type crTag struct {
 	ImageSize   int    `json:"imageSize"`
 }
 
-func (c *CrService) DescribeCrNamespace(id string) (*cr.GetNamespaceResponse, error) {
-	response := &cr.GetNamespaceResponse{}
-	request := cr.CreateGetNamespaceRequest()
-	request.RegionId = c.client.RegionId
-	request.Headers = map[string]string{"RegionId": c.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr", "Department": c.client.Department, "ResourceGroup": c.client.ResourceGroup}
+type crResponse struct {
+	Code string `json:"code"`
+	Data struct {
+		Data struct {
+			NamespaceID int `json:"namespaceId"`
+		} `json:"data"`
+	} `json:"data"`
+	SuccessResponse bool `json:"successResponse"`
+}
 
-	request.Namespace = id
+func (c *CrService) DescribeCrNamespace(id string) (*crDescribeNamespaceResponse, error) {
+	//response := &cr.GetNamespaceResponse{}
 
 	var err error
-	raw, err := c.client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
-		return crClient.GetNamespace(request)
+	response := crDescribeNamespaceResponse{}
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "cr"
+	request.Domain = c.client.Domain
+	request.Version = "2016-06-07"
+	request.Scheme = "http"
+	request.ApiName = "GetNamespace"
+	request.Headers = map[string]string{"RegionId": c.client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": c.client.SecretKey,
+		"AccessKeyId":     c.client.AccessKey,
+		"Product":         "cr",
+		"Department":      c.client.Department,
+		"ResourceGroup":   c.client.ResourceGroup,
+		"RegionId":        c.client.RegionId,
+		"Action":          "GetNamespace",
+		"Version":         "2016-06-07",
+		"Namespace":       id,
+	}
+	raw, err := c.client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
+		return crClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
-		if IsExpectedErrors(err, []string{"NAMESPACE_NOT_EXIST"}) {
-			return response, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
-		}
-		return response, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+		return nil, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	addDebug(request.GetActionName(), raw, request.RoaRequest, request)
-	response, _ = raw.(*cr.GetNamespaceResponse)
+	resp, _ := raw.(*responses.CommonResponse)
+	log.Printf("response for read %v", resp)
+	err = json.Unmarshal(resp.GetHttpContentBytes(), &response)
+	log.Printf("unmarshal response for read %v", &response)
 
-	return response, nil
+	if response.Data.Namespace.Namespace != id {
+		return nil, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+	}
+	addDebug(request.GetActionName(), raw, request)
+
+	return &response, nil
 }
 
-func (c *CrService) WaitForCRNamespace(id string, status Status, timeout int) error {
-	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
-
-	for {
-		object, err := c.DescribeCrNamespace(id)
-		if err != nil {
-			if NotFoundError(err) {
-				if status == Deleted {
-					return nil
-				}
-			} else {
-				return WrapError(err)
-			}
-		}
-		var response crDescribeNamespaceResponse
-		err = json.Unmarshal(object.GetHttpContentBytes(), &response)
-		if err != nil {
-			return WrapError(err)
-		}
-		if response.Data.Namespace.Namespace == id && status != Deleted {
-			return nil
-		}
-		if time.Now().After(deadline) {
-			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, response.Data.Namespace.Namespace, id, ProviderERROR)
-		}
-	}
-}
-
-func (c *CrService) DescribeCrRepo(id string) (*cr.GetRepoResponse, error) {
-	response := &cr.GetRepoResponse{}
+func (c *CrService) DescribeCrRepo(id string) (GetRepoResponse, error) {
+	resp := GetRepoResponse{}
 	sli := strings.Split(id, SLASH_SEPARATED)
 	repoNamespace := sli[0]
 	repoName := sli[1]
-
-	request := cr.CreateGetRepoRequest()
-	request.RegionId = c.client.RegionId
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "cr"
+	request.Domain = c.client.Domain
+	request.Version = "2016-06-07"
+	request.Scheme = "http"
+	request.ApiName = "GetRepo"
 	request.Headers = map[string]string{"RegionId": c.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": c.client.SecretKey, "Product": "cr", "Department": c.client.Department, "ResourceGroup": c.client.ResourceGroup}
-
-	request.RepoNamespace = repoNamespace
-	request.RepoName = repoName
-
-	raw, err := c.client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
-		return crClient.GetRepo(request)
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": c.client.SecretKey,
+		"AccessKeyId":     c.client.AccessKey,
+		"Product":         "cr",
+		"Department":      c.client.Department,
+		"ResourceGroup":   c.client.ResourceGroup,
+		"RegionId":        c.client.RegionId,
+		"Action":          "GetRepo",
+		"Version":         "2016-06-07",
+		"RepoName":        repoName,
+		"RepoNamespace":   repoNamespace,
+	}
+	raw, err := c.client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
+		return crClient.ProcessCommonRequest(request)
 	})
-	response, _ = raw.(*cr.GetRepoResponse)
+	if err != nil {
+		return resp, err
+	}
+	response, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(response.GetHttpContentBytes(), &resp)
+	//if err != nil {
+	//	if IsExpectedErrors(err, []string{"REPO_NOT_EXIST"}) {
+	//		return response, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+	//	}
+	//	return response, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+	//}
+
 	if err != nil {
 		if IsExpectedErrors(err, []string{"REPO_NOT_EXIST"}) {
-			return response, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return response, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	addDebug(request.GetActionName(), raw, request.RoaRequest, request)
-	return response, nil
-}
-
-func (c *CrService) WaitForCrRepo(id string, status Status, timeout int) error {
-	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
-	for {
-		object, err := c.DescribeCrRepo(id)
-		if err != nil {
-			if NotFoundError(err) {
-				if status == Deleted {
-					return nil
-				}
-			} else {
-				return WrapError(err)
-			}
-		}
-		var response crDescribeRepoResponse
-		err = json.Unmarshal(object.GetHttpContentBytes(), &response)
-		if err != nil {
-			return WrapError(err)
-		}
-		respId := response.Data.Repo.RepoNamespace + SLASH_SEPARATED + response.Data.Repo.RepoName
-		if respId == id && status != Deleted {
-			return nil
-		}
-		if time.Now().After(deadline) {
-			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, respId, id, ProviderERROR)
-		}
-	}
+	addDebug(request.GetActionName(), raw, request)
+	return resp, nil
 }
