@@ -1,12 +1,14 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-
 	"regexp"
+	"strconv"
 )
 
 func dataSourceApsaraStackDnsDomains() *schema.Resource {
@@ -112,124 +114,70 @@ func dataSourceApsaraStackDnsDomains() *schema.Resource {
 }
 func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	request := alidns.CreateDescribeDomainsRequest()
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "GenesisDns"
+	request.Domain = client.Domain
+	request.Version = "2018-07-20"
+	request.Scheme = "http"
+	request.ApiName = "ObtainGlobalAuthZoneList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "GenesisDns",
+		"RegionId":        client.RegionId,
+		"Action":          "ObtainGlobalAuthZoneList",
+		"Version":         "2018-07-20",
+	}
 
-	var allDomains []alidns.Domain
-	request.RegionId = client.RegionId
-	request.PageSize = requests.NewInteger(PageSizeLarge)
-	request.PageNumber = requests.NewInteger(1)
-	request.ResourceGroupId = d.Get("resource_group_id").(string)
+	var addDomains = DnsDomains{}
 	for {
-		raw, err := client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
-			return dnsClient.DescribeDomains(request)
+		raw, err := client.WithEcsClient(func(alidnsClient *ecs.Client) (interface{}, error) {
+			return alidnsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_dns_domains", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		response, _ := raw.(*alidns.DescribeDomainsResponse)
-		domains := response.Domains.Domain
-		for _, domain := range domains {
-			allDomains = append(allDomains, domain)
-		}
-
-		if len(domains) < PageSizeLarge {
-			break
-		}
-		page, err := getNextpageNumber(request.PageNumber)
+		addDebug(request.GetActionName(), raw, request)
+		response, _ := raw.(*responses.CommonResponse)
+		err = json.Unmarshal(response.GetHttpContentBytes(), &addDomains)
 		if err != nil {
 			return WrapError(err)
 		}
-		request.PageNumber = page
+		if response.IsSuccess() == true || len(addDomains.ZoneList) < 1 {
+			break
+		}
+
 	}
-
-	var filteredDomains []alidns.Domain
-
-	idsMap := make(map[string]string)
-	if v, ok := d.GetOk("ids"); ok {
-		for _, vv := range v.([]interface{}) {
-			idsMap[vv.(string)] = vv.(string)
-		}
+	var r *regexp.Regexp
+	if nameRegex, ok := d.GetOk("domain_name_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
 	}
-
-	for _, domain := range allDomains {
-		if v, ok := d.GetOk("ali_domain"); ok && domain.AliDomain != v.(bool) {
-			continue
-		}
-
-		if v, ok := d.GetOk("instance_id"); ok && v.(string) != "" && domain.InstanceId != v.(string) {
-			continue
-		}
-
-		if v, ok := d.GetOk("version_code"); ok && v.(string) != "" && domain.VersionCode != v.(string) {
-			continue
-		}
-
-		if v, ok := d.GetOk("domain_name_regex"); ok && v.(string) != "" {
-			r := regexp.MustCompile(v.(string))
-			if !r.MatchString(domain.DomainName) {
-				continue
-			}
-		}
-
-		if v, ok := d.GetOk("group_name_regex"); ok && v.(string) != "" {
-			r := regexp.MustCompile(v.(string))
-			if !r.MatchString(domain.GroupName) {
-				continue
-			}
-		}
-
-		if len(idsMap) > 0 {
-			if _, ok := idsMap[domain.DomainId]; !ok {
-				continue
-			}
-		}
-
-		filteredDomains = append(filteredDomains, domain)
-	}
-
-	return domainsDecriptionAttributes(d, filteredDomains, meta)
-}
-
-func domainsDecriptionAttributes(d *schema.ResourceData, domainTypes []alidns.Domain, meta interface{}) error {
 	var ids []string
 	var names []string
 	var s []map[string]interface{}
-	for _, domain := range domainTypes {
-		mapping := map[string]interface{}{
-			"domain_id":    domain.DomainId,
-			"domain_name":  domain.DomainName,
-			"group_id":     domain.GroupId,
-			"group_name":   domain.GroupName,
-			"ali_domain":   domain.AliDomain,
-			"instance_id":  domain.InstanceId,
-			"version_code": domain.VersionCode,
-			"puny_code":    domain.PunyCode,
-			"dns_servers":  domain.DnsServers.DnsServer,
+	for _, rg := range addDomains.ZoneList {
+		if r != nil && !r.MatchString(rg.DomainName) {
+			continue
 		}
-		names = append(names, domain.DomainName)
-		ids = append(ids, domain.DomainId)
+		id := strconv.Itoa(rg.DomainID)
+		mapping := map[string]interface{}{
+			"domain_id":   id,
+			"domain_name": rg.DomainName,
+		}
+
+		names = append(names, rg.DomainName)
+		ids = append(ids, id)
 		s = append(s, mapping)
 	}
-
 	d.SetId(dataResourceIdHash(ids))
 	if err := d.Set("domains", s); err != nil {
 		return WrapError(err)
 	}
-	if err := d.Set("names", names); err != nil {
-		return WrapError(err)
-	}
-	if err := d.Set("ids", ids); err != nil {
-		return WrapError(err)
-	}
-
-	// create a json file in current directory and write data source to it.
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
+
 	return nil
 }

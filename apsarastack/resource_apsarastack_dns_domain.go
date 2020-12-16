@@ -1,9 +1,13 @@
 package apsarastack
 
 import (
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"strconv"
 )
 
 func resourceApsaraStackDnsDomain() *schema.Resource {
@@ -54,33 +58,46 @@ func resourceApsaraStackDnsDomain() *schema.Resource {
 	}
 }
 
+type DnsDomain struct {
+	RequestID string `json:"RequestId"`
+	ID        int    `json:"Id"`
+}
+
 func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-
-	request := alidns.CreateAddDomainRequest()
+	DomainName := d.Get("domain_name").(string)
+	request := requests.NewCommonRequest()
+	request.Method = "POST"        // Set request method
+	request.Product = "GenesisDns" // Specify product
+	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2018-07-20" // Specify product version
+	request.Scheme = "http"        // Set request scheme. Default: http
+	request.ApiName = "AddGlobalAuthZone"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.DomainName = d.Get("domain_name").(string)
-	if v, ok := d.GetOk("group_id"); ok {
-		request.GroupId = v.(string)
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "GenesisDns",
+		"RegionId":        client.RegionId,
+		"Action":          "AddGlobalAuthZone",
+		"Version":         "2018-07-20",
+		"DomainName":      DomainName,
 	}
-	if v, ok := d.GetOk("lang"); ok {
-		request.Lang = v.(string)
-	}
-	if v, ok := d.GetOk("resource_group_id"); ok {
-		request.ResourceGroupId = v.(string)
-	}
-	raw, err := client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
-		return alidnsClient.AddDomain(request)
+	raw, err := client.WithEcsClient(func(alidnsClient *ecs.Client) (interface{}, error) {
+		return alidnsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw)
-	response, _ := raw.(*alidns.AddDomainResponse)
-	d.SetId(response.DomainName)
+	dnsresp := DnsDomain{}
+	response, _ := raw.(*responses.CommonResponse)
+	ok := json.Unmarshal(response.GetHttpContentBytes(), &dnsresp)
+	if ok != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "ParseKubernetesClusterResponse", raw)
+	}
+	id := strconv.Itoa(dnsresp.ID)
+	d.SetId(id)
 
 	return resourceApsaraStackDnsDomainUpdate(d, meta)
 }
@@ -91,104 +108,39 @@ func resourceApsaraStackDnsDomainRead(d *schema.ResourceData, meta interface{}) 
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
-			//return nil
 		}
 		return WrapError(err)
 	}
 
-	d.Set("domain_name", d.Id())
-	d.Set("dns_servers", object.DnsServers.DnsServer)
-	d.Set("domain_id", object.DomainId)
-	d.Set("group_id", object.GroupId)
-	d.Set("remark", object.Remark)
-
-	listTagResourcesObject, err := dnsService.ListTagResources(d.Id())
-	if err != nil {
-		return WrapError(err)
-	}
-
-	tags := make(map[string]string)
-	for _, t := range listTagResourcesObject.TagResources {
-		tags[t.TagKey] = t.TagValue
-	}
-	d.Set("tags", tags)
+	d.Set("domain_name", object.DomainName)
+	d.Set("domain_id", d.Id())
 	return nil
 }
 func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
-	dnsService := DnsService{client}
-	d.Partial(true)
 
-	update := false
-	request := alidns.CreateChangeDomainGroupRequest()
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.DomainName = d.Id()
-	if !d.IsNewResource() && d.HasChange("group_id") {
-		update = true
-		request.GroupId = d.Get("group_id").(string)
-	}
-	if !d.IsNewResource() && d.HasChange("lang") {
-		update = true
-		request.Lang = d.Get("lang").(string)
-	}
-	if update {
-		raw, err := client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
-			return alidnsClient.ChangeDomainGroup(request)
-		})
-		addDebug(request.GetActionName(), raw)
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		d.SetPartial("group_id")
-		d.SetPartial("lang")
-	}
-	update = false
-	updateDomainRemarkReq := alidns.CreateUpdateDomainRemarkRequest()
-	updateDomainRemarkReq.Headers = map[string]string{"RegionId": client.RegionId}
-	updateDomainRemarkReq.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	updateDomainRemarkReq.QueryParams["Department"] = client.Department
-	updateDomainRemarkReq.QueryParams["ResourceGroup"] = client.ResourceGroup
-	updateDomainRemarkReq.DomainName = d.Id()
-	updateDomainRemarkReq.Lang = d.Get("lang").(string)
-	if d.HasChange("remark") {
-		update = true
-		updateDomainRemarkReq.Remark = d.Get("remark").(string)
-	}
-	if update {
-		raw, err := client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
-			return alidnsClient.UpdateDomainRemark(updateDomainRemarkReq)
-		})
-		addDebug(updateDomainRemarkReq.GetActionName(), raw)
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), updateDomainRemarkReq.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		d.SetPartial("remark")
-	}
-	if d.HasChange("tags") {
-		if err := dnsService.SetResourceTags(d, "DOMAIN"); err != nil {
-			return WrapError(err)
-		}
-		d.SetPartial("tags")
-	}
-	d.Partial(false)
 	return resourceApsaraStackDnsDomainRead(d, meta)
 }
 func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	request := alidns.CreateDeleteDomainRequest()
+	request := requests.NewCommonRequest()
+	request.Method = "POST"        // Set request method
+	request.Product = "GenesisDns" // Specify product
+	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2018-07-20" // Specify product version
+	request.Scheme = "http"        // Set request scheme. Default: http
+	request.ApiName = "DeleteGlobalZone"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.DomainName = d.Id()
-	if v, ok := d.GetOk("lang"); ok {
-		request.Lang = v.(string)
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "GenesisDns",
+		"RegionId":        client.RegionId,
+		"Action":          "DeleteGlobalZone",
+		"Version":         "2018-07-20",
+		"Id":              d.Id(),
 	}
-	raw, err := client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
-		return alidnsClient.DeleteDomain(request)
+	raw, err := client.WithEcsClient(func(alidnsClient *ecs.Client) (interface{}, error) {
+		return alidnsClient.ProcessCommonRequest(request)
 	})
 	addDebug(request.GetActionName(), raw)
 	if err != nil {
