@@ -337,7 +337,7 @@ func buildApsaraStackSGRuleRequest(d *schema.ResourceData, meta interface{}) (*r
 		ruleReq.Scheme = "http"
 	}
 
-	request, err := client.NewCommonRequest(ruleReq.GetProduct(), ruleReq.GetLocationServiceCode(), strings.ToUpper(string(Http)), connectivity.ApiVersion20140526)
+	request, err := client.NewCommonRequest(ruleReq.GetProduct(), ruleReq.GetLocationServiceCode(), client.Config.Protocol, connectivity.ApiVersion20140526)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
