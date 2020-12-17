@@ -24,17 +24,6 @@ func TestAccApsaraStackKmsKeysDataSource(t *testing.T) {
 		}),
 	}
 
-	statusConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"description_regex": "^${apsarastack_kms_key.default.description}",
-			"status":            "Enabled",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"description_regex": "^${apsarastack_kms_key.default.description}",
-			"status":            "Disabled",
-		}),
-	}
-
 	idsConf := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
 			"ids": []string{"${apsarastack_kms_key.default.id}"},
@@ -47,33 +36,22 @@ func TestAccApsaraStackKmsKeysDataSource(t *testing.T) {
 	allConf := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
 			"description_regex": "^${apsarastack_kms_key.default.description}",
-			"status":            "Enabled",
 			"ids":               []string{"${apsarastack_kms_key.default.id}"},
 		}),
 		fakeConfig: testAccConfig(map[string]interface{}{
 			"description_regex": "^${apsarastack_kms_key.default.description}-fake",
-			"status":            "Enabled",
 			"ids":               []string{"${apsarastack_kms_key.default.id}"},
 		}),
 	}
 
 	var existKmsKeysMapFunc = func(rand int) map[string]string {
 		return map[string]string{
-			"ids.#":                "1",
-			"ids.0":                CHECKSET,
-			"keys.#":               "1",
-			"keys.0.id":            CHECKSET,
-			"keys.0.arn":           CHECKSET,
-			"keys.0.status":        "Enabled",
-			"keys.0.description":   fmt.Sprintf("tf_testAccKmsKeysDataSource_%d", rand),
-			"keys.0.creation_date": CHECKSET,
-			"keys.0.creator":       CHECKSET,
+			"keys.0.description": fmt.Sprintf("tf_testAccKmsKeysDataSource_%d", rand),
 		}
 	}
 
 	var fakeKmsKeysMapFunc = func(rand int) map[string]string {
 		return map[string]string{
-			"ids.#":  "0",
 			"keys.#": "0",
 		}
 	}
@@ -84,14 +62,14 @@ func TestAccApsaraStackKmsKeysDataSource(t *testing.T) {
 		fakeMapFunc:  fakeKmsKeysMapFunc,
 	}
 
-	kmsKeysCheckInfo.dataSourceTestCheck(t, rand, descriptionRegexConf, statusConf, idsConf, allConf)
+	kmsKeysCheckInfo.dataSourceTestCheck(t, rand, descriptionRegexConf, idsConf, allConf)
 }
 
 func dataSourceKmsKeysConfigDependence(name string) string {
 	return fmt.Sprintf(`
 resource "apsarastack_kms_key" "default" {
     description = "%s"
-    deletion_window_in_days = 7
+    pending_window_in_days = 7
 }
 `, name)
 }

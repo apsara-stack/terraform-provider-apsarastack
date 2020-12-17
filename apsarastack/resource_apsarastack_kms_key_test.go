@@ -110,15 +110,15 @@ func TestAccApsaraStackKMSKey_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"description":            name,
-					"key_spec":               "Aliyun_SM4",
+					"description": name,
+					//	"key_spec":               "Aliyun_SM4",
 					"protection_level":       "HSM",
 					"pending_window_in_days": "7",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"description":            name,
-						"key_spec":               "Aliyun_SM4",
+						"description": name,
+						//		"key_spec":               "Aliyun_SM4",
 						"protection_level":       "HSM",
 						"pending_window_in_days": "7",
 					}),
