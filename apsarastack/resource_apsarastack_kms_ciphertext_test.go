@@ -54,7 +54,6 @@ func TestAccApsaraStackKmsCiphertext_validate_withContext(t *testing.T) {
 				Config: testAccApsaraStackKmsCiphertextConfig_validate_withContext(acctest.RandomWithPrefix("tf-testacc-validate-withcontext")),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("apsarastack_kms_ciphertext.default", "ciphertext_blob"),
-					//resource.TestCheckResourceAttrPair("apsarastack_kms_ciphertext.default", "plaintext", "data.apsarastack_kms_plaintext.default", "plaintext"),
 				),
 			},
 		},
