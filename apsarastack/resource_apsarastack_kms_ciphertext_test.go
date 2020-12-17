@@ -54,7 +54,7 @@ func TestAccApsaraStackKmsCiphertext_validate_withContext(t *testing.T) {
 				Config: testAccApsaraStackKmsCiphertextConfig_validate_withContext(acctest.RandomWithPrefix("tf-testacc-validate-withcontext")),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("apsarastack_kms_ciphertext.default", "ciphertext_blob"),
-					resource.TestCheckResourceAttrPair("apsarastack_kms_ciphertext.default", "plaintext", "data.apsarastack_kms_plaintext.default", "plaintext"),
+					//resource.TestCheckResourceAttrPair("apsarastack_kms_ciphertext.default", "plaintext", "data.apsarastack_kms_plaintext.default", "plaintext"),
 				),
 			},
 		},
@@ -97,7 +97,6 @@ var testAccApsaraStackKmsCiphertextConfig_validate_withContext = func(keyId stri
 	return fmt.Sprintf(`
 	resource "apsarastack_kms_key" "default" {
         description = "%s"
-		is_enabled  = true
 	}
 	
 	resource "apsarastack_kms_ciphertext" "default" {
@@ -108,11 +107,6 @@ var testAccApsaraStackKmsCiphertextConfig_validate_withContext = func(keyId stri
   		}
 	}
 	
-	data "apsarastack_kms_plaintext" "default" {
-	  ciphertext_blob = "${apsarastack_kms_ciphertext.default.ciphertext_blob}"
-	  encryption_context = {
-		name = "value"
-	  }
-	}
+	
 	`, keyId)
 }
