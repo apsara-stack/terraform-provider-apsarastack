@@ -12,14 +12,14 @@ import (
 	"regexp"
 )
 
-func dataSourceApsaraStackAscmUsers() *schema.Resource {
+func dataSourceApsaraStackAscmLogonPolicies() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackAscmUsersRead,
+		Read: dataSourceApsaraStackAscmLogonPoliciesRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 				ForceNew: true,
 				MinItems: 1,
@@ -29,89 +29,85 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"cell_phone_number": {
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"display_name": {
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"mobile_nation_code": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"names": {
+			"ip_ranges": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"organization_id": {
-				Type:     schema.TypeInt,
-				Computed: true,
+			"rule": {
+				Type:     schema.TypeString,
 				Optional: true,
-			},
-			"role_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"login_policy_id": {
-				Type:     schema.TypeInt,
+			"time_ranges": {
+				Type:     schema.TypeList,
 				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"end_time": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"login_policy_id": {
+							Type:     schema.TypeInt,
+							Optional: true,
+						},
+						"start_time": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
 			},
-
-			"users": {
+			"policies": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"organization_id": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"cell_phone_number": {
+						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"display_name": {
+						"rule": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"email": {
+						"ip_range": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"mobile_nation_code": {
+
+						"end_time": {
 							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"role_id": {
-							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"login_policy_id": {
 							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"start_time": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
@@ -121,12 +117,9 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
@@ -138,18 +131,19 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 	} else {
 		request.Scheme = "http"
 	}
+
 	request.RegionId = client.RegionId
-	request.ApiName = "ListUsers"
+	request.ApiName = "ListLoginPolicies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListUsers", "Version": "2019-05-10"}
-	response := User{}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListLoginPolicies", "Version": "2019-05-10"}
+	response := LoginPolicy{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_users", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_logon_policies", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
@@ -169,35 +163,53 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 		r = regexp.MustCompile(nameRegex.(string))
 	}
 	var ids []string
-	var roleids []int
 	var s []map[string]interface{}
+	var t []map[string]interface{}
 	for _, u := range response.Data {
-		if r != nil && !r.MatchString(u.LoginName) {
+		if r != nil && !r.MatchString(u.Name) {
 			continue
 		}
-		mapping := map[string]interface{}{
-			"id":                 u.ID,
-			"name":               u.LoginName,
-			"organization_id":    u.Organization.ID,
-			"cell_phone_number":  u.CellphoneNum,
-			"display_name":       u.DisplayName,
-			"email":              u.Email,
-			"mobile_nation_code": u.MobileNationCode,
-			"role_id":            u.DefaultRole.ID,
-			"login_policy_id":    u.LoginPolicy.ID,
+		for _, time := range response.Data {
+			var ipranges []string
+			var iprange string
+			for _, k := range u.IPRanges {
+				ipranges = append(ipranges, k.IPRange)
+				if len(ipranges) > 1 {
+					iprange = iprange + "," + k.IPRange
+				} else {
+					iprange = k.IPRange
+				}
+			}
+			timemapping := map[string]interface{}{
+				"id":          u.LpID,
+				"name":        u.Name,
+				"rule":        u.Rule,
+				"description": u.Description,
+				"ip_range":    iprange,
+			}
+			s = append(s, timemapping)
+			for _, k := range time.TimeRanges {
+				allmapping := map[string]interface{}{
+					"start_time":      k.StartTime,
+					"end_time":        k.EndTime,
+					"login_policy_id": k.LoginPolicyID,
+				}
+				t = append(t, allmapping)
+			}
+			for k, v := range t {
+				s[k] = v
+			}
+
 		}
-		ids = append(ids, string(u.ID))
-		roleids = append(roleids, u.DefaultRole.ID)
-		s = append(s, mapping)
+
 	}
+
 	d.SetId(dataResourceIdHash(ids))
 
-	if err := d.Set("users", s); err != nil {
+	if err := d.Set("policies", s); err != nil {
 		return WrapError(err)
 	}
-	if err := d.Set("role_ids", roleids); err != nil {
-		return WrapError(err)
-	}
+
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}

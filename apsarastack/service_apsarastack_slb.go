@@ -41,7 +41,7 @@ func (s *SlbService) BuildSlbCommonRequest() (*requests.CommonRequest, error) {
 	}
 	slbReq.Headers = map[string]string{"RegionId": s.client.RegionId}
 	slbReq.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	req, err := s.client.NewCommonRequest(slbReq.GetProduct(), slbReq.GetLocationServiceCode(), strings.ToUpper(string(Http)), connectivity.ApiVersion20140515)
+	req, err := s.client.NewCommonRequest(slbReq.GetProduct(), slbReq.GetLocationServiceCode(), s.client.Config.Protocol, connectivity.ApiVersion20140515)
 	if err != nil {
 		err = WrapError(err)
 	}

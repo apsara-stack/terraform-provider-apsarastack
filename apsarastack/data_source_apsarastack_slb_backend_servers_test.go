@@ -1,73 +1,39 @@
 package apsarastack
 
 import (
-	"fmt"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
 func TestAccApsaraStackSlbBackendServersDataSource_basic(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckApsaraStackSlbBackendServersDataSource,
+				Check: resource.ComposeTestCheckFunc(
 
-	idsConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSlbBackendServersDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_backend_server.default.load_balancer_id}"`,
-		}),
-	}
-
-	allConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSlbBackendServersDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_backend_server.default.load_balancer_id}"`,
-			"ids":              `["${apsarastack_instance.default.id}"]`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSlbBackendServersDataSourceConfig(map[string]string{
-			"load_balancer_id": `"${apsarastack_slb_backend_server.default.load_balancer_id}"`,
-			"ids":              `["${apsarastack_instance.default.id}_fake"]`,
-		}),
-	}
-
-	var existDnsRecordsMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"ids.#":                    "1",
-			"backend_servers.#":        "1",
-			"backend_servers.0.id":     CHECKSET,
-			"backend_servers.0.weight": "100",
-		}
-	}
-
-	var fakeDnsRecordsMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"backend_servers.#": "0",
-			"ids.#":             "0",
-		}
-	}
-
-	var slbServerGroupsCheckInfo = dataSourceAttr{
-		resourceId:   "data.apsarastack_slb_backend_servers.default",
-		existMapFunc: existDnsRecordsMapFunc,
-		fakeMapFunc:  fakeDnsRecordsMapFunc,
-	}
-
-	slbServerGroupsCheckInfo.dataSourceTestCheck(t, acctest.RandInt(), idsConf, allConf)
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_slb_backend_servers.default"),
+					resource.TestCheckResourceAttr("data.apsarastack_slb_backend_servers.default", "load_balancer_id.#", "0"),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
 }
 
-func testAccCheckApsaraStackSlbBackendServersDataSourceConfig(attrMap map[string]string) string {
-	var pairs []string
-	for k, v := range attrMap {
-		pairs = append(pairs, k+" = "+v)
-	}
-
-	config := fmt.Sprintf(`
+const testAccCheckApsaraStackSlbBackendServersDataSource = `
 variable "name" {
-	default = "tf-test"
+	default = "tf-slbBackendServersdatasourcebasic"
 }
 
 data "apsarastack_zones" "default" {
 	available_resource_creation = "VSwitch"
 }
 data "apsarastack_images" "default" {
-  name_regex = "^ubuntu_18.*64"
   most_recent = true
   owners = "system"
 }
@@ -119,8 +85,6 @@ resource "apsarastack_slb_backend_server" "default" {
 }
 
 data "apsarastack_slb_backend_servers" "default" {
-  %s
+ load_balancer_id = "${apsarastack_slb.default.id}"
 }
-`, strings.Join(pairs, "\n  "))
-	return config
-}
+`

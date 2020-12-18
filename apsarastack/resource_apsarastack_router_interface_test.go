@@ -185,6 +185,7 @@ func TestAccApsaraStackRouterInterfaceBasic(t *testing.T) {
 						"name": fmt.Sprintf("tf-testAccRouterInterfaceConfig%d", rand),
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccRouterInterfaceConfig_role(rand),
@@ -195,6 +196,7 @@ func TestAccApsaraStackRouterInterfaceBasic(t *testing.T) {
 						"specification": "Large.1",
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccRouterInterfaceConfig_specification(rand),
@@ -205,6 +207,7 @@ func TestAccApsaraStackRouterInterfaceBasic(t *testing.T) {
 						"specification": "Large.2",
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccRouterInterfaceConfig_name(rand),
@@ -214,6 +217,7 @@ func TestAccApsaraStackRouterInterfaceBasic(t *testing.T) {
 						"name": fmt.Sprintf("tf-testAccRouterInterfaceConfig%d_change", rand),
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccRouterInterfaceConfig_description(rand),
@@ -223,6 +227,7 @@ func TestAccApsaraStackRouterInterfaceBasic(t *testing.T) {
 						"description": fmt.Sprintf("tf-testAccRouterInterfaceConfig%d_description", rand),
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccRouterInterfaceConfig_all(rand),
@@ -232,9 +237,10 @@ func TestAccApsaraStackRouterInterfaceBasic(t *testing.T) {
 						"name":          fmt.Sprintf("tf-testAccRouterInterfaceConfig%d", rand),
 						"description":   fmt.Sprintf("tf-testAccRouterInterfaceConfig%d", rand),
 						"role":          "InitiatingSide",
-						"specification": "Large.1",
+						"specification": "Large.2",
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -267,6 +273,7 @@ func TestAccApsaraStackRouterInterfaceMulti(t *testing.T) {
 						"name": fmt.Sprintf("tf-testAccRouterInterfaceConfig%d", rand),
 					}),
 				),
+				//ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -285,7 +292,7 @@ resource "apsarastack_vpc" "default" {
 }
 
 variable "region" {
-  default = "cn-qingdao-env66-d01"
+  default = "cn-neimeng-env30-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
@@ -309,7 +316,7 @@ resource "apsarastack_vpc" "default" {
 }
 
 variable "region" {
-  default = "cn-qingdao-env66-d01"
+  default = "cn-neimeng-env30-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
@@ -334,7 +341,7 @@ resource "apsarastack_vpc" "default" {
 }
 
 variable "region" {
-  default = "cn-qingdao-env66-d01"
+  default = "cn-neimeng-env30-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
@@ -359,7 +366,7 @@ resource "apsarastack_vpc" "default" {
 }
 
 variable "region" {
-  default = "cn-qingdao-env66-d01"
+  default = "cn-neimeng-env30-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
@@ -384,7 +391,7 @@ resource "apsarastack_vpc" "default" {
 }
 
 variable "region" {
-  default = "cn-qingdao-env66-d01"
+  default = "cn-neimeng-env30-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
@@ -409,7 +416,7 @@ resource "apsarastack_vpc" "default" {
 }
 
 variable "region" {
-  default = "cn-qingdao-env66-d01"
+  default = "cn-neimeng-env30-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
@@ -435,7 +442,7 @@ resource "apsarastack_vpc" "default" {
 }
 
 variable "region" {
-  default = "cn-qingdao-env66-d01"
+  default = "cn-neimeng-env30-d01"
 }
 
 resource "apsarastack_router_interface" "default" {
@@ -444,7 +451,7 @@ resource "apsarastack_router_interface" "default" {
 	router_id = "${apsarastack_vpc.default.router_id}"
 	role = "InitiatingSide"
 	name = "${var.name}"
-	specification = "Large.1"
+	specification = "Large.2"
 	description = "${var.name}"
 }`, rand)
 }
