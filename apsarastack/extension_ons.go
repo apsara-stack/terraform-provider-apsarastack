@@ -93,6 +93,35 @@ type OInstance struct {
 	Success      bool   `json:"success"`
 }
 
+type OGroup struct {
+	Data struct {
+		CreateTime        int64  `json:"createTime"`
+		UnitFlag          bool   `json:"unitFlag"`
+		Remark            string `json:"remark"`
+		StatusName        string `json:"statusName"`
+		Applier           string `json:"applier"`
+		ID                int    `json:"id"`
+		RelationName      string `json:"relationName"`
+		IndependentNaming bool   `json:"independentNaming"`
+		RegionID          string `json:"regionId"`
+		GroupType         int    `json:"groupType"`
+		ChannelName       string `json:"channelName"`
+		NamespaceID       string `json:"namespaceId"`
+		Status            int    `json:"status"`
+		ChannelID         int    `json:"channelId"`
+		UpdateTime        int64  `json:"updateTime"`
+		Relation          int    `json:"relation"`
+		RegionName        string `json:"regionName"`
+		ConsumerID        string `json:"consumerId"`
+		GroupID           string `json:"groupId"`
+		Owner             string `json:"owner"`
+	} `json:"Data"`
+	Message   string `json:"Message"`
+	RequestID string `json:"RequestId"`
+	Success   bool   `json:"Success"`
+	Code      int    `json:"Code"`
+	Total     int    `json:"Total"`
+}
 type OnsGroup struct {
 	Data []struct {
 		CreateTime        int64  `json:"createTime"`

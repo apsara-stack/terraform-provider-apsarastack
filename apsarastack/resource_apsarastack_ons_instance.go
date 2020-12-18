@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 	"time"
 )
 
@@ -111,8 +112,11 @@ func resourceApsaraStackOnsInstanceCreate(d *schema.ResourceData, meta interface
 	request.Version = "2018-02-05"
 	request.ServiceCode = "Ons-inner"
 	request.Domain = client.Domain
-	request.Scheme = "http"
-	request.SetHTTPSInsecure(true)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ConsoleInstanceCreate"
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
