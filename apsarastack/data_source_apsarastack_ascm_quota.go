@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -150,7 +151,7 @@ func dataSourceApsaraStackQuotaRead(d *schema.ResourceData, meta interface{}) er
 	mapping := map[string]interface{}{
 		"id":                    response.Data.ID,
 		"quota_type":            response.Data.QuotaType,
-		"quota_type_id":         string(response.Data.QuotaTypeID),
+		"quota_type_id":         fmt.Sprint(response.Data.QuotaTypeID),
 		"used_vip_public":       response.Data.UsedVipPublic,
 		"allocate_vip_internal": response.Data.AllocateVipInternal,
 		"allocate_vip_public":   response.Data.AllocateVipPublic,

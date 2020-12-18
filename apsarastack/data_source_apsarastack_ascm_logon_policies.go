@@ -120,14 +120,6 @@ func dataSourceApsaraStackAscmLogonPolicies() *schema.Resource {
 func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
