@@ -19,6 +19,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/gpdb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/hbase"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/location"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/maxcompute"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
@@ -88,6 +89,7 @@ type ApsaraStackClient struct {
 	creeconn          *cr_ee.Client
 	crconn            *cr.Client
 	cmsconn           *cms.Client
+	maxcomputeconn    *maxcompute.Client
 }
 
 const (
@@ -594,7 +596,6 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 	request.Version = string(apiVersion)
 	request.RegionId = client.RegionId
 	request.Product = product
-	request.Scheme = schema
 
 	if strings.ToUpper(product) == "SLB" {
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
@@ -752,14 +753,10 @@ func (client *ApsaraStackClient) GetCallerIdentity() (string, error) {
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
 	request.Method = "GET"         // Set request method
 	request.Product = "ascm"       // Specify product
 	request.Domain = endpoint      // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2019-05-10" // Specify product version
-	request.Scheme = "http"        // Set request scheme. Default: http
 	request.ApiName = "GetUserInfo"
 	request.QueryParams = map[string]string{
 		"AccessKeySecret":  client.Config.SecretKey,
@@ -1205,4 +1202,37 @@ func (client *ApsaraStackClient) WithCmsClient(do func(*cms.Client) (interface{}
 	}
 
 	return do(client.cmsconn)
+}
+func (client *ApsaraStackClient) WithMaxComputeClient(do func(*maxcompute.Client) (interface{}, error)) (interface{}, error) {
+	goSdkMutex.Lock()
+	defer goSdkMutex.Unlock()
+
+	// Initialize the MaxCompute client if necessary
+	if client.maxcomputeconn == nil {
+		endpoint := client.Config.MaxComputeEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.Config.RegionId, MAXCOMPUTECode)
+		}
+		if strings.HasPrefix(endpoint, "http") {
+			endpoint = fmt.Sprintf("https://%s", strings.TrimPrefix(endpoint, "http://"))
+		}
+		if endpoint == "" {
+			endpoint = "maxcompute.aliyuncs.com"
+		}
+
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.Config.RegionId, string(MAXCOMPUTECode), endpoint)
+		}
+		maxcomputeconn, err := maxcompute.NewClientWithOptions(client.Config.RegionId, client.getSdkConfig(), client.Config.getAuthCredential(false))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the MaxCompute client: %#v", err)
+		}
+
+		maxcomputeconn.AppendUserAgent(Terraform, TerraformVersion)
+		maxcomputeconn.AppendUserAgent(Provider, ProviderVersion)
+		maxcomputeconn.AppendUserAgent(Module, client.Config.ConfigurationSource)
+		client.maxcomputeconn = maxcomputeconn
+	}
+
+	return do(client.maxcomputeconn)
 }

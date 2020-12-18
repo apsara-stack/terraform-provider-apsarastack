@@ -224,7 +224,7 @@ func TestAccApsaraStackDisk_basic(t *testing.T) {
 					}),
 				),
 			},
-			{
+			/*{
 				Config: testAccDiskConfig_all(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -239,7 +239,7 @@ func TestAccApsaraStackDisk_basic(t *testing.T) {
 						"enable_auto_snapshot": "false",
 					}),
 				),
-			},
+			},*/
 		},
 	})
 
@@ -383,6 +383,8 @@ data "apsarastack_zones" "default" {
 variable "name" {
 	default = "tf-testAccDiskConfig"
 }
+
+
 
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"

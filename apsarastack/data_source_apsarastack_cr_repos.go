@@ -2,10 +2,13 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"log"
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -91,42 +94,6 @@ func dataSourceApsaraStackCRRepos() *schema.Resource {
 								},
 							},
 						},
-						"tags": {
-							Type:     schema.TypeList,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"tag": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"image_id": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"digest": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"status": {
-										Type:     schema.TypeString,
-										Computed: true,
-									},
-									"image_size": {
-										Type:     schema.TypeInt,
-										Computed: true,
-									},
-									"image_update": {
-										Type:     schema.TypeInt,
-										Computed: true,
-									},
-									"image_create": {
-										Type:     schema.TypeInt,
-										Computed: true,
-									},
-								},
-							},
-						},
 					},
 				},
 			},
@@ -135,54 +102,47 @@ func dataSourceApsaraStackCRRepos() *schema.Resource {
 }
 func dataSourceApsaraStackCRReposRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	invoker := NewInvoker()
-
-	getRepoListRequest := cr.CreateGetRepoListRequest()
-	getRepoListRequest.RegionId = client.RegionId
-	getRepoListRequest.Headers = map[string]string{"RegionId": client.RegionId}
-	getRepoListRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-	getRepoListRequest.PageSize = requests.NewInteger(PageSizeMedium)
-	getRepoListRequest.Page = requests.NewInteger(1)
-
-	var repos []crRepo
-	for {
-		var getRepoListResponse *cr.GetRepoListResponse
-
-		if err := invoker.Run(func() error {
-			raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
-				return crClient.GetRepoList(getRepoListRequest)
-			})
-			getRepoListResponse, _ = raw.(*cr.GetRepoListResponse)
-			return err
-		}); err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cr_repos", "GetRepoList", ApsaraStackSdkGoERROR)
-		}
-		addDebug(getRepoListRequest.GetActionName(), getRepoListResponse)
-		var crResp crDescribeReposResponse
-
-		err := json.Unmarshal(getRepoListResponse.GetHttpContentBytes(), &crResp)
-		if err != nil {
-			return WrapError(err)
-		}
-
-		repos = append(repos, crResp.Data.Repos...)
-
-		if len(crResp.Data.Repos) < PageSizeMedium {
-			break
-		}
-
-		if page, err := getNextpageNumber(getRepoListRequest.Page); err != nil {
-			return WrapError(err)
-		} else {
-			getRepoListRequest.Page = page
-		}
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "cr"
+	request.Domain = client.Domain
+	request.Version = "2016-06-07"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "GetRepoList"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "cr",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"RegionId":        client.RegionId,
+		"Action":          "GetRepoList",
+		"Version":         "2016-06-07",
+	}
+	raw, err := client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
+		return crClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cr_namespace", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	repos := crResponseList{}
+	resp := raw.(*responses.CommonResponse)
+	log.Printf("response %v", resp)
+	err = json.Unmarshal(resp.GetHttpContentBytes(), &repos)
+	log.Printf("unmarshalled response %v", &repos)
+	if err != nil {
+		return WrapError(err)
 	}
 
 	var names []string
 	var s []map[string]interface{}
 
-	for _, repo := range repos {
+	for _, repo := range repos.Data.Repos {
 
 		if namespace, ok := d.GetOk("namespace"); ok {
 			if repo.RepoNamespace != namespace {
@@ -196,12 +156,16 @@ func dataSourceApsaraStackCRReposRead(d *schema.ResourceData, meta interface{}) 
 				continue
 			}
 		}
-
+		domainList := make(map[string]string)
+		domainList["public"] = repo.RepoDomainList.Public
+		domainList["internal"] = repo.RepoDomainList.Internal
+		domainList["vpc"] = repo.RepoDomainList.Vpc
 		mapping := map[string]interface{}{
-			"namespace": repo.RepoNamespace,
-			"name":      repo.RepoName,
-			"summary":   repo.Summary,
-			"repo_type": repo.RepoType,
+			"namespace":   repo.RepoNamespace,
+			"name":        repo.RepoName,
+			"summary":     repo.Summary,
+			"repo_type":   repo.RepoType,
+			"domain_list": domainList,
 		}
 
 		if detailedEnabled := d.Get("enable_details"); !detailedEnabled.(bool) {
@@ -209,72 +173,6 @@ func dataSourceApsaraStackCRReposRead(d *schema.ResourceData, meta interface{}) 
 			s = append(s, mapping)
 			continue
 		}
-
-		domainList := make(map[string]string)
-		domainList["public"] = repo.RepoDomainList.Public
-		domainList["internal"] = repo.RepoDomainList.Internal
-		domainList["vpc"] = repo.RepoDomainList.Vpc
-
-		mapping["domain_list"] = domainList
-
-		var tags []crTag
-
-		getRepoTagsRequest := cr.CreateGetRepoTagsRequest()
-		getRepoTagsRequest.RegionId = client.RegionId
-		getRepoTagsRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		getRepoTagsRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cr", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-		getRepoTagsRequest.PageSize = requests.NewInteger(PageSizeMedium)
-		getRepoTagsRequest.Page = requests.NewInteger(1)
-		getRepoTagsRequest.RepoNamespace = repo.RepoNamespace
-		getRepoTagsRequest.RepoName = repo.RepoName
-
-		for {
-			var getRepoTagsResponse *cr.GetRepoTagsResponse
-
-			if err := invoker.Run(func() error {
-				raw, err := client.WithCrClient(func(crClient *cr.Client) (interface{}, error) {
-					return crClient.GetRepoTags(getRepoTagsRequest)
-				})
-				getRepoTagsResponse, _ = raw.(*cr.GetRepoTagsResponse)
-				return err
-			}); err != nil {
-				return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cr_repos", "GetRepoTags", ApsaraStackSdkGoERROR)
-			}
-			addDebug(getRepoTagsRequest.GetActionName(), getRepoTagsResponse)
-			var crResp crDescribeRepoTagsResponse
-
-			err := json.Unmarshal(getRepoTagsResponse.GetHttpContentBytes(), &crResp)
-			if err != nil {
-				return WrapError(err)
-			}
-
-			tags = append(tags, crResp.Data.Tags...)
-
-			if len(crResp.Data.Tags) < PageSizeMedium {
-				break
-			}
-
-			if page, err := getNextpageNumber(getRepoTagsRequest.Page); err != nil {
-				return WrapError(err)
-			} else {
-				getRepoTagsRequest.Page = page
-			}
-		}
-
-		var tagList []map[string]interface{}
-		for _, tag := range tags {
-			tagList = append(tagList, map[string]interface{}{
-				"tag":          tag.Tag,
-				"image_id":     tag.ImageId,
-				"digest":       tag.Digest,
-				"status":       tag.Status,
-				"image_size":   tag.ImageSize,
-				"image_update": tag.ImageUpdate,
-				"image_create": tag.ImageCreate,
-			})
-		}
-		mapping["tags"] = tagList
 
 		names = append(names, repo.RepoName)
 		s = append(s, mapping)

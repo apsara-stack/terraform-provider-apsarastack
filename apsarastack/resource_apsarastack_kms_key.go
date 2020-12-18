@@ -46,13 +46,6 @@ func resourceApsaraStackKmsKey() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"key_spec": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Aliyun_AES_256", "Aliyun_SM4", "RSA_2048", "EC_P256", "EC_P256K", "EC_SM2"}, false),
-			},
 			"key_state": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -94,7 +87,7 @@ func resourceApsaraStackKmsKey() *schema.Resource {
 				Type:         schema.TypeInt,
 				ValidateFunc: validation.IntBetween(7, 30),
 				Optional:     true,
-				Default:      30,
+				Default:      7,
 			},
 			"deletion_window_in_days": {
 				Type:         schema.TypeInt,
@@ -133,9 +126,6 @@ func resourceApsaraStackKmsKeyCreate(d *schema.ResourceData, meta interface{}) e
 	}
 	if v, ok := d.GetOk("description"); ok {
 		request.Description = v.(string)
-	}
-	if v, ok := d.GetOk("key_spec"); ok {
-		request.KeySpec = v.(string)
 	}
 	if v, ok := d.GetOk("key_usage"); ok {
 		request.KeyUsage = v.(string)
@@ -182,7 +172,6 @@ func resourceApsaraStackKmsKeyRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("creator", object.Creator)
 	d.Set("delete_date", object.DeleteDate)
 	d.Set("description", object.Description)
-	d.Set("key_spec", object.KeySpec)
 	d.Set("key_state", object.KeyState)
 	d.Set("key_usage", object.KeyUsage)
 	d.Set("last_rotation_date", object.LastRotationDate)
