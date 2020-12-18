@@ -52,6 +52,7 @@ type crListResponse struct {
 	Success      bool   `json:"success"`
 }
 type crDescribeNamespaceResponse struct {
+	Code      string `json:"code"`
 	RequestId string `json:"requestId"`
 	Data      struct {
 		Namespace struct {
@@ -99,6 +100,7 @@ type crUpdateRepoRequestPayload struct {
 }
 
 type GetRepoResponse struct {
+	Code string `json:"code"`
 	Data struct {
 		Repo struct {
 			Stars          int    `json:"stars"`
