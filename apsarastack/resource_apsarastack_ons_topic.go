@@ -3,6 +3,7 @@ package apsarastack
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -89,8 +90,11 @@ func resourceApsaraStackOnsTopicCreate(d *schema.ResourceData, meta interface{})
 		request.Version = "2018-02-05"
 		request.ServiceCode = "Ons-inner"
 		request.Domain = client.Domain
-		request.Scheme = "http"
-		request.SetHTTPSInsecure(true)
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "ConsoleTopicCreate"
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -188,7 +192,11 @@ func resourceApsaraStackOnsTopicDelete(d *schema.ResourceData, meta interface{})
 		request.Version = "2018-02-05"
 		request.ServiceCode = "Ons-inner"
 		request.Domain = client.Domain
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "ConsoleTopicDelete"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId

@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -106,7 +107,11 @@ func dataSourceApsaraStackCRReposRead(d *schema.ResourceData, meta interface{}) 
 	request.Product = "cr"
 	request.Domain = client.Domain
 	request.Version = "2016-06-07"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "GetRepoList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{

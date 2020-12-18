@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"strings"
 )
 
 type OnsService struct {
@@ -111,9 +112,14 @@ func (s *OnsService) DescribeOnsTopic(id string, instanceid string) (response *T
 
 	return resp, nil
 }
-func (s *OnsService) DescribeOnsGroup(gid string, instanceid string) (response *OnsGroup, err error) {
+func (s *OnsService) DescribeOnsGroup(id string) (response *OnsGroup, err error) {
 	var requestInfo *ecs.Client
-
+	did, err := ParseResourceId(id, 2)
+	if err != nil {
+		return response, WrapError(err)
+	}
+	GroupId := did[0]
+	InstanceId := did[1]
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
@@ -123,17 +129,21 @@ func (s *OnsService) DescribeOnsGroup(gid string, instanceid string) (response *
 		"Product":         "Ons-inner",
 		"Action":          "ConsoleGroupList",
 		"Version":         "2018-02-05",
-		"GroupId":         gid,
+		"GroupId":         GroupId,
 		"OnsRegionId":     s.client.RegionId,
 		"PreventCache":    "",
-		"InstanceId":      instanceid,
+		"InstanceId":      InstanceId,
 	}
 	request.Method = "POST"
 	request.Product = "Ons-inner"
 	request.Version = "2018-02-05"
 	request.ServiceCode = "Ons-inner"
 	request.Domain = s.client.Domain
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ConsoleGroupList"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
@@ -145,7 +155,7 @@ func (s *OnsService) DescribeOnsGroup(gid string, instanceid string) (response *
 		if IsExpectedErrors(err, []string{"ErrorGroupNotFound"}) {
 			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return resp, WrapErrorf(err, DefaultErrorMsg, gid, "ConsoleGroupList", ApsaraStackSdkGoERROR)
+		return resp, WrapErrorf(err, DefaultErrorMsg, did[0], "ConsoleGroupList", ApsaraStackSdkGoERROR)
 
 	}
 	addDebug("ConsoleGroupList", response, requestInfo, request)
