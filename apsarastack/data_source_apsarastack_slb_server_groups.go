@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -86,6 +87,11 @@ func dataSourceApsaraStackSlbServerGroupsRead(d *schema.ResourceData, meta inter
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := slb.CreateDescribeVServerGroupsRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -146,6 +152,11 @@ func slbServerGroupsDescriptionAttributes(d *schema.ResourceData, serverGroups [
 		}
 
 		request := slb.CreateDescribeVServerGroupAttributeRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.VServerGroupId = serverGroup.VServerGroupId

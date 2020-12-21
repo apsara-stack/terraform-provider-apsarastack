@@ -87,6 +87,7 @@ func TestAccApsaraStackRouterInterfaceConnectionBasic(t *testing.T) {
 					testAccCheckRouterInterfaceConnectionExists(resourceId),
 					testAccCheck(nil),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -99,7 +100,7 @@ provider "apsarastack" {
   region = "${var.region}"
 }
 variable "region" {
-  default = "cn-qingdao-env66-d01"
+  default = "cn-neimeng-env30-d01"
 }
 variable "name" {
   default = "tf-test%d"

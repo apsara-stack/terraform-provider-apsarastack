@@ -1,62 +1,33 @@
 package apsarastack
 
 import (
-	"fmt"
-	"strings"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
 func TestAccApsaraStackSnatEntriesDataSourceBasic(t *testing.T) {
-	rand := acctest.RandInt()
-	snatIpConf := dataSourceTestAccConfig{
-		existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-			"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
-		}),
-		fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-			"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-			"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}_fake"`,
-		}),
-	}
-	//
-	//sourceCidrConf := dataSourceTestAccConfig{
-	//	existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-	//		"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
-	//		"source_cidr":   `"172.16.0.0/21"`,
-	//	}),
-	//	fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-	//		"snat_ip":       `"${apsarastack_snat_entry.default.snat_ip}"`,
-	//		"source_cidr":   `"172.16.0.0/20"`,
-	//	}),
-	//}
-	//allConf := dataSourceTestAccConfig{
-	//	existConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-	//		"source_cidr":   `"172.16.0.0/21"`,
-	//	}),
-	//	fakeConfig: testAccCheckApsaraStackSnatEntriesBasicConfig(rand, map[string]string{
-	//		"snat_table_id": `"${apsarastack_snat_entry.default.snat_table_id}"`,
-	//		"source_cidr":   `"172.16.0.0/21"`,
-	//	}),
-	//}
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckApsaraStackSnatEntriesBasicConfig,
+				Check: resource.ComposeTestCheckFunc(
 
-	snatEntriesCheckInfo.dataSourceTestCheck(t, rand, snatIpConf /*,sourceCidrConf/*,allConf*/)
-
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_snat_entries.default"),
+					//resource.TestCheckResourceAttr("data.apsarastack_snat_entries.default", "snat_table_id", "0"),
+					resource.TestCheckResourceAttrSet("data.apsarastack_snat_entries.default", "ids.#"),
+				),
+			},
+		},
+	})
 }
 
-func testAccCheckApsaraStackSnatEntriesBasicConfig(rand int, attrMap map[string]string) string {
-	var pairs []string
-	for k, v := range attrMap {
-		pairs = append(pairs, k+" = "+v)
-	}
-
-	config := fmt.Sprintf(`
+const testAccCheckApsaraStackSnatEntriesBasicConfig = `
 variable "name" {
-	default = "tf-testAccForSnatEntriesDatasource%d"
+	default = "tf-testAccForSnatEntriesDatasource"
 }
 
 data "apsarastack_zones" "default" {
@@ -97,30 +68,5 @@ resource "apsarastack_snat_entry" "default" {
 }
 
 data "apsarastack_snat_entries" "default" {
-    %s
-}`, rand, strings.Join(pairs, "\n  "))
-	return config
-}
-
-var existSnatEntriesMapFunc = func(rand int) map[string]string {
-	return map[string]string{
-		//"ids.#":                 "0",
-		//"entries.#":             "0",
-		"entries.0.id":          CHECKSET,
-		"entries.0.status":      "Available",
-		"entries.0.source_cidr": "172.16.0.0/21",
-	}
-}
-
-var fakeSnatEntriesMapFunc = func(rand int) map[string]string {
-	return map[string]string{
-		"ids.#":     "0",
-		"entries.#": "0",
-	}
-}
-
-var snatEntriesCheckInfo = dataSourceAttr{
-	resourceId:   "data.apsarastack_snat_entries.default",
-	existMapFunc: existSnatEntriesMapFunc,
-	fakeMapFunc:  fakeSnatEntriesMapFunc,
-}
+    snat_table_id = "${apsarastack_nat_gateway.default.snat_table_ids}"
+}`

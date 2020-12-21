@@ -72,6 +72,11 @@ func resourceApsaraStackDBConnectionCreate(d *schema.ResourceData, meta interfac
 
 	request := rds.CreateAllocateInstancePublicConnectionRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -159,6 +164,11 @@ func resourceApsaraStackDBConnectionUpdate(d *schema.ResourceData, meta interfac
 	if d.HasChange("port") {
 		request := rds.CreateModifyDBInstanceConnectionStringRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = parts[0]
@@ -204,6 +214,11 @@ func resourceApsaraStackDBConnectionDelete(d *schema.ResourceData, meta interfac
 
 	split := strings.Split(d.Id(), COLON_SEPARATED)
 	request := rds.CreateReleaseInstancePublicConnectionRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

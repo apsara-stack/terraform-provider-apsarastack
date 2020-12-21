@@ -65,6 +65,11 @@ func resourceApsaraStackEssScalingRuleCreate(d *schema.ResourceData, meta interf
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -124,6 +129,11 @@ func resourceApsaraStackEssScalingRuleDelete(d *schema.ResourceData, meta interf
 	request := ess.CreateDeleteScalingRuleRequest()
 	request.ScalingRuleId = d.Id()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -150,6 +160,11 @@ func resourceApsaraStackEssScalingRuleUpdate(d *schema.ResourceData, meta interf
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateModifyScalingRuleRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ScalingRuleId = d.Id()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -182,6 +197,11 @@ func buildApsaraStackEssScalingRuleArgs(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := ess.CreateCreateScalingRuleRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 

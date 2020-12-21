@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -39,6 +40,11 @@ func resourceAliyunRouteTableAttachmentCreate(d *schema.ResourceData, meta inter
 
 	request := vpc.CreateAssociateRouteTableRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouteTableId = Trim(d.Get("route_table_id").(string))
@@ -102,6 +108,11 @@ func resourceAliyunRouteTableAttachmentDelete(d *schema.ResourceData, meta inter
 
 	request := vpc.CreateUnassociateRouteTableRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

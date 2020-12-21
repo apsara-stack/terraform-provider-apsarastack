@@ -39,6 +39,11 @@ func testSweepEssSchedules(region string) error {
 	var groups []ess.ScheduledTask
 	req := ess.CreateDescribeScheduledTasksRequest()
 	req.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 
 	req.Headers = map[string]string{"RegionId": client.RegionId}
@@ -84,7 +89,11 @@ func testSweepEssSchedules(region string) error {
 		}
 		log.Printf("[INFO] Deleting Scheduled Task: %s (%s)", name, id)
 		req := ess.CreateDeleteScheduledTaskRequest()
-
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		req.Headers = map[string]string{"RegionId": client.RegionId}
 		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.QueryParams["Department"] = client.Department
@@ -152,6 +161,7 @@ func TestAccApsaraStackEssScheduledTask_basic(t *testing.T) {
 						"scheduled_task_name": fmt.Sprintf("tf-testAccEssSchedule-%d", rand),
 					}),
 				),
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				Config: testAccEssScheduleUpdateDescription(EcsInstanceCommonTestCase,

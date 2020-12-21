@@ -41,7 +41,11 @@ func (s *RdsService) DescribeDBInstance(id string) (*rds.DBInstanceAttribute, er
 	instance := &rds.DBInstanceAttribute{}
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
 	request.RegionId = s.client.RegionId
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
@@ -65,6 +69,11 @@ func (s *RdsService) DescribeDBInstance(id string) (*rds.DBInstanceAttribute, er
 
 func (s *RdsService) DescribeTasks(id string) (task *rds.DescribeTasksResponse, err error) {
 	request := rds.CreateDescribeTasksRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -87,6 +96,11 @@ func (s *RdsService) DescribeTasks(id string) (task *rds.DescribeTasksResponse, 
 func (s *RdsService) DescribeDBReadonlyInstance(id string) (*rds.DBInstanceAttribute, error) {
 	instance := &rds.DBInstanceAttribute{}
 	request := rds.CreateDescribeDBInstanceAttributeRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -117,6 +131,11 @@ func (s *RdsService) DescribeDBAccount(id string) (*rds.DBInstanceAccount, error
 	}
 	request := rds.CreateDescribeAccountsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
@@ -157,6 +176,11 @@ func (s *RdsService) DescribeDBAccountPrivilege(id string) (*rds.DBInstanceAccou
 	}
 	request := rds.CreateDescribeAccountsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
@@ -196,6 +220,16 @@ func (s *RdsService) DescribeDBDatabase(id string) (*rds.Database, error) {
 	dbName := parts[1]
 	request := rds.CreateDescribeDatabasesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
@@ -234,7 +268,11 @@ func (s *RdsService) DescribeParameters(id string) (*rds.DescribeParametersRespo
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.DescribeParameters(request)
 	})
@@ -306,6 +344,11 @@ func (s *RdsService) ModifyParameters(d *schema.ResourceData, attribute string) 
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = d.Id()
 	request.Forcerestart = requests.NewBoolean(d.Get("force_restart").(bool))
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	config := make(map[string]string)
 	allConfig := make(map[string]string)
 	o, n := d.GetChange(attribute)
@@ -327,6 +370,11 @@ func (s *RdsService) ModifyParameters(d *schema.ResourceData, attribute string) 
 		if !d.Get("force_restart").(bool) {
 			req := rds.CreateDescribeParameterTemplatesRequest()
 			req.RegionId = s.client.RegionId
+			if strings.ToLower(s.client.Config.Protocol) == "https" {
+				req.Scheme = "https"
+			} else {
+				req.Scheme = "http"
+			}
 			req.Headers = map[string]string{"RegionId": s.client.RegionId}
 			req.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 			req.DBInstanceId = d.Id()
@@ -381,6 +429,11 @@ func (s *RdsService) DescribeDBInstanceNetInfo(id string) ([]rds.DBInstanceNetIn
 	request := rds.CreateDescribeDBInstanceNetInfoRequest()
 	request.RegionId = s.client.RegionId
 	request.DBInstanceId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -461,6 +514,11 @@ func (s *RdsService) GrantAccountPrivilege(id, dbName string) error {
 	}
 	request := rds.CreateGrantAccountPrivilegeRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
@@ -502,6 +560,11 @@ func (s *RdsService) RevokeAccountPrivilege(id, dbName string) error {
 	}
 	request := rds.CreateRevokeAccountPrivilegeRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
@@ -539,6 +602,11 @@ func (s *RdsService) ReleaseDBPublicConnection(instanceId, connection string) er
 
 	request := rds.CreateReleaseInstancePublicConnectionRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = instanceId
@@ -636,6 +704,11 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.DBInstanceId = d.Id()
+		if strings.ToLower(s.client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.PreferredBackupPeriod = backupPeriod
 		request.PreferredBackupTime = backupTime
 		request.BackupRetentionPeriod = retentionPeriod
@@ -671,6 +744,11 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.DBInstanceId = d.Id()
+		if strings.ToLower(s.client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.EnableBackupLog = enableBackupLog
 		request.LocalLogRetentionHours = localLogRetentionHours
 		request.LocalLogRetentionSpace = localLogRetentionSpace
@@ -699,6 +777,11 @@ func (s *RdsService) ModifyDBSecurityIps(instanceId, ips string) error {
 
 	request := rds.CreateModifySecurityIpsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = instanceId
@@ -723,6 +806,11 @@ func (s *RdsService) DescribeDBSecurityIps(instanceId string) (ips []rds.DBInsta
 
 	request := rds.CreateDescribeDBInstanceIPArrayListRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = instanceId
@@ -773,6 +861,11 @@ func (s *RdsService) GetSecurityIps(instanceId string) ([]string, error) {
 func (s *RdsService) DescribeSecurityGroupConfiguration(id string) ([]string, error) {
 	request := rds.CreateDescribeSecurityGroupConfigurationRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
@@ -797,6 +890,11 @@ func (s *RdsService) DescribeDBInstanceSSL(id string) (*rds.DescribeDBInstanceSS
 	response := &rds.DescribeDBInstanceSSLResponse{}
 	request := rds.CreateDescribeDBInstanceSSLRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
@@ -815,6 +913,11 @@ func (s *RdsService) DescribeRdsTDEInfo(id string) (*rds.DescribeDBInstanceTDERe
 
 	response := &rds.DescribeDBInstanceTDEResponse{}
 	request := rds.CreateDescribeDBInstanceTDERequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -836,6 +939,11 @@ func (s *RdsService) DescribeRdsTDEInfo(id string) (*rds.DescribeDBInstanceTDERe
 
 func (s *RdsService) ModifySecurityGroupConfiguration(id string, groupid string) error {
 	request := rds.CreateModifySecurityGroupConfigurationRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -859,6 +967,11 @@ func (s *RdsService) ModifySecurityGroupConfiguration(id string, groupid string)
 func (s *RdsService) DescribeMultiIZByRegion() (izs []string, err error) {
 
 	request := rds.CreateDescribeRegionsRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -887,6 +1000,11 @@ func (s *RdsService) DescribeMultiIZByRegion() (izs []string, err error) {
 func (s *RdsService) DescribeBackupPolicy(id string) (*rds.DescribeBackupPolicyResponse, error) {
 	policy := &rds.DescribeBackupPolicyResponse{}
 	request := rds.CreateDescribeBackupPolicyRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.DBInstanceId = id
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -909,6 +1027,11 @@ func (s *RdsService) DescribeBackupPolicy(id string) (*rds.DescribeBackupPolicyR
 func (s *RdsService) DescribeDbInstanceMonitor(id string) (monitoringPeriod int, err error) {
 
 	request := rds.CreateDescribeDBInstanceMonitorRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.DBInstanceId = id
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -933,6 +1056,11 @@ func (s *RdsService) DescribeDbInstanceMonitor(id string) (monitoringPeriod int,
 func (s *RdsService) DescribeSQLCollectorPolicy(id string) (collectorPolicy *rds.DescribeSQLCollectorPolicyResponse, err error) {
 	request := rds.CreateDescribeSQLCollectorPolicyRequest()
 	request.DBInstanceId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -954,6 +1082,11 @@ func (s *RdsService) DescribeSQLCollectorPolicy(id string) (collectorPolicy *rds
 func (s *RdsService) DescribeSQLCollectorRetention(id string) (collectorRetention *rds.DescribeSQLCollectorRetentionResponse, err error) {
 	request := rds.CreateDescribeSQLCollectorRetentionRequest()
 	request.DBInstanceId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -1154,6 +1287,11 @@ func (s *RdsService) WaitForAccount(id string, status Status, timeout int) error
 				break
 			} else if object.AccountStatus == "Lock" {
 				request := rds.CreateDeleteAccountRequest()
+				if strings.ToLower(s.client.Config.Protocol) == "https" {
+					request.Scheme = "https"
+				} else {
+					request.Scheme = "http"
+				}
 				request.RegionId = s.client.RegionId
 				request.Headers = map[string]string{"RegionId": s.client.RegionId}
 				request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -1330,6 +1468,11 @@ func (s *RdsService) setInstanceTags(d *schema.ResourceData) error {
 		if len(remove) > 0 {
 			request := rds.CreateUntagResourcesRequest()
 			request.ResourceId = &[]string{d.Id()}
+			if strings.ToLower(s.client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.ResourceType = "INSTANCE"
 			request.TagKey = &remove
 			request.RegionId = s.client.RegionId
@@ -1360,6 +1503,11 @@ func (s *RdsService) setInstanceTags(d *schema.ResourceData) error {
 		if len(add) > 0 {
 			request := rds.CreateTagResourcesRequest()
 			request.ResourceId = &[]string{d.Id()}
+			if strings.ToLower(s.client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.Tag = &add
 			request.ResourceType = "INSTANCE"
 			request.RegionId = s.client.RegionId
@@ -1395,6 +1543,11 @@ func (s *RdsService) setInstanceTags(d *schema.ResourceData) error {
 func (s *RdsService) describeTags(d *schema.ResourceData) (tags []Tag, err error) {
 	request := rds.CreateDescribeTagsRequest()
 	request.DBInstanceId = d.Id()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}

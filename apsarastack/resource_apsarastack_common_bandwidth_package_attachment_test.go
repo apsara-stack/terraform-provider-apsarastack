@@ -37,6 +37,11 @@ func testSweepCommonBandwidthPackageAttachment(region string) error {
 
 	var commonBandwidthPackages []vpc.CommonBandwidthPackage
 	req := vpc.CreateDescribeCommonBandwidthPackagesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.RegionId = client.RegionId
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams["Department"] = client.Department
@@ -85,8 +90,12 @@ func testSweepCommonBandwidthPackageAttachment(region string) error {
 			}
 			log.Printf("[INFO] Unassociating Common Bandwidth Package: %s (%s)", name, id)
 			req := vpc.CreateRemoveCommonBandwidthPackageIpRequest()
-			req.QueryParams["Department"] = client.Department
-			req.QueryParams["ResourceGroup"] = client.ResourceGroup
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				req.Scheme = "https"
+			} else {
+				req.Scheme = "http"
+			}
+			req.RegionId = client.RegionId
 			req.Headers = map[string]string{"RegionId": client.RegionId}
 			req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			req.BandwidthPackageId = id

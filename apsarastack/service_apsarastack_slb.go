@@ -34,9 +34,14 @@ const tags_max_page_size = 50
 func (s *SlbService) BuildSlbCommonRequest() (*requests.CommonRequest, error) {
 	// Get product code from the built request
 	slbReq := slb.CreateCreateLoadBalancerRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		slbReq.Scheme = "https"
+	} else {
+		slbReq.Scheme = "http"
+	}
 	slbReq.Headers = map[string]string{"RegionId": s.client.RegionId}
 	slbReq.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	req, err := s.client.NewCommonRequest(slbReq.GetProduct(), slbReq.GetLocationServiceCode(), strings.ToUpper(string(Http)), connectivity.ApiVersion20140515)
+	req, err := s.client.NewCommonRequest(slbReq.GetProduct(), slbReq.GetLocationServiceCode(), s.client.Config.Protocol, connectivity.ApiVersion20140515)
 	if err != nil {
 		err = WrapError(err)
 	}
@@ -47,6 +52,11 @@ func (s *SlbService) BuildSlbCommonRequest() (*requests.CommonRequest, error) {
 func (s *SlbService) DescribeSlb(id string) (*slb.DescribeLoadBalancerAttributeResponse, error) {
 	response := &slb.DescribeLoadBalancerAttributeResponse{}
 	request := slb.CreateDescribeLoadBalancerAttributeRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -74,6 +84,11 @@ func (s *SlbService) DescribeSlbRule(id string) (*slb.DescribeRuleAttributeRespo
 	response := &slb.DescribeRuleAttributeResponse{}
 	request := slb.CreateDescribeRuleAttributeRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.RuleId = id
@@ -95,6 +110,11 @@ func (s *SlbService) DescribeSlbServerGroup(id string) (*slb.DescribeVServerGrou
 	response := &slb.DescribeVServerGroupAttributeResponse{}
 	request := slb.CreateDescribeVServerGroupAttributeRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.VServerGroupId = id
@@ -119,6 +139,11 @@ func (s *SlbService) DescribeSlbMasterSlaveServerGroup(id string) (*slb.Describe
 	response := &slb.DescribeMasterSlaveServerGroupAttributeResponse{}
 	request := slb.CreateDescribeMasterSlaveServerGroupAttributeRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.MasterSlaveServerGroupId = id
@@ -143,6 +168,11 @@ func (s *SlbService) DescribeSlbBackendServer(id string) (*slb.DescribeLoadBalan
 	response := &slb.DescribeLoadBalancerAttributeResponse{}
 	request := slb.CreateDescribeLoadBalancerAttributeRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.LoadBalancerId = id
@@ -216,6 +246,11 @@ func (s *SlbService) DescribeSlbAcl(id string) (*slb.DescribeAccessControlListAt
 	response := &slb.DescribeAccessControlListAttributeResponse{}
 	request := slb.CreateDescribeAccessControlListAttributeRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.AclId = id
@@ -415,6 +450,11 @@ RETRY:
 func (s *SlbService) slbRemoveAccessControlListEntryPerTime(list []interface{}, id string) error {
 	request := slb.CreateRemoveAccessControlListEntryRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.AclId = id
@@ -463,6 +503,11 @@ func (s *SlbService) SlbRemoveAccessControlListEntry(list []interface{}, aclId s
 func (s *SlbService) slbAddAccessControlListEntryPerTime(list []interface{}, id string) error {
 	request := slb.CreateAddAccessControlListEntryRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.AclId = id
@@ -541,6 +586,11 @@ func (s *SlbService) DescribeSlbCACertificate(id string) (*slb.CACertificate, er
 	certificate := &slb.CACertificate{}
 	request := slb.CreateDescribeCACertificatesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.CACertificateId = id
@@ -584,6 +634,11 @@ func (s *SlbService) DescribeSlbServerCertificate(id string) (*slb.ServerCertifi
 	certificate := &slb.ServerCertificate{}
 	request := slb.CreateDescribeServerCertificatesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ServerCertificateId = id
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -646,6 +701,11 @@ func toSlbTagsString(tags []Tag) string {
 func (s *SlbService) DescribeDomainExtensionAttribute(domainExtensionId string) (*slb.DescribeDomainExtensionAttributeResponse, error) {
 	response := &slb.DescribeDomainExtensionAttributeResponse{}
 	request := slb.CreateDescribeDomainExtensionAttributeRequest()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DomainExtensionId = domainExtensionId
@@ -713,6 +773,11 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.ResourceId = &[]string{d.Id()}
+		if strings.ToLower(s.client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ResourceType = string(resourceType)
 		request.TagKey = &tagKey
 		request.RegionId = s.client.RegionId
@@ -741,6 +806,11 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 	if len(create) > 0 {
 		request := slb.CreateTagResourcesRequest()
 		request.ResourceId = &[]string{d.Id()}
+		if strings.ToLower(s.client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		request.Tag = &create
@@ -831,6 +901,11 @@ func (s *SlbService) tagsFromMap(m map[string]interface{}) []slb.TagResourcesTag
 func (s *SlbService) DescribeTags(resourceId string, resourceTags map[string]interface{}, resourceType TagResourceType) (tags []slb.TagResource, err error) {
 	request := slb.CreateListTagResourcesRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ResourceType = string(resourceType)

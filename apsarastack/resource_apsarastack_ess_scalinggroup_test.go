@@ -38,6 +38,7 @@ func testSweepEssGroups(region string) error {
 
 	var groups []ess.ScalingGroup
 	req := ess.CreateDescribeScalingGroupsRequest()
+
 	req.RegionId = client.RegionId
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
@@ -238,7 +239,7 @@ func TestAccApsaraStackdEssScalingGroup_vpc(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
-				ExpectNonEmptyPlan: true,
+				//ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:      resourceId,
@@ -624,7 +625,6 @@ func testAccEssScalingGroupVpc(common string, rand int) string {
 		default_cooldown = 20
 		vswitch_ids = ["${apsarastack_vswitch.default.id}", "${apsarastack_vswitch.default2.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
-		multi_az_policy = "BALANCE"
 	}`, common, rand)
 }
 
@@ -649,7 +649,6 @@ func testAccEssScalingGroupVpcUpdateMaxSize(common string, rand int) string {
 		default_cooldown = 20
 		vswitch_ids = ["${apsarastack_vswitch.default.id}", "${apsarastack_vswitch.default2.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
-		multi_az_policy = "BALANCE"
 	}`, common, rand)
 }
 
@@ -674,7 +673,6 @@ func testAccEssScalingGroupVpcUpdateScalingGroupName(common string, rand int) st
 		default_cooldown = 20
 		vswitch_ids = ["${apsarastack_vswitch.default.id}", "${apsarastack_vswitch.default2.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
-		multi_az_policy = "BALANCE"
 	}`, common, rand)
 }
 
@@ -699,7 +697,6 @@ func testAccEssScalingGroupVpcUpdateRemovalPolicies(common string, rand int) str
 		default_cooldown = 20
 		vswitch_ids = ["${apsarastack_vswitch.default.id}", "${apsarastack_vswitch.default2.id}"]
 		removal_policies = ["OldestInstance"]
-		multi_az_policy = "BALANCE"
 	}`, common, rand)
 }
 
@@ -724,7 +721,6 @@ func testAccEssScalingGroupVpcUpdateDefaultCooldown(common string, rand int) str
 		default_cooldown = 200
 		vswitch_ids = ["${apsarastack_vswitch.default.id}", "${apsarastack_vswitch.default2.id}"]
 		removal_policies = ["OldestInstance"]
-		multi_az_policy = "BALANCE"
 	}`, common, rand)
 }
 
@@ -749,7 +745,6 @@ func testAccEssScalingGroupVpcUpdateMinSize(common string, rand int) string {
 		default_cooldown = 200
 		vswitch_ids = ["${apsarastack_vswitch.default.id}", "${apsarastack_vswitch.default2.id}"]
 		removal_policies = ["OldestInstance"]
-		multi_az_policy = "BALANCE"
 	}`, common, rand)
 }
 

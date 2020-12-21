@@ -42,6 +42,11 @@ func testSweepEips(region string) error {
 
 	var eips []vpc.EipAddress
 	req := vpc.CreateDescribeEipAddressesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.RegionId = client.RegionId
 	req.QueryParams["Department"] = client.Department
 	req.QueryParams["ResourceGroup"] = client.ResourceGroup
@@ -89,6 +94,11 @@ func testSweepEips(region string) error {
 		}
 		log.Printf("[INFO] Deleting EIP: %s (%s)", name, id)
 		req := vpc.CreateReleaseEipAddressRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		req.QueryParams["Department"] = client.Department
 		req.QueryParams["ResourceGroup"] = client.ResourceGroup
 		req.Headers = map[string]string{"RegionId": client.RegionId}

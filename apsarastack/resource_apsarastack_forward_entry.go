@@ -64,6 +64,11 @@ func resourceApsaraStackForwardEntryCreate(d *schema.ResourceData, meta interfac
 
 	request := vpc.CreateCreateForwardEntryRequest()
 	request.RegionId = string(client.Region)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ForwardTableId = d.Get("forward_table_id").(string)
@@ -141,6 +146,11 @@ func resourceApsaraStackForwardEntryUpdate(d *schema.ResourceData, meta interfac
 		return WrapError(err)
 	}
 	request := vpc.CreateModifyForwardEntryRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
@@ -196,7 +206,11 @@ func resourceApsaraStackForwardEntryDelete(d *schema.ResourceData, meta interfac
 	vpcService := VpcService{client}
 	request := vpc.CreateDeleteForwardEntryRequest()
 	request.RegionId = string(client.Region)
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ForwardTableId = parts[0]

@@ -75,7 +75,7 @@ resource "apsarastack_ess_scaling_group" "default" {
 resource "apsarastack_ess_notification" "default" {
     scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
     notification_types = ["AUTOSCALING:SCALE_OUT_SUCCESS"]
-    //notification_arn = "acs:ess"
+    notification_arn = "acs:ess"
 }
 
 data "apsarastack_ess_notifications" "default"{

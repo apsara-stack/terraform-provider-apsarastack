@@ -72,8 +72,8 @@ func resourceApsaraStackDBReadonlyInstance() *schema.Resource {
 			},
 			"db_instance_storage_type": {
 				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
+				Required:     true,
+				ForceNew:     true,
 				ValidateFunc: validation.StringInSlice([]string{"local_ssd", "cloud_ssd", "cloud_essd", "cloud_essd2", "cloud_essd3"}, false),
 			},
 
@@ -166,7 +166,11 @@ func resourceApsaraStackDBReadonlyInstanceUpdate(d *schema.ResourceData, meta in
 	if d.HasChange("instance_name") {
 		request := rds.CreateModifyDBInstanceDescriptionRequest()
 		request.RegionId = client.RegionId
-
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
@@ -198,6 +202,11 @@ func resourceApsaraStackDBReadonlyInstanceUpdate(d *schema.ResourceData, meta in
 	update := false
 	request := rds.CreateModifyDBInstanceSpecRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -315,6 +324,11 @@ func resourceApsaraStackDBReadonlyInstanceDelete(d *schema.ResourceData, meta in
 
 	request := rds.CreateDeleteDBInstanceRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
@@ -355,6 +369,11 @@ func buildDBReadonlyCreateRequest(d *schema.ResourceData, meta interface{}) (*rd
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
 	request := rds.CreateCreateReadOnlyDBInstanceRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

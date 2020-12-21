@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -104,6 +105,11 @@ func resourceApsaraStackDiskCreate(d *schema.ResourceData, meta interface{}) err
 	}
 
 	request := ecs.CreateCreateDiskRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.ZoneId = availabilityZone.ZoneId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -200,7 +206,11 @@ func resourceApsaraStackDiskUpdate(d *schema.ResourceData, meta interface{}) err
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DiskId = d.Id()
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if !d.IsNewResource() && d.HasChange("name") {
 		request.DiskName = d.Get("name").(string)
 		update = true
@@ -262,6 +272,11 @@ func resourceApsaraStackDiskUpdate(d *schema.ResourceData, meta interface{}) err
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DiskId = d.Id()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.NewSize = requests.NewInteger(size)
 		request.Type = string(DiskResizeTypeOnline)
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -293,7 +308,11 @@ func resourceApsaraStackDiskDelete(d *schema.ResourceData, meta interface{}) err
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
 	request.DiskId = d.Id()
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteDisk(request)

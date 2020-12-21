@@ -42,8 +42,13 @@ func testSweepSLBs(region string) error {
 	var slbs []slb.LoadBalancer
 	req := slb.CreateDescribeLoadBalancersRequest()
 	req.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	req.PageNumber = requests.NewInteger(1)
 	for {
@@ -206,7 +211,7 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	rand := acctest.RandIntRange(1000, 9999)
-	name := fmt.Sprintf("tf-testAccSlbVpcInstanceConfigSpot%d", rand)
+	name := fmt.Sprintf("tf-slbtest%d", rand)
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceSlbVpcConfigDependence)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -237,11 +242,11 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"name": fmt.Sprintf("tf-testAccSlbVpcInstanceConfigSpot%d_change", rand),
+					"name": fmt.Sprintf("tf-testAccSlbVpcInstanceConfigSpot%d", rand),
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name": fmt.Sprintf("tf-testAccSlbVpcInstanceConfigSpot%d_change", rand),
+						"name": fmt.Sprintf("tf-testAccSlbVpcInstanceConfigSpot%d", rand),
 					}),
 				),
 			},
@@ -261,7 +266,7 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 
 func TestAccApsaraStackSlb_vpcmulti(t *testing.T) {
 	var v *slb.DescribeLoadBalancerAttributeResponse
-	resourceId := "apsarastack_slb.default.9"
+	resourceId := "apsarastack_slb.default.2"
 	ra := resourceAttrInit(resourceId, nil)
 	rc := resourceCheckInit(resourceId, &v, func() interface{} {
 		return &SlbService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -270,7 +275,7 @@ func TestAccApsaraStackSlb_vpcmulti(t *testing.T) {
 
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	rand := acctest.RandIntRange(1000, 9999)
-	name := fmt.Sprintf("tf-testAccSlbVpcInstancemultiConfigSpot%d", rand)
+	name := fmt.Sprintf("tf-testaccslbvpcinstancemulticonfigspot%d", rand)
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceSlbVpcConfigDependence)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -285,7 +290,7 @@ func TestAccApsaraStackSlb_vpcmulti(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"count":      "10",
+					"count":      "3",
 					"name":       name,
 					"vswitch_id": "${apsarastack_vswitch.default.id}",
 				}),
