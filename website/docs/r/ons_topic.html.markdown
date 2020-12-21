@@ -26,13 +26,18 @@ variable "topic" {
 }
 
 resource "apsarastack_ons_instance" "default" {
-  name = "${var.name}"
-  remark = "default_ons_instance_remark"
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
+  name = var.name
+  remark = "Ons Instance"
 }
 
 resource "apsarastack_ons_topic" "default" {
-  topic = "${var.topic}"
-  instance_id = "${apsarastack_ons_instance.default.id}"
+  topic = var.topic
+  instance_id = apsarastack_ons_instance.default.id
   message_type = 0
   remark = "dafault_ons_topic_remark"
 }

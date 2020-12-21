@@ -26,13 +26,18 @@ variable "group_id" {
 }
 
 resource "apsarastack_ons_instance" "default" {
-  name = "${var.name}"
-  remark = "default_ons_instance_remark"
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
+  name = var.name
+  remark = "Ons Instance"
 }
 
 resource "apsarastack_ons_group" "default" {
-  group_id = "${var.group_id}"
-  instance_id = "${apsarastack_ons_instance.default.id}"
+  group_id = var.group_id
+  instance_id = apsarastack_ons_instance.default.id
   remark = "dafault_ons_group_remark"
 }
 ```
