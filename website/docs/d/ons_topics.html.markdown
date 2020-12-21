@@ -25,26 +25,31 @@ variable "topic" {
 }
 
 resource "apsarastack_ons_instance" "default" {
-  name = "${var.name}"
-  remark = "default_ons_instance_remark"
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
+  name = "Ons_Apsara_instance"
+  remark = "Ons Instance"
 }
 
 resource "apsarastack_ons_topic" "default" {
-  topic = "${var.topic}"
-  instance_id = "${apsarastack_ons_instance.default.id}"
+  topic = var.topic
+  instance_id = apsarastack_ons_instance.default.id
   message_type = 0
   remark = "dafault_ons_topic_remark"
 }
 
 data "apsarastack_ons_topics" "topics_ds" {
-  instance_id = "${apsarastack_ons_topic.default.instance_id}"
-  name_regex = "${var.topic}"
+ instance_id = apsarastack_ons_topic.topic.instance_id
   output_file = "topics.txt"
 }
 
 output "first_topic_name" {
-  value = "${data.apsarastack_ons_topics.topics_ds.topics.0.topic}"
+   value = data.apsarastack_ons_topics.topics.*
 }
+
 ```
 
 ## Argument Reference
