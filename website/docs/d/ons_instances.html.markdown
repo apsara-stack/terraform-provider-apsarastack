@@ -20,18 +20,22 @@ variable "name" {
 }
 
 resource "apsarastack_ons_instance" "default" {
-  name   = "${var.name}"
-  remark = "default_ons_instance_remark"
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
+  name = "Ons_Apsara_instance"
+  remark = "Ons Instance"
 }
 
 data "apsarastack_ons_instances" "instances_ds" {
-  ids         = ["${apsarastack_ons_instance.default.id}"]
-  name_regex  = "${apsarastack_ons_instance.default.name}"
+  name_regex = apsarastack_ons_instance.inst.name
   output_file = "instances.txt"
 }
 
 output "first_instance_id" {
-  value = "${data.apsarastack_ons_instances.instances_ds.instances.0.instance_id}"
+  value = data.apsarastack_ons_instances.onsins.*
 }
 ```
 
