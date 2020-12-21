@@ -16,9 +16,18 @@ Provides an ONS instance resource.
 Basic Usage
 
 ```
-resource "apsarastack_ons_instance" "example" {
-  name   = "tf-example-ons-instance"
-  remark = "tf-example-ons-instance-remark"
+resource "apsarastack_ons_instance" "default" {
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
+  name = "Ons_Apsara_instance"
+  remark = "Ons Instance"
+}
+
+output "inst" {
+  value = apsarastack_ons_instance.default.*
 }
 ```
 
@@ -28,6 +37,11 @@ The following arguments are supported:
 
 
 * `name` - (Required)Two instances on a single account in the same region cannot have the same name. The length must be 3 to 64 characters. Chinese characters, English letters digits and hyphen are allowed.
+* `tps_receive_max` - (Required)This attribute is used to set the message receiving transactions per second (TPS) of the topic during a certain period of time.
+* `tps_send_max` - (Required)This attribute is used to set the message sending transactions per second (TPS) of the topic during a certain period of time.
+* `topic_capacity` - (Required)This attribute is used to set the topic capacity.
+* `independent_naming` - (Required)This attribute is used to define an independent name or not. It takes only bool value.
+* `cluster` - (Required)This attribute is a used to add cluster name.
 * `remark` - (Optional)This attribute is a concise description of instance. The length cannot exceed 128.
 
 ## Attributes Reference

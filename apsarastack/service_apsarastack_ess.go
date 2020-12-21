@@ -22,6 +22,11 @@ func (s *EssService) DescribeEssAlarm(id string) (alarm ess.Alarm, err error) {
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.AlarmTaskId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.MetricType = "system"
 	Alarms, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeAlarms(request)
@@ -41,7 +46,11 @@ func (s *EssService) DescribeEssAlarm(id string) (alarm ess.Alarm, err error) {
 	AlarmsRequest.RegionId = s.client.RegionId
 	AlarmsRequest.Headers = map[string]string{"RegionId": s.client.RegionId}
 	AlarmsRequest.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		AlarmsRequest.Scheme = "https"
+	} else {
+		AlarmsRequest.Scheme = "http"
+	}
 	AlarmsRequest.AlarmTaskId = id
 	AlarmsRequest.MetricType = "custom"
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -64,6 +73,11 @@ func (s *EssService) DescribeEssLifecycleHook(id string) (hook ess.LifecycleHook
 	request := ess.CreateDescribeLifecycleHooksRequest()
 	request.LifecycleHookId = &[]string{id}
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -112,6 +126,11 @@ func (s *EssService) DescribeEssNotification(id string) (notification ess.Notifi
 	scalingGroupId, notificationArn := parts[0], parts[1]
 	request := ess.CreateDescribeNotificationConfigurationsRequest()
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ScalingGroupId = scalingGroupId
@@ -163,6 +182,11 @@ func (s *EssService) DescribeEssScalingGroup(id string) (group ess.ScalingGroup,
 	request := ess.CreateDescribeScalingGroupsRequest()
 	request.ScalingGroupId1 = id
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, e := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -187,6 +211,11 @@ func (s *EssService) DescribeEssScalingConfiguration(id string) (config ess.Scal
 	request := ess.CreateDescribeScalingConfigurationsRequest()
 	request.ScalingConfigurationId1 = id
 	request.RegionId = s.client.RegionId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
@@ -211,6 +240,11 @@ func (s *EssService) DescribeEssScalingConfiguration(id string) (config ess.Scal
 func (s *EssService) ActiveEssScalingConfiguration(sgId, id string) error {
 	request := ess.CreateModifyScalingGroupRequest()
 	request.ScalingGroupId = sgId
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ActiveScalingConfigurationId = id
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
@@ -296,6 +330,11 @@ func (s *EssService) flattenVserverGroupList(vServerGroups []ess.VServerGroup) [
 func (s *EssService) DescribeEssScalingRule(id string) (rule ess.ScalingRule, err error) {
 	request := ess.CreateDescribeScalingRulesRequest()
 	request.ScalingRuleId1 = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -345,6 +384,11 @@ func (s *EssService) WaitForEssScalingRule(id string, status Status, timeout int
 func (s *EssService) DescribeEssScheduledTask(id string) (task ess.ScheduledTask, err error) {
 	request := ess.CreateDescribeScheduledTasksRequest()
 	request.ScheduledTaskId1 = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
@@ -395,6 +439,11 @@ func (s *EssService) WaitForEssScheduledTask(id string, status Status, timeout i
 func (srv *EssService) DescribeEssAttachment(id string, instanceIds []string) (instances []ess.ScalingInstance, err error) {
 	request := ess.CreateDescribeScalingInstancesRequest()
 	request.RegionId = srv.client.RegionId
+	if strings.ToLower(srv.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": srv.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": srv.client.SecretKey, "Product": "ess", "Department": srv.client.Department, "ResourceGroup": srv.client.ResourceGroup}
 
@@ -430,6 +479,11 @@ func (srv *EssService) DescribeEssAttachment(id string, instanceIds []string) (i
 func (s *EssService) DescribeEssScalingConfifurations(id string) (configs []ess.ScalingConfiguration, err error) {
 	request := ess.CreateDescribeScalingConfigurationsRequest()
 	request.ScalingGroupId = id
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.PageNumber = requests.NewInteger(1)
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.RegionId = s.client.RegionId
@@ -493,6 +547,11 @@ func (srv *EssService) EssRemoveInstances(id string, instanceIds []string) error
 		request := ess.CreateRemoveInstancesRequest()
 		request.ScalingGroupId = id
 		request.RegionId = srv.client.RegionId
+		if strings.ToLower(srv.client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": srv.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": srv.client.SecretKey, "Product": "ess", "Department": srv.client.Department, "ResourceGroup": srv.client.ResourceGroup}
 

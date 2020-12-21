@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -84,18 +85,22 @@ func resourceApsaraStackRouterInterface() *schema.Resource {
 			"opposite_router_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"opposite_router_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"opposite_interface_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 			"opposite_interface_owner_id": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -107,7 +112,11 @@ func resourceApsaraStackRouterInterfaceCreate(d *schema.ResourceData, meta inter
 	request, err := buildApsaraStackRouterInterfaceCreateArgs(d, meta)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if err != nil {
 		return WrapError(err)
 	}
@@ -139,7 +148,11 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 		return WrapError(err)
 	}
 	request.RegionId = client.RegionId
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if attributeUpdate {
@@ -156,6 +169,11 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 		d.SetPartial("specification")
 		request := vpc.CreateModifyRouterInterfaceSpecRequest()
 		request.RegionId = string(client.Region)
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -222,7 +240,11 @@ func resourceApsaraStackRouterInterfaceDelete(d *schema.ResourceData, meta inter
 	request := vpc.CreateDeleteRouterInterfaceRequest()
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterInterfaceId = d.Id()
 	request.ClientToken = buildClientToken(request.GetActionName())
@@ -262,7 +284,11 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 	request := vpc.CreateCreateRouterInterfaceRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterType = d.Get("router_type").(string)
 	request.RouterId = d.Get("router_id").(string)
@@ -283,7 +309,11 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 	if request.RouterType == string(VBR) {
 		describeVirtualBorderRoutersRequest := vpc.CreateDescribeVirtualBorderRoutersRequest()
 		describeVirtualBorderRoutersRequest.RegionId = client.RegionId
-
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			describeVirtualBorderRoutersRequest.Scheme = "https"
+		} else {
+			describeVirtualBorderRoutersRequest.Scheme = "http"
+		}
 		describeVirtualBorderRoutersRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		describeVirtualBorderRoutersRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -332,7 +362,11 @@ func buildApsaraStackRouterInterfaceModifyAttrArgs(d *schema.ResourceData, meta 
 	request := vpc.CreateModifyRouterInterfaceAttributeRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterInterfaceId = d.Id()
 

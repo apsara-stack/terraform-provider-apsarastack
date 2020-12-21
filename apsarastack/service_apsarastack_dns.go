@@ -1,11 +1,16 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	//"github.com/coreos/etcd/client"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"reflect"
+	"strconv"
 	"time"
 )
 
@@ -218,18 +223,74 @@ func (s *DnsService) SetResourceTags(d *schema.ResourceData, resourceType string
 	return nil
 }
 
-func (s *DnsService) DescribeDnsDomain(id string) (object alidns.DescribeDomainInfoResponse, err error) {
-	request := alidns.CreateDescribeDomainInfoRequest()
-	request.RegionId = s.client.RegionId
+type Domain struct {
+	DomainId        string `json:"DomainId" xml:"DomainId"`
+	DomainName      string `json:"DomainName" xml:"DomainName"`
+	PunyCode        string `json:"PunyCode" xml:"PunyCode"`
+	AliDomain       bool   `json:"AliDomain" xml:"AliDomain"`
+	RecordCount     int64  `json:"RecordCount" xml:"RecordCount"`
+	RegistrantEmail string `json:"RegistrantEmail" xml:"RegistrantEmail"`
+	Remark          string `json:"Remark" xml:"Remark"`
+	GroupId         string `json:"GroupId" xml:"GroupId"`
+	GroupName       string `json:"GroupName" xml:"GroupName"`
+	InstanceId      string `json:"InstanceId" xml:"InstanceId"`
+	VersionCode     string `json:"VersionCode" xml:"VersionCode"`
+	VersionName     string `json:"VersionName" xml:"VersionName"`
+	InstanceEndTime string `json:"InstanceEndTime" xml:"InstanceEndTime"`
+	InstanceExpired bool   `json:"InstanceExpired" xml:"InstanceExpired"`
+	Starmark        bool   `json:"Starmark" xml:"Starmark"`
+	CreateTime      string `json:"CreateTime" xml:"CreateTime"`
+	CreateTimestamp int64  `json:"CreateTimestamp" xml:"CreateTimestamp"`
+	ResourceGroupId string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	//DnsServers      DnsServersInDescribeDomains `json:"DnsServers" xml:"DnsServers"`
+	//Tags            TagsInDescribeDomains       `json:"Tags" xml:"Tags"`
+}
+type DnsDomains struct {
+	RequestID       string    `json:"RequestId"`
+	PageSize        int       `json:"PageSize"`
+	PageNumber      int       `json:"PageNumber"`
+	TotalItems      int       `json:"TotalItems"`
+	DomainID        int       `json:"DomainId"`
+	DomainName      string    `json:"DomainName"`
+	VpcNumber       int       `json:"VpcNumber"`
+	CreateTime      time.Time `json:"CreateTime"`
+	UpdateTime      time.Time `json:"UpdateTime"`
+	UpdateTimestamp int64     `json:"UpdateTimestamp"`
+	RecordCount     int       `json:"RecordCount"`
+	CreateTimestamp int64     `json:"CreateTimestamp"`
+	ZoneList        []struct {
+		DomainID        int       `json:"DomainId"`
+		DomainName      string    `json:"DomainName"`
+		VpcNumber       int       `json:"VpcNumber"`
+		CreateTime      time.Time `json:"CreateTime"`
+		UpdateTime      time.Time `json:"UpdateTime"`
+		UpdateTimestamp int64     `json:"UpdateTimestamp"`
+		RecordCount     int       `json:"RecordCount"`
+		CreateTimestamp int64     `json:"CreateTimestamp"`
+	} `json:"ZoneList"`
+}
+
+func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err error) {
+	var domain = &responses.CommonResponse{}
+	request := requests.NewCommonRequest()
+	request.Method = "POST"          // Set request method
+	request.Product = "GenesisDns"   // Specify product
+	request.Domain = s.client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2018-07-20"   // Specify product version
+	request.Scheme = "http"          // Set request scheme. Default: http
+	request.ApiName = "ObtainGlobalAuthZoneList"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = s.client.Department
-	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
-
-	request.DomainName = id
-
-	raw, err := s.client.WithDnsClient(func(alidnsClient *alidns.Client) (interface{}, error) {
-		return alidnsClient.DescribeDomainInfo(request)
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": s.client.SecretKey,
+		"AccessKeyId":     s.client.AccessKey,
+		"Product":         "GenesisDns",
+		"RegionId":        s.client.RegionId,
+		"Action":          "ObtainGlobalAuthZoneList",
+		"Version":         "2018-07-20",
+		"Id":              id,
+	}
+	raw, err := s.client.WithEcsClient(func(alidnsClient *ecs.Client) (interface{}, error) {
+		return alidnsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidDomainName.NoExist"}) {
@@ -239,7 +300,20 @@ func (s *DnsService) DescribeDnsDomain(id string) (object alidns.DescribeDomainI
 		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 		return
 	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	response, _ := raw.(*alidns.DescribeDomainInfoResponse)
-	return *response, nil
+	var dnsdomain = DnsDomains{}
+	domain, _ = raw.(*responses.CommonResponse)
+	_ = json.Unmarshal(domain.GetHttpContentBytes(), &dnsdomain)
+
+	ID, _ := strconv.Atoi(id)
+	dm := &DnsDomains{}
+	for _, k := range dnsdomain.ZoneList {
+		if k.DomainID == ID {
+			dm.DomainID = k.DomainID
+			dm.DomainName = k.DomainName
+			dm.CreateTime = k.CreateTime
+			dm.UpdateTime = k.UpdateTime
+		}
+	}
+	addDebug(request.GetActionName(), raw, response, request)
+	return dm, nil
 }

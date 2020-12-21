@@ -79,6 +79,11 @@ func resourceApsaraStackSlbServerGroup() *schema.Resource {
 func resourceApsaraStackSlbServerGroupCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := slb.CreateCreateVServerGroupRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -95,7 +100,7 @@ func resourceApsaraStackSlbServerGroupCreate(d *schema.ResourceData, meta interf
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*slb.CreateVServerGroupResponse)
 	d.SetId(response.VServerGroupId)
-
+	d.Set("load_balancer_id", d.Get("load_balancer_id").(string))
 	return resourceApsaraStackSlbServerGroupUpdate(d, meta)
 }
 
@@ -113,7 +118,7 @@ func resourceApsaraStackSlbServerGroupRead(d *schema.ResourceData, meta interfac
 	}
 
 	d.Set("name", object.VServerGroupName)
-	d.Set("load_balancer_id", object.LoadBalancerId)
+	//d.Set("load_balancer_id", object.LoadBalancerId)
 
 	servers := make([]map[string]interface{}, 0)
 	portAndWeight := make(map[string][]string)
@@ -193,6 +198,11 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 			}
 			request := slb.CreateRemoveVServerGroupBackendServersRequest()
 			request.RegionId = client.RegionId
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.VServerGroupId = d.Id()
@@ -236,6 +246,11 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 			}
 			request := slb.CreateAddVServerGroupBackendServersRequest()
 			request.RegionId = client.RegionId
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			request.VServerGroupId = d.Id()
@@ -270,6 +285,11 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 	if serverUpdate || nameUpdate {
 		request := slb.CreateSetVServerGroupAttributeRequest()
 		request.RegionId = client.RegionId
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.VServerGroupId = d.Id()
@@ -348,6 +368,11 @@ func resourceApsaraStackSlbServerGroupDelete(d *schema.ResourceData, meta interf
 
 	request := slb.CreateDeleteVServerGroupRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.VServerGroupId = d.Id()

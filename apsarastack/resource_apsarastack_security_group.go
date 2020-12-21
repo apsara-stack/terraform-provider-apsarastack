@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -58,7 +59,11 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if v := d.Get("name").(string); v != "" {
 		request.SecurityGroupName = v
 	}
@@ -103,6 +108,11 @@ func resourceApsaraStackSecurityGroupRead(d *schema.ResourceData, meta interface
 
 	request := ecs.CreateDescribeSecurityGroupsRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SecurityGroupId = d.Id()
@@ -143,7 +153,11 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.SecurityGroupId = d.Id()
 		request.InnerAccessPolicy = string(policy)
 		request.ClientToken = buildClientToken(request.GetActionName())
@@ -168,7 +182,11 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.SecurityGroupId = d.Id()
 	if d.HasChange("name") {
 		request.SecurityGroupName = d.Get("name").(string)
@@ -204,7 +222,11 @@ func resourceApsaraStackSecurityGroupDelete(d *schema.ResourceData, meta interfa
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SecurityGroupId = d.Id()
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	err := resource.Retry(6*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteSecurityGroup(request)

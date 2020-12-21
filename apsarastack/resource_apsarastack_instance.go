@@ -263,6 +263,11 @@ func resourceApsaraStackInstanceCreate(d *schema.ResourceData, meta interface{})
 	if d.Get("is_outdated").(bool) == true {
 		request.IoOptimized = "none"
 	}
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	wait := incrementalWait(1*time.Second, 1*time.Second)
 	err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -305,7 +310,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return WrapError(err)
 	}
-	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance)
+	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance.Status)
 	disk, err := ecsService.DescribeInstanceSystemDisk(d.Id(), instance.ResourceGroupId)
 	if err != nil {
 		if NotFoundError(err) {
@@ -351,6 +356,11 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 	if !d.IsNewResource() || d.HasChange("user_data") {
 		dataRequest := ecs.CreateDescribeUserDataRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			dataRequest.Scheme = "https"
+		} else {
+			dataRequest.Scheme = "http"
+		}
 		dataRequest.RegionId = client.RegionId
 		dataRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		dataRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -364,11 +374,28 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		}
 		addDebug(dataRequest.GetActionName(), raw, dataRequest.RpcRequest, dataRequest)
 		response, _ := raw.(*ecs.DescribeUserDataResponse)
-		d.Set("user_data", userDataHashSum(response.UserData))
+		old_s := base64.StdEncoding.EncodeToString([]byte(response.UserData))
+
+		//log.Printf("User data : %s old data: %s", fmt.Sprint(d.Get("user_data").(string)),old_s)
+		d.Set("user_data", d.Get("user_data").(string))
+		//if d.Get("user_data").(string) == old_s {
+		//	d.Set("user_data", old_s)
+		//	log.Printf("set1")
+		//} else  {
+		//	d.Set("user_data", userDataHashSum(response.UserData))
+		//	log.Printf("set2")
+		//}
+		log.Printf("Roshan data : %s", old_s)
+
 	}
 
 	if len(instance.VpcAttributes.VSwitchId) > 0 && (!d.IsNewResource() || d.HasChange("role_name")) {
 		request := ecs.CreateDescribeInstanceRamRoleRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -390,6 +417,11 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 
 	if instance.InstanceChargeType == string(PrePaid) {
 		request := ecs.CreateDescribeInstanceAutoRenewAttributeRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -474,6 +506,11 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 		if instance.Status == string(Running) {
 			stopRequest := ecs.CreateStopInstanceRequest()
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				stopRequest.Scheme = "https"
+			} else {
+				stopRequest.Scheme = "http"
+			}
 			stopRequest.RegionId = client.RegionId
 			stopRequest.Headers = map[string]string{"RegionId": client.RegionId}
 			stopRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
@@ -508,6 +545,11 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 
 		startRequest := ecs.CreateStartInstanceRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			startRequest.Scheme = "https"
+		} else {
+			startRequest.Scheme = "http"
+		}
 		startRequest.Headers = map[string]string{"RegionId": client.RegionId}
 		startRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		startRequest.InstanceId = d.Id()
@@ -559,12 +601,22 @@ func resourceApsaraStackInstanceDelete(d *schema.ResourceData, meta interface{})
 	ecsService := EcsService{client}
 
 	stopRequest := ecs.CreateStopInstanceRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		stopRequest.Scheme = "https"
+	} else {
+		stopRequest.Scheme = "http"
+	}
 	stopRequest.Headers = map[string]string{"RegionId": client.RegionId}
 	stopRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	stopRequest.InstanceId = d.Id()
 	stopRequest.ForceStop = requests.NewBoolean(true)
 
 	deleteRequest := ecs.CreateDeleteInstanceRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		deleteRequest.Scheme = "https"
+	} else {
+		deleteRequest.Scheme = "http"
+	}
 	deleteRequest.Headers = map[string]string{"RegionId": client.RegionId}
 	deleteRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	deleteRequest.InstanceId = d.Id()
@@ -608,6 +660,11 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 
 	request := ecs.CreateRunInstancesRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.InstanceType = d.Get("instance_type").(string)
@@ -647,11 +704,11 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 		request.InternetMaxBandwidthIn = requests.NewInteger(v.(int))
 	}
 
-	if v := d.Get("host_name").(string); v != " " {
+	if v := d.Get("host_name").(string); v != "" {
 		request.HostName = v
 	}
 
-	if v := d.Get("password").(string); v != " " {
+	if v := d.Get("password").(string); v != "" {
 		request.Password = v
 	}
 
@@ -762,6 +819,11 @@ func modifyInstanceImage(d *schema.ResourceData, meta interface{}, run bool) (bo
 		}
 		keyPairName := instance.KeyPairName
 		request := ecs.CreateReplaceSystemDiskRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceId = d.Id()
@@ -832,6 +894,11 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 	reboot := false
 	request := ecs.CreateModifyInstanceAttributeRequest()
 	request.InstanceId = d.Id()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
@@ -849,16 +916,21 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 
 	if d.HasChange("user_data") {
 		d.SetPartial("user_data")
-		if v, ok := d.GetOk("user_data"); ok && v.(string) != "" {
-			_, base64DecodeError := base64.StdEncoding.DecodeString(v.(string))
-			if base64DecodeError == nil {
-				request.UserData = v.(string)
-			} else {
-				request.UserData = base64.StdEncoding.EncodeToString([]byte(v.(string)))
+		old, new := d.GetChange("user_data")
+		old_s := base64.StdEncoding.EncodeToString([]byte(fmt.Sprint(old)))
+		if fmt.Sprint(new) != old_s {
+
+			if v, ok := d.GetOk("user_data"); ok && v.(string) != "" {
+				_, base64DecodeError := base64.StdEncoding.DecodeString(v.(string))
+				if base64DecodeError == nil {
+					request.UserData = v.(string)
+				} else {
+					request.UserData = base64.StdEncoding.EncodeToString([]byte(v.(string)))
+				}
 			}
+			update = true
+			reboot = true
 		}
-		update = true
-		reboot = true
 	}
 
 	if d.HasChange("host_name") {
@@ -920,6 +992,11 @@ func modifyVpcAttribute(d *schema.ResourceData, meta interface{}, run bool) (boo
 
 	update := false
 	request := ecs.CreateModifyInstanceVpcAttributeRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.InstanceId = d.Id()
 	request.VSwitchId = d.Get("vswitch_id").(string)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -997,6 +1074,11 @@ func modifyInstanceType(d *schema.ResourceData, meta interface{}, run bool) (boo
 		//An instance that was successfully modified once cannot be modified again within 5 minutes.
 		request := ecs.CreateModifyInstanceSpecRequest()
 		request.InstanceId = d.Id()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceType = d.Get("instance_type").(string)
@@ -1056,6 +1138,11 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 	allocate := false
 	update := false
 	request := ecs.CreateModifyInstanceNetworkSpecRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.InstanceId = d.Id()
 	request.ClientToken = buildClientToken(request.GetActionName())
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -1125,6 +1212,11 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 
 		if allocate {
 			request := ecs.CreateAllocatePublicIpAddressRequest()
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.InstanceId = d.Id()
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}

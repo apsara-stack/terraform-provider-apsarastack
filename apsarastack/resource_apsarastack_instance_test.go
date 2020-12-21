@@ -36,6 +36,11 @@ func testSweepInstances(region string) error {
 
 	var insts []ecs.Instance
 	req := ecs.CreateDescribeInstancesRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		req.Scheme = "https"
+	} else {
+		req.Scheme = "http"
+	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
 	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.RegionId = client.RegionId
@@ -91,6 +96,11 @@ func testSweepInstances(region string) error {
 		log.Printf("[INFO] Deleting Instance: %s (%s)", name, id)
 		if v.DeletionProtection {
 			request := ecs.CreateModifyInstanceAttributeRequest()
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.InstanceId = id
 			request.DeletionProtection = requests.NewBoolean(false)
 			_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -103,6 +113,11 @@ func testSweepInstances(region string) error {
 		}
 		if v.InstanceChargeType == string(PrePaid) {
 			request := ecs.CreateModifyInstanceChargeTypeRequest()
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
 			request.InstanceIds = convertListToJsonString(append(make([]interface{}, 0, 1), id))
 			request.InstanceChargeType = string(PostPaid)
 			request.IncludeDataDisks = requests.NewBoolean(true)
@@ -118,6 +133,11 @@ func testSweepInstances(region string) error {
 
 		req := ecs.CreateDeleteInstanceRequest()
 		req.InstanceId = id
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
 		req.Force = requests.NewBoolean(true)
 		_, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.DeleteInstance(req)

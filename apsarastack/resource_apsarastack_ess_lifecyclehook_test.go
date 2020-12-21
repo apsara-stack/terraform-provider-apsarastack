@@ -83,14 +83,6 @@ func TestAccApsaraStackEssLifecycleHookBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccEssLifecycleHookUpdateNotificationArn(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"notification_arn": CHECKSET,
-					}),
-				),
-			},
-			{
 				Config: testAccEssLifecycleHook(EcsInstanceCommonTestCase, rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(basicMap),
@@ -311,7 +303,7 @@ func testAccEssLifecycleHookUpdateNotificationArn(common string, rand int) strin
 		heartbeat_timeout = 400
 		notification_metadata = "helloterraform"
 		default_result = "ABANDON"
-		notification_arn = "acs:ess"
+		
 	}
 	`, common, rand)
 }

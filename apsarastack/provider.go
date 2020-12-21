@@ -10,7 +10,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/sts"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity/ascm"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -130,7 +129,7 @@ func Provider() terraform.ResourceProvider {
 			},
 			"resource_group_set_name": {
 				Type:        schema.TypeString,
-				Optional:    true, //Required:    true,
+				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP_SET", nil),
 				Description: descriptions["resource_group_set_name"],
 			},
@@ -195,18 +194,27 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
 			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
 
-			"apsarastack_kvstore_instances":        dataSourceApsaraStackKVStoreInstances(),
-			"apsarastack_kvstore_zones":            dataSourceApsaraStackKVStoreZones(),
-			"apsarastack_kvstore_instance_classes": dataSourceApsaraStackKVStoreInstanceClasses(),
-			"apsarastack_kvstore_instance_engines": dataSourceApsaraStackKVStoreInstanceEngines(),
-
-			//"apsarastack_ascm_organizations":           dataSourceApsaraStackAscmOrganizations(),
-
-			"apsarastack_ascm_resource_groups":   dataSourceApsaraStackAscmResourceGroups(),
-			"apsarastack_gpdb_instances":         dataSourceApsaraStackGpdbInstances(),
-			"apsarastack_mongodb_instances":      dataSourceApsaraStackMongoDBInstances(),
-			"apsarastack_mongodb_zones":          dataSourceApsaraStackMongoDBZones(),
-			"apsarastack_cs_kubernetes_clusters": dataSourceApsaraStackCSKubernetesClusters(),
+			"apsarastack_kvstore_instances":          dataSourceApsaraStackKVStoreInstances(),
+			"apsarastack_kvstore_zones":              dataSourceApsaraStackKVStoreZones(),
+			"apsarastack_kvstore_instance_classes":   dataSourceApsaraStackKVStoreInstanceClasses(),
+			"apsarastack_kvstore_instance_engines":   dataSourceApsaraStackKVStoreInstanceEngines(),
+			"apsarastack_gpdb_instances":             dataSourceApsaraStackGpdbInstances(),
+			"apsarastack_mongodb_instances":          dataSourceApsaraStackMongoDBInstances(),
+			"apsarastack_mongodb_zones":              dataSourceApsaraStackMongoDBZones(),
+			"apsarastack_ascm_resource_groups":       dataSourceApsaraStackAscmResourceGroups(),
+			"apsarastack_cs_kubernetes_clusters":     dataSourceApsaraStackCSKubernetesClusters(),
+			"apsarastack_ascm_users":                 dataSourceApsaraStackAscmUsers(),
+			"apsarastack_ascm_logon_policies":        dataSourceApsaraStackAscmLogonPolicies(),
+			"apsarastack_ascm_roles":                 dataSourceApsaraStackAscmRoles(),
+			"apsarastack_ascm_organizations":         dataSourceApsaraStackAscmOrganizations(),
+			"apsarastack_ascm_instance_families":     dataSourceApsaraStackInstanceFamilies(),
+			"apsarastack_ascm_regions":               dataSourceApsaraStackRegions(),
+			"apsarastack_ascm_service_cluster":       dataSourceApsaraStackServiceCluster(),
+			"apsarastack_ascm_ecs_instance_families": dataSourceApsaraStackEcsInstanceFamilies(),
+			"apsarastack_ascm_specific_fields":       dataSourceApsaraStackSpecificFields(),
+			"apsarastack_ascm_environment_services":  dataSourceApsaraStackAscmEnvironmentServices(),
+			"apsarastack_ascm_password_policies":     dataSourceApsaraStackAscmPasswordPolicies(),
+			"apsarastack_ascm_quota":                 dataSourceApsaraStackQuota(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -291,17 +299,20 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
 			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
 			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
-
-			"apsarastack_kvstore_instance":      resourceApsaraStackKVStoreInstance(),
-			"apsarastack_kvstore_backup_policy": resourceApsaraStackKVStoreBackupPolicy(),
-			"apsarastack_kvstore_account":       resourceApsaraStackKVstoreAccount(),
-
-			"apsarastack_gpdb_instance":   resourceApsaraStackGpdbInstance(),
-			"apsarastack_gpdb_connection": resourceApsaraStackGpdbConnection(),
-			"apsarastack_cs_kubernetes":   resourceApsaraStackCSKubernetes(),
-			//"apsarastack_ascm_organization":                 		resourceApsaraStackAscmOrganization(),
-			"apsarastack_mongodb_instance":          resourceApsaraStackMongoDBInstance(),
-			"apsarastack_mongodb_sharding_instance": resourceApsaraStackMongoDBShardingInstance(),
+			"apsarastack_kvstore_instance":                    resourceApsaraStackKVStoreInstance(),
+			"apsarastack_kvstore_backup_policy":               resourceApsaraStackKVStoreBackupPolicy(),
+			"apsarastack_kvstore_account":                     resourceApsaraStackKVstoreAccount(),
+			"apsarastack_gpdb_instance":                       resourceApsaraStackGpdbInstance(),
+			"apsarastack_gpdb_connection":                     resourceApsaraStackGpdbConnection(),
+			"apsarastack_cs_kubernetes":                       resourceApsaraStackCSKubernetes(),
+			"apsarastack_mongodb_instance":                    resourceApsaraStackMongoDBInstance(),
+			"apsarastack_mongodb_sharding_instance":           resourceApsaraStackMongoDBShardingInstance(),
+			"apsarastack_ascm_resource_group":                 resourceApsaraStackAscmResourceGroup(),
+			"apsarastack_ascm_user":                           resourceApsaraStackAscmUser(),
+			"apsarastack_ascm_organization":                   resourceApsaraStackAscmOrganization(),
+			"apsarastack_cms_alarm":                           resourceApsaraStackCmsAlarm(),
+			"apsarastack_cms_site_monitor":                    resourceApsaraStackCmsSiteMonitor(),
+			"apsarastack_ascm_logon_policy":                   resourceApsaraStackLogInPolicy(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -402,7 +413,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.EssEndpoint = domain
 		config.DnsEndpoint = domain
 		config.KVStoreEndpoint = domain
-		config.AscmEndpoint = domain
 		config.GpdbEndpoint = domain
 		config.DdsEndpoint = domain
 		config.CsEndpoint = domain
@@ -426,13 +436,17 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.EssEndpoint = strings.TrimSpace(endpoints["ess"].(string))
 			config.DnsEndpoint = strings.TrimSpace(endpoints["dns"].(string))
 			config.KVStoreEndpoint = strings.TrimSpace(endpoints["kvstore"].(string))
-			config.AscmEndpoint = strings.TrimSpace(endpoints["ascm"].(string))
-
 			config.GpdbEndpoint = strings.TrimSpace(endpoints["gpdb"].(string))
 			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
 		}
 	}
+	if strings.ToLower(config.Protocol) == "https" {
+		config.Protocol = "HTTPS"
+	} else {
+		config.Protocol = "HTTP"
+	}
+
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
 		dept, rg, err := getResourceCredentials(config)
@@ -918,7 +932,7 @@ func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionNam
 	request.RoleSessionName = sessionName
 	request.DurationSeconds = requests.NewInteger(sessionExpiration)
 	request.Policy = policy
-	request.Scheme = "http"
+	request.Scheme = "https"
 	request.Domain = ascmEndpoint
 
 	var client *sts.Client
@@ -966,11 +980,25 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		return "", "", fmt.Errorf("errror while fetching resource group details, resource group set name can not be empty")
 	}
 	request := requests.NewCommonRequest()
+	if config.Insecure {
+		request.SetHTTPSInsecure(config.Insecure)
+	}
+	request.RegionId = config.RegionId
 	request.Method = "GET"         // Set request method
 	request.Product = "ascm"       // Specify product
 	request.Domain = endpoint      // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2019-05-10" // Specify product version
-	request.Scheme = "http"        // Set request scheme. Default: http
+	// Set request scheme. Default: http
+	if strings.ToLower(config.Protocol) == "https" {
+		log.Printf("PROTOCOL SET TO HTTPS")
+		request.Scheme = "https"
+	} else {
+		log.Printf("PROTOCOL SET TO HTTP")
+		request.Scheme = "http"
+	}
+	if config.Insecure {
+		ascmClient.SetHTTPSInsecure(config.Insecure)
+	}
 	request.ApiName = "ListResourceGroup"
 	request.QueryParams = map[string]string{
 		"AccessKeySecret":   config.SecretKey,
@@ -984,12 +1012,15 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		"resourceGroupName": config.ResourceSetName,
 	}
 	resp := responses.BaseResponse{}
+	if config.Insecure {
+		request.SetHTTPSInsecure(config.Insecure)
+	}
 	request.TransToAcsRequest()
 	err = ascmClient.DoAction(request, &resp)
 	if err != nil {
 		return "", "", err
 	}
-	response := &ascm.ResourceGroup{}
+	response := &ResourceGroup{}
 	err = json.Unmarshal(resp.GetHttpContentBytes(), response)
 
 	if len(response.Data) != 1 || response.Code != "200" {
@@ -999,6 +1030,6 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		return "", "", fmt.Errorf("unable to initialize the ascm client: department or resource_group is not provided")
 	}
 
-	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ResourceGroupID))
-	return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ResourceGroupID), err
+	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID))
+	return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID), err
 }

@@ -307,6 +307,11 @@ func resourceApsaraStackSlbListenerCreate(d *schema.ResourceData, meta interface
 		httpForward = true
 	}
 	request, err := buildListenerCommonArgs(d, meta)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	if err != nil {
 		return WrapError(err)
 	}
@@ -325,6 +330,11 @@ func resourceApsaraStackSlbListenerCreate(d *schema.ResourceData, meta interface
 				return WrapError(err)
 			}
 			request = reqHttp
+		}
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
 		}
 		if Protocol(protocol) == Https {
 			scId := d.Get("server_certificate_id").(string)
@@ -349,6 +359,11 @@ func resourceApsaraStackSlbListenerCreate(d *schema.ResourceData, meta interface
 
 	startLoadBalancerListenerRequest := slb.CreateStartLoadBalancerListenerRequest()
 	startLoadBalancerListenerRequest.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		startLoadBalancerListenerRequest.Scheme = "https"
+	} else {
+		startLoadBalancerListenerRequest.Scheme = "http"
+	}
 	startLoadBalancerListenerRequest.Headers = map[string]string{"RegionId": client.RegionId}
 	startLoadBalancerListenerRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	startLoadBalancerListenerRequest.LoadBalancerId = lb_id
@@ -669,6 +684,11 @@ func resourceApsaraStackSlbListenerDelete(d *schema.ResourceData, meta interface
 	}
 	request := slb.CreateDeleteLoadBalancerListenerRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = lbId

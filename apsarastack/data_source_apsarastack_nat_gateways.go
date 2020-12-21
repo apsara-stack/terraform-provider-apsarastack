@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -89,6 +90,11 @@ func dataSourceApsaraStackNatGatewaysRead(d *schema.ResourceData, meta interface
 	client := meta.(*connectivity.ApsaraStackClient)
 
 	request := vpc.CreateDescribeNatGatewaysRequest()
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
