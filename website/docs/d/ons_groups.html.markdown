@@ -24,24 +24,27 @@ variable "group_id" {
 }
 
 resource "apsarastack_ons_instance" "default" {
-  name = "${var.name}"
-  remark = "default_ons_instance_remark"
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
+  name = "Ons_Apsara_instance"
+  remark = "Ons Instance"
 }
 
 resource "apsarastack_ons_group" "default" {
-  group_id = "${var.group_id}"
+  group_id = var.group_id
   instance_id = "${apsarastack_ons_instance.default.id}"
   remark = "dafault_ons_group_remark"
 }
 
-data "apsarastack_ons_groups" "groups_ds" {
-  instance_id = "${apsarastack_ons_group.default.instance_id}"
-  group_id_regex = "${var.group_id}"
-  output_file = "groups.txt"
-}
+data "apsarastack_ons_groups" "default" {
+  instance_id = apsarastack_ons_group.default.instance_id
 
-output "first_group_name" {
-  value = "${data.apsarastack_ons_groups.groups_ds.groups.0.group_id}"
+}
+output "onsgroups" {
+  value = data.apsarastack_ons_groups.default.*
 }
 ```
 
