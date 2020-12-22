@@ -83,7 +83,7 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"name": {
+						"login_name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -128,9 +128,6 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
 	request.Method = "Get"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
@@ -142,7 +139,7 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 	request.RegionId = client.RegionId
 	request.ApiName = "ListUsers"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListUsers", "Version": "2019-05-10"}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListUsers", "Version": "2019-05-10"}
 	response := User{}
 
 	for {
@@ -178,7 +175,7 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 		}
 		mapping := map[string]interface{}{
 			"id":                 u.ID,
-			"name":               u.LoginName,
+			"login_name":         u.LoginName,
 			"organization_id":    u.Organization.ID,
 			"cell_phone_number":  u.CellphoneNum,
 			"display_name":       u.DisplayName,
