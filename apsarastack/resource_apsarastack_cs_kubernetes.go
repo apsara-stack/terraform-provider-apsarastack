@@ -54,7 +54,6 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(1, 63),
-				//ConflictsWith: []string{"name_prefix"},
 			},
 			"master_disk_size": {
 				Type:             schema.TypeInt,
