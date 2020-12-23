@@ -44,13 +44,13 @@ func (s *AscmService) DescribeAscmLogonPolicy(id string) (response *LoginPolicy,
 		return ecsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
-		if IsExpectedErrors(err, []string{"ErrorResourceGroupNotFound"}) {
+		if IsExpectedErrors(err, []string{"ErrorLoginPolicyNotFound"}) {
 			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
 		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListLoginPolicy", ApsaraStackSdkGoERROR)
 
 	}
-	addDebug("ListResourceGroup", response, requestInfo, request)
+	addDebug("LoginPolicy", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
@@ -61,7 +61,7 @@ func (s *AscmService) DescribeAscmLogonPolicy(id string) (response *LoginPolicy,
 	if len(resp.Data) < 1 || resp.Code == "200" {
 		return resp, WrapError(err)
 	}
-	return response, nil
+	return resp, nil
 }
 func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGroup, err error) {
 	var requestInfo *ecs.Client
