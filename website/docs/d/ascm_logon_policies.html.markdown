@@ -1,12 +1,12 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "Apsarastack: apsarastack_ascm_e_logon_policies"
-sidebar_current: "docs-apsarastack_ascm_e_logon_policies"
+page_title: "Apsarastack: apsarastack_ascm_logon_policies"
+sidebar_current: "docs-apsarastack_ascm_logon_policies"
 description: |-
   Provides a list of Logon Policies.
 ---
-# apsarastack\_ascm_e_logon_policy
+# apsarastack\_ascm_logon_policy
 
 Provides a list of Logon Policies.
 

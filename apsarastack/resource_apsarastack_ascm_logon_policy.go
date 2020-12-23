@@ -14,12 +14,12 @@ import (
 	"time"
 )
 
-func resourceApsaraStackLogInPolicy() *schema.Resource {
+func resourceApsaraStackLogonPolicy() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApsaraStackLogInPolicyCreate,
-		Read:   resourceApsaraStackLogInPolicyRead,
-		Update: resourceApsaraStackLogInPolicyUpdate,
-		Delete: resourceApsaraStackLogInPolicyDelete,
+		Create: resourceApsaraStackLogonPolicyCreate,
+		Read:   resourceApsaraStackLogonPolicyRead,
+		Update: resourceApsaraStackLogonPolicyUpdate,
+		Delete: resourceApsaraStackLogonPolicyDelete,
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
@@ -47,14 +47,14 @@ func resourceApsaraStackLogInPolicy() *schema.Resource {
 		},
 	}
 }
-func resourceApsaraStackLogInPolicyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackLogonPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *ecs.Client
 	ascmService := AscmService{client}
 	name := d.Get("name").(string)
 	descr := d.Get("description").(string)
 	rule := d.Get("rule").(string)
-	object, err := ascmService.ListLoginPolicies(name)
+	object, err := ascmService.DescribeAscmLogonPolicy(name)
 	if err != nil {
 
 		return WrapError(err)
@@ -90,12 +90,8 @@ func resourceApsaraStackLogInPolicyCreate(d *schema.ResourceData, meta interface
 		request.Product = "ascm"
 		request.Version = "2019-05-10"
 		request.ServiceCode = "ascm"
-		if strings.ToLower(client.Config.Protocol) == "https" {
-			request.Scheme = "https"
-		} else {
-			request.Scheme = "http"
-		}
 		request.ApiName = "AddLoginPolicy"
+		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
@@ -113,7 +109,7 @@ func resourceApsaraStackLogInPolicyCreate(d *schema.ResourceData, meta interface
 	}
 
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		object, err = ascmService.ListLoginPolicies(name)
+		object, err = ascmService.DescribeAscmLogonPolicy(name)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -128,10 +124,10 @@ func resourceApsaraStackLogInPolicyCreate(d *schema.ResourceData, meta interface
 
 	d.SetId(object.Data[0].Name)
 
-	return resourceApsaraStackLogInPolicyUpdate(d, meta)
+	return resourceApsaraStackLogonPolicyUpdate(d, meta)
 }
 
-func resourceApsaraStackLogInPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackLogonPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	request := requests.NewCommonRequest()
@@ -176,12 +172,8 @@ func resourceApsaraStackLogInPolicyUpdate(d *schema.ResourceData, meta interface
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	request.ServiceCode = "ascm"
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
 	request.ApiName = "ModifyLoginPolicy"
+	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ProcessCommonRequest(request)
@@ -197,19 +189,19 @@ func resourceApsaraStackLogInPolicyUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return WrapError(err)
 	}
-	object, err := ascmService.ListLoginPolicies(name)
+	object, err := ascmService.DescribeAscmLogonPolicy(name)
 	if err != nil {
 		return WrapError(err)
 	}
 
 	d.SetId(object.Data[0].Name)
 
-	return resourceApsaraStackLogInPolicyRead(d, meta)
+	return resourceApsaraStackLogonPolicyRead(d, meta)
 }
-func resourceApsaraStackLogInPolicyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackLogonPolicyRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	object, err := ascmService.ListLoginPolicies(d.Id())
+	object, err := ascmService.DescribeAscmLogonPolicy(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -224,14 +216,14 @@ func resourceApsaraStackLogInPolicyRead(d *schema.ResourceData, meta interface{}
 	d.Set("rule", object.Data[0].Rule)
 	return nil
 }
-func resourceApsaraStackLogInPolicyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackLogonPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
 
 	name := d.Get("name").(string)
 
-	check, err := ascmService.ListLoginPolicies(d.Id())
+	check, err := ascmService.DescribeAscmLogonPolicy(d.Id())
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsLoginPolicyExist", ApsaraStackSdkGoERROR)
 	}
@@ -246,6 +238,7 @@ func resourceApsaraStackLogInPolicyDelete(d *schema.ResourceData, meta interface
 		if client.Config.Insecure {
 			request.SetHTTPSInsecure(client.Config.Insecure)
 		}
+		request.RegionId = client.RegionId
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
 			"AccessKeySecret":  client.SecretKey,
@@ -279,7 +272,7 @@ func resourceApsaraStackLogInPolicyDelete(d *schema.ResourceData, meta interface
 			return resource.RetryableError(err)
 		}
 
-		_, err = ascmService.ListLoginPolicies(d.Id())
+		_, err = ascmService.DescribeAscmLogonPolicy(d.Id())
 
 		if err != nil {
 			return resource.NonRetryableError(err)
