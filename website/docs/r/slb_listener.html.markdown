@@ -66,23 +66,6 @@ x_forwarded_for {
     retrive_slb_ip = true
     retrive_slb_id = true
   }
-  acl_status      = "on"
-  acl_type        = "white"
-  acl_id          = "${apsarastack_slb_acl.default.id}"
-  request_timeout = 80
-  idle_timeout    = 30
-}
-resource "apsarastack_slb_acl" "default" {
-  name       = "${var.name}"
-  ip_version = "${var.ip_version}"
-  entry_list {
-    entry   = "10.10.10.0/24"
-    comment = "first"
-  }
-  entry_list {
-    entry   = "168.10.10.0/24"
-    comment = "second"
-  }
 }
 ```
 
@@ -116,9 +99,6 @@ The following arguments are supported:
 * `server_certificate_id` - (Required) SLB Server certificate ID. It is required when `protocol` is `https`.
 * `gzip` - (Optional) Whether to enable "Gzip Compression". If enabled, files of specific file types will be compressed, otherwise, no files will be compressed. Default to true.
 * `x_forwarded_for` - (Optional) Whether to set additional HTTP Header field "X-Forwarded-For" (documented below).
-* `acl_status` - (Optional) Whether to enable "acl(access control list)", the acl is specified by `acl_id`. Valid values are `on` and `off`. Default to `off`.
-* `acl_type` - (Optional) Mode for handling the acl specified by acl_id. If `acl_status` is "on", it is mandatory. Otherwise, it will be ignored. Valid values are `white` and `black`. `white` means the Listener can only be accessed by client ip belongs to the acl; `black` means the Listener can not be accessed by client ip belongs to the acl.
-* `acl_id` - (Optional) the id of access control list to be apply on the listener, is the id of resource apsarastack_slb_acl. If `acl_status` is "on", it is mandatory. Otherwise, it will be ignored.
 * `established_timeout` - (Optional) Timeout of tcp listener established connection idle timeout. Valid value range: [10-900] in seconds. Default to 900.
 * `server_group_id` - (Optional) the id of server group to be apply on the listener, is the id of resource `apsarastack_slb_server_group`.
 * `listener_forward` - (Optional, ForceNew) Whether to enable http redirect to https, Valid values are `on` and `off`. Default to `off`.
@@ -167,9 +147,6 @@ health_check_http_code | http & https & tcp | http_2xx,http_3xx,http_4xx,http_5x
 server_certificate_id | https |  |
 gzip | http & https | true or false  |
 x_forwarded_for | http & https |  |
-acl_status | http & https & tcp & udp | on or off |
-acl_type   | http & https & tcp & udp | white or black |
-acl_id     | http & https & tcp & udp | the id of resource apsarastack_slb_acl|
 established_timeout | tcp       | 10-900|
 server_group_id    | http & https & tcp & udp | the id of resource apsarastack_slb_server_group |
 
