@@ -20,7 +20,7 @@ This resource will help you to manage a Kubernetes Cluster in Apsarastack Kubern
 // If there is not specifying vpc_id, the module will launch a new vpc
 resource "apsarastack_vpc" "vpc" {
    name = "testing_cs"
-    cidr_block = "10.0.0.0/8"
+   cidr_block = "10.0.0.0/8"
 }
 
 // According to the vswitch cidr blocks to launch several vswitches
@@ -151,3 +151,4 @@ The following attributes are exported:
 * `api_server_intranet` - API Server Intranet endpoint.
 * `master_public_ip` - Master node SSH IP address.
 * `service_domain` - Service Access Domain.
+
