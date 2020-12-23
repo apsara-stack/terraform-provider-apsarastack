@@ -19,41 +19,46 @@ This resource will help you to manage a Kubernetes Cluster in Apsarastack Kubern
 
 // If there is not specifying vpc_id, the module will launch a new vpc
 resource "apsarastack_vpc" "vpc" {
-  name = var.name
-  cidr_block = var.cidr_block
+   name = "testing_cs"
+   cidr_block = "10.0.0.0/8"
 }
 
 // According to the vswitch cidr blocks to launch several vswitches
 resource "apsarastack_vswitch" "vswitches" {
    vpc_id = "${apsarastack_vpc.default.id}"
-   name = var.name
-   cidr_block = var.cidr_block
+   cidr_block        = "10.1.0.0/16"
+   name = "apsara_vswitch
    availability_zone = var.availability_zone
 }
 
 resource "apsarastack_cs_kubernetes" "k8s" {
-  name = var.name
-  vswitch_id = apsarastack_vswitch.vswitches.id
-  version = var.version
-  master_count = var.master_count
-  timeout_mins = var.timeout_mins
-  master_disk_category = var.master_disk_category
-  master_disk_size = var.master_disk_size
-  worker_disk_category = var.worker_disk_category
-  worker_disk_size = var.worker_disk_size
-  delete_protection = var.delete_protection
-  worker_data_disk = var.worker_data_disk
-  worker_data_disk_category = var.worker_data_disk_category
-  worker_data_disk_size = var.worker_data_disk_size
-  new_nat_gateway = var.new_nat_gateway
-  slb_internet_enabled = var.slb_internet_enabled
-  master_instance_type = var.master_instance_type
-  worker_instance_type = var.worker_instance_type
-  worker_number         = var.worker_number
-  enable_ssh            = var.enable_ssh
-  password              = var.password
-  pod_cidr              = var.pod_cidr
-  service_cidr          = var.service_cidr
+   name="apsara_test"
+   vswitch_id=apsarastack_vswitch.vswitches.id
+   version="1.14.8-aliyun.1"
+   master_count=3
+   timeout_mins=60
+   master_instance_charge_type="PrePaid"
+   master_disk_category="cloud_ssd"
+   master_disk_size=45
+   worker_disk_category="cloud_ssd"
+   worker_disk_size=30
+   delete_protection=false
+   worker_data_disk=true
+   worker_data_disk_category="cloud_ssd"
+   worker_data_disk_size=100
+   new_nat_gateway=false
+   slb_internet_enabled=true
+   master_instance_type = "ecs.e4.large"
+   worker_instance_type = "ecs.e4.large"
+   worker_number         = 6
+   enable_ssh            = true
+   password              = "Test@123"
+   pod_cidr              = "172.23.0.0/16"
+   service_cidr          = "172.24.0.0/20"
+   node_cidr_mask="26"
+  addons {
+     name="flannel"
+  }
 }
 ```
 
