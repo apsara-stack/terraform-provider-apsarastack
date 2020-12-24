@@ -1,6 +1,10 @@
 package apsarastack
 
 import (
+	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"time"
 
 	slsPop "github.com/aliyun/alibaba-cloud-sdk-go/services/sls"
@@ -15,13 +19,55 @@ type LogService struct {
 	client *connectivity.ApsaraStackClient
 }
 
-func (s *LogService) DescribeLogProject(id string) (*sls.LogProject, error) {
-	project := &sls.LogProject{}
+type LogProject struct {
+	ProjectName    string `json:"projectName"`
+	Status         string `json:"status"`
+	Owner          string `json:"owner"`
+	Description    string `json:"description"`
+	Region         string `json:"region"`
+	CreateTime     string `json:"createTime"`
+	LastModifyTime string `json:"lastModifyTime"`
+	Count          int    `json:"count"`
+	Total          int    `json:"total"`
+	Projects       []struct {
+		ProjectName    string `json:"projectName"`
+		Status         string `json:"status"`
+		Owner          string `json:"owner"`
+		Description    string `json:"description"`
+		Region         string `json:"region"`
+		CreateTime     string `json:"createTime"`
+		LastModifyTime string `json:"lastModifyTime"`
+	} `json:"projects"`
+}
+
+func (s *LogService) DescribeLogProject(id string) (*LogProject, error) {
+	//project := &sls.LogProject{}
+	var project = &responses.CommonResponse{}
 	var requestInfo *sls.Client
+	request := requests.NewCommonRequest()
+	request.Method = "POST"          // Set request method
+	request.Product = "SLS"          // Specify product
+	request.Domain = s.client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2020-03-31"   // Specify product version
+	request.Scheme = "http"          // Set request scheme. Default: http
+	request.ApiName = "GetProject"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": s.client.SecretKey,
+		"AccessKeyId":     s.client.AccessKey,
+		"Product":         "SLS",
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"RegionId":        s.client.RegionId,
+		"Action":          "GetProject",
+		"Version":         "2020-03-31",
+		"projectName":     id,
+	}
+	var logpro = LogProject{}
+	logProject := &LogProject{}
 	err := resource.Retry(2*time.Minute, func() *resource.RetryError {
-		raw, err := s.client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
-			requestInfo = slsClient
-			return slsClient.GetProject(id)
+		raw, err := s.client.WithEcsClient(func(slsClient *ecs.Client) (interface{}, error) {
+			return slsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{LogClientTimeout}) {
@@ -33,19 +79,26 @@ func (s *LogService) DescribeLogProject(id string) (*sls.LogProject, error) {
 		if debugOn() {
 			addDebug("GetProject", raw, requestInfo, map[string]string{"name": id})
 		}
-		project, _ = raw.(*sls.LogProject)
+		project, _ = raw.(*responses.CommonResponse)
+		err = json.Unmarshal(project.GetHttpContentBytes(), &logpro)
+		for _, k := range logpro.Projects {
+			if k.ProjectName == id {
+				logProject.ProjectName = k.ProjectName
+				logProject.Description = k.Description
+			}
+		}
 		return nil
 	})
 	if err != nil {
 		if IsExpectedErrors(err, []string{"ProjectNotExist"}) {
-			return project, WrapErrorf(err, NotFoundMsg, ApsaraStackLogGoSdkERROR)
+			return logProject, WrapErrorf(err, NotFoundMsg, ApsaraStackLogGoSdkERROR)
 		}
-		return project, WrapErrorf(err, DefaultErrorMsg, id, "GetProject", ApsaraStackLogGoSdkERROR)
+		return logProject, WrapErrorf(err, DefaultErrorMsg, id, "GetProject", ApsaraStackLogGoSdkERROR)
 	}
-	if project == nil || project.Name == "" {
-		return project, WrapErrorf(Error(GetNotFoundMessage("LogProject", id)), NotFoundMsg, ProviderERROR)
+	if logProject == nil || logProject.ProjectName == "" {
+		return logProject, WrapErrorf(Error(GetNotFoundMessage("LogProject", id)), NotFoundMsg, ProviderERROR)
 	}
-	return project, nil
+	return logProject, nil
 }
 
 func (s *LogService) WaitForLogProject(id string, status Status, timeout int) error {
@@ -61,11 +114,11 @@ func (s *LogService) WaitForLogProject(id string, status Status, timeout int) er
 				return WrapError(err)
 			}
 		}
-		if object.Name == id && status != Deleted {
+		if object.Projects[0].ProjectName == id && status != Deleted {
 			return nil
 		}
 		if time.Now().After(deadline) {
-			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, object.Name, id, ProviderERROR)
+			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, object.Projects[0].ProjectName, id, ProviderERROR)
 		}
 	}
 }
