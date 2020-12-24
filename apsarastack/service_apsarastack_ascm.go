@@ -13,7 +13,7 @@ type AscmService struct {
 	client *connectivity.ApsaraStackClient
 }
 
-func (s *AscmService) ListLoginPolicies(id string) (response *LoginPolicy, err error) {
+func (s *AscmService) DescribeAscmLogonPolicy(id string) (response *LoginPolicy, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
 	if s.client.Config.Insecure {
