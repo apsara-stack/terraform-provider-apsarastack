@@ -98,9 +98,6 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		if len(check.Data) != 0 {
-			return nil
-		}
 		return resource.RetryableError(err)
 	})
 	if err != nil {
