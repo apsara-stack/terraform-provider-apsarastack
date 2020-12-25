@@ -15,7 +15,7 @@ This data source provides the organizations of the current Apsara Stack Cloud us
 
 ```
 data "apsarastack_ascm_organizations" "org" {
-  name_ragex = "Apsara_organization"
+   ids = [apsarastack_ascm_organization.org.id]
 }
 output "orgs" {
   value = data.apsarastack_ascm_organizations.org.*

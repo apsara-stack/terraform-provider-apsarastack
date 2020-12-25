@@ -15,7 +15,7 @@ This data source provides the users of the current Apsara Stack Cloud user.
 
 ```
 data "apsarastack_ascm_users" "users" {
- name_regex = "Apsara_test_user"
+ ids = [apsarastack_ascm_user.user.id]
 }
 output "users" {
  value = data.apsarastack_ascm_users.users.*
