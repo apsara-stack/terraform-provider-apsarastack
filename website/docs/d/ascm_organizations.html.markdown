@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_organizations"
-sidebar_current: "docs-apsarastack-datasource-organizations"
+sidebar_current: "docs-apsarastack-datasource-ascm-organizations"
 description: |-
     Provides a list of organizations to the user.
 ---
 
-# apsarastack\_organizations
+# apsarastack\_ascm_organizations
 
 This data source provides the organizations of the current Apsara Stack Cloud user.
 
