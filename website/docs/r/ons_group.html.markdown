@@ -55,6 +55,4 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - The `key` of the resource supplied above. The value is formulated as `<instance_id>:<group_id>`.
-
-
+* `id` - GroupID and InstanceID of the ONS Group. The value is in format `GroupID:InstanceID`.
