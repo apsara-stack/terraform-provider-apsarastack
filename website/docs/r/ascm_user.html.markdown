@@ -1,13 +1,13 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_user"
-sidebar_current: "docs-apsarastack-resource-user"
+page_title: "ApsaraStack: apsarastack_ascm_user"
+sidebar_current: "docs-apsarastack-resource-ascm-user"
 description: |-
   Provides a Ascm user resource.
 ---
 
-# apsarastack\_user
+# apsarastack\_ascm_user
 
 Provides a Ascm user resource.
 

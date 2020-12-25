@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_environment_services"
-sidebar_current: "docs-apsarastack-datasource-environment-services"
+sidebar_current: "docs-apsarastack-datasource-ascm-environment-services"
 description: |-
     Provides a list of environment services to the user.
 ---
 
-# apsarastack\_environment_services
+# apsarastack\_ascm_environment_services
 
 This data source provides the environment services of the current Apsara Stack Cloud user.
 

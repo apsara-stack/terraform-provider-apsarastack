@@ -127,7 +127,7 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 		if len(check.Data) != 0 {
 			return nil
 		}
-		return resource.RetryableError(Error("New User has been created successfully."))
+		return resource.RetryableError(err)
 	})
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "Failed to add User", ApsaraStackSdkGoERROR)

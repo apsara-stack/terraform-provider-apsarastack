@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_specific_fields"
-sidebar_current: "docs-apsarastack-datasource-specific-fields"
+sidebar_current: "docs-apsarastack-datasource-ascm-specific-fields"
 description: |-
     Provides a list of specific fields to the user.
 ---
 
-# apsarastack\_specific_fields
+# apsarastack\_ascm_specific_fields
 
 This data source provides the specific fields of the current Apsara Stack Cloud user.
 
