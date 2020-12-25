@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"strings"
@@ -96,11 +97,17 @@ func resourceApsaraStackOnsTopicCreate(d *schema.ResourceData, meta interface{})
 		return ecsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ons_topics", request.GetActionName(), ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ons_topic", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 
 	bresponse, _ := raw.(*responses.CommonResponse)
+	if bresponse.IsSuccess() != true {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ons_topic", "ConsoleTopicCreate", ApsaraStackSdkGoERROR)
+	}
 	_ = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
+	if response.Success != true {
+		return WrapErrorf(errors.New(response.Message), DefaultErrorMsg, "apsarastack_ascm_ons_topic", "ConsoleTopicCreate", ApsaraStackSdkGoERROR)
+	}
 	d.SetId(topic + COLON_SEPARATED + instanceId)
 
 	return resourceApsaraStackOnsTopicRead(d, meta)
