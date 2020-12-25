@@ -2,11 +2,12 @@ package apsarastack
 
 import (
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
 	"strings"
 	"testing"
 
-	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -27,14 +28,32 @@ func testSweepLogProjects(region string) error {
 	client := rawClient.(*connectivity.ApsaraStackClient)
 
 	prefixes := []string{
-		"tf-testAcc",
+		"tf-testacc",
 		"tf_testAcc",
 		"tf_test_",
 		"tf-test-",
 	}
+	request := requests.NewCommonRequest()
+	request.Method = "POST"        // Set request method
+	request.Product = "SLS"        // Specify product
+	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2020-03-31" // Specify product version
+	request.Scheme = "http"        // Set request scheme. Default: http
+	request.ApiName = "ListProject"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "SLS",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"RegionId":        client.RegionId,
+		"Action":          "ListProject",
+		"Version":         "2020-03-31",
+	}
 
-	raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
-		return slsClient.ListProject()
+	raw, err := client.WithEcsClient(func(slsClient *ecs.Client) (interface{}, error) {
+		return slsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
 		log.Printf("[ERROR] Error retrieving Log Projects: %s", WrapError(err))
@@ -55,8 +74,29 @@ func testSweepLogProjects(region string) error {
 			continue
 		}
 		log.Printf("[INFO] Deleting Log Project: %s", name)
-		_, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
-			return nil, slsClient.DeleteProject(name)
+		request := requests.NewCommonRequest()
+		request.Method = "POST"
+		request.Product = "SLS"
+		request.Domain = client.Domain
+		request.Version = "2020-03-31"
+		request.Scheme = "http"
+		request.ApiName = "DeleteProject"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"AccessKeyId":     client.AccessKey,
+			"Product":         "SLS",
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
+			"RegionId":        client.RegionId,
+			"organizationId":  client.Department,
+			"resourceGroupId": client.ResourceGroup,
+			"Action":          "DeleteProject",
+			"Version":         "2020-03-31",
+			"ProjectName":     name,
+		}
+		_, err := client.WithEcsClient(func(slsClient *ecs.Client) (interface{}, error) {
+			return slsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
 			log.Printf("[ERROR] Failed to delete Log Project (%s): %s", name, err)
@@ -66,7 +106,7 @@ func testSweepLogProjects(region string) error {
 }
 
 func TestAccApsaraStackLogProject_basic(t *testing.T) {
-	var v *sls.LogProject
+	var v *LogProject
 	resourceId := "apsarastack_log_project.default"
 	ra := resourceAttrInit(resourceId, logProjectMap)
 	serviceFunc := func() interface{} {
@@ -104,26 +144,6 @@ func TestAccApsaraStackLogProject_basic(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"description": "tf unit test",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"description": "tf unit test",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"description": "tf unit test update",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"description": "tf unit test update",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
 					"description": REMOVEKEY,
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -137,8 +157,8 @@ func TestAccApsaraStackLogProject_basic(t *testing.T) {
 }
 
 func TestAccApsaraStackLogProject_multi(t *testing.T) {
-	var v *sls.LogProject
-	resourceId := "apsarastack_log_project.default.4"
+	var v *LogProject
+	resourceId := "apsarastack_log_project.default.2"
 	ra := resourceAttrInit(resourceId, logProjectMap)
 	serviceFunc := func() interface{} {
 		return &LogService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -156,12 +176,13 @@ func TestAccApsaraStackLogProject_multi(t *testing.T) {
 		},
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  rac.checkResourceDestroy(),
+		//CheckDestroy:  rac.checkResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"name":  name + "${count.index}",
-					"count": "5",
+					"name":        name + "${count.index}",
+					"count":       "3",
+					"description": "Test_log_project",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
