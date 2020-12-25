@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
 	"regexp"
+	"strings"
 
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -70,7 +71,11 @@ func dataSourceApsaraStackCRNamespacesRead(d *schema.ResourceData, meta interfac
 	request.Product = "cr"
 	request.Domain = client.Domain
 	request.Version = "2016-06-07"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "GetNamespaceList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
