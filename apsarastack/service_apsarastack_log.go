@@ -5,6 +5,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"strings"
 	"time"
 
 	slsPop "github.com/aliyun/alibaba-cloud-sdk-go/services/sls"
@@ -49,7 +50,11 @@ func (s *LogService) DescribeLogProject(id string) (*LogProject, error) {
 	request.Product = "SLS"          // Specify product
 	request.Domain = s.client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2020-03-31"   // Specify product version
-	request.Scheme = "http"          // Set request scheme. Default: http
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	} // Set request scheme. Default: http
 	request.ApiName = "GetProject"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{
