@@ -34,7 +34,11 @@ func (s *OnsService) DescribeOnsInstance(instanceid string) (response *OnsInstan
 	request.Version = "2018-02-05"
 	request.ServiceCode = "Ons-inner"
 	request.Domain = s.client.Domain
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ConsoleInstanceBaseInfo"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
@@ -98,7 +102,11 @@ func (s *OnsService) DescribeOnsTopic(id string) (response *Topic, err error) {
 	request.Version = "2018-02-05"
 	request.ServiceCode = "Ons-inner"
 	request.Domain = s.client.Domain
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ConsoleTopicList"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
