@@ -297,11 +297,7 @@ func resourceApsaraStackAscmUserDelete(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		if check.Data[0].LoginName == "" {
-			return nil
-		} else {
-			return resource.RetryableError(Error("Trying to delete User %#v successfully.", d.Id()))
-		}
+		return resource.RetryableError(err)
 	})
 	return nil
 }
