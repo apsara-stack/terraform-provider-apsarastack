@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -129,11 +130,12 @@ func resourceApsaraStackOnsInstanceCreate(d *schema.ResourceData, meta interface
 	}
 	addDebug("ConsoleInstanceCreate", raw, requestInfo, request)
 	bresponse, _ := raw.(*responses.CommonResponse)
-	if bresponse.GetHttpStatus() != 200 {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_instance", "ConsoleInstanceCreate", ApsaraStackSdkGoERROR)
-	}
 
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), &ins_resp)
+	if ins_resp.Success != true {
+		return WrapErrorf(errors.New(ins_resp.Message), DefaultErrorMsg, "apsarastack_ons_instance", "ConsoleInstanceCreate", ApsaraStackSdkGoERROR)
+	}
+
 	if err != nil {
 		return WrapError(err)
 	}
