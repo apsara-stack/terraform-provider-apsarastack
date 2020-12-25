@@ -20,7 +20,7 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 				ForceNew: true,
 				MinItems: 1,
@@ -80,7 +80,7 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"login_name": {
@@ -128,7 +128,7 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	request.Method = "Get"
+	request.Method = "GET"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	if strings.ToLower(client.Config.Protocol) == "https" {
@@ -174,7 +174,7 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":                 u.ID,
+			"id":                 fmt.Sprint(u.ID),
 			"login_name":         u.LoginName,
 			"organization_id":    u.Organization.ID,
 			"cell_phone_number":  u.CellphoneNum,
