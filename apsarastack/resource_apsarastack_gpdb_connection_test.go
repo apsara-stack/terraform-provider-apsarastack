@@ -16,9 +16,8 @@ func TestAccApsaraStackGpdbConnectionUpdate(t *testing.T) {
 
 	rand := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	var basicMap = map[string]string{
-		"instance_id":       CHECKSET,
-		"connection_string": REGEXMATCH + fmt.Sprintf("^tf-testacc%s.gpdb.([a-z-A-Z-0-9]+.){0,1}rds.aliyuncs.com", rand),
-		"port":              "3306",
+		"instance_id": CHECKSET,
+		"port":        "3306",
 	}
 
 	resourceId := "apsarastack_gpdb_connection.default"
@@ -34,7 +33,6 @@ func TestAccApsaraStackGpdbConnectionUpdate(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			testAccPreCheckWithNoDefaultVpc(t)
 		},
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
@@ -76,14 +74,20 @@ func testGpdbConnectionConfigDependence(name string) string {
             available_resource_creation = "Gpdb"
         }
         variable "name" {
-            default              = "tf-testAccGpdbInstance"
+            default = "tf-testAccGpdbInstance"
         }
-        data "apsarastack_vswitches" "default" {
-		  zone_id    = data.apsarastack_zones.default.ids[0]
-		  name_regex = "default-tf--testAcc-00"
+		resource "apsarastack_vpc" "default" {
+  			name = "testing"
+  			cidr_block = "10.0.0.0/8"
+		}
+		resource "apsarastack_vswitch" "default" {
+  			vpc_id = apsarastack_vpc.default.id
+			cidr_block        = "10.1.0.0/16"
+  			name = "apsara_vswitch"
+  			availability_zone = data.apsarastack_zones.default.zones.0.id
 		}
         resource "apsarastack_gpdb_instance" "default" {
-            vswitch_id           = "${data.apsarastack_vswitches.default.ids.0}"
+            vswitch_id           = apsarastack_vswitch.default.id
             engine               = "gpdb"
             engine_version       = "4.3"
             instance_class       = "gpdb.group.segsdx2"
