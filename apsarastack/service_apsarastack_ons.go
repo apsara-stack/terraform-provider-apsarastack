@@ -34,7 +34,11 @@ func (s *OnsService) DescribeOnsInstance(instanceid string) (response *OnsInstan
 	request.Version = "2018-02-05"
 	request.ServiceCode = "Ons-inner"
 	request.Domain = s.client.Domain
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ConsoleInstanceBaseInfo"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
@@ -62,9 +66,23 @@ func (s *OnsService) DescribeOnsInstance(instanceid string) (response *OnsInstan
 
 	return resp, nil
 }
-func (s *OnsService) DescribeOnsTopic(id string, instanceid string) (response *Topic, err error) {
-	var requestInfo *ecs.Client
 
+type TopicStruct struct {
+	Data      string `json:"Data"`
+	Message   string `json:"Message"`
+	RequestID string `json:"RequestId"`
+	Success   bool   `json:"Success"`
+	Code      int    `json:"Code"`
+}
+
+func (s *OnsService) DescribeOnsTopic(id string) (response *Topic, err error) {
+	var requestInfo *ecs.Client
+	did, err := ParseResourceId(id, 2)
+	if err != nil {
+		return response, WrapError(err)
+	}
+	TopicId := did[0]
+	InstanceId := did[1]
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
@@ -74,17 +92,21 @@ func (s *OnsService) DescribeOnsTopic(id string, instanceid string) (response *T
 		"Product":         "Ons-inner",
 		"Action":          "ConsoleTopicList",
 		"Version":         "2018-02-05",
-		"topic":           id,
+		"topic":           TopicId,
 		"OnsRegionId":     s.client.RegionId,
 		"PreventCache":    "",
-		"InstanceId":      instanceid,
+		"InstanceId":      InstanceId,
 	}
 	request.Method = "POST"
 	request.Product = "Ons-inner"
 	request.Version = "2018-02-05"
 	request.ServiceCode = "Ons-inner"
 	request.Domain = s.client.Domain
-	request.Scheme = "http"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ConsoleTopicList"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
@@ -96,7 +118,7 @@ func (s *OnsService) DescribeOnsTopic(id string, instanceid string) (response *T
 		if IsExpectedErrors(err, []string{"ErrorTopicNotFound"}) {
 			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ConsoleTopicList", ApsaraStackSdkGoERROR)
+		return resp, WrapErrorf(err, DefaultErrorMsg, did[0], "ConsoleTopicList", ApsaraStackSdkGoERROR)
 
 	}
 	addDebug("ConsoleTopicList", response, requestInfo, request)

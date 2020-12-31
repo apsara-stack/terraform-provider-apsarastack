@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_password_policies"
-sidebar_current: "docs-apsarastack-datasource-password-policies"
+sidebar_current: "docs-apsarastack-datasource-ascm-password-policies"
 description: |-
     Provides a list of password policies to the user.
 ---
 
-# apsarastack\_password_policies
+# apsarastack\_ascm_password_policies
 
 This data source provides the password policies of the current Apsara Stack Cloud user.
 

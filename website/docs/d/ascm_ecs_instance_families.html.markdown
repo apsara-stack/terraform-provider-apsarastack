@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_ecs_instance_families"
-sidebar_current: "docs-apsarastack-datasource-ecs-instance-families"
+sidebar_current: "docs-apsarastack-datasource-ascm-ecs-instance-families"
 description: |-
     Provides a list of ecs instance families to the user.
 ---
 
-# apsarastack\_ecs_instance_families
+# apsarastack\_ascm_ecs_instance_families
 
 This data source provides the ecs instance families of the current Apsara Stack Cloud user.
 

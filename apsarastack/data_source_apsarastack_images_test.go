@@ -14,41 +14,11 @@ func TestAccApsaraStackImagesDataSource_basic(t *testing.T) {
 		fmt.Sprintf("tf-testacc-%d", rand),
 		dataSourceImagesConfigDependence)
 
-	nameRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "^win.*",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "^win.*-fake",
-		}),
-	}
-	statusConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"owners": "system",
-			"status": "Available",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"owners": "system",
-			"status": "UnAvailable",
-		}),
-	}
 	ownerConf := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
 			"owners": "system",
 		}),
 	}
-
-	recentNameRegexconf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex":  "^win.*",
-			"most_recent": "true",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"name_regex":  "^win.*-fake",
-			"most_recent": "true",
-		}),
-	}
-
 	ownerNameRegexConf := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
 			"name_regex": "^win.*",
@@ -93,7 +63,6 @@ func TestAccApsaraStackImagesDataSource_basic(t *testing.T) {
 			"images.0.os_type":                CHECKSET,
 			"images.0.name":                   CHECKSET,
 			"images.0.os_name":                CHECKSET,
-			"images.0.os_name_en":             CHECKSET,
 			"images.0.progress":               "100%",
 			"images.0.state":                  "Available",
 			"images.0.status":                 "Available",
@@ -115,7 +84,7 @@ func TestAccApsaraStackImagesDataSource_basic(t *testing.T) {
 		fakeMapFunc:  fakeImagesMapFunc,
 	}
 
-	imagesCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, statusConf, ownerConf, recentNameRegexconf, ownerNameRegexConf, ownerRecentConf, allConf)
+	imagesCheckInfo.dataSourceTestCheck(t, rand, ownerConf, ownerNameRegexConf, ownerRecentConf, allConf)
 }
 
 func TestAccApsaraStackImagesDataSource_win(t *testing.T) {
@@ -175,24 +144,13 @@ func TestAccApsaraStackImagesDataSource_win(t *testing.T) {
 	imagesCheckInfo.dataSourceTestCheck(t, rand, allConf)
 }
 
-func TestAccApsaraStackImagesDataSource_linux(t *testing.T) {
+func TestAccApsaraStackImagesDataSource_linux_english(t *testing.T) {
 	rand := acctest.RandIntRange(1000000, 9999999)
 	resourceId := "data.apsarastack_images.default"
 
 	testAccConfig := dataSourceTestAccConfigFunc(resourceId,
 		fmt.Sprintf("tf-testacc-%d", rand),
 		dataSourceImagesConfigDependence)
-
-	ubuntuConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "^ubuntu.*",
-			"owners":     "system",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "^ubuntu.*fake",
-			"owners":     "system",
-		}),
-	}
 
 	slesConf := dataSourceTestAccConfig{
 		existConfig: testAccConfig(map[string]interface{}{
@@ -212,6 +170,73 @@ func TestAccApsaraStackImagesDataSource_linux(t *testing.T) {
 		}),
 		fakeConfig: testAccConfig(map[string]interface{}{
 			"name_regex": "^opensuse.*fake",
+			"owners":     "system",
+		}),
+	}
+
+	coreOsConf := dataSourceTestAccConfig{
+		existConfig: testAccConfig(map[string]interface{}{
+			"name_regex": "^coreos.*",
+			"owners":     "system",
+		}),
+		fakeConfig: testAccConfig(map[string]interface{}{
+			"name_regex": "^coreos.*fake",
+			"owners":     "system",
+		}),
+	}
+
+	var existImagesMapFunc = func(rand int) map[string]string {
+		return map[string]string{
+			"ids.#":                           CHECKSET,
+			"ids.0":                           CHECKSET,
+			"images.#":                        CHECKSET,
+			"images.0.architecture":           CHECKSET,
+			"images.0.disk_device_mappings.#": "0",
+			"images.0.creation_time":          CHECKSET,
+			"images.0.image_id":               CHECKSET,
+			"images.0.image_owner_alias":      CHECKSET,
+			"images.0.os_type":                "linux",
+			"images.0.name":                   CHECKSET,
+			"images.0.os_name":                REGEXMATCH + "^.*Bit.*",
+			"images.0.progress":               "100%",
+			"images.0.state":                  "Available",
+			"images.0.status":                 "Available",
+			"images.0.usage":                  "instance",
+			"images.0.tags.%":                 "0",
+		}
+	}
+
+	var fakeImagesMapFunc = func(rand int) map[string]string {
+		return map[string]string{
+			"ids.#":    "0",
+			"images.#": "0",
+		}
+	}
+
+	var imagesCheckInfo = dataSourceAttr{
+		resourceId:   resourceId,
+		existMapFunc: existImagesMapFunc,
+		fakeMapFunc:  fakeImagesMapFunc,
+	}
+
+	imagesCheckInfo.dataSourceTestCheck(t, rand, slesConf, openSuseConf, coreOsConf)
+}
+
+func TestAccApsaraStackImagesDataSource_linux_chinese(t *testing.T) {
+	rand := acctest.RandIntRange(1000000, 9999999)
+	resourceId := "data.apsarastack_images.default"
+
+	testAccConfig := dataSourceTestAccConfigFunc(resourceId,
+		fmt.Sprintf("tf-testacc-%d", rand),
+		dataSourceImagesConfigDependence)
+
+	ubuntuConf := dataSourceTestAccConfig{
+		existConfig: testAccConfig(map[string]interface{}{
+			"name_regex": "^ubuntu.*",
+			"owners":     "system",
+		}),
+		fakeConfig: testAccConfig(map[string]interface{}{
+			"name_regex": "^ubuntu.*fake",
 			"owners":     "system",
 		}),
 	}
@@ -249,28 +274,6 @@ func TestAccApsaraStackImagesDataSource_linux(t *testing.T) {
 		}),
 	}
 
-	coreOsConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "^coreos.*",
-			"owners":     "system",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "^coreos.*fake",
-			"owners":     "system",
-		}),
-	}
-
-	aliyunConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "^aliyun.*",
-			"owners":     "system",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "^aliyun.*fake",
-			"owners":     "system",
-		}),
-	}
-
 	var existImagesMapFunc = func(rand int) map[string]string {
 		return map[string]string{
 			"ids.#":                           CHECKSET,
@@ -284,7 +287,6 @@ func TestAccApsaraStackImagesDataSource_linux(t *testing.T) {
 			"images.0.os_type":                "linux",
 			"images.0.name":                   CHECKSET,
 			"images.0.os_name":                REGEXMATCH + "^.*位.*",
-			"images.0.os_name_en":             REGEXMATCH + "^.*bit.*",
 			"images.0.progress":               "100%",
 			"images.0.state":                  "Available",
 			"images.0.status":                 "Available",
@@ -306,7 +308,7 @@ func TestAccApsaraStackImagesDataSource_linux(t *testing.T) {
 		fakeMapFunc:  fakeImagesMapFunc,
 	}
 
-	imagesCheckInfo.dataSourceTestCheck(t, rand, ubuntuConf, slesConf, openSuseConf, freebsdConf, centOsConf, debianConf, coreOsConf, aliyunConf)
+	imagesCheckInfo.dataSourceTestCheck(t, rand, ubuntuConf, freebsdConf, centOsConf, debianConf)
 }
 
 func dataSourceImagesConfigDependence(name string) string {

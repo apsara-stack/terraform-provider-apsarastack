@@ -1,13 +1,13 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_organization"
-sidebar_current: "docs-apsarastack-resource-organization"
+page_title: "ApsaraStack: apsarastack_ascm_organization"
+sidebar_current: "docs-apsarastack-resource-ascm-organization"
 description: |-
   Provides an Ascm organization resource.
 ---
 
-# apsarastack\_organization
+# apsarastack\_ascm_organization
 
 Provides an Ascm organization resource.
 
@@ -36,4 +36,4 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - The ID of the organization.
+* `id` - Name and ID of the organization. The value is in format `Name/ID`

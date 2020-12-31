@@ -98,10 +98,7 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		if len(check.Data) != 0 {
-			return nil
-		}
-		return resource.RetryableError(Error("New Resource Group has been created successfully."))
+		return resource.RetryableError(err)
 	})
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_resource_group", "Failed to create resource set", ApsaraStackSdkGoERROR)

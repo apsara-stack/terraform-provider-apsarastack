@@ -122,7 +122,7 @@ func TestAccApsarastackRouteEntryNatGateway(t *testing.T) {
 func TestAccApsarastackRouteEntryMulti(t *testing.T) {
 	var v *vpc.RouteEntry
 	rand := acctest.RandIntRange(1000, 9999)
-	resourceId := "apsarastack_route_entry.default.4"
+	resourceId := "apsarastack_route_entry.default.2"
 	ra := resourceAttrInit(resourceId, testAccRouteEntryCheckMap)
 	serviceFunc := func() interface{} {
 		return &VpcService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
@@ -275,11 +275,9 @@ resource "apsarastack_security_group_rule" "default" {
   security_group_id = "${apsarastack_security_group.default.id}"
   cidr_ip = "0.0.0.0/0"
 }
-data "apsarastack_regions" "default" {
-  current = true
-}
+
 resource "apsarastack_router_interface" "default" {
-  opposite_region = "${data.apsarastack_regions.default.regions.0.id}"
+  opposite_region = "cn-qingdao-env66-d01"
   router_type = "VRouter"
   router_id = "${apsarastack_vpc.default.router_id}"
   role = "InitiatingSide"
@@ -358,7 +356,7 @@ resource "apsarastack_network_interface" "default" {
     security_groups = [ "${apsarastack_security_group.default.id}" ]
 }
 resource "apsarastack_route_entry" "default" {
-   count = 5
+   count = 3
    route_table_id = "${apsarastack_vpc.default.route_table_id}"
    destination_cidrblock = "172.16.${count.index}.0/24"
    nexthop_type = "NetworkInterface"

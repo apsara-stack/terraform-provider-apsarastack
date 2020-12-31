@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_service_clusters"
-sidebar_current: "docs-apsarastack-datasource-service-clusters"
+sidebar_current: "docs-apsarastack-datasource-ascm-service-clusters"
 description: |-
     Provides a list of service cluster to the user.
 ---
 
-# apsarastack\_service_clusters
+# apsarastack\_ascm_service_clusters
 
 This data source provides the service clusters of the current Apsara Stack Cloud user.
 
