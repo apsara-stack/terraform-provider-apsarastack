@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
@@ -68,7 +69,6 @@ func resourceApsaraStackGpdbConnectionCreate(d *schema.ResourceData, meta interf
 	if prefix == "" {
 		prefix = fmt.Sprintf("%s-tf", instanceId)
 	}
-
 	request := gpdb.CreateAllocateInstancePublicConnectionRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -76,7 +76,14 @@ func resourceApsaraStackGpdbConnectionCreate(d *schema.ResourceData, meta interf
 	request.DBInstanceId = instanceId
 	request.ConnectionStringPrefix = prefix
 	request.Port = d.Get("port").(string)
-
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	err := resource.Retry(8*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithGpdbClient(func(gpdbClient *gpdb.Client) (interface{}, error) {
 			return gpdbClient.AllocateInstancePublicConnection(request)
