@@ -190,17 +190,6 @@ func TestAccApsaraStackDisk_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccDiskConfig_tags(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":     "3",
-						"tags.name1": "name1",
-						"tags.Name2": "Name2",
-						"tags.name3": "name3",
-					}),
-				),
-			},
-			{
 				Config: testAccDiskConfig_delete_auto_snapshot(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -346,33 +335,6 @@ resource "apsarastack_disk" "default" {
 `)
 }
 
-func testAccDiskConfig_tags() string {
-	return fmt.Sprintf(`
-data "apsarastack_zones" "default" {
-	available_resource_creation= "VSwitch"
-}
-
-
-variable "name" {
-	default = "tf-testAccDiskConfig"
-}
-
-resource "apsarastack_disk" "default" {
-	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
-  	size = "70"
-	name = "${var.name}"
-	description = "${var.name}_description"
-	category = "cloud_efficiency"
-	encrypted = "false"
-	tags = {
-		name1 = "name1"
-		Name2 = "Name2"
-		name3 = "name3"
-			}
-}
-`)
-}
-
 func testAccDiskConfig_delete_auto_snapshot() string {
 	return fmt.Sprintf(`
 data "apsarastack_zones" "default" {
@@ -458,30 +420,6 @@ resource "apsarastack_disk" "default" {
 	delete_auto_snapshot = "true"
 	delete_with_instance = "true"
 	enable_auto_snapshot = "true"
-}
-`)
-}
-
-func testAccDiskConfig_all() string {
-	return fmt.Sprintf(`
-data "apsarastack_zones" "default" {
-	available_resource_creation= "VSwitch"
-}
-
-variable "name" {
-	default = "tf-testAccDiskConfig"
-}
-
-resource "apsarastack_disk" "default" {
-	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
-  	size = "70"
-	name = "${var.name}_all"
-	description = "nothing"
-	category = "cloud_efficiency"
-	encrypted = "false"
-	delete_auto_snapshot = "false"
-	delete_with_instance = "false"
-	enable_auto_snapshot = "false"
 }
 `)
 }
