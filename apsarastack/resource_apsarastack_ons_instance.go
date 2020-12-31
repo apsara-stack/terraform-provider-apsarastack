@@ -3,6 +3,7 @@ package apsarastack
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -10,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -31,15 +34,15 @@ func resourceApsaraStackOnsInstance() *schema.Resource {
 			},
 
 			"tps_receive_max": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"tps_send_max": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"topic_capacity": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Required: true,
 			},
 			"independent_naming": {
@@ -82,9 +85,9 @@ func resourceApsaraStackOnsInstance() *schema.Resource {
 func resourceApsaraStackOnsInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *ecs.Client
-	maxrtps := d.Get("tps_receive_max").(string)
-	maxstps := d.Get("tps_send_max").(string)
-	topiccapacity := d.Get("topic_capacity").(string)
+	maxrtps := d.Get("tps_receive_max").(int)
+	maxstps := d.Get("tps_send_max").(int)
+	topiccapacity := d.Get("topic_capacity").(int)
 	independentname := d.Get("independent_naming").(string)
 	ins_resp := OnsInstance{}
 
@@ -102,9 +105,9 @@ func resourceApsaraStackOnsInstanceCreate(d *schema.ResourceData, meta interface
 		"ProductName":       "Ons-inner",
 		"OnsRegionId":       client.RegionId,
 		"InstanceName":      name,
-		"MaxReceiveTps":     maxrtps,
-		"MaxSendTps":        maxstps,
-		"TopicCapacity":     topiccapacity,
+		"MaxReceiveTps":     fmt.Sprint(maxrtps),
+		"MaxSendTps":        fmt.Sprint(maxstps),
+		"TopicCapacity":     fmt.Sprint(topiccapacity),
 		"Cluster":           cluster,
 		"IndependentNaming": independentname,
 	}
@@ -170,13 +173,14 @@ func resourceApsaraStackOnsInstanceRead(d *schema.ResourceData, meta interface{}
 func resourceApsaraStackOnsInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	onsService := OnsService{client}
-
+	independentname := d.Get("independent_naming").(string)
+	cluster := d.Get("cluster").(string)
 	attributeUpdate := false
 	check, err := onsService.DescribeOnsInstance(d.Id())
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsInstanceExist", ApsaraStackSdkGoERROR)
 	}
-	var name string
+	var name, remark string
 
 	if d.HasChange("name") {
 		if v, ok := d.GetOk("name"); ok {
@@ -184,8 +188,50 @@ func resourceApsaraStackOnsInstanceUpdate(d *schema.ResourceData, meta interface
 		}
 		check.Data.InstanceName = name
 		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("name"); ok {
+			name = v.(string)
+		}
+		check.Data.InstanceName = name
 	}
-	var remark string
+	var maxrtps, maxstps, topic int
+
+	if d.HasChange("tps_receive_max") {
+		if v, ok := d.GetOk("tps_receive_max"); ok {
+			maxrtps = v.(int)
+		}
+		check.Data.TpsReceiveMax = maxrtps
+		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("tps_receive_max"); ok {
+			maxrtps = v.(int)
+		}
+		check.Data.TpsReceiveMax = maxrtps
+	}
+	if d.HasChange("tps_send_max") {
+		if v, ok := d.GetOk("tps_send_max"); ok {
+			maxstps = v.(int)
+		}
+		check.Data.TpsMax = maxstps
+		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("tps_send_max"); ok {
+			maxstps = v.(int)
+		}
+		check.Data.TpsMax = maxstps
+	}
+	if d.HasChange("topic_capacity") {
+		if v, ok := d.GetOk("topic_capacity"); ok {
+			topic = v.(int)
+		}
+		check.Data.TopicCapacity = topic
+		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("topic_capacity"); ok {
+			topic = v.(int)
+		}
+		check.Data.TopicCapacity = topic
+	}
 
 	if d.HasChange("remark") {
 
@@ -194,21 +240,34 @@ func resourceApsaraStackOnsInstanceUpdate(d *schema.ResourceData, meta interface
 		}
 		check.Data.Remark = remark
 		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("remark"); ok {
+			remark = v.(string)
+		}
+		check.Data.Remark = remark
 	}
+	topiccap := strconv.Itoa(topic)
+	Maxrtps := strconv.Itoa(maxrtps)
+	Maxstps := strconv.Itoa(maxstps)
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
-		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
-		"Product":         "Ons-inner",
-		"Action":          "ConsoleInstanceUpdate",
-		"Version":         "2018-02-05",
-		"Remark":          remark,
-		"InstanceName":    name,
-		"OnsRegionId":     client.RegionId,
-		"PreventCache":    "",
-		"InstanceId":      d.Id(),
+		"RegionId":          client.RegionId,
+		"AccessKeySecret":   client.SecretKey,
+		"Department":        client.Department,
+		"ResourceGroup":     client.ResourceGroup,
+		"Product":           "Ons-inner",
+		"Action":            "ConsoleInstanceUpdate",
+		"Version":           "2018-02-05",
+		"Remark":            remark,
+		"InstanceName":      name,
+		"OnsRegionId":       client.RegionId,
+		"PreventCache":      "",
+		"MaxReceiveTps":     Maxrtps,
+		"MaxSendTps":        Maxstps,
+		"Cluster":           cluster,
+		"IndependentNaming": independentname,
+		"InstanceId":        d.Id(),
+		"TopicCapacity":     topiccap,
 	}
 	request.Method = "POST"
 	request.Product = "Ons-inner"
@@ -234,6 +293,8 @@ func resourceApsaraStackOnsInstanceUpdate(d *schema.ResourceData, meta interface
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_instance", "ConsoleInstanceCreate", raw)
 		}
 		addDebug(request.GetActionName(), raw, request)
+		log.Printf("total QueryParams and topic %v %v", request.GetQueryParams(), topic)
+
 	}
 
 	return resourceApsaraStackOnsInstanceRead(d, meta)
