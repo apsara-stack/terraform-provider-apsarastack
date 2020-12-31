@@ -57,83 +57,60 @@ func resourceApsaraStackAscmUser() *schema.Resource {
 
 func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
 	lname := d.Get("login_name").(string)
-	check, err := ascmService.DescribeAscmUser(lname)
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "User alreadyExist", ApsaraStackSdkGoERROR)
-	}
 	dname := d.Get("display_name").(string)
 	email := d.Get("email").(string)
 	cellnum := d.Get("cellphone_number").(string)
 	mobnationcode := d.Get("mobile_nation_code").(string)
 	organizationid := d.Get("organization_id").(string)
-
-	if len(check.Data) == 0 {
-
-		request := requests.NewCommonRequest()
-		if client.Config.Insecure {
-			request.SetHTTPSInsecure(client.Config.Insecure)
-		}
-		request.QueryParams = map[string]string{
-			"RegionId":         client.RegionId,
-			"AccessKeySecret":  client.SecretKey,
-			"Product":          "Ascm",
-			"Action":           "AddUser",
-			"Version":          "2019-05-10",
-			"ProductName":      "ascm",
-			"loginName":        lname,
-			"displayName":      dname,
-			"cellphoneNum":     cellnum,
-			"mobileNationCode": mobnationcode,
-			"email":            email,
-			"organizationId":   organizationid,
-		}
-		request.Method = "POST"
-		request.Product = "Ascm"
-		request.Version = "2019-05-10"
-		request.ServiceCode = "ascm"
-		request.Domain = client.Domain
-		if strings.ToLower(client.Config.Protocol) == "https" {
-			request.Scheme = "https"
-		} else {
-			request.Scheme = "http"
-		}
-		request.ApiName = "AddUser"
-		request.RegionId = client.RegionId
-		request.Headers = map[string]string{"RegionId": client.RegionId}
-
-		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-			return ecsClient.ProcessCommonRequest(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "AddUser", raw)
-		}
-		addDebug("AddUser", raw, requestInfo, request)
-
-		bresponse, _ := raw.(*responses.CommonResponse)
-		if bresponse.GetHttpStatus() != 200 {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "AddUser", ApsaraStackSdkGoERROR)
-		}
-		addDebug("AddUser", raw, requestInfo, bresponse.GetHttpContentString())
+	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
+	request.QueryParams = map[string]string{
+		"RegionId":         client.RegionId,
+		"AccessKeySecret":  client.SecretKey,
+		"Product":          "Ascm",
+		"Action":           "AddUser",
+		"Version":          "2019-05-10",
+		"ProductName":      "ascm",
+		"loginName":        lname,
+		"displayName":      dname,
+		"cellphoneNum":     cellnum,
+		"mobileNationCode": mobnationcode,
+		"email":            email,
+		"organizationId":   organizationid,
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = client.Domain
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "AddUser"
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
 
-	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		check, err = ascmService.DescribeAscmUser(lname)
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		if len(check.Data) != 0 {
-			return nil
-		}
-		return resource.RetryableError(err)
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "Failed to add User", ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "AddUser", raw)
 	}
+	addDebug("AddUser", raw, requestInfo, request)
 
-	d.SetId(check.Data[0].LoginName)
+	bresponse, _ := raw.(*responses.CommonResponse)
+	if bresponse.GetHttpStatus() != 200 {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "AddUser", ApsaraStackSdkGoERROR)
+	}
+	addDebug("AddUser", raw, requestInfo, bresponse.GetHttpContentString())
+
+	d.SetId(lname)
 
 	return resourceApsaraStackAscmUserUpdate(d, meta)
 
@@ -142,7 +119,6 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 func resourceApsaraStackAscmUserUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	client := meta.(*connectivity.ApsaraStackClient)
-	ascmService := AscmService{client}
 	lname := d.Get("login_name").(string)
 	organizationid := d.Get("organization_id").(string)
 
@@ -210,11 +186,6 @@ func resourceApsaraStackAscmUserUpdate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return WrapError(err)
 	}
-	object, err := ascmService.DescribeAscmUser(lname)
-	if err != nil {
-		return WrapError(err)
-	}
-	d.SetId(object.Data[0].LoginName)
 
 	return resourceApsaraStackAscmUserRead(d, meta)
 
