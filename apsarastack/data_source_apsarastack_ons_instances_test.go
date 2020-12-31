@@ -38,9 +38,9 @@ variable "name" {
 resource "apsarastack_ons_instance" "default" {
   name = "${var.name}"
   remark = "default-remark"
-  tps_receive_max = "500"
-  tps_send_max = "500"
-  topic_capacity = "50"
+  tps_receive_max = 500
+  tps_send_max = 500
+  topic_capacity = 50
   cluster = "cluster1"
   independent_naming = "true"
 }

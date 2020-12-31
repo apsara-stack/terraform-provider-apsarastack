@@ -123,7 +123,7 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	request.Method = "Get"
+	request.Method = "GET"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	if strings.ToLower(client.Config.Protocol) == "https" {

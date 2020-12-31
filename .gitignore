@@ -4,6 +4,7 @@
 dump.rdb
 example.tf
 terraform.tfplan
+*/terraform.tfvars
 terraform.tfstate
 bin/
 modules-dev/

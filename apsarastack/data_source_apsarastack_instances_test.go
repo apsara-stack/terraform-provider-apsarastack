@@ -30,12 +30,9 @@ variable "name" {
   default = "Tf-EcsInstanceDataSource"
 }
 
-data "apsarastack_instance_types" "default" {
-  eni_amount        = 2
-}
-data "apsarastack_images" "default" {
-  most_recent = true
-  owners = "system"
+data "apsarastack_zones" "default" {
+   available_disk_category = "cloud_ssd"
+   available_resource_creation= "VSwitch"
 }
 resource "apsarastack_vpc" "default" {
   name = "${var.name}"
@@ -44,7 +41,7 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
   cidr_block = "172.16.0.0/16"
-  availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   name = "${var.name}"
 }
 resource "apsarastack_security_group" "default" {
@@ -52,13 +49,13 @@ resource "apsarastack_security_group" "default" {
   vpc_id = "${apsarastack_vpc.default.id}"
 }
 resource "apsarastack_instance" "default" {
-  image_id = "${data.apsarastack_images.default.images.0.id}"
-  instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
+  image_id = "wincore_2004_x64_dtc_en-us_40G_alibase_20201015.raw"
+  instance_type = "ecs.n4.xlarge"
   instance_name = "${var.name}"
   internet_max_bandwidth_out = "10"
   security_groups = "${apsarastack_security_group.default.*.id}"
-  availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
-  system_disk_category = "cloud_efficiency"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  system_disk_category = "cloud_ssd"
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }
 data "apsarastack_instances" "default" {

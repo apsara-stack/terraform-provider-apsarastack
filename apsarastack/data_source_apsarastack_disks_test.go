@@ -156,7 +156,9 @@ func testAccCheckApsaraStackDisksDataSourceConfigWithCommon(rand int, attrMap ma
 variable "name" {
 	default = "tf-testAccCheckApsaraStackDisksDataSource_ids-%d"
 }
-
+data "apsarastack_instance_types" "default1" {
+	
+}
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 	category = "cloud_efficiency"
@@ -173,7 +175,7 @@ resource "apsarastack_instance" "default" {
 	vswitch_id = "${apsarastack_vswitch.default.id}"
 	private_ip = "172.16.0.10"
 	image_id = "${data.apsarastack_images.default.images.0.id}"
-	instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
+	instance_type = "${data.apsarastack_instance_types.default1.instance_types.0.id}"
 	instance_name = "${var.name}"
 	system_disk_category = "cloud_efficiency"
 	security_groups = ["${apsarastack_security_group.default.id}"]
