@@ -1,70 +1,40 @@
 package apsarastack
 
 import (
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
-
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
 func TestAccApsaraStackCRNamespacesDataSource(t *testing.T) {
-	rand := acctest.RandIntRange(1000000, 9999999)
-	resourceId := "data.apsarastack_cr_namespaces.default"
-
-	testAccConfig := dataSourceTestAccConfigFunc(resourceId,
-		fmt.Sprintf("tf-testacc-cr-ns-%d", rand),
-		dataSourceCRNamespacesConfigDependence)
-
-	nameRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "${apsarastack_cr_namespace.default.name}",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "${apsarastack_cr_namespace.default.name}-fake",
-		}),
-	}
-
-	var existCRNamespacesMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"names.#":                         "1",
-			"names.0":                         fmt.Sprintf("tf-testacc-cr-ns-%d", rand),
-			"namespaces.#":                    "1",
-			"namespaces.0.name":               fmt.Sprintf("tf-testacc-cr-ns-%d", rand),
-			"namespaces.0.default_visibility": "PUBLIC",
-			"namespaces.0.auto_create":        "false",
-		}
-	}
-
-	var fakeCRNamespacesMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"names.#":      "0",
-			"namespaces.#": "0",
-		}
-	}
-
-	var crNamespacesCheckInfo = dataSourceAttr{
-		resourceId:   resourceId,
-		existMapFunc: existCRNamespacesMapFunc,
-		fakeMapFunc:  fakeCRNamespacesMapFunc,
-	}
-	preCheck := func() {
-		testAccPreCheckWithRegions(t, false, connectivity.CRNoSupportedRegions)
-	}
-	crNamespacesCheckInfo.dataSourceTestCheckWithPreCheck(t, rand, preCheck, nameRegexConf)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: dataSourceCRNamespacesConfigDependence,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_cr_namespaces.default"),
+					resource.TestCheckResourceAttr("data.apsarastack_cr_namespaces.default", "namespaces.#", "0"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "namespaces.0.default_visibility"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "instance_types.0.auto_create"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "instance_types.0.name"),
+					resource.TestCheckResourceAttrSet("data.apsarastack_cr_namespaces.default", "ids.#"),
+				),
+			},
+		},
+	})
 }
 
-func dataSourceCRNamespacesConfigDependence(name string) string {
-	return fmt.Sprintf(`
-	variable "name" {
-		default = "%s"
-	}
-	
-	resource "apsarastack_cr_namespace" "default" {
-		name = "${var.name}"
-		auto_create	= false
-		default_visibility = "PUBLIC"
-	}
-	`, name)
+const dataSourceCRNamespacesConfigDependence = `
+  resource "apsarastack_cr_namespace" "default" {
+  name               = "testing-db-nspace"
+  auto_create        = false
+  default_visibility = "PUBLIC"
 }
+
+  data "apsarastack_cr_namespaces" "default" {
+  name_regex    = apsarastack_cr_namespace.default.name
+}
+`

@@ -13,9 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-// Acceptance Test
-// Create by yewei.oyyw@alibaba-inc.com on 2019-05-31
-
 func init() {
 	resource.AddTestSweepers("apsarastack_gpdb_instance", &resource.Sweeper{
 		Name: "apsarastack_gpdb_instance",
@@ -171,53 +168,6 @@ func TestAccApsaraStackGpdbInstance_classic(t *testing.T) {
 					}),
 				),
 			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"Created": "TF",
-						"For":     "acceptance test",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "2",
-						"tags.Created": "TF",
-						"tags.For":     "acceptance test",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"Created": "TF",
-						"For":     "acceptance test",
-						"Updated": "TF",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "3",
-						"tags.Created": "TF",
-						"tags.For":     "acceptance test",
-						"tags.Updated": "TF",
-					}),
-				),
-			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"tags": REMOVEKEY,
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       REMOVEKEY,
-						"tags.Created": REMOVEKEY,
-						"tags.For":     REMOVEKEY,
-						"tags.Updated": REMOVEKEY,
-					}),
-				),
-			},
 		}})
 }
 
@@ -236,7 +186,6 @@ func TestAccApsaraStackGpdbInstance_vpc(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			testAccPreCheckWithNoDefaultVpc(t)
 		},
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
@@ -245,7 +194,7 @@ func TestAccApsaraStackGpdbInstance_vpc(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"availability_zone":    "${data.apsarastack_zones.default.zones.0.id}",
-					"vswitch_id":           "${data.apsarastack_vswitches.default.ids.0}",
+					"vswitch_id":           "${apsarastack_vswitch.default.id}",
 					"engine":               "gpdb",
 					"engine_version":       "4.3",
 					"instance_class":       "gpdb.group.segsdx2",
@@ -297,10 +246,17 @@ func resourceGpdbVpcConfigDependence(s string) string {
             available_resource_creation = "Gpdb"
         }
         variable "name" {
-            default                = "tf-testAccGpdbInstance_vpc"
+            default= "tf-testAccGpdbInstance_vpc"
         }
-		data "apsarastack_vswitches" "default" {
-		  zone_id    = data.apsarastack_zones.default.ids[0]
-		  name_regex = "default-tf--testAcc-00"
-		}`)
+		resource "apsarastack_vpc" "default" {
+  			name = "testing"
+  			cidr_block = "10.0.0.0/8"
+		}
+		resource "apsarastack_vswitch" "default" {
+  			vpc_id = apsarastack_vpc.default.id
+			cidr_block        = "10.1.0.0/16"
+  			name = "apsara_vswitch"
+  			availability_zone = data.apsarastack_zones.default.zones.0.id
+		}
+		`)
 }
