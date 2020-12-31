@@ -30,7 +30,7 @@ resource "apsarastack_ons_instance" "default" {
   topic_capacity = "50"
   cluster = "cluster1"
   independent_naming = "true"
-  name = "Ons_Apsara_instance"
+  name = var.name
   remark = "Ons Instance"
 }
 

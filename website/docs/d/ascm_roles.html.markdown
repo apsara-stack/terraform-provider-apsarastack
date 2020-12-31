@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_roles"
-sidebar_current: "docs-apsarastack-datasource-roles"
+sidebar_current: "docs-apsarastack-datasource-ascm-roles"
 description: |-
     Provides a list of roles to the user.
 ---
 
-# apsarastack\_roles
+# apsarastack\_ascm_roles
 
 This data source provides the roles of the current Apsara Stack Cloud user.
 

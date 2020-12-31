@@ -728,13 +728,14 @@ func (s *SlbService) sweepSlb(id string) error {
 }
 
 const EcsInstanceCommonNoZonesTestCase = `
+data "apsarastack_zones" "default" {
+  available_resource_creation = "VSwitch"
+}
 data "apsarastack_instance_types" "default" {
-  cpu_core_count    = 1
-  memory_size       = 2
+  availability_zone = data.apsarastack_zones.default.zones[0].id
 }
 data "apsarastack_images" "default" {
   name_regex  = "^ubuntu_18.*64"
-  most_recent = true
   owners      = "system"
 }
 resource "apsarastack_vpc" "default" {
@@ -744,7 +745,7 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
+  availability_zone = data.apsarastack_zones.default.zones[0].id
   name              = "${var.name}"
 }
 resource "apsarastack_security_group" "default" {

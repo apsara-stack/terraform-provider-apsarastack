@@ -1,6 +1,8 @@
 package apsarastack
 
 import (
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"time"
 
 	sls "github.com/aliyun/aliyun-log-go-sdk"
@@ -36,31 +38,47 @@ func resourceApsaraStackLogProject() *schema.Resource {
 
 func resourceApsaraStackLogProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	var requestInfo *sls.Client
-	request := map[string]string{
-		"name":        d.Get("name").(string),
-		"description": d.Get("description").(string),
+	logService := LogService{client}
+	name := d.Get("name").(string)
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "SLS"
+	request.Domain = client.Domain
+	request.Version = "2020-03-31"
+	request.Scheme = "http"
+	request.ApiName = "CreateProject"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "SLS",
+		"RegionId":        client.RegionId,
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Action":          "CreateProject",
+		"Version":         "2020-03-31",
+		"projectName":     name,
+		"Description":     d.Get("description").(string),
 	}
-	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
-			requestInfo = slsClient
-			return slsClient.CreateProject(request["name"], request["description"])
-		})
+	raw, err := client.WithEcsClient(func(alidnsClient *ecs.Client) (interface{}, error) {
+		return alidnsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_log_project", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	addDebug("LogProject", raw)
+
+	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
+		object, err := logService.DescribeLogProject(name)
 		if err != nil {
-			if IsExpectedErrors(err, []string{LogClientTimeout}) {
-				time.Sleep(5 * time.Second)
-				return resource.RetryableError(err)
-			}
 			return resource.NonRetryableError(err)
 		}
-		addDebug("CreateProject", raw, requestInfo, request)
-		response, _ := raw.(*sls.LogProject)
-		d.SetId(response.Name)
-		return nil
-	}); err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_log_project", "CreateProject", ApsaraStackLogGoSdkERROR)
-	}
-
+		if object.ProjectName != "" {
+			return nil
+		}
+		return resource.RetryableError(Error("Failed to describe log project"))
+	})
+	d.SetId(name)
 	return resourceApsaraStackLogProjectRead(d, meta)
 }
 
@@ -75,7 +93,7 @@ func resourceApsaraStackLogProjectRead(d *schema.ResourceData, meta interface{})
 		}
 		return WrapError(err)
 	}
-	d.Set("name", object.Name)
+	d.Set("name", object.ProjectName)
 	d.Set("description", object.Description)
 
 	return nil
@@ -84,14 +102,34 @@ func resourceApsaraStackLogProjectRead(d *schema.ResourceData, meta interface{})
 func resourceApsaraStackLogProjectUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *sls.Client
-	request := map[string]string{
-		"name":        d.Get("name").(string),
-		"description": d.Get("description").(string),
-	}
+
+	name := d.Id()
 	if d.HasChange("description") {
-		raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
-			requestInfo = slsClient
-			return slsClient.UpdateProject(request["name"], request["description"])
+		request := requests.NewCommonRequest()
+		request.Method = "POST"
+		request.Product = "SLS"
+		request.Domain = client.Domain
+		request.Version = "2020-03-31"
+		request.Scheme = "http"
+		request.ApiName = "UpdateProject"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"AccessKeyId":     client.AccessKey,
+			"Product":         "SLS",
+			"RegionId":        client.RegionId,
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
+			"Action":          "UpdateProject",
+			"Version":         "2020-03-31",
+			"organizationId":  client.Department,
+			"resourceGroupId": client.ResourceGroup,
+			"ProjectName":     name,
+			"description":     d.Get("description").(string),
+		}
+
+		raw, err := client.WithEcsClient(func(slsClient *ecs.Client) (interface{}, error) {
+			return slsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), "UpdateProject", ApsaraStackLogGoSdkERROR)
@@ -104,16 +142,32 @@ func resourceApsaraStackLogProjectUpdate(d *schema.ResourceData, meta interface{
 
 func resourceApsaraStackLogProjectDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	logService := LogService{client}
 	var requestInfo *sls.Client
-	request := map[string]string{
-		"name":        d.Get("name").(string),
-		"description": d.Get("description").(string),
+	name := d.Get("name").(string)
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "SLS"
+	request.Domain = client.Domain
+	request.Version = "2020-03-31"
+	request.Scheme = "http"
+	request.ApiName = "DeleteProject"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "SLS",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"RegionId":        client.RegionId,
+		"organizationId":  client.Department,
+		"resourceGroupId": client.ResourceGroup,
+		"Action":          "DeleteProject",
+		"Version":         "2020-03-31",
+		"ProjectName":     name,
 	}
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-		raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
-			requestInfo = slsClient
-			return nil, slsClient.DeleteProject(request["name"])
+		raw, err := client.WithEcsClient(func(slsClient *ecs.Client) (interface{}, error) {
+			return slsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{LogClientTimeout, "RequestTimeout"}) {
@@ -130,5 +184,7 @@ func resourceApsaraStackLogProjectDelete(d *schema.ResourceData, meta interface{
 		}
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "DeleteProject", ApsaraStackLogGoSdkERROR)
 	}
-	return WrapError(logService.WaitForLogProject(d.Id(), Deleted, DefaultTimeout))
+
+	return nil
+
 }

@@ -27,9 +27,7 @@ func TestAccApsaraStackOnsGroupsDataSource(t *testing.T) {
 
 	var existOnsGroupsMapFunc = func(rand int) map[string]string {
 		return map[string]string{
-			"ids.#":                       "1",
 			"groups.#":                    "1",
-			"groups.0.id":                 fmt.Sprintf("GID-tf-testacconsgroup%v", rand),
 			"groups.0.independent_naming": "true",
 			"groups.0.remark":             "apsarastack_ons_group_remark",
 		}
@@ -37,7 +35,6 @@ func TestAccApsaraStackOnsGroupsDataSource(t *testing.T) {
 
 	var fakeOnsGroupsMapFunc = func(rand int) map[string]string {
 		return map[string]string{
-			"ids.#":    "0",
 			"groups.#": "0",
 		}
 	}
@@ -58,7 +55,13 @@ variable "group_id" {
 }
 
 resource "apsarastack_ons_instance" "default" {
-name = "tf-testaccOnsInstanceGroupbasic"
+  name = "tf-testaccOnsInstanceGroupbasic"
+  remark = "default-remark"
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
 }
 
 resource "apsarastack_ons_group" "default" {

@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_regions"
-sidebar_current: "docs-apsarastack-datasource-regions"
+sidebar_current: "docs-apsarastack-datasource-ascm-regions"
 description: |-
     Provides a list of regions to the user.
 ---
 
-# apsarastack\_regions
+# apsarastack\_ascm_regions
 
 This data source provides the regions of the current Apsara Stack Cloud user.
 

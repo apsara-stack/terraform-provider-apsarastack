@@ -1,6 +1,8 @@
 package apsarastack
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"strings"
@@ -32,7 +34,7 @@ func resourceApsaraStackOnsTopic() *schema.Resource {
 			"topic": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.StringLenBetween(1, 64),
+				ValidateFunc: validation.StringLenBetween(1, 128),
 			},
 			"message_type": {
 				Type:     schema.TypeString,
@@ -55,88 +57,67 @@ func resourceApsaraStackOnsTopic() *schema.Resource {
 
 func resourceApsaraStackOnsTopicCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	onsService := OnsService{client}
-	var requestInfo *ecs.Client
-
 	ordertype := d.Get("message_type").(string)
 	instanceId := d.Get("instance_id").(string)
 	remark := d.Get("remark").(string)
 	topic := d.Get("topic").(string)
-	check, err := onsService.DescribeOnsTopic(topic, instanceId)
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", "TOPIC alreadyExist", ApsaraStackSdkGoERROR)
+	request := requests.NewCommonRequest()
+	request.QueryParams = map[string]string{
+		"RegionId":        client.RegionId,
+		"AccessKeySecret": client.SecretKey,
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Product":         "Ons-inner",
+		"Action":          "ConsoleTopicCreate",
+		"Version":         "2018-02-05",
+		"ProductName":     "Ons-inner",
+		"PreventCache":    "",
+		"OrderType":       ordertype,
+		"Topic":           topic,
+		"Remark":          remark,
+		"OnsRegionId":     client.RegionId,
+		"InstanceId":      instanceId,
 	}
-	if len(check.Data) == 0 {
-
-		request := requests.NewCommonRequest()
-		request.QueryParams = map[string]string{
-			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
-			"Department":      client.Department,
-			"ResourceGroup":   client.ResourceGroup,
-			"Product":         "Ons-inner",
-			"Action":          "ConsoleTopicCreate",
-			"Version":         "2018-02-05",
-			"ProductName":     "Ons-inner",
-			"PreventCache":    "",
-			"OrderType":       ordertype,
-			"Topic":           topic,
-			"Remark":          remark,
-			"OnsRegionId":     client.RegionId,
-			"InstanceId":      instanceId,
-		}
-		request.Method = "POST"
-		request.Product = "Ons-inner"
-		request.Version = "2018-02-05"
-		request.ServiceCode = "Ons-inner"
-		request.Domain = client.Domain
-		if strings.ToLower(client.Config.Protocol) == "https" {
-			request.Scheme = "https"
-		} else {
-			request.Scheme = "http"
-		}
-		request.ApiName = "ConsoleTopicCreate"
-		request.RegionId = client.RegionId
-		request.Headers = map[string]string{"RegionId": client.RegionId}
-		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-			return ecsClient.ProcessCommonRequest(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", "ConsoleTopicCreate", raw)
-		}
-		addDebug("ConsoleTopicCreate", raw, requestInfo, request)
-
-		bresponse, _ := raw.(*responses.CommonResponse)
-		if bresponse.GetHttpStatus() != 200 {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", "ConsoleTopicCreate", ApsaraStackSdkGoERROR)
-		}
-		addDebug("ConsoleTopicCreate", raw, requestInfo, bresponse.GetHttpContentString())
+	request.Method = "POST"
+	request.Product = "Ons-inner"
+	request.Version = "2018-02-05"
+	request.ServiceCode = "Ons-inner"
+	request.Domain = client.Domain
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
 	}
-	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		check, err = onsService.DescribeOnsTopic(topic, instanceId)
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		if len(check.Data) != 0 {
-			return nil
-		}
-		return resource.RetryableError(Error("New Topic has been created successfully."))
+	request.ApiName = "ConsoleTopicCreate"
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	response := TopicStruct{}
+
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_topic", "Failed to create ONS Topic", ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ons_topic", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 
-	d.SetId(check.Data[0].Topic)
+	bresponse, _ := raw.(*responses.CommonResponse)
+	if bresponse.IsSuccess() != true {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ons_topic", "ConsoleTopicCreate", ApsaraStackSdkGoERROR)
+	}
+	_ = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
+	if response.Success != true {
+		return WrapErrorf(errors.New(response.Message), DefaultErrorMsg, "apsarastack_ascm_ons_topic", "ConsoleTopicCreate", ApsaraStackSdkGoERROR)
+	}
+	d.SetId(topic + COLON_SEPARATED + instanceId)
 
-	return resourceApsaraStackOnsTopicUpdate(d, meta)
+	return resourceApsaraStackOnsTopicRead(d, meta)
 }
 
 func resourceApsaraStackOnsTopicRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	onsService := OnsService{client}
-	instanceId := d.Get("instance_id").(string)
 
-	object, err := onsService.DescribeOnsTopic(d.Id(), instanceId)
+	object, err := onsService.DescribeOnsTopic(d.Id())
 	if err != nil {
 		// Handle exceptions
 		if NotFoundError(err) {
@@ -162,9 +143,10 @@ func resourceApsaraStackOnsTopicDelete(d *schema.ResourceData, meta interface{})
 	client := meta.(*connectivity.ApsaraStackClient)
 	onsService := OnsService{client}
 	var requestInfo *ecs.Client
-	instanceId := d.Get("instance_id").(string)
 
-	check, err := onsService.DescribeOnsTopic(d.Id(), instanceId)
+	check, err := onsService.DescribeOnsTopic(d.Id())
+	parts, err := ParseResourceId(d.Id(), 2)
+
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsTopicExist", ApsaraStackSdkGoERROR)
 	}
@@ -182,9 +164,9 @@ func resourceApsaraStackOnsTopicDelete(d *schema.ResourceData, meta interface{})
 			"Version":         "2018-02-05",
 			"ProductName":     "Ons-inner",
 			"PreventCache":    "",
-			"Topic":           d.Id(),
+			"Topic":           parts[0],
 			"OnsRegionId":     client.RegionId,
-			"InstanceId":      instanceId,
+			"InstanceId":      parts[1],
 		}
 
 		request.Method = "POST"
@@ -207,7 +189,7 @@ func resourceApsaraStackOnsTopicDelete(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return resource.RetryableError(err)
 		}
-		check, err = onsService.DescribeOnsTopic(d.Id(), instanceId)
+		check, err = onsService.DescribeOnsTopic(d.Id())
 
 		if err != nil {
 			return resource.NonRetryableError(err)

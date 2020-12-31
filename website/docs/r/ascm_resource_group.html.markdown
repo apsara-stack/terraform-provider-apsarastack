@@ -1,13 +1,13 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_resource_group"
-sidebar_current: "docs-apsarastack-resource-resource-group"
+page_title: "ApsaraStack: apsarastack_ascm_resource_group"
+sidebar_current: "docs-apsarastack-resource-ascm-resource-group"
 description: |-
   Provides a Ascm resource group resource.
 ---
 
-# apsarastack\_resource_group
+# apsarastack\_ascm_resource_group
 
 Provides a Ascm resource group resource.
 
