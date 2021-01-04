@@ -67,7 +67,6 @@ func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta inte
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-
 	request.Method = "POST"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
@@ -87,7 +86,7 @@ func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta inte
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)

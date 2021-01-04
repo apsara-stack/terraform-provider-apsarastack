@@ -95,9 +95,6 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
 	request.Method = "GET"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
@@ -130,7 +127,6 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 			break
 		}
 		log.Printf("")
-
 	}
 
 	var r *regexp.Regexp
