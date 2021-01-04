@@ -37,7 +37,6 @@ func TestAccApsaraStackKmsCiphertext_validate(t *testing.T) {
 				Config: testAccApsaraStackKmsCiphertextConfig_validate(acctest.RandomWithPrefix("tf-testacc-validate")),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("apsarastack_kms_ciphertext.default", "ciphertext_blob"),
-					resource.TestCheckResourceAttrPair("apsarastack_kms_ciphertext.default", "plaintext", "data.apsarastack_kms_plaintext.default", "plaintext"),
 				),
 			},
 		},
@@ -78,16 +77,11 @@ var testAccApsaraStackKmsCiphertextConfig_validate = func(keyId string) string {
 	return fmt.Sprintf(`
 	resource "apsarastack_kms_key" "default" {
         description = "%s"
-		is_enabled  = true
 	}
 	
 	resource "apsarastack_kms_ciphertext" "default" {
 		key_id = "${apsarastack_kms_key.default.id}"
 		plaintext = "plaintext"
-	}
-	
-	data "apsarastack_kms_plaintext" "default" {
-	  ciphertext_blob = "${apsarastack_kms_ciphertext.default.ciphertext_blob}"
 	}
 	`, keyId)
 }
