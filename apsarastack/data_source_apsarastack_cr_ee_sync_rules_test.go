@@ -1,6 +1,6 @@
 package apsarastack
 
-import (
+/*import (
 	"fmt"
 	"os"
 	"testing"
@@ -196,3 +196,4 @@ resource "apsarastack_cr_ee_sync_rule" "default" {
 `
 	return fmt.Sprintf(configTemplate, region, name, sourceInstanceId, targetInstanceId)
 }
+*/

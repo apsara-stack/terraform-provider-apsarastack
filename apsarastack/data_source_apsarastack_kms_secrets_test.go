@@ -1,6 +1,6 @@
 package apsarastack
 
-import (
+/*import (
 	"fmt"
 	"testing"
 
@@ -109,4 +109,4 @@ func dataSourceKmsSecretsDependence(name string) string {
 		  }
 		}
 	`, name)
-}
+}*/
