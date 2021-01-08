@@ -1,87 +1,51 @@
 package apsarastack
 
 import (
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
 func TestAccApsaraStackOnsInstancesDataSource(t *testing.T) {
-	rand := acctest.RandInt()
-	resourceId := "data.apsarastack_ons_instances.default"
-	name := fmt.Sprintf("tf-testacc%sonsinstance%v", defaultRegionToTest, rand)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: dataSourceOnsInstancesConfigDependence,
+				Check: resource.ComposeTestCheckFunc(
 
-	testAccConfig := dataSourceTestAccConfigFunc(resourceId, name, dataSourceOnsInstancesConfigDependence)
-
-	nameRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "${apsarastack_ons_instance.default.name}",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "${apsarastack_ons_instance.default.name}_fake",
-		}),
-	}
-
-	idsConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"ids": []string{"${apsarastack_ons_instance.default.id}"},
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"ids": []string{"${apsarastack_ons_instance.default.id}_fake"},
-		}),
-	}
-
-	allConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"ids":        []string{"${apsarastack_ons_instance.default.id}"},
-			"name_regex": "${apsarastack_ons_instance.default.name}",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"ids":        []string{"${apsarastack_ons_instance.default.id}_fake"},
-			"name_regex": "${apsarastack_ons_instance.default.name}",
-		}),
-	}
-
-	var existOnsInstancesMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"ids.#":                       "1",
-			"instances.#":                 "1",
-			"names.#":                     "1",
-			"instances.0.instance_status": "5",
-			"instances.0.release_time":    "0",
-			"instances.0.instance_type":   "1",
-			"instances.0.instance_name":   fmt.Sprintf("tf-testacc%sonsinstance%v", defaultRegionToTest, rand),
-		}
-	}
-
-	var fakeOnsInstancesMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"ids.#":       "0",
-			"instances.#": "0",
-			"names.#":     "0",
-		}
-	}
-
-	var onsRecordsCheckInfo = dataSourceAttr{
-		resourceId:   resourceId,
-		existMapFunc: existOnsInstancesMapFunc,
-		fakeMapFunc:  fakeOnsInstancesMapFunc,
-	}
-
-	onsRecordsCheckInfo.dataSourceTestCheck(t, rand, nameRegexConf, idsConf, allConf)
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_ons_instances.default"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ons_instances.default", "instances.instance_name"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ons_instances.default", "instances.topic_capacity"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ons_instances.default", "instances.tps_receive_max"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ons_instances.default", "instances.tps_send_max"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ons_instances.default", "instances.cluster"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ons_instances.default", "instances.instance_status"),
+					resource.TestCheckResourceAttrSet("data.apsarastack_ons_instances.default", "ids.#"),
+				),
+			},
+		},
+	})
 }
 
-func dataSourceOnsInstancesConfigDependence(name string) string {
-	return fmt.Sprintf(`
+const dataSourceOnsInstancesConfigDependence = `
 variable "name" {
- default = "%v"
+  default = "Tf-OnsInstanceDataSource"
 }
 
 resource "apsarastack_ons_instance" "default" {
   name = "${var.name}"
   remark = "default-remark"
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
 }
+data "apsarastack_ons_instances" "default" {
+  ids = [apsarastack_ons_instance.default.id]
 
-`, name)
 }
+`

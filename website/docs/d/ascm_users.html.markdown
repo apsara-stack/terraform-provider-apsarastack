@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_users"
-sidebar_current: "docs-apsarastack-datasource-users"
+sidebar_current: "docs-apsarastack-datasource-ascm-users"
 description: |-
     Provides a list of users to the user.
 ---
 
-# apsarastack\_users
+# apsarastack\_ascm_users
 
 This data source provides the users of the current Apsara Stack Cloud user.
 
@@ -15,7 +15,7 @@ This data source provides the users of the current Apsara Stack Cloud user.
 
 ```
 data "apsarastack_ascm_users" "users" {
- name_regex = "Apsara_test_user"
+ ids = [apsarastack_ascm_user.user.id]
 }
 output "users" {
  value = data.apsarastack_ascm_users.users.*

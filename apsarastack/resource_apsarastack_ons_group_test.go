@@ -2,103 +2,53 @@ package apsarastack
 
 import (
 	"fmt"
-	"log"
+	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"strings"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func init() {
-	resource.AddTestSweepers("apsarastack_ons_group", &resource.Sweeper{
-		Name: "apsarastack_ons_group",
-		F:    testSweepOnsGroup,
-	})
-}
-
-func testSweepOnsGroup(region string) error {
-	rawClient, err := sharedClientForRegion(region)
-	if err != nil {
-		return WrapErrorf(err, "error getting ApsaraStack client.")
-	}
-	client := rawClient.(*connectivity.ApsaraStackClient)
-	onsService := OnsService{client}
-
-	prefixes := []string{
-		"GID-tf-testAcc",
-		"GID_tf-testacc",
-		"CID-tf-testAcc",
-		"CID_tf-testacc",
-	}
-
-	instanceListReq := ons.CreateOnsInstanceInServiceListRequest()
-
-	raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-		return onsClient.OnsInstanceInServiceList(instanceListReq)
-	})
-	if err != nil {
-		log.Printf("[ERROR] Failed to retrieve ons instance in service list: %s", err)
-	}
-
-	instanceListResp, _ := raw.(*ons.OnsInstanceInServiceListResponse)
-
-	var instanceIds []string
-	for _, v := range instanceListResp.Data.InstanceVO {
-		instanceIds = append(instanceIds, v.InstanceId)
-	}
-
-	for _, instanceId := range instanceIds {
-		request := ons.CreateOnsGroupListRequest()
-		request.InstanceId = instanceId
-
-		raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-			return onsClient.OnsGroupList(request)
-		})
-		if err != nil {
-			log.Printf("[ERROR] Failed to retrieve ons groups on instance (%s): %s", instanceId, err)
-			continue
+func (rc *resourceCheck) checkResourceOnsGroupDestroy() resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		strs := strings.Split(rc.resourceId, ":")
+		var resourceType string
+		for _, str := range strs {
+			if strings.Contains(str, "apsarastack_") {
+				resourceType = strings.Trim(str, " ")
+				break
+			}
 		}
 
-		groupListResp, _ := raw.(*ons.OnsGroupListResponse)
-		groups := groupListResp.Data.SubscribeInfoDo
+		if resourceType == "" {
+			return WrapError(Error("The resourceId %s is not correct and it should prefix with apsarastack_", rc.resourceId))
+		}
 
-		for _, v := range groups {
-			groupId := v.GroupId
-			skip := true
-			for _, prefix := range prefixes {
-				if strings.HasPrefix(strings.ToLower(groupId), strings.ToLower(prefix)) {
-					skip = false
-					break
-				}
-			}
-			if skip {
-				log.Printf("[INFO] Skipping ons group: %s ", groupId)
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != resourceType {
 				continue
 			}
-			log.Printf("[INFO] delete ons group: %s ", groupId)
-
-			request := ons.CreateOnsGroupDeleteRequest()
-			request.InstanceId = instanceId
-			request.GroupId = v.GroupId
-
-			_, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-				return onsClient.OnsGroupDelete(request)
-			})
-			if err != nil {
-				log.Printf("[ERROR] Failed to delete ons group (%s): %s", groupId, err)
+			outValue, err := rc.callDescribeMethod(rs)
+			errorValue := outValue[1]
+			if !errorValue.IsNil() {
+				err = errorValue.Interface().(error)
+				if err != nil {
+					if NotFoundError(err) {
+						continue
+					}
+					return WrapError(err)
+				}
+			} else {
+				return WrapError(Error("the resource %s %s was not destroyed ! ", rc.resourceId, rs.Primary.ID))
 			}
 		}
+		return nil
 	}
-
-	return nil
 }
 
 func TestAccApsaraStackOnsGroup_basic(t *testing.T) {
-	var v *ons.SubscribeInfoDo
+	var v *OnsGroup
 	resourceId := "apsarastack_ons_group.default"
 	ra := resourceAttrInit(resourceId, onsGroupBasicMap)
 	serviceFunc := func() interface{} {
@@ -107,10 +57,10 @@ func TestAccApsaraStackOnsGroup_basic(t *testing.T) {
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
 
-	rand := acctest.RandIntRange(1000000, 9999999)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
+	rand := acctest.RandInt()
 	name := fmt.Sprintf("GID-tf-testacconsgroupbasic%v", rand)
-	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceOnsGroupConfigDependence)
+	testAccConfig := resourceTestAccConfigFunc(resourceId, name, testAccOnsGroupConfigBasic)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -119,68 +69,51 @@ func TestAccApsaraStackOnsGroup_basic(t *testing.T) {
 		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  rac.checkResourceDestroy(),
+		CheckDestroy:  rac.checkResourceOnsGroupDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"instance_id": "${apsarastack_ons_instance.default.id}",
-					"group_id":    "${var.group_id}",
-					"remark":      "apsarastack_ons_group_remark",
+					"group_id":    name,
+					"remark":      "Ons_Group",
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"group_id": fmt.Sprintf("GID-tf-testacconsgroupbasic%v", rand),
-						"remark":   "apsarastack_ons_group_remark",
-					}),
+					testAccCheck(nil),
 				),
 			},
-
 			{
-				ResourceName:      resourceId,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"group_id": "${var.group_id}_change",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"group_id": fmt.Sprintf("GID-tf-testacconsgroupbasic%v_change", rand)}),
-				),
-			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"group_id": "${var.group_id}",
-					"remark":   "apsarastack_ons_group_remark",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"group_id": fmt.Sprintf("GID-tf-testacconsgroupbasic%v", rand),
-						"remark":   "apsarastack_ons_group_remark",
-					}),
-				),
+				ResourceName:            resourceId,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"read_enable"},
 			},
 		},
 	})
 
 }
 
-func resourceOnsGroupConfigDependence(name string) string {
+func testAccOnsGroupConfigBasic(name string) string {
 	return fmt.Sprintf(`
-resource "apsarastack_ons_instance" "default" {
-  name = "%s"
-}
 
 variable "group_id" {
  default = "%s"
 }
-`, name, name)
+
+resource "apsarastack_ons_instance" "default" {
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
+  name = "${var.group_id}"
+  remark = "Ons_instance"
+}
+
+`, name)
 }
 
 var onsGroupBasicMap = map[string]string{
-	"group_id": "${var.group_id}",
-	"remark":   "apsarastack_ons_group_remark",
+	"instance_id": CHECKSET,
+	"group_id":    CHECKSET,
+	"remark":      CHECKSET,
 }

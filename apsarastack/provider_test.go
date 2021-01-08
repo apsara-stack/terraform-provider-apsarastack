@@ -59,6 +59,13 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("APSARASTACK_DOMAIN"); v == "" {
 		//t.Fatal("APSARASTACK_DOMAIN must be set for acceptance tests")
 	}
+	if v := os.Getenv("APSARASTACK_DEPARTMENT"); v == "" {
+		t.Fatal("APSARASTACK_DEPARTMENT must be set for acceptance tests")
+	}
+	if v := os.Getenv("APSARASTACK_RESOURCE_GROUP"); v == "" {
+		t.Fatal("APSARASTACK_RESOURCE_GROUP must be set for acceptance tests")
+	}
+
 }
 
 func testAccPreCheckWithAccountSiteType(t *testing.T, account AccountSite) {

@@ -2,11 +2,13 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -18,7 +20,7 @@ func dataSourceApsaraStackAscmOrganizations() *schema.Resource {
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 				ForceNew: true,
 				MinItems: 1,
@@ -48,7 +50,7 @@ func dataSourceApsaraStackAscmOrganizations() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"name": {
@@ -127,6 +129,7 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 		if response.Code == "200" || len(response.Data) < 1 {
 			break
 		}
+		log.Printf("")
 
 	}
 
@@ -141,7 +144,7 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":        rg.ID,
+			"id":        fmt.Sprint(rg.ID),
 			"name":      rg.Name,
 			"parent_id": rg.ParentID,
 			"muser_id":  rg.MuserID,
@@ -149,7 +152,7 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 			"alias":     rg.Alias,
 			"internal":  rg.Internal,
 		}
-		ids = append(ids, string(rune(rg.ID)))
+		ids = append(ids, fmt.Sprint(rg.ID))
 		s = append(s, mapping)
 	}
 

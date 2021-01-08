@@ -1,91 +1,37 @@
 package apsarastack
 
 import (
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 )
 
 func TestAccApsaraStackCRReposDataSource(t *testing.T) {
-	rand := acctest.RandIntRange(1000000, 9999999)
-	resourceId := "data.apsarastack_cr_repos.default"
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: dataSourceCRReposConfigDataSource,
+				Check: resource.ComposeTestCheckFunc(
 
-	testAccConfig := dataSourceTestAccConfigFunc(resourceId,
-		fmt.Sprintf("tf-testacc-cr-repo-%d", rand),
-		dataSourceCRReposConfigDependence)
-
-	namespaceConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"namespace": "${apsarastack_cr_repo.default.name}",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"namespace": "${apsarastack_cr_repo.default.name}_fake",
-		}),
-	}
-
-	nameRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "${apsarastack_cr_repo.default.name}",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"name_regex": "${apsarastack_cr_repo.default.name}_fake",
-		}),
-	}
-
-	enableDetailsConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"name_regex":     "${apsarastack_cr_repo.default.name}",
-			"enable_details": "true",
-		}),
-	}
-
-	allConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"namespace":      "${apsarastack_cr_repo.default.name}",
-			"name_regex":     "${apsarastack_cr_repo.default.name}",
-			"enable_details": "true",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"namespace":      "${apsarastack_cr_repo.default.name}_fake",
-			"name_regex":     "${apsarastack_cr_repo.default.name}",
-			"enable_details": "true",
-		}),
-	}
-
-	var existCRReposMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"names.#":           "1",
-			"names.0":           fmt.Sprintf("tf-testacc-cr-repo-%d", rand),
-			"repos.#":           "1",
-			"repos.0.name":      fmt.Sprintf("tf-testacc-cr-repo-%d", rand),
-			"repos.0.namespace": fmt.Sprintf("tf-testacc-cr-repo-%d", rand),
-			"repos.0.summary":   "OLD",
-			"repos.0.repo_type": "PUBLIC",
-			"repos.0.tags.#":    "0",
-		}
-	}
-
-	var fakeCRReposMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"names.#": "0",
-			"repos.#": "0",
-		}
-	}
-
-	var crReposCheckInfo = dataSourceAttr{
-		resourceId:   resourceId,
-		existMapFunc: existCRReposMapFunc,
-		fakeMapFunc:  fakeCRReposMapFunc,
-	}
-
-	crReposCheckInfo.dataSourceTestCheck(t, rand, namespaceConf, nameRegexConf, enableDetailsConf, allConf)
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_cr_repos.default"),
+					resource.TestCheckResourceAttr("data.apsarastack_cr_repos.default", "repos.#", "0"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.0.namespace"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.0.name"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.0.repo_type"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.0.summary"),
+					resource.TestCheckResourceAttrSet("data.apsarastack_cr_repos.default", "ids.#"),
+				),
+			},
+		},
+	})
 }
 
-func dataSourceCRReposConfigDependence(name string) string {
-	return fmt.Sprintf(`
+const dataSourceCRReposConfigDataSource = `
 variable "name" {
-    default = "%s"
+    default = "cr-repos-datasource"
 }
 
 resource "apsarastack_cr_namespace" "default" {
@@ -101,5 +47,9 @@ resource "apsarastack_cr_repo" "default" {
     repo_type = "PUBLIC"
     detail  = "OLD"
 }
-`, name)
+
+data "apsarastack_cr_repos" "default" {
+  name_regex = apsarastack_cr_repo.default.name
 }
+
+`

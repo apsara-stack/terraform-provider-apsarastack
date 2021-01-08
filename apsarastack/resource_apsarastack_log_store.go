@@ -260,25 +260,6 @@ func resourceApsaraStackLogStoreUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceApsaraStackLogStoreDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
-	logService := LogService{client}
 
-	parts, err := ParseResourceId(d.Id(), 2)
-	if err != nil {
-		return WrapError(err)
-	}
-
-	project, err := logService.DescribeLogProject(parts[0])
-	if err != nil {
-		return WrapError(err)
-	}
-	err = project.DeleteLogStore(parts[1])
-	if err != nil {
-		if IsExpectedErrors(err, []string{"LogStoreNotExist"}) {
-			return nil
-		}
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "DeleteLogStore", ApsaraStackLogGoSdkERROR)
-	}
-	addDebug("DeleteLogStore", nil)
-	return WrapError(logService.WaitForLogStore(d.Id(), Deleted, DefaultTimeout))
+	return nil
 }

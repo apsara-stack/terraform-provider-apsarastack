@@ -1,0 +1,31 @@
+package apsarastack
+
+import (
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"testing"
+)
+
+func TestAccApsaraStackAscm_Service_ClusterDataSource(t *testing.T) { //not completed
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: dataSourceApsaraStackAscm_servicebasic,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_ascm_service_cluster.default"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ascm_service_cluster.default", "cluster_list"),
+				),
+			},
+		},
+	})
+}
+
+const dataSourceApsaraStackAscm_servicebasic = `
+
+data "apsarastack_ascm_service_cluster" "default" {
+  product_name = "slb"
+}
+`
