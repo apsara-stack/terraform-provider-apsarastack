@@ -2,12 +2,12 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "ApsaraStack: apsarastack_ascm_instance_families"
-sidebar_current: "docs-apsarastack-datasource-instance-families"
+sidebar_current: "docs-apsarastack-datasource-ascm-instance-families"
 description: |-
     Provides a list of instance families to the user.
 ---
 
-# apsarastack\_instance_families
+# apsarastack\_ascm_instance_families
 
 This data source provides the instance families of the current Apsara Stack Cloud user.
 

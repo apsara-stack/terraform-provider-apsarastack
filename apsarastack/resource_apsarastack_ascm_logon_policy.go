@@ -116,7 +116,7 @@ func resourceApsaraStackLogonPolicyCreate(d *schema.ResourceData, meta interface
 		if len(object.Data) != 0 {
 			return nil
 		}
-		return resource.RetryableError(Error("New Login Policy has been added successfully."))
+		return resource.RetryableError(err)
 	})
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_login_policy", "Failed to add login Policy", ApsaraStackSdkGoERROR)

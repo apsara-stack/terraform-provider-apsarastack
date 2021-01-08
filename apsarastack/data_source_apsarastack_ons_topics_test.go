@@ -27,11 +27,8 @@ func TestAccApsaraStackOnsTopicsDataSource(t *testing.T) {
 
 	var existOnsTopicsMapFunc = func(rand int) map[string]string {
 		return map[string]string{
-			"names.#":                     "1",
 			"topics.#":                    "1",
 			"topics.0.topic":              fmt.Sprintf("tf-testacc%sonstopic%v", defaultRegionToTest, rand),
-			"topics.0.relation":           "6",
-			"topics.0.relation_name":      "授权发布/订阅",
 			"topics.0.message_type":       "0",
 			"topics.0.independent_naming": "true",
 			"topics.0.remark":             "apsarastack_ons_topic_remark",
@@ -41,7 +38,6 @@ func TestAccApsaraStackOnsTopicsDataSource(t *testing.T) {
 	var fakeOnsTopicsMapFunc = func(rand int) map[string]string {
 		return map[string]string{
 			"topics.#": "0",
-			"names.#":  "0",
 		}
 	}
 
@@ -61,7 +57,13 @@ variable "topic" {
 }
 
 resource "apsarastack_ons_instance" "default" {
-name = "tf-testaccOnsInstanceTopicbasic"
+  name = "${var.topic}"
+  remark = "default-remark"
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
 }
 
 resource "apsarastack_ons_topic" "default" {

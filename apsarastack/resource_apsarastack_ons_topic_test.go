@@ -2,101 +2,54 @@ package apsarastack
 
 import (
 	"fmt"
-	"log"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"strings"
 	"testing"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
-
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func init() {
-	resource.AddTestSweepers("apsarastack_ons_topic", &resource.Sweeper{
-		Name: "apsarastack_ons_topic",
-		F:    testSweepOnsTopic,
-	})
-}
-
-func testSweepOnsTopic(region string) error {
-	rawClient, err := sharedClientForRegion(region)
-	if err != nil {
-		return WrapErrorf(err, "error getting ApsaraStack client.")
-	}
-	client := rawClient.(*connectivity.ApsaraStackClient)
-	onsService := OnsService{client}
-
-	prefixes := []string{
-		"tf-testAcc",
-		"tf-testacc",
-	}
-
-	instanceListReq := ons.CreateOnsInstanceInServiceListRequest()
-
-	raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-		return onsClient.OnsInstanceInServiceList(instanceListReq)
-	})
-	if err != nil {
-		log.Printf("[ERROR] Failed to retrieve ons instance in service list: %s", err)
-	}
-
-	instanceListResp, _ := raw.(*ons.OnsInstanceInServiceListResponse)
-
-	var instanceIds []string
-	for _, v := range instanceListResp.Data.InstanceVO {
-		instanceIds = append(instanceIds, v.InstanceId)
-	}
-
-	for _, instanceId := range instanceIds {
-		request := ons.CreateOnsTopicListRequest()
-		request.InstanceId = instanceId
-
-		raw, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-			return onsClient.OnsTopicList(request)
-		})
-		if err != nil {
-			log.Printf("[ERROR] Failed to retrieve ons topics on instance (%s): %s", instanceId, err)
-			continue
+func (rc *resourceCheck) checkResourceOnsTopicDestroy() resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		strs := strings.Split(rc.resourceId, ":")
+		var resourceType string
+		for _, str := range strs {
+			if strings.Contains(str, "apsarastack_") {
+				resourceType = strings.Trim(str, " ")
+				break
+			}
 		}
 
-		topicListResp, _ := raw.(*ons.OnsTopicListResponse)
-		topics := topicListResp.Data.PublishInfoDo
+		if resourceType == "" {
+			return WrapError(Error("The resourceId %s is not correct and it should prefix with apsarastack_", rc.resourceId))
+		}
 
-		for _, v := range topics {
-			name := v.Topic
-			skip := true
-			for _, prefix := range prefixes {
-				if strings.HasPrefix(strings.ToLower(name), strings.ToLower(prefix)) {
-					skip = false
-					break
-				}
-			}
-			if skip {
-				log.Printf("[INFO] Skipping ons topic: %s ", name)
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != resourceType {
 				continue
 			}
-			log.Printf("[INFO] delete ons topic: %s ", name)
-
-			request := ons.CreateOnsTopicDeleteRequest()
-			request.InstanceId = instanceId
-			request.Topic = v.Topic
-
-			_, err := onsService.client.WithOnsClient(func(onsClient *ons.Client) (interface{}, error) {
-				return onsClient.OnsTopicDelete(request)
-			})
-			if err != nil {
-				log.Printf("[ERROR] Failed to delete ons topic (%s): %s", name, err)
+			outValue, err := rc.callDescribeMethod(rs)
+			errorValue := outValue[1]
+			if !errorValue.IsNil() {
+				err = errorValue.Interface().(error)
+				if err != nil {
+					if NotFoundError(err) {
+						continue
+					}
+					return WrapError(err)
+				}
+			} else {
+				return WrapError(Error("the resource %s %s was not destroyed ! ", rc.resourceId, rs.Primary.ID))
 			}
 		}
+		return nil
 	}
-
-	return nil
 }
 
 func TestAccApsaraStackOnsTopic_basic(t *testing.T) {
-	var v *ons.PublishInfoDo
+	var v *Topic
 	resourceId := "apsarastack_ons_topic.default"
 	ra := resourceAttrInit(resourceId, onsTopicBasicMap)
 	serviceFunc := func() interface{} {
@@ -105,10 +58,10 @@ func TestAccApsaraStackOnsTopic_basic(t *testing.T) {
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
 
-	rand := acctest.RandIntRange(1000000, 9999999)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
-	name := fmt.Sprintf("tf-testacc%sonstopicbasic%v", defaultRegionToTest, rand)
-	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceOnsTopicConfigDependence)
+	rand := acctest.RandInt()
+	name := fmt.Sprintf("tf-testacconstopicbasic%v", rand)
+	testAccConfig := resourceTestAccConfigFunc(resourceId, name, testAccOnsTopicConfigBasic)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -117,98 +70,52 @@ func TestAccApsaraStackOnsTopic_basic(t *testing.T) {
 		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  rac.checkResourceDestroy(),
+		CheckDestroy:  rac.checkResourceOnsGroupDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"instance_id":  "${apsarastack_ons_instance.default.id}",
-					"topic":        "${var.topic}",
-					"message_type": "1",
-					"remark":       "apsarastack_ons_topic_remark",
-					"perm":         "6",
+					"topic":        name,
+					"remark":       "Ons_topic",
+					"message_type": "2",
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"topic":  fmt.Sprintf("tf-testacc%sonstopicbasic%v", defaultRegionToTest, rand),
-						"remark": "apsarastack_ons_topic_remark",
-						"perm":   "6",
-					}),
+					testAccCheck(nil),
 				),
 			},
-
 			{
 				ResourceName:            resourceId,
 				ImportState:             true,
-				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"perm"},
-			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"message_type": "5",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{"message_type": "5"}),
-				),
-			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"perm": "4",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{"perm": "4"}),
-				),
-			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"topic":  "tf-testacc-apsarastack_ons_default_topic_change",
-					"remark": "default remark",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"topic":  "tf-testacc-apsarastack_ons_default_topic_change",
-						"remark": "default remark"}),
-				),
-			},
-
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"topic":        "${var.topic}",
-					"message_type": "0",
-					"remark":       "apsarastack_ons_topic_remark",
-					"perm":         "2",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"topic":        fmt.Sprintf("tf-testacc%sonstopicbasic%v", defaultRegionToTest, rand),
-						"message_type": "0",
-						"remark":       "apsarastack_ons_topic_remark",
-						"perm":         "2",
-					}),
-				),
 			},
 		},
 	})
 
 }
 
-func resourceOnsTopicConfigDependence(name string) string {
+func testAccOnsTopicConfigBasic(name string) string {
 	return fmt.Sprintf(`
-resource "apsarastack_ons_instance" "default" {
-  name = "%s"
-}
 
 variable "topic" {
  default = "%s"
 }
-`, name, name)
+
+resource "apsarastack_ons_instance" "default" {
+  tps_receive_max = "500"
+  tps_send_max = "500"
+  topic_capacity = "50"
+  cluster = "cluster1"
+  independent_naming = "true"
+  name = "${var.topic}"
+  remark = "Ons_instance"
+}
+
+`, name)
 }
 
 var onsTopicBasicMap = map[string]string{
-	"topic":        "${var.topic}",
-	"message_type": "1",
-	"remark":       "apsarastack_ons_topic_remark",
-	"perm":         "6",
+	"instance_id":  CHECKSET,
+	"topic":        CHECKSET,
+	"message_type": CHECKSET,
+	"remark":       CHECKSET,
 }

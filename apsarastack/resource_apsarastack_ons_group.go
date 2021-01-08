@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
@@ -40,7 +41,7 @@ func resourceApsaraStackOnsGroup() *schema.Resource {
 			},
 			"remark": {
 				Type:         schema.TypeString,
-				Required:     true,
+				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(1, 256),
 			},
 			"read_enable": {
@@ -97,20 +98,21 @@ func resourceApsaraStackOnsGroupCreate(d *schema.ResourceData, meta interface{})
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_group", "ConsoleGroupCreate", raw)
 	}
 	addDebug("ConsoleGroupCreate", raw, requestInfo, request)
-	log.Printf("Suraj Raw %v", raw)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	if bresponse.GetHttpStatus() != 200 {
+	if bresponse.IsSuccess() != true {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_group", "ConsoleGroupCreate", ApsaraStackSdkGoERROR)
 	}
-	log.Printf("before unmarshal %v", bresponse)
 
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), &grp_resp)
-	log.Printf("after unmarshal %v", grp_resp)
+	if grp_resp.Success != true {
+		return WrapErrorf(errors.New(grp_resp.Message), DefaultErrorMsg, "apsarastack_ons_group", "ConsoleGroupCreate", ApsaraStackSdkGoERROR)
+	}
 
 	if err != nil {
 		return WrapError(err)
 	}
+
 	log.Printf("groupid and instanceid %s %s", groupId, instanceId)
 	d.SetId(groupId + COLON_SEPARATED + instanceId)
 
@@ -176,7 +178,11 @@ func resourceApsaraStackOnsGroupDelete(d *schema.ResourceData, meta interface{})
 		request.Version = "2018-02-05"
 		request.ServiceCode = "Ons-inner"
 		request.Domain = client.Domain
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "ConsoleGroupDelete"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId

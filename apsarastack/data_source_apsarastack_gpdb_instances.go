@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"log"
 	"regexp"
 	"strings"
 
@@ -137,6 +138,7 @@ func dataSourceApsaraStackGpdbInstancesRead(d *schema.ResourceData, meta interfa
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf("request reponse %v", raw)
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_gpdb_instances", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
@@ -147,7 +149,8 @@ func dataSourceApsaraStackGpdbInstancesRead(d *schema.ResourceData, meta interfa
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Code == "200" || len(response.Items.DBInstance) < 1 {
+		log.Printf("unmarshalled response %v", response)
+		if bresponse.IsSuccess() == true {
 			break
 		}
 
