@@ -26,3 +26,15 @@ const (
 	SiteMonitorPOP3 = "POP3"
 	SiteMonitorFTP  = "FTP"
 )
+
+type CmsContact struct {
+	Code string `json:"Code"`
+	Cost int    `json:"Cost"`
+	Data []struct {
+		Cid  string `json:"Cid"`
+		Name string `json:"Name"`
+	} `json:"Data"`
+	Message  string `json:"Message"`
+	Redirect bool   `json:"Redirect"`
+	Success  bool   `json:"Success"`
+}
