@@ -100,10 +100,6 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		}
 		return resource.RetryableError(err)
 	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_resource_group", "Failed to create resource set", ApsaraStackSdkGoERROR)
-	}
-
 	d.SetId(check.Data[0].ResourceGroupName)
 
 	return resourceApsaraStackAscmResourceGroupUpdate(d, meta)
@@ -184,13 +180,10 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 		if err != nil {
 			return resource.RetryableError(err)
 		}
-		check, err := ascmService.DescribeAscmResourceGroup(d.Id())
+		_, err = ascmService.DescribeAscmResourceGroup(d.Id())
 
 		if err != nil {
 			return resource.NonRetryableError(err)
-		}
-		if check.Data[0].ResourceGroupName != "" {
-			return resource.RetryableError(Error("Trying to delete Resource Group %#v successfully.", d.Id()))
 		}
 		return nil
 	})
