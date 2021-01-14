@@ -1,6 +1,6 @@
 package apsarastack
 
-import (
+/*import (
 	"fmt"
 	"os"
 	"strings"
@@ -226,3 +226,4 @@ func testAccPreCheckWithCrEE(t *testing.T) {
 		t.Skipf("Skipping cr ee test case without default instances")
 	}
 }
+*/

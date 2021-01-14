@@ -16,10 +16,9 @@ func TestAccApsaraStackCRNamespacesDataSource(t *testing.T) {
 				Config: dataSourceCRNamespacesConfigDependence,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_cr_namespaces.default"),
-					resource.TestCheckResourceAttr("data.apsarastack_cr_namespaces.default", "namespaces.#", "0"),
-					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "namespaces.0.default_visibility"),
-					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "instance_types.0.auto_create"),
-					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "instance_types.0.name"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "namespaces.default_visibility"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "instance_types.auto_create"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_namespaces.default", "instance_types.name"),
 					resource.TestCheckResourceAttrSet("data.apsarastack_cr_namespaces.default", "ids.#"),
 				),
 			},

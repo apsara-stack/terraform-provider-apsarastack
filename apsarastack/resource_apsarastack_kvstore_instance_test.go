@@ -110,7 +110,7 @@ func testSweepKVStoreInstances(region string) error {
 func TestAccApsaraStackKVStoreRedisInstance_classictest(t *testing.T) {
 	var instance *r_kvstore.DBInstanceAttribute
 	resourceId := "apsarastack_kvstore_instance.default"
-	ra := resourceAttrInit(resourceId, nil)
+	ra := resourceAttrInit(resourceId, KVStoreInstanceCheckMap)
 	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
 		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}, "DescribeKVstoreInstance")
@@ -131,21 +131,7 @@ func TestAccApsaraStackKVStoreRedisInstance_classictest(t *testing.T) {
 			{
 				Config: testAccKVStoreInstance_classic(string(KVStoreRedis), redisInstanceClassForTest, string(KVStore2Dot8)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":        "tf-testAccKVStoreInstance_classic",
-						"instance_class":       redisInstanceClassForTest,
-						"password":             NOSET,
-						"availability_zone":    CHECKSET,
-						"instance_charge_type": string(PostPaid),
-						"period":               NOSET,
-						"instance_type":        string(KVStoreRedis),
-						"vswitch_id":           "",
-						//"engine_version":       string(KVStore2Dot8),
-						"connection_domain": REGEXMATCH + redisInstanceConnectionDomainRegexp,
-						"private_ip":        "",
-						"backup_id":         NOSET,
-						"security_ips.#":    "1",
-					}),
+					testAccCheck(nil),
 				),
 			},
 			{
@@ -154,212 +140,46 @@ func TestAccApsaraStackKVStoreRedisInstance_classictest(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
 			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateParameter(string(KVStoreRedis), redisInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicAddParameter(string(KVStoreRedis), redisInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicDeleteParameter(string(KVStoreRedis), redisInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateSecuirtyIps(string(KVStoreRedis), redisInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_ips.#": "2",
-						"parameters.#":   REMOVEKEY,
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateClass(string(KVStoreRedis), redisInstanceClassForTestUpdateClass, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_class": redisInstanceClassForTestUpdateClass,
-						"security_ips.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateAttr(string(KVStoreRedis), redisInstanceClassForTestUpdateClass, string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"password": CHECKSET,
-						//"engine_version": string(KVStore4Dot0),
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateTags(string(KVStoreRedis), redisInstanceClassForTestUpdateClass, string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "2",
-						"tags.Created": "TF",
-						"tags.For":     "acceptance test",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateMaintainStartTime(string(KVStoreRedis), redisInstanceClassForTestUpdateClass, string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"maintain_start_time": "02:00Z",
-						"maintain_end_time":   "03:00Z",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateAll(string(KVStoreRedis), redisInstanceClassForTest, string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":  "tf-testAccKVStoreInstance_classicUpdateAll",
-						"instance_class": redisInstanceClassForTest,
-						//"engine_version":      string(KVStore4Dot0),
-						"security_ips.#":      "2",
-						"tags.%":              REMOVEKEY,
-						"tags.Created":        REMOVEKEY,
-						"tags.For":            REMOVEKEY,
-						"maintain_start_time": REMOVEKEY,
-						"maintain_end_time":   REMOVEKEY,
-					}),
-				),
-			},
 		},
 	})
 }
 
-func TestAccApsaraStackKVStoreMemcacheInstance_classictest(t *testing.T) {
-	var instance *r_kvstore.DBInstanceAttribute
-	resourceId := "apsarastack_kvstore_instance.default"
-	ra := resourceAttrInit(resourceId, nil)
-	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
-		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	}, "DescribeKVstoreInstance")
-	rac := resourceAttrCheckInit(rc, ra)
-	testAccCheck := rac.resourceAttrMapUpdateSet()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-
-		// module name
-		IDRefreshName: resourceId,
-
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccKVStoreInstance_classic(string(KVStoreMemcache), memcacheInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":        "tf-testAccKVStoreInstance_classic",
-						"instance_class":       memcacheInstanceClassForTest,
-						"password":             NOSET,
-						"availability_zone":    CHECKSET,
-						"instance_charge_type": string(PostPaid),
-						"period":               NOSET,
-						"instance_type":        string(KVStoreMemcache),
-						"vswitch_id":           "",
-						//"engine_version":       string(KVStore2Dot8),
-						"connection_domain": REGEXMATCH + memcacheInstanceConnectionDomainRegexp,
-						"private_ip":        "",
-						"backup_id":         NOSET,
-						"security_ips.#":    "1",
-					}),
-				),
-			},
-			{
-				ResourceName:            resourceId,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"password"},
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateParameter(string(KVStoreMemcache), memcacheInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicAddParameter(string(KVStoreMemcache), memcacheInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicDeleteParameter(string(KVStoreMemcache), memcacheInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateSecuirtyIps(string(KVStoreMemcache), memcacheInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_ips.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateClass(string(KVStoreMemcache), memcacheInstanceClassForTestUpdateClass, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_class": memcacheInstanceClassForTestUpdateClass,
-						"security_ips.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateAttr(string(KVStoreMemcache), memcacheInstanceClassForTestUpdateClass, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"password": CHECKSET,
-						//"engine_version": string(KVStore2Dot8),
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_classicUpdateAll(string(KVStoreMemcache), memcacheInstanceClassForTest, string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":  "tf-testAccKVStoreInstance_classicUpdateAll",
-						"instance_class": memcacheInstanceClassForTest,
-						//"engine_version": string(KVStore2Dot8),
-						"security_ips.#": "2",
-					}),
-				),
-			},
-		},
-	})
-}
+//func TestAccApsaraStackKVStoreMemcacheInstance_classictest(t *testing.T) {
+//	var instance *r_kvstore.DBInstanceAttribute
+//	resourceId := "apsarastack_kvstore_instance.default"
+//	ra := resourceAttrInit(resourceId, KVStoreInstanceCheckMap)
+//	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
+//		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
+//	}, "DescribeKVstoreInstance")
+//	rac := resourceAttrCheckInit(rc, ra)
+//	testAccCheck := rac.resourceAttrMapUpdateSet()
+//
+//	resource.Test(t, resource.TestCase{
+//		PreCheck: func() {
+//			testAccPreCheck(t)
+//		},
+//
+//		// module name
+//		IDRefreshName: resourceId,
+//
+//		Providers:    testAccProviders,
+//		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
+//		Steps: []resource.TestStep{
+//			{
+//				Config: testAccKVStoreInstance_classic(string(KVStoreMemcache), memcacheInstanceClassForTest, string(KVStore2Dot8)),
+//				Check: resource.ComposeTestCheckFunc(
+//					testAccCheck(nil),
+//				),
+//			},
+//
+//		},
+//	})
+//}
 
 func TestAccApsaraStackKVStoreRedisInstance_vpctest(t *testing.T) {
 	var instance *r_kvstore.DBInstanceAttribute
 	resourceId := "apsarastack_kvstore_instance.default"
-	ra := resourceAttrInit(resourceId, nil)
+	ra := resourceAttrInit(resourceId, KVStoreInstanceCheckMap)
 	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
 		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}, "DescribeKVstoreInstance")
@@ -380,21 +200,7 @@ func TestAccApsaraStackKVStoreRedisInstance_vpctest(t *testing.T) {
 			{
 				Config: testAccKVStoreInstance_vpc(KVStoreCommonTestCase, redisInstanceClassForTest, string(KVStoreRedis), string(KVStore4Dot0)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":        "tf-testAccKVStoreInstance_vpc",
-						"instance_class":       redisInstanceClassForTest,
-						"password":             NOSET,
-						"availability_zone":    CHECKSET,
-						"instance_charge_type": string(PostPaid),
-						"period":               NOSET,
-						"instance_type":        string(KVStoreRedis),
-						"vswitch_id":           CHECKSET,
-						//"engine_version":       string(KVStore4Dot0),
-						"connection_domain": REGEXMATCH + redisInstanceConnectionDomainRegexp,
-						"private_ip":        "172.16.0.10",
-						"backup_id":         NOSET,
-						"security_ips.#":    "1",
-					}),
+					testAccCheck(nil),
 				),
 			},
 			{
@@ -402,186 +208,99 @@ func TestAccApsaraStackKVStoreRedisInstance_vpctest(t *testing.T) {
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"password"},
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateSecurityIps(KVStoreCommonTestCase, redisInstanceClassForTest, string(KVStoreRedis), string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_ips.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateSecurityGroupIds(KVStoreCommonTestCase, redisInstanceClassForTest, string(KVStoreRedis), string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_group_id": CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateClass(KVStoreCommonTestCase, redisInstanceClassForTestUpdateClass, string(KVStoreRedis), string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_class": redisInstanceClassForTestUpdateClass,
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateVpcAuthMode(KVStoreCommonTestCase, redisInstanceClassForTestUpdateClass, string(KVStoreRedis), string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"vpc_auth_mode": "Close",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateParameter(KVStoreCommonTestCase, redisInstanceClassForTestUpdateClass, string(KVStoreRedis), string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcAddParameter(KVStoreCommonTestCase, redisInstanceClassForTestUpdateClass, string(KVStoreRedis), string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcDeleteParameter(KVStoreCommonTestCase, redisInstanceClassForTestUpdateClass, string(KVStoreRedis), string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateAll(KVStoreCommonTestCase, redisInstanceClassForTest, string(KVStoreRedis), string(KVStore4Dot0)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":  "tf-testAccKVStoreInstance_vpcUpdateAll",
-						"password":       CHECKSET,
-						"instance_class": redisInstanceClassForTest,
-						"security_ips.#": "1",
-					}),
-				),
 			},
 		},
 	})
 }
 
 // Currently Memcache instance only supports engine version 2.8.
-func TestAccApsaraStackKVStoreMemcacheInstance_vpctest(t *testing.T) {
-	var instance *r_kvstore.DBInstanceAttribute
-	resourceId := "apsarastack_kvstore_instance.default"
-	ra := resourceAttrInit(resourceId, nil)
-	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
-		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	}, "DescribeKVstoreInstance")
-	rac := resourceAttrCheckInit(rc, ra)
-	testAccCheck := rac.resourceAttrMapUpdateSet()
-
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-
-		// module name
-		IDRefreshName: resourceId,
-
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccKVStoreInstance_vpc(KVStoreCommonTestCase, memcacheInstanceClassForTest, string(KVStoreMemcache), string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":        "tf-testAccKVStoreInstance_vpc",
-						"instance_class":       memcacheInstanceClassForTest,
-						"password":             NOSET,
-						"availability_zone":    CHECKSET,
-						"instance_charge_type": string(PostPaid),
-						"period":               NOSET,
-						"instance_type":        string(KVStoreMemcache),
-						"vswitch_id":           CHECKSET,
-						//"engine_version":       string(KVStore2Dot8),
-						"connection_domain": REGEXMATCH + memcacheInstanceConnectionDomainRegexp,
-						"private_ip":        "172.16.0.10",
-						"backup_id":         NOSET,
-						"security_ips.#":    "1",
-					}),
-				),
-			},
-			{
-				ResourceName:            resourceId,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"password"},
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateSecurityIps(KVStoreCommonTestCase, memcacheInstanceClassForTest, string(KVStoreMemcache), string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_ips.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateClass(KVStoreCommonTestCase, memcacheInstanceClassForTestUpdateClass, string(KVStoreMemcache), string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_class": memcacheInstanceClassForTestUpdateClass,
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateParameter(KVStoreCommonTestCase, memcacheInstanceClassForTestUpdateClass, string(KVStoreMemcache), string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcAddParameter(KVStoreCommonTestCase, memcacheInstanceClassForTestUpdateClass, string(KVStoreMemcache), string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcDeleteParameter(KVStoreCommonTestCase, memcacheInstanceClassForTestUpdateClass, string(KVStoreMemcache), string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"parameters.#": "1",
-					}),
-				),
-			},
-			{
-				Config: testAccKVStoreInstance_vpcUpdateAll(KVStoreCommonTestCase, memcacheInstanceClassForTest, string(KVStoreMemcache), string(KVStore2Dot8)),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":  "tf-testAccKVStoreInstance_vpcUpdateAll",
-						"instance_class": memcacheInstanceClassForTest,
-						"parameters.#":   "1",
-						"security_ips.#": "1",
-						"password":       CHECKSET,
-					}),
-				),
-			},
-		},
-	})
-}
+//func TestAccApsaraStackKVStoreMemcacheInstance_vpctest(t *testing.T) {
+//	var instance *r_kvstore.DBInstanceAttribute
+//	resourceId := "apsarastack_kvstore_instance.default"
+//	ra := resourceAttrInit(resourceId, KVStoreInstanceCheckMap)
+//	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
+//		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
+//	}, "DescribeKVstoreInstance")
+//	rac := resourceAttrCheckInit(rc, ra)
+//	testAccCheck := rac.resourceAttrMapUpdateSet()
+//
+//	resource.Test(t, resource.TestCase{
+//		PreCheck: func() {
+//			testAccPreCheck(t)
+//		},
+//
+//		// module name
+//		IDRefreshName: resourceId,
+//
+//		Providers:    testAccProviders,
+//		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
+//		Steps: []resource.TestStep{
+//			{
+//				Config: testAccKVStoreInstance_vpc(KVStoreCommonTestCase, memcacheInstanceClassForTest, string(KVStoreMemcache), string(KVStore2Dot8)),
+//				Check: resource.ComposeTestCheckFunc(
+//					testAccCheck(nil),
+//				),
+//			},
+//			{
+//				ResourceName:            resourceId,
+//				ImportState:             true,
+//				ImportStateVerify:       true,
+//				ImportStateVerifyIgnore: []string{"password"},
+//			},
+//			{
+//				Config: testAccKVStoreInstance_vpcUpdateSecurityIps(KVStoreCommonTestCase, memcacheInstanceClassForTest, string(KVStoreMemcache), string(KVStore2Dot8)),
+//				Check: resource.ComposeTestCheckFunc(
+//					testAccCheck(map[string]string{
+//						"security_ips.#": "2",
+//					}),
+//				),
+//			},
+//			//{
+//			//	Config: testAccKVStoreInstance_vpcUpdateClass(KVStoreCommonTestCase, memcacheInstanceClassForTestUpdateClass, string(KVStoreMemcache), string(KVStore2Dot8)),
+//			//	Check: resource.ComposeTestCheckFunc(
+//			//		testAccCheck(map[string]string{
+//			//			"instance_class": memcacheInstanceClassForTestUpdateClass,
+//			//		}),
+//			//	),
+//			//},
+//			//{
+//			//	Config: testAccKVStoreInstance_vpcUpdateParameter(KVStoreCommonTestCase, memcacheInstanceClassForTestUpdateClass, string(KVStoreMemcache), string(KVStore2Dot8)),
+//			//	Check: resource.ComposeTestCheckFunc(
+//			//		testAccCheck(map[string]string{
+//			//			"parameters.#": "1",
+//			//		}),
+//			//	),
+//			//},
+//			//{
+//			//	Config: testAccKVStoreInstance_vpcAddParameter(KVStoreCommonTestCase, memcacheInstanceClassForTestUpdateClass, string(KVStoreMemcache), string(KVStore2Dot8)),
+//			//	Check: resource.ComposeTestCheckFunc(
+//			//		testAccCheck(map[string]string{
+//			//			"parameters.#": "2",
+//			//		}),
+//			//	),
+//			//},
+//			//{
+//			//	Config: testAccKVStoreInstance_vpcDeleteParameter(KVStoreCommonTestCase, memcacheInstanceClassForTestUpdateClass, string(KVStoreMemcache), string(KVStore2Dot8)),
+//			//	Check: resource.ComposeTestCheckFunc(
+//			//		testAccCheck(map[string]string{
+//			//			"parameters.#": "1",
+//			//		}),
+//			//	),
+//			//},
+//			{
+//				Config: testAccKVStoreInstance_vpcUpdateAll(KVStoreCommonTestCase, memcacheInstanceClassForTest, string(KVStoreMemcache), string(KVStore2Dot8)),
+//				Check: resource.ComposeTestCheckFunc(
+//					testAccCheck(nil),
+//				),
+//			},
+//		},
+//	})
+//}
 
 func TestAccApsaraStackKVStoreRedisInstance_vpcmulti(t *testing.T) {
 	var instance *r_kvstore.DBInstanceAttribute
-	resourceId := "apsarastack_kvstore_instance.default.9"
-	ra := resourceAttrInit(resourceId, nil)
+	resourceId := "apsarastack_kvstore_instance.default.2"
+	ra := resourceAttrInit(resourceId, KVStoreInstanceCheckMap)
 	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
 		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}, "DescribeKVstoreInstance")
@@ -602,21 +321,7 @@ func TestAccApsaraStackKVStoreRedisInstance_vpcmulti(t *testing.T) {
 			{
 				Config: testAccKVStoreInstance_vpcmulti(KVStoreCommonTestCase, redisInstanceClassForTest, string(KVStoreRedis), string(KVStore2Dot8)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":        "tf-testAccKVStoreInstance_vpc",
-						"instance_class":       redisInstanceClassForTest,
-						"password":             CHECKSET,
-						"availability_zone":    CHECKSET,
-						"instance_charge_type": string(PostPaid),
-						"period":               NOSET,
-						"instance_type":        string(KVStoreRedis),
-						"vswitch_id":           CHECKSET,
-						//"engine_version":       string(KVStore2Dot8),
-						"connection_domain": REGEXMATCH + redisInstanceConnectionDomainRegexp,
-						"private_ip":        CHECKSET,
-						"backup_id":         NOSET,
-						"security_ips.#":    "1",
-					}),
+					testAccCheck(nil),
 				),
 			},
 		},
@@ -625,8 +330,8 @@ func TestAccApsaraStackKVStoreRedisInstance_vpcmulti(t *testing.T) {
 
 func TestAccApsaraStackKVStoreRedisInstance_classicmulti(t *testing.T) {
 	var instance *r_kvstore.DBInstanceAttribute
-	resourceId := "apsarastack_kvstore_instance.default.9"
-	ra := resourceAttrInit(resourceId, nil)
+	resourceId := "apsarastack_kvstore_instance.default.2"
+	ra := resourceAttrInit(resourceId, KVStoreInstanceCheckMap)
 	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
 		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}, "DescribeKVstoreInstance")
@@ -647,21 +352,7 @@ func TestAccApsaraStackKVStoreRedisInstance_classicmulti(t *testing.T) {
 			{
 				Config: testAccKVStoreInstance_classicmulti(string(KVStoreRedis), redisInstanceClassForTest, string(KVStore2Dot8)),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"instance_name":        "tf-testAccKVStoreInstance_classic",
-						"instance_class":       redisInstanceClassForTest,
-						"password":             NOSET,
-						"availability_zone":    CHECKSET,
-						"instance_charge_type": string(PostPaid),
-						"period":               NOSET,
-						"instance_type":        string(KVStoreRedis),
-						"vswitch_id":           "",
-						//"engine_version":       string(KVStore2Dot8),
-						"connection_domain": REGEXMATCH + redisInstanceConnectionDomainRegexp,
-						"private_ip":        "",
-						"backup_id":         NOSET,
-						"security_ips.#":    "1",
-					}),
+					testAccCheck(nil),
 				),
 			},
 		},
@@ -691,22 +382,38 @@ func testAccCheckKVStoreInstanceDestroy(s *terraform.State) error {
 
 func testAccKVStoreInstance_classic(instanceType, instanceClass, engineVersion string) string {
 	return fmt.Sprintf(`
-	data "apsarastack_zones" "default" {
-		available_resource_creation = "KVStore"
-	}
-	variable "name" {
-		default = "tf-testAccKVStoreInstance_classic"
-	}
+	
+variable "name" {
+    default = "tf-testAccCheckApsaraStackRKVInstancesDataSource4"
+}
+data "apsarastack_zones"  "default" {
+}
+resource "apsarastack_vpc" "default" {
+	name       = var.name
+	cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+	vpc_id            = apsarastack_vpc.default.id
+	cidr_block        = "172.16.0.0/24"
+	availability_zone = data.apsarastack_zones.default.zones[0].id
+	name              = var.name
+}
+resource "apsarastack_kvstore_instance" "default" {
+	instance_name  = var.name
+	vswitch_id     = apsarastack_vswitch.default.id
+	private_ip     = "172.16.0.10"
+	security_ips   = ["10.0.0.1"]
+	instance_type  = "%s"
+	instance_class = "%s"
+	engine_version = "%s"
+}
 
-	resource "apsarastack_kvstore_instance" "default" {
-		availability_zone = "${lookup(data.apsarastack_zones.default.zones[(length(data.apsarastack_zones.default.zones)-1)%%length(data.apsarastack_zones.default.zones)], "id")}"
-		instance_name  = "${var.name}"
-		security_ips = ["10.0.0.1"]
-		instance_type = "%s"
-		instance_class = "%s"
-		//engine_version = "%s"
-	}
 	`, instanceType, instanceClass, engineVersion)
+}
+
+var KVStoreInstanceCheckMap = map[string]string{
+	"instance_name":  CHECKSET,
+	"instance_class": CHECKSET,
 }
 
 func testAccKVStoreInstance_classicUpdateParameter(instanceType, instanceClass, engineVersion string) string {
@@ -724,7 +431,7 @@ func testAccKVStoreInstance_classicUpdateParameter(instanceType, instanceClass, 
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 		parameters {
 			  name = "maxmemory-policy"
 			  value = "volatile-ttl"
@@ -748,7 +455,7 @@ func testAccKVStoreInstance_classicAddParameter(instanceType, instanceClass, eng
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 		parameters {
 				name = "maxmemory-policy"
 				value = "volatile-ttl"
@@ -776,7 +483,7 @@ func testAccKVStoreInstance_classicDeleteParameter(instanceType, instanceClass, 
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 		parameters {
 				name = "slowlog-max-len"
 				value = "1111"
@@ -800,7 +507,7 @@ func testAccKVStoreInstance_classicUpdateSecuirtyIps(instanceType, instanceClass
 		security_ips = ["10.0.0.3", "10.0.0.2"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, instanceType, instanceClass, engineVersion)
 }
@@ -819,7 +526,7 @@ func testAccKVStoreInstance_classicUpdateClass(instanceType, instanceClass, engi
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, instanceType, instanceClass, engineVersion)
 }
@@ -839,7 +546,7 @@ func testAccKVStoreInstance_classicUpdateAttr(instanceType, instanceClass, engin
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, instanceType, instanceClass, engineVersion)
 }
@@ -859,7 +566,7 @@ func testAccKVStoreInstance_classicUpdateTags(instanceType, instanceClass, engin
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 		tags = {
 			Created = "TF"
 			For		= "acceptance test"
@@ -883,7 +590,7 @@ func testAccKVStoreInstance_classicUpdateMaintainStartTime(instanceType, instanc
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 		maintain_start_time = "02:00Z"
 		maintain_end_time = "03:00Z"
 		tags = {
@@ -895,21 +602,18 @@ func testAccKVStoreInstance_classicUpdateMaintainStartTime(instanceType, instanc
 }
 func testAccKVStoreInstance_classicUpdateAll(instanceType, instanceClass, engineVersion string) string {
 	return fmt.Sprintf(`
-	data "apsarastack_zones" "default" {
-		available_resource_creation = "KVStore"
-	}
+	
 	variable "name" {
 		default = "tf-testAccKVStoreInstance_classicUpdateAll"
 	}
 
 	resource "apsarastack_kvstore_instance" "default" {
-		availability_zone = "${lookup(data.apsarastack_zones.default.zones[(length(data.apsarastack_zones.default.zones)-1)%%length(data.apsarastack_zones.default.zones)], "id")}"
 		password = "Yourpassword1234"
 		instance_name  = "${var.name}"
 		security_ips = ["10.0.0.2","10.0.0.3"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, instanceType, instanceClass, engineVersion)
 }
@@ -930,7 +634,7 @@ func testAccKVStoreInstance_vpc(common, instanceClass, instanceType, engineVersi
 		private_ip     = "172.16.0.10"
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -941,7 +645,7 @@ func testAccKVStoreInstance_vpcUpdateSecurityIps(common, instanceClass, instance
 		default = "KVStore"
 	}
 	variable "name" {
-		default = "tf-testAccKVStoreInstance_vpc"
+		default = "tf-testAccKVStoreInstance_vpcc"
 	}
 	resource "apsarastack_kvstore_instance" "default" {
 		instance_class = "%s"
@@ -950,7 +654,7 @@ func testAccKVStoreInstance_vpcUpdateSecurityIps(common, instanceClass, instance
 		private_ip     = "172.16.0.10"
 		security_ips = ["10.0.0.3", "10.0.0.2"]
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -973,7 +677,7 @@ func testAccKVStoreInstance_vpcUpdateSecurityGroupIds(common, instanceClass, ins
 		private_ip     = "172.16.0.10"
 		security_ips = ["10.0.0.3", "10.0.0.2"]
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 		security_group_id    = "${data.apsarastack_security_groups.default.groups.0.id}"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
@@ -996,7 +700,7 @@ func testAccKVStoreInstance_vpcUpdateVpcAuthMode(common, instanceClass, instance
 		private_ip     = "172.16.0.10"
 		security_ips = ["10.0.0.3", "10.0.0.2"]
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -1021,7 +725,7 @@ func testAccKVStoreInstance_vpcUpdateParameter(common, instanceClass, instanceTy
 			  value = "volatile-ttl"
 			}
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -1050,7 +754,7 @@ func testAccKVStoreInstance_vpcAddParameter(common, instanceClass, instanceType,
 				value = "1111"
 			}
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -1075,7 +779,7 @@ func testAccKVStoreInstance_vpcDeleteParameter(common, instanceClass, instanceTy
 				value = "1111"
 			}
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -1096,7 +800,7 @@ func testAccKVStoreInstance_vpcUpdateClass(common, instanceClass, instanceType, 
 		private_ip     = "172.16.0.10"
 		security_ips = ["10.0.0.3", "10.0.0.2"]
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -1107,7 +811,7 @@ func testAccKVStoreInstance_vpcUpdateAll(common, instanceClass, instanceType, en
 		default = "KVStore"
 	}
 	variable "name" {
-		default = "tf-testAccKVStoreInstance_vpcUpdateAll"
+		default = "tf-testAccKVStoreInstancevpcUpdateAlll"
 	}
 	resource "apsarastack_kvstore_instance" "default" {
 		instance_class = "%s"
@@ -1115,9 +819,9 @@ func testAccKVStoreInstance_vpcUpdateAll(common, instanceClass, instanceType, en
 		password       = "Yourpassword1234"
 		vswitch_id     = "${apsarastack_vswitch.default.id}"
 		private_ip     = "172.16.0.10"
-		security_ips = ["10.0.0.1"]
+		security_ips = ["10.0.0.1", "10.0.0.4"]
 		instance_type = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -1132,35 +836,32 @@ func testAccKVStoreInstance_vpcmulti(common, instanceClass, instanceType, engine
 		default = "tf-testAccKVStoreInstance_vpc"
 	}
 	resource "apsarastack_kvstore_instance" "default" {
-		count		   = 10
+		count		   = 3
 		instance_class = "%s"
 		instance_name  = "${var.name}"
 		password       = "Yourpassword1234"
 		vswitch_id     = "${apsarastack_vswitch.default.id}"
 		security_ips   = ["10.0.0.1"]
 		instance_type  = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
 
 func testAccKVStoreInstance_classicmulti(instanceType, instanceClass, engineVersion string) string {
 	return fmt.Sprintf(`
-	data "apsarastack_zones" "default" {
-		available_resource_creation = "KVStore"
-	}
+
 	variable "name" {
 		default = "tf-testAccKVStoreInstance_classic"
 	}
 
 	resource "apsarastack_kvstore_instance" "default" {
-		count = 10
-		availability_zone = "${lookup(data.apsarastack_zones.default.zones[(length(data.apsarastack_zones.default.zones)-1)%%length(data.apsarastack_zones.default.zones)], "id")}"
+		count = 3
 		instance_name  = "${var.name}"
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		instance_class = "%s"
-		//engine_version = "%s"
+		engine_version = "%s"
 	}
 	`, instanceType, instanceClass, engineVersion)
 }

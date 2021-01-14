@@ -7,36 +7,48 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"regexp"
 	"strings"
 )
 
-func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
+func dataSourceApsarastackCmsAlarmContacts() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackInstanceFamiliesRead,
+		Read: dataSourceApsarastackCmsAlarmContactsRead,
 		Schema: map[string]*schema.Schema{
+			"name_regex": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.ValidateRegexp,
+				ForceNew:     true,
+			},
+			"names": {
+				Type:     schema.TypeList,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Computed: true,
+			},
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
+			},
+			"chanel_type": {
+				Type:     schema.TypeString,
+				Optional: true,
 				ForceNew: true,
-				MinItems: 1,
 			},
-			"resource_type": {
+			"chanel_value": {
 				Type:     schema.TypeString,
-				Required: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				ForceNew: true,
 			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
-			"families": {
+			"contacts": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -45,11 +57,7 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_type": {
+						"alarm_contact_name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -60,14 +68,14 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
+func dataSourceApsarastackCmsAlarmContactsRead(d *schema.ResourceData, meta interface{}) error {
 
+	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	request.Method = "POST"
+	request.Method = "GET"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	if strings.ToLower(client.Config.Protocol) == "https" {
@@ -76,17 +84,17 @@ func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta inte
 		request.Scheme = "http"
 	}
 	request.RegionId = client.RegionId
-	request.ApiName = "DescribeSeriesIdFamilies"
+	request.ApiName = "ListCmsContacts"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "DescribeSeriesIdFamilies", "Version": "2019-05-10"}
-	response := InstanceFamily{}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListCmsContacts", "Version": string(connectivity.ApiVersion20190510)}
+	response := CmsContact{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cms_alarm_contacts", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
@@ -95,38 +103,37 @@ func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta inte
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Success == true || len(response.Data) < 1 {
+		if response.Code == "200" || len(response.Data) < 1 {
 			break
 		}
 
 	}
-
 	var r *regexp.Regexp
-	if rt, ok := d.GetOk("resource_type"); ok && rt.(string) != "" {
-		r = regexp.MustCompile(rt.(string))
+	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
 	}
 	var ids []string
 	var s []map[string]interface{}
-	for _, rg := range response.Data {
-		if r != nil && !r.MatchString(rg.ResourceType) {
+	for _, c := range response.Data {
+		if r != nil && !r.MatchString(c.Name) {
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":            rg.OrderBy.ID,
-			"resource_type": rg.ResourceType,
-			"status":        rg.Status,
+			"id":                 c.Cid,
+			"alarm_contact_name": c.Name,
 		}
-		ids = append(ids, rg.OrderBy.ID)
+		ids = append(ids, c.Cid)
+
 		s = append(s, mapping)
 	}
-
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("families", s); err != nil {
+
+	if err := d.Set("contacts", s); err != nil {
 		return WrapError(err)
 	}
-
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
 	return nil
+
 }

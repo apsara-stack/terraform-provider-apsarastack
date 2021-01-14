@@ -42,9 +42,6 @@ func dataSourceApsaraStackAscmEnvironmentServicesRead(d *schema.ResourceData, me
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
 	request.Method = "GET"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
