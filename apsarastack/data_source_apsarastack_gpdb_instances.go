@@ -117,9 +117,6 @@ func dataSourceApsaraStackGpdbInstancesRead(d *schema.ResourceData, meta interfa
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
 	request.Method = "POST"
 	request.Product = "gpdb"
 	request.Version = "2016-05-03"

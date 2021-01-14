@@ -1,15 +1,28 @@
 package apsarastack
 
-/*func TestAccApsaraStackAscm_UserBasic(t *testing.T) {
-	var v ecs.KeyPair
+import (
+	"fmt"
+	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"os"
+	"testing"
+)
+
+func TestAccApsaraStackAscm_UserBasic(t *testing.T) {
+	var v *User
 	resourceId := "apsarastack_ascm_user.default"
-	ra := resourceAttrInit(resourceId, nil)
+	ra := resourceAttrInit(resourceId, ascmuserBasicMap)
 	serviceFunc := func() interface{} {
-		return &EcsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
+		return &AscmService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
+	rand := acctest.RandInt()
+	name := fmt.Sprintf("tf-ascmusers%v", rand)
+	testAccConfig := resourceTestAccConfigFunc(resourceId, name, testascmuserconfigbasic)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -18,15 +31,20 @@ package apsarastack
 		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  rac.checkResourceDestroy(),
-		//	CheckDestroy:  testAccCheckAscm_E_OrganizationDestroy,
+		CheckDestroy:  testAccCheckAscm_UserDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:testAccAscm_USer_Resource_Basic ,
+				Config: testAccConfig(map[string]interface{}{
+					"cellphone_number":   "8999995370",
+					"email":              "test01@gmail.com",
+					"display_name":       "Test_Apsara",
+					"organization_id":    os.Getenv("APSARASTACK_DEPARTMENT"),
+					"mobile_nation_code": "91",
+					"login_name":         name,
+				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -38,32 +56,34 @@ func testAccCheckAscm_UserDestroy(s *terraform.State) error { //destroy function
 	ascmService := AscmService{client}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type == "apsarastack_ascm_user" || rs.Type != "apsarastack_ascm_user" {
+		if true {
 			continue
 		}
-		ascm, err := ascmService.DescribeAscmUser(rs.Primary.ID)
-		if err != nil {
+		_, err := ascmService.DescribeAscmUser(rs.Primary.ID)
+		if err == nil {
 			if NotFoundError(err) {
 				continue
 			}
 			return WrapError(err)
 		}
-		if ascm.Message != "" {
-			return WrapError(Error("resource  still exist"))
-		}
 	}
 
 	return nil
 }
+func testascmuserconfigbasic(name string) string {
+	return fmt.Sprintf(`
+variable name{
+ default = "%s"
+}
 
-const testAccAscm_USer_Resource_Basic = `
-resource "apsarastack_ascm_user" "user" {
-  cellphone_number = "899999537"
-  email = "test@gmail.com"
-  display_name = "C2C-DEL3"
-  organization_id = "54437"
-  mobile_nation_code = "91"
-  login_name = "C2C_apsara_C2C"
-}`
+`, name)
+}
 
-*/
+var ascmuserBasicMap = map[string]string{
+	"cellphone_number":   CHECKSET,
+	"email":              CHECKSET,
+	"display_name":       CHECKSET,
+	"organization_id":    CHECKSET,
+	"mobile_nation_code": CHECKSET,
+	"login_name":         CHECKSET,
+}

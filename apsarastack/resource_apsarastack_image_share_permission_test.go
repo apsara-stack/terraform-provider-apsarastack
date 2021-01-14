@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"os"
 	"testing"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -27,7 +26,7 @@ func TestAccApsaraStackImageSharePermission(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			testAccPreCheckWithMultipleAccount(t)
+			//testAccPreCheckWithMultipleAccount(t)
 		},
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
@@ -36,7 +35,7 @@ func TestAccApsaraStackImageSharePermission(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"image_id":   "${apsarastack_image.default.id}",
-					"account_id": os.Getenv("APSARASTACK_ACCESS_KEY_2"),
+					"account_id": "123456789",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -62,6 +61,8 @@ func resourceImageSharePermissionConfigDependence(name string) string {
 variable "name" {
 	default = "%s"
 }
+data "apsarastack_zones" "default" {
+    }
 data "apsarastack_instance_types" "default" {
  	cpu_core_count    = 1
 	memory_size       = 2
@@ -77,7 +78,7 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   name              = "${var.name}"
 }
 resource "apsarastack_security_group" "default" {
