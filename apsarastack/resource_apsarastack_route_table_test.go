@@ -212,7 +212,7 @@ func TestAccApsaraStackRouteTableBasic(t *testing.T) {
 func TestAccApsaraStackRouteTableMulti(t *testing.T) {
 	var v vpc.RouterTableListType
 	rand := acctest.RandIntRange(1000, 9999)
-	resourceId := "apsarastack_route_table.default"
+	resourceId := "apsarastack_route_table.default.4"
 	ra := resourceAttrInit(resourceId, map[string]string{
 		"vpc_id":      CHECKSET,
 		"name":        fmt.Sprintf("tf-testAccRouteTable%d", rand),
@@ -351,7 +351,7 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_route_table" "default" {
   count = 5
   vpc_id = "${apsarastack_vpc.default.id}"
-  name = "${var.name}"
+  name = var.name
 }
 `, rand)
 }

@@ -215,6 +215,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_environment_services":  dataSourceApsaraStackAscmEnvironmentServices(),
 			"apsarastack_ascm_password_policies":     dataSourceApsaraStackAscmPasswordPolicies(),
 			"apsarastack_ascm_quota":                 dataSourceApsaraStackQuota(),
+			"apsarastack_cms_alarm_contacts":         dataSourceApsarastackCmsAlarmContacts(),
+			"apsarastack_cms_alarm_contact_groups":   dataSourceApsarastackCmsAlarmContactGroups(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -313,6 +315,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_cms_alarm":                           resourceApsaraStackCmsAlarm(),
 			"apsarastack_cms_site_monitor":                    resourceApsaraStackCmsSiteMonitor(),
 			"apsarastack_ascm_logon_policy":                   resourceApsaraStackLogonPolicy(),
+			"apsarastack_cms_alarm_contact":                   resourceApsarastackCmsAlarmContact(),
+			"apsarastack_cms_alarm_contact_group":             resourceApsarastackCmsAlarmContactGroup(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -416,6 +420,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.GpdbEndpoint = domain
 		config.DdsEndpoint = domain
 		config.CsEndpoint = domain
+		config.CmsEndpoint = domain
 
 	} else {
 
@@ -439,6 +444,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.GpdbEndpoint = strings.TrimSpace(endpoints["gpdb"].(string))
 			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
+			config.CmsEndpoint = strings.TrimSpace(endpoints["cms"].(string))
 		}
 	}
 	if strings.ToLower(config.Protocol) == "https" {

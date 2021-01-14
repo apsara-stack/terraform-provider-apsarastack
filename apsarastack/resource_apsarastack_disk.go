@@ -59,6 +59,10 @@ func resourceApsaraStackDisk() *schema.Resource {
 				Optional:      true,
 				ConflictsWith: []string{"encrypted"},
 			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 
 			"encrypted": {
 				Type:          schema.TypeBool,
@@ -139,6 +143,10 @@ func resourceApsaraStackDiskCreate(d *schema.ResourceData, meta interface{}) err
 	if v, ok := d.GetOk("encrypted"); ok {
 		request.Encrypted = requests.NewBoolean(v.(bool))
 	}
+	if v, ok := d.GetOk("kms_key_id"); ok {
+		request.KMSKeyId = v.(string)
+	}
+
 	if v, ok := d.GetOk("tags"); ok && len(v.(map[string]interface{})) > 0 {
 		tags := make([]ecs.CreateDiskTag, len(v.(map[string]interface{})))
 		for key, value := range v.(map[string]interface{}) {
@@ -187,6 +195,7 @@ func resourceApsaraStackDiskRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("description", object.Description)
 	d.Set("snapshot_id", object.SourceSnapshotId)
 	d.Set("encrypted", object.Encrypted)
+	d.Set("kms_key_id", object.KMSKeyId)
 	d.Set("delete_auto_snapshot", object.DeleteAutoSnapshot)
 	d.Set("delete_with_instance", object.DeleteWithInstance)
 	d.Set("enable_auto_snapshot", object.EnableAutoSnapshot)

@@ -130,6 +130,9 @@ func resourceApsaraStackGpdbInstanceCreate(d *schema.ResourceData, meta interfac
 	} else {
 		request.Scheme = "http"
 	}
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if err != nil {
