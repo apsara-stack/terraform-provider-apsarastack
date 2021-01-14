@@ -40,27 +40,6 @@ func dataSourceApsaraStackKVStoreInstanceClasses() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"performance_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"standard_performance_type", "enhance_performance_type"}, false),
-				Deprecated:   "The parameter 'performance_type' has been deprecated from 1.68.0.",
-			},
-			"storage_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"inmemory", "hybrid"}, false),
-				Deprecated:   "The parameter 'storage_type' has been deprecated from 1.68.0.",
-			},
-			"package_type": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"standard", "customized"}, false),
-				Deprecated:   "The parameter 'package_type' has been deprecated from 1.68.0.",
-			},
 			"architecture": {
 				Type:         schema.TypeString,
 				Optional:     true,

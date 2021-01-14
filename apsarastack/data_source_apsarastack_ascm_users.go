@@ -139,7 +139,7 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 	request.RegionId = client.RegionId
 	request.ApiName = "ListUsers"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListUsers", "Version": "2019-05-10"}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListUsers", "Version": string(connectivity.ApiVersion20190510)}
 	response := User{}
 
 	for {

@@ -17,11 +17,10 @@ func TestAccApsaraStackCRReposDataSource(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_cr_repos.default"),
-					resource.TestCheckResourceAttr("data.apsarastack_cr_repos.default", "repos.#", "0"),
-					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.0.namespace"),
-					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.0.name"),
-					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.0.repo_type"),
-					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.0.summary"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.namespace"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.name"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.repo_type"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_cr_repos.default", "repos.summary"),
 					resource.TestCheckResourceAttrSet("data.apsarastack_cr_repos.default", "ids.#"),
 				),
 			},

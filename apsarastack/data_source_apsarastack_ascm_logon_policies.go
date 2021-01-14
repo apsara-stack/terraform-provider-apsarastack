@@ -34,10 +34,10 @@ func dataSourceApsaraStackAscmLogonPolicies() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+			"names": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"ip_ranges": {
 				Type:     schema.TypeList,
@@ -123,7 +123,7 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
-	request.Method = "Get"
+	request.Method = "GET"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	if strings.ToLower(client.Config.Protocol) == "https" {
@@ -152,7 +152,7 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Code == "200" || len(response.Data) < 1 {
+		if response.Code == "200" {
 			break
 		}
 
