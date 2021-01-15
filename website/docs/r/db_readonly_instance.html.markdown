@@ -1,7 +1,7 @@
 ---
 subcategory: "RDS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_db_readonly_instance"
+page_title: "Apsarastack: apsarastack_db_readonly_instance"
 sidebar_current: "docs-apsarastack-resource-db-readonly-instance"
 description: |-
   Provides an RDS readonly instance resource.

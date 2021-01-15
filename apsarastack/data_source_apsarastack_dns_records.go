@@ -1,15 +1,15 @@
 package apsarastack
 
 import (
-	"fmt"
-	"regexp"
-	"strings"
-
+	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"regexp"
+	"strconv"
 )
 
 func dataSourceApsaraStackDnsRecords() *schema.Resource {
@@ -17,17 +17,12 @@ func dataSourceApsaraStackDnsRecords() *schema.Resource {
 		Read: dataSourceApsaraStackDnsRecordsRead,
 
 		Schema: map[string]*schema.Schema{
-			"domain_name": {
+			"domain_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 			"host_record_regex": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"value_regex": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -39,22 +34,6 @@ func dataSourceApsaraStackDnsRecords() *schema.Resource {
 				// must be one of [A, NS, MX, TXT, CNAME, SRV, AAAA, CAA, REDIRECT_URL, FORWORD_URL]
 				ValidateFunc: validation.StringInSlice([]string{"A", "NS", "MX", "TXT", "CNAME", "SRV", "AAAA", "CAA", "REDIRECT_URL", "FORWORD_URL"}, false),
 			},
-			"line": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"status": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"enable", "disable"}, true),
-			},
-			"is_locked": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-			},
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -65,11 +44,6 @@ func dataSourceApsaraStackDnsRecords() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"urls": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
 			// Computed values
 			"records": {
 				Type:     schema.TypeList,
@@ -77,10 +51,10 @@ func dataSourceApsaraStackDnsRecords() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"record_id": {
-							Type:     schema.TypeString,
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"domain_name": {
+						"domain_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -92,28 +66,17 @@ func dataSourceApsaraStackDnsRecords() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"value": {
+						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
+						},
+						"rr_set": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 						"ttl": {
 							Type:     schema.TypeFloat,
-							Computed: true,
-						},
-						"priority": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
-						"line": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"status": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"locked": {
-							Type:     schema.TypeBool,
 							Computed: true,
 						},
 					},
@@ -125,118 +88,72 @@ func dataSourceApsaraStackDnsRecords() *schema.Resource {
 
 func dataSourceApsaraStackDnsRecordsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-
-	request := alidns.CreateDescribeDomainRecordsRequest()
+	DomainId := d.Get("domain_id").(string)
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "GenesisDns"
+	request.Domain = client.Domain
+	request.Version = "2018-07-20"
+	request.Scheme = "http"
+	request.ApiName = "ObtainGlobalAuthRecordList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.RegionId = client.RegionId
-	request.DomainName = d.Get("domain_name").(string)
-	if v, ok := d.GetOk("type"); ok && v.(string) != "" {
-		request.TypeKeyWord = v.(string)
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "GenesisDns",
+		"RegionId":        client.RegionId,
+		"Action":          "ObtainGlobalAuthRecordList",
+		"Version":         "2018-07-20",
+		"Id":              DomainId,
 	}
 
-	var allRecords []alidns.Record
+	response := DnsRecord{}
 
-	request.PageSize = requests.NewInteger(PageSizeLarge)
-	request.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
-			return dnsClient.DescribeDomainRecords(request)
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_dns_records", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		response, _ := raw.(*alidns.DescribeDomainRecordsResponse)
-		records := response.DomainRecords.Record
-		for _, record := range records {
-			allRecords = append(allRecords, record)
-		}
 
-		if len(records) < PageSizeLarge {
-			break
-		}
-		page, err := getNextpageNumber(request.PageNumber)
+		bresponse, _ := raw.(*responses.CommonResponse)
+
+		err = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
 		if err != nil {
 			return WrapError(err)
 		}
-		request.PageNumber = page
+		if response.AsapiSuccess == false {
+			break
+		}
+
+	}
+	var r *regexp.Regexp
+	if nameRegex, ok := d.GetOk("host_record_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
 	}
 
-	var filteredRecords []alidns.Record
-	idsMap := make(map[string]string)
-	if v, ok := d.GetOk("ids"); ok {
-		for _, vv := range v.([]interface{}) {
-			idsMap[vv.(string)] = vv.(string)
-		}
-	}
-	for _, record := range allRecords {
-		if v, ok := d.GetOk("line"); ok && v.(string) != "" && strings.ToUpper(record.Line) != strings.ToUpper(v.(string)) {
-			continue
-		}
-
-		if v, ok := d.GetOk("status"); ok && v.(string) != "" && strings.ToUpper(record.Status) != strings.ToUpper(v.(string)) {
-			continue
-		}
-
-		if v, ok := d.GetOk("is_locked"); ok && record.Locked != v.(bool) {
-			continue
-		}
-
-		if v, ok := d.GetOk("host_record_regex"); ok && v.(string) != "" {
-			r := regexp.MustCompile(v.(string))
-			if !r.MatchString(record.RR) {
-				continue
-			}
-		}
-
-		if v, ok := d.GetOk("value_regex"); ok && v.(string) != "" {
-			r := regexp.MustCompile(v.(string))
-			if !r.MatchString(record.Value) {
-				continue
-			}
-		}
-		if len(idsMap) > 0 {
-			if _, ok := idsMap[record.RecordId]; !ok {
-				continue
-			}
-		}
-
-		filteredRecords = append(filteredRecords, record)
-	}
-
-	return recordsDecriptionAttributes(d, filteredRecords, meta)
-}
-
-func recordsDecriptionAttributes(d *schema.ResourceData, recordTypes []alidns.Record, meta interface{}) error {
 	var ids []string
-	var urls []string
 	var s []map[string]interface{}
-	for _, record := range recordTypes {
-		mapping := map[string]interface{}{
-			"record_id":   record.RecordId,
-			"domain_name": record.DomainName,
-			"line":        record.Line,
-			"host_record": record.RR,
-			"type":        record.Type,
-			"value":       record.Value,
-			"status":      strings.ToLower(record.Status),
-			"locked":      record.Locked,
-			"ttl":         record.TTL,
-			"priority":    record.Priority,
+	for _, record := range response.Records {
+		if r != nil && !r.MatchString(record.Rr) {
+			continue
 		}
-		ids = append(ids, record.RecordId)
-		urls = append(urls, fmt.Sprintf("%v.%v", record.RR, record.DomainName))
+		mapping := map[string]interface{}{
+			"record_id":   record.RecordID,
+			"domain_id":   DomainId,
+			"host_record": record.Rr,
+			"type":        record.Type,
+			"description": record.Remark,
+			"rr_set":      record.RrSet,
+			"ttl":         record.TTL,
+		}
+		ids = append(ids, strconv.Itoa(record.RecordID))
 		s = append(s, mapping)
 	}
 
 	d.SetId(dataResourceIdHash(ids))
 	if err := d.Set("records", s); err != nil {
-		return WrapError(err)
-	}
-	if err := d.Set("urls", urls); err != nil {
 		return WrapError(err)
 	}
 	if err := d.Set("ids", ids); err != nil {
@@ -246,5 +163,6 @@ func recordsDecriptionAttributes(d *schema.ResourceData, recordTypes []alidns.Re
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
+
 	return nil
 }

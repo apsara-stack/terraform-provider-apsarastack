@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_service_clusters"
+page_title: "Apsarastack: apsarastack_ascm_service_clusters"
 sidebar_current: "docs-apsarastack-datasource-ascm-service-clusters"
 description: |-
     Provides a list of service cluster to the user.

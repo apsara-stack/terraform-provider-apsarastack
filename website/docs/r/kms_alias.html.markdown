@@ -1,7 +1,7 @@
 ---
 subcategory: "KMS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_kms_alias"
+page_title: "Apsarastack: apsarastack_kms_alias"
 sidebar_current: "docs-apsarastack-resource-kms-alias"
 description: |-
   Provides a ApsaraStack KMS Alias resource.

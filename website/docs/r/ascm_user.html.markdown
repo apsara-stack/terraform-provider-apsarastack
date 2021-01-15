@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_user"
+page_title: "Apsarastack: apsarastack_ascm_user"
 sidebar_current: "docs-apsarastack-resource-ascm-user"
 description: |-
   Provides a Ascm user resource.
@@ -14,15 +14,19 @@ Provides a Ascm user resource.
 ## Example Usage
 
 ```
+resource "apsarastack_ascm_organization" "default" {
+  name = "Dummy_Test_1"
+}
+
 resource "apsarastack_ascm_user" "default" {
-  cellphone_number = "899999537"
+   cellphone_number = "892399537"
    email = "test@gmail.com"
    display_name = "C2C-DEL3"
-   organization_id = "54437"
+   organization_id = apsarastack_ascm_organization.default.org_id
    mobile_nation_code = "91"
-   login_name = "C2C_apsara_C2C"
-
+   login_name = "C2C_apsarastack_C2C"
 }
+
 output "org" {
   value = apsarastack_ascm_user.default.*
 }
@@ -31,7 +35,7 @@ output "org" {
 
 The following arguments are supported:
 
-* `login_name` - (Required) User login name.
+* `login_name` - (Required) User login name. 
 * `cell_phone_number` - (Required) Cellphone Number of a user.
 * `display_name` - (Required) Display name of a user.
 * `email` - (Required) Email ID of a user.
@@ -43,4 +47,5 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - The ID of the resource group.
+* `id` - Name of the user. The value is in format `Name`
+* `user_id` - The ID of the user.

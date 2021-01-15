@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_key_pair_attachment"
+page_title: "Apsarastack: apsarastack_key_pair_attachment"
 sidebar_current: "docs-apsarastack-resource-key-pair-attachment"
 description: |-
   Provides a ApsaraStack key pair attachment resource to bind key pair for several ECS instances.
