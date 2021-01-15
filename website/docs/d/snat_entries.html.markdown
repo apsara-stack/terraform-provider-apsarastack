@@ -64,7 +64,7 @@ data "apsarastack_snat_entries" "foo" {
 The following arguments are supported:
 
 * `ids` - (Optional) A list of Snat Entries IDs.
-* `source_cidr` - (Optional) The source CIDR block of the Snat Entry.-->
+* `source_cidr` - (Optional) The source CIDR block of the Snat Entry.
 * `snat_table_id` - (Required) The ID of the Snat table.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 

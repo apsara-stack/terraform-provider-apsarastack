@@ -44,7 +44,7 @@ The following arguments are supported:
 * `description` - (Optional, Forces new resource) The security group description. Defaults to null.
 * `vpc_id` - (Optional, ForceNew) The VPC ID.	
 
-* `inner_access_policy` - (Optional, Available in 1.55.3+) Whether to allow both machines to access each other on all ports in the same security group. Valid values: ["Accept", "Drop"]
+* `inner_access_policy` - (Optional) Whether to allow both machines to access each other on all ports in the same security group. Valid values: ["Accept", "Drop"]
 * `tags` - (Optional) A mapping of tags to assign to the resource.
 
 ## Attributes Reference
