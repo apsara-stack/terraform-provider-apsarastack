@@ -6,11 +6,12 @@ sidebar_current: "docs-apsarastack-resource-snapshot-policy"
 description: |-
   Provides an ECS snapshot policy resource.
 ---
-# apsarastack\_snapshot_policy
 
-Provides an ECS snapshot resource policy.
+# apsarastack\_snapshot\_policy
 
-# Example Usage
+Provides an ECS snapshot policy resource.
+
+## Example Usage
 
 ```
 resource "apsarastack_snapshot_policy" "sp" {

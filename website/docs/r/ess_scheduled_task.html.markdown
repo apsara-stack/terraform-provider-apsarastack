@@ -111,7 +111,7 @@ If set, both `recurrence_value` and `recurrence_end_time` must be set. Valid val
     - Daily: The scheduled task is executed once every specified number of days.
     - Weekly: The scheduled task is executed on each specified day of a week.
     - Monthly: The scheduled task is executed on each specified day of a month.
-    - Cron: (Available in 1.60.0+) The scheduled task is executed based on the specified cron expression.
+    - Cron:  The scheduled task is executed based on the specified cron expression.
 * `recurrence_value` - (Optional) Specifies how often a scheduled task recurs. The valid value depends on `recurrence_type`
     - Daily: You can enter one value. Valid values: 1 to 31.
     - Weekly: You can enter multiple values and separate them with commas (,). For example, the values 0 to 6 correspond to the days of the week in sequence from Sunday to Saturday.

@@ -1,7 +1,7 @@
 ---
 subcategory: "VPC"
 layout: "apsarastack"
-page_title: "ApsaraSt``ack: apsarastack_router_interfaces"
+page_title: "Apsarastack: apsarastack_router_interfaces"
 sidebar_current: "docs-apsarastack-datasource-router-interfaces"
 description: |-
     Provides a list of router interfaces to the user.
@@ -38,7 +38,7 @@ The following arguments are supported:
   `AcceptingSide` (connection receiver). The value of this parameter must be `InitiatingSide` if the `router_type` is set to `VBR`.
 * `opposite_interface_id` - (Optional) ID of the peer router interface.
 * `opposite_interface_owner_id` - (Optional) Account ID of the owner of the peer router interface.
-* `ids` - (Optional, Available in 1.44.0+) A list of router interface IDs.
+* `ids` - (Optional) A list of router interface IDs.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
