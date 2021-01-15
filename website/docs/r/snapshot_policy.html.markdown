@@ -1,13 +1,16 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "Apsarastack: apsara_snapshot_policy"
+page_title: "Apsarastack: apsarastack_snapshot_policy"
 sidebar_current: "docs-apsarastack-resource-snapshot-policy"
 description: |-
   Provides an ECS snapshot policy resource.
 ---
+# apsarastack\_snapshot_policy
 
-## Example Usage
+Provides an ECS snapshot resource policy.
+
+# Example Usage
 
 ```
 resource "apsarastack_snapshot_policy" "sp" {

@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_instance"
+page_title: "Apsarastack: apsarastack_instance"
 sidebar_current: "docs-apsarastack-resource-instance"
 description: |-
   Provides an ECS instance resource.

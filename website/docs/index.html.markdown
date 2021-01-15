@@ -135,7 +135,7 @@ In addition to [generic `provider` arguments](https://www.terraform.io/docs/conf
 
 * `resource_group_set_name` - (Optional) Use this to give resource_group_set_name for specific user organisation.
 
-* `protocol` - (Optional, Available in 1.72.0+) The Protocol of used by API request. Valid values: `HTTP` and `HTTPS`. Default to `HTTPS`.
+* `protocol` - (Optional) The Protocol of used by API request. Valid values: `HTTP` and `HTTPS`. Default to `HTTPS`.
 
 * `proxy` -  (Optional) Use this to set proxy for ApsaraStack connection.
 

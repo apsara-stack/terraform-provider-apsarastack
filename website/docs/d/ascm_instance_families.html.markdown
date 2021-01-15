@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_instance_families"
+page_title: "Apsarastack: apsarastack_ascm_instance_families"
 sidebar_current: "docs-apsarastack-datasource-ascm-instance-families"
 description: |-
     Provides a list of instance families to the user.
@@ -15,12 +15,12 @@ This data source provides the instance families of the current Apsara Stack Clou
 
 ```
 data "apsarastack_ascm_instance_families" "default" {
-  resource_type = "DRDS"
-  status = "Available"
+    name_regex = "AutoTest"
+    output_file = "instance_families"
+    resource_type = "DRDS"
 }
-
 output "families" {
-  value = data.apsarastack_ascm_instance_families.default.*
+    value = data.apsarastack_ascm_instance_families.default.*
 }
 ```
 
@@ -29,8 +29,8 @@ output "families" {
 The following arguments are supported:
 
 * `ids` - (Optional) A list of instance family IDs.
-* `status` - (Required) Filter the results by specifying the status of instance families.
-* `resource_type` - (Required) Filter the results by the specified resource type.
+* `name_regex` - (Optional) A regex string to filter the resulting instance families by their series_names.
+* `resource_type` - (Optional) Filter the results by the specified resource type.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
@@ -39,5 +39,8 @@ The following attributes are exported in addition to the arguments listed above:
 
 * `families` - A list of instance families. Each element contains the following attributes:
     * `id` - ID of the instance families.
-    * `status` - status of instance families.
-    * `resource_type` - specified resource type.
+    * `series_name` - Series name for instance families.
+    * `modifier` - Modifier name.
+    * `series_name` - Series name for instance families.
+    * `resource_type` - Specified resource type.
+    * `is_deleted` - Specify the state in "Y" or "N" form.

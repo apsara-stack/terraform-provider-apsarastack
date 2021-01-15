@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_organizations"
+page_title: "Apsarastack: apsarastack_ascm_organizations"
 sidebar_current: "docs-apsarastack-datasource-ascm-organizations"
 description: |-
     Provides a list of organizations to the user.
@@ -14,11 +14,19 @@ This data source provides the organizations of the current Apsara Stack Cloud us
 ## Example Usage
 
 ```
-data "apsarastack_ascm_organizations" "org" {
-   ids = [apsarastack_ascm_organization.org.id]
+resource "apsarastack_ascm_organization" "default" {
+  name = "Test_org"
+  parent_id = "122"
+}
+output "orgres" {
+  value = apsarastack_ascm_organization.default.*
+}
+data "apsarastack_ascm_organizations" "default" {
+    name_regex = apsarastack_ascm_organization.default.name
+    parent_id = apsarastack_ascm_organization.default.parent_id
 }
 output "orgs" {
-  value = data.apsarastack_ascm_organizations.org.*
+  value = data.apsarastack_ascm_organizations.default.*
 }
 ```
 

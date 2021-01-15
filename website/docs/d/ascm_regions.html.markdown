@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_regions"
+page_title: "Apsarastack: apsarastack_ascm_regions"
 sidebar_current: "docs-apsarastack-datasource-ascm-regions"
 description: |-
     Provides a list of regions to the user.

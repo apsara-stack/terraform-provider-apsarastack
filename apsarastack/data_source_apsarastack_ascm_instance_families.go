@@ -23,13 +23,13 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 				ForceNew: true,
 				MinItems: 1,
 			},
+			"name_regex": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"resource_type": {
 				Type:     schema.TypeString,
-				Required: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 			},
 			"output_file": {
 				Type:     schema.TypeString,
@@ -45,7 +45,23 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"status": {
+						"order_by_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"series_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"modifier": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"series_name_label": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"is_deleted": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -78,7 +94,14 @@ func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta inte
 	request.RegionId = client.RegionId
 	request.ApiName = "DescribeSeriesIdFamilies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "DescribeSeriesIdFamilies", "Version": "2019-05-10"}
+	request.QueryParams = map[string]string{
+		"AccessKeyId":     client.AccessKey,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "ascm",
+		"RegionId":        client.RegionId,
+		"Action":          "DescribeSeriesIdFamilies",
+		"Version":         "2019-05-10",
+	}
 	response := InstanceFamily{}
 
 	for {
@@ -102,21 +125,25 @@ func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta inte
 	}
 
 	var r *regexp.Regexp
-	if rt, ok := d.GetOk("resource_type"); ok && rt.(string) != "" {
+	if rt, ok := d.GetOk("name_regex"); ok && rt.(string) != "" {
 		r = regexp.MustCompile(rt.(string))
 	}
 	var ids []string
 	var s []map[string]interface{}
 	for _, rg := range response.Data {
-		if r != nil && !r.MatchString(rg.ResourceType) {
+		if r != nil && !r.MatchString(rg.SeriesName) {
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":            rg.OrderBy.ID,
-			"resource_type": rg.ResourceType,
-			"status":        rg.Status,
+			"id":                rg.SeriesID,
+			"order_by_id":       rg.OrderBy.ID,
+			"resource_type":     rg.ResourceType,
+			"series_name":       rg.SeriesName,
+			"modifier":          rg.Modifier,
+			"series_name_label": rg.SeriesNameLabel,
+			"is_deleted":        rg.IsDeleted,
 		}
-		ids = append(ids, rg.OrderBy.ID)
+		ids = append(ids, rg.SeriesID)
 		s = append(s, mapping)
 	}
 

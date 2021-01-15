@@ -1,7 +1,7 @@
 ---
 subcategory: "Auto Scaling(ESS)"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ess_scaling_configurations"
+page_title: "Apsarastack: apsarastack_ess_scaling_configurations"
 sidebar_current: "docs-apsarastack_ess_scaling_configurations"
 description: |-
     Provides a list of scaling configurations available to the user.

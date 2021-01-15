@@ -2,7 +2,7 @@
 subcategory: "ASCM"
 layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_ascm_logon_policies"
-sidebar_current: "docs-apsarastack_ascm_logon_policies"
+sidebar_current: "docs-apsarastack-ascm-logon-policies"
 description: |-
   Provides a list of Logon Policies.
 ---
@@ -13,18 +13,27 @@ Provides a list of Logon Policies.
 Basic Usage
 
 ```
-data "apsarastack_ascm_logon_policies" "policies"{
-
+resource "apsarastack_ascm_logon_policy" "default" {
+  name="Test_login_policy"
+  description="testing policy"
+  rule="ALLOW"
+}
+output "login" {
+  value = apsarastack_ascm_logon_policy.default.id
+}
+data "apsarastack_ascm_logon_policies" "default"{
+  name = apsarastack_ascm_logon_policy.default.name
 }
 output "policies" {
-  value = data.apsarastack_ascm_logon_policies.policies.*
+  value = data.apsarastack_ascm_logon_policies.default.*
 }
 ```
 ## Argument Reference
 
 The following arguments are supported:
+
 * `ids` - (Optional) The ids of the Logon Policies.
-* `name` - (Optional) The name of the Logon Policies.
+* `name` - (Optional) The name of the Logon Policy.
 * `name_regex` - (Optional) A regex string to filter Logon Policies by name.
 * `description` - (Optional) The Logon Policies description.
 * `rule` - (Optional) The Rule for the Logon Policies.

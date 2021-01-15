@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_key_pairs"
+page_title: "Apsarastack: apsarastack_key_pairs"
 sidebar_current: "docs-apsarastack-datasource-key-pairs"
 description: |-
     Provides a list of available key pairs that can be used by an Alibaba Cloud account.
