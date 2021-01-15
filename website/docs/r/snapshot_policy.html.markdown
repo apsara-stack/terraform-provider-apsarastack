@@ -7,6 +7,10 @@ description: |-
   Provides an ECS snapshot policy resource.
 ---
 
+# apsarastack\_snapshot\_policy
+
+Provides an ECS snapshot policy resource.
+
 ## Example Usage
 
 ```

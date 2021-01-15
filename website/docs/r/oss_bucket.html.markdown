@@ -208,12 +208,12 @@ The following arguments are supported:
 * `logging` - (Optional) A Settings of [bucket logging](https://www.alibabacloud.com/help/doc-detail/31900.htm) (documented below).
 * `referer_config` - (Optional) The configuration of [referer](https://www.alibabacloud.com/help/doc-detail/31901.htm) (documented below).
 * `lifecycle_rule` - (Optional) A configuration of [object lifecycle management](https://www.alibabacloud.com/help/doc-detail/31904.htm) (documented below).
-* `policy` - (Optional, Available in 1.41.0) Json format text of bucket policy [bucket policy management](https://www.alibabacloud.com/help/doc-detail/100680.htm).
+* `policy` - (Optional) Json format text of bucket policy [bucket policy management](https://www.alibabacloud.com/help/doc-detail/100680.htm).
 * `storage_class` - (Optional, ForceNew) The [storage class](https://www.alibabacloud.com/help/doc-detail/51374.htm) to apply. Can be "Standard", "IA" and "Archive". Defaults to "Standard".
-* `server_side_encryption_rule` - (Optional, Available in 1.45.0+) A configuration of server-side encryption (documented below).
-* `tags` - (Optional, Available in 1.45.0+) A mapping of tags to assign to the bucket. The items are no more than 10 for a bucket.
-* `versioning` - (Optional, Available in 1.45.0+) A state of versioning (documented below).
-* `force_destroy` - (Optional, Available in 1.45.0+) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. Defaults to "false".
+* `server_side_encryption_rule` - (Optional, ) A configuration of server-side encryption (documented below).
+* `tags` - (Optional) A mapping of tags to assign to the bucket. The items are no more than 10 for a bucket.
+* `versioning` - (Optional) A state of versioning (documented below).
+* `force_destroy` - (Optional) A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. Defaults to "false".
 
 #### Block cors_rule
 
@@ -254,7 +254,7 @@ The lifecycle_rule object supports the following:
 * `prefix` - (Required) Object key prefix identifying one or more objects to which the rule applies.
 * `enabled` - (Required, Type: bool) Specifies lifecycle rule status.
 * `expiration` - (Optional, Type: set) Specifies a period in the object's expire (documented below).
-* `transitions` - (Optional, Type: set, Available in 1.62.1+) Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle. (documented below).
+* `transitions` - (Optional, Type: set) Specifies the time when an object is converted to the IA or archive storage class during a valid life cycle. (documented below).
 
 `NOTE`: At least one of expiration and transitions should be configured.
 

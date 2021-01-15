@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_disks"
+page_title: "Apsarastack: apsarastack_disks"
 sidebar_current: "docs-apsarastack-datasource-disks"
 description: |-
     Provides a list of disks to the user.

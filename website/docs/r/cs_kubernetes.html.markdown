@@ -68,22 +68,22 @@ The following arguments are supported:
 
 #### Global params
 * `name` - (Optional) The kubernetes cluster's name. It is unique in one Apsarastack account.
-* `version` - (Optional, Available since 1.70.1) Desired Kubernetes version. If you do not specify a value, the latest available version at resource creation is used and no upgrades will occur except you set a higher version number. The value must be configured and increased to upgrade the version when desired. Downgrades are not supported by ACK.
+* `version` - (Optional) Desired Kubernetes version. If you do not specify a value, the latest available version at resource creation is used and no upgrades will occur except you set a higher version number. The value must be configured and increased to upgrade the version when desired. Downgrades are not supported by ACK.
 * `password` - (Required, Sensitive) The password of ssh login cluster node. You have to specify one of `password` `key_name` `kms_encrypted_password` fields.
-* `kms_encrypted_password` - (Required, Available in 1.57.1+) An KMS encrypts password used to a cs kubernetes. You have to specify one of `password` `key_name` `kms_encrypted_password` fields.
-* `kms_encryption_context` - (Optional, MapString, Available in 1.57.1+) An KMS encryption context used to decrypt `kms_encrypted_password` before creating or updating a cs kubernetes with `kms_encrypted_password`.
+* `kms_encrypted_password` - (Required) An KMS encrypts password used to a cs kubernetes. You have to specify one of `password` `key_name` `kms_encrypted_password` fields.
+* `kms_encryption_context` - (Optional, MapString) An KMS encryption context used to decrypt `kms_encrypted_password` before creating or updating a cs kubernetes with `kms_encrypted_password`.
 * `enable_ssh` - (Optional) Enable login to the node through SSH. default: false 
 * `install_cloud_monitor` - (Optional) Install cloud monitor agent on ECS. default: true 
 * `cpu_policy` - kubelet cpu policy. options: static|none. default: none.
 * `proxy_mode` - Proxy mode is option of kube-proxy. options: iptables|ipvs. default: ipvs.
 * `image_id` - Custom Image support. Must based on CentOS7 .
-* `user_data` - (Optional, Available in 1.81.0+) Windows instances support batch and PowerShell scripts. If your script file is larger than 1 KB, we recommend that you upload the script to Object Storage Service (OSS) and pull it through the internal endpoint of your OSS bucket.
-* `exclude_autoscaler_nodes` - (Optional, Available in 1.88.0+) Exclude autoscaler nodes from `worker_nodes`. default: false 
-* `node_name_mode` - (Optional, Available in 1.88.0+) Each node name consists of a prefix, an IP substring, and a suffix. For example, if the node IP address is 192.168.0.55, IP substring length is 5, and the suffix is test, the node name will be .
-* `security_group_id` - (Optional, Available in 1.91.0+) The ID of the security group to which the ECS instances in the cluster belong. If it is not specified, a new Security group will be built.
-* `is_enterprise_security_group` - (Optional, Available in 1.91.0+) Enable to create advanced security group. default: false.
-* `service_account_issuer` - (Optional, ForceNew, Available in 1.92.0+) The issuer of the Service Account token for Service Account Token Volume Projection, corresponds to the `iss` field in the token payload. Set this to `"kubernetes.default.svc"` to enable the Token Volume Projection feature (requires specifying `api_audiences` as well).
-* `api_audiences` - (Optional, ForceNew, Available in 1.92.0+) A list of API audiences for Service Account Token Volume Projection. Set this to `["kubernetes.default.svc"]` if you want to enable the Token Volume Projection feature (requires specifying `service_account_issuer` as well.
+* `user_data` - (Optional) Windows instances support batch and PowerShell scripts. If your script file is larger than 1 KB, we recommend that you upload the script to Object Storage Service (OSS) and pull it through the internal endpoint of your OSS bucket.
+* `exclude_autoscaler_nodes` - (Optional) Exclude autoscaler nodes from `worker_nodes`. default: false 
+* `node_name_mode` - (Optional) Each node name consists of a prefix, an IP substring, and a suffix. For example, if the node IP address is 192.168.0.55, IP substring length is 5, and the suffix is test, the node name will be .
+* `security_group_id` - (Optional) The ID of the security group to which the ECS instances in the cluster belong. If it is not specified, a new Security group will be built.
+* `is_enterprise_security_group` - (Optional) Enable to create advanced security group. default: false.
+* `service_account_issuer` - (Optional, ForceNew) The issuer of the Service Account token for Service Account Token Volume Projection, corresponds to the `iss` field in the token payload. Set this to `"kubernetes.default.svc"` to enable the Token Volume Projection feature (requires specifying `api_audiences` as well).
+* `api_audiences` - (Optional, ForceNew) A list of API audiences for Service Account Token Volume Projection. Set this to `["kubernetes.default.svc"]` if you want to enable the Token Volume Projection feature (requires specifying `service_account_issuer` as well.
 
 #### Network
 * `pod_cidr` - (Required) [Flannel Specific] The CIDR block for the pod network when using Flannel. 
