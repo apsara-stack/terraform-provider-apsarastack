@@ -1,4 +1,4 @@
----
+dns---
 subcategory: "DNS"
 layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_dns_domain"
@@ -18,8 +18,7 @@ Provides a DNS domain resource.
 ```
 # Add a new Domain.
 resource "apsarastack_dns_domain" "dns" {
-  domain_name     = "starmove.com"
-  group_id        = "85ab8713-4a30-4de4-9d20-155ff830****"
+  domain_name     = "starmove."
   tags = {
     Created     = "Terraform"
     Environment = "test"

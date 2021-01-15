@@ -14,16 +14,25 @@ This data source provides a list of DNS Domain Records in an ApsaraStack Cloud a
 ## Example Usage
 
 ```
-data "apsarastack_dns_records" "records_ds" {
-  domain_name       = "xiaozhu.top"
-  is_locked         = false
-  type              = "A"
-  host_record_regex = "^@"
-  output_file       = "records.txt"
+resource "apsarastack_dns_record" "default" {
+  domain_id   = "106"
+  host_record = "test_record"
+  type        = "A"
+  description = "Dns Record"
+  ttl         = 300
+  rr_set      = ["192.168.2.5"]
 }
 
-output "first_record_id" {
-  value = "${data.apsarastack_dns_records.records_ds.records.0.record_id}"
+output "record" {
+  value = apsarastack_dns_record.default.*
+}
+
+data "apsarastack_dns_records" "default"{
+  domain_id         = apsarastack_dns_record.default.domain_id
+  host_record_regex = apsarastack_dns_record.default.host_record
+}
+output "records" {
+  value = data.apsarastack_dns_records.default.*
 }
 ```
 
@@ -31,13 +40,10 @@ output "first_record_id" {
 
 The following arguments are supported:
 
-* `domain_name` - (Required) The domain name associated to the records.
+* `domain_id` - (Required) The domain Id associated to the records.
 * `host_record_regex` - (Optional) Host record regex. 
 * `value_regex` - (Optional) Host record value regex. 
 * `type` - (Optional) Record type. Valid items are `A`, `NS`, `MX`, `TXT`, `CNAME`, `SRV`, `AAAA`, `REDIRECT_URL`, `FORWORD_URL` .
-* `line` - (Optional) ISP line. Valid items are `default`, `telecom`, `unicom`, `mobile`, `oversea`, `edu`, `drpeng`, `btvn`, .etc. For checking all resolution lines enumeration please visit [Alibaba Cloud DNS doc](https://www.alibabacloud.com/help/doc-detail/34339.htm) 
-* `status` - (Optional) Record status. Valid items are `ENABLE` and `DISABLE`.
-* `is_locked` - (Optional, type: bool) Whether the record is locked or not.
 * `ids` - (Optional, Available 1.52.2+) A list of record IDs.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
@@ -47,15 +53,11 @@ The following arguments are supported:
 The following attributes are exported in addition to the arguments listed above:
 
 * `ids` - A list of record IDs. 
-* `urls` - A list of entire URLs. Each item format as `<host_record>.<domain_name>`.
 * `records` - A list of records. Each element contains the following attributes:
   * `record_id` - ID of the record.
-  * `domain_name` - Name of the domain the record belongs to.
+  * `domain_id` - ID of the domain the record belongs to.
   * `host_record` - Host record of the domain.
-  * `value` - Host record value of the domain.
   * `type` - Type of the record.
   * `ttl` - TTL of the record.
-  * `priority` - Priority of the `MX` record.
-  * `line` - ISP line of the record. 
-  * `status` - Status of the record.
-  * `locked` - Indicates whether the record is locked.
+  * `description` - Description of the record.
+  * `rr_set` - RrSet for the record.

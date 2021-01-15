@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_resource_group"
+page_title: "Apsarastack: apsarastack_ascm_resource_group"
 sidebar_current: "docs-apsarastack-resource-ascm-resource-group"
 description: |-
   Provides a Ascm resource group resource.
@@ -17,7 +17,6 @@ Provides a Ascm resource group resource.
 resource "apsarastack_ascm_resource_group" "default" {
   name = "apsara_resource_group"
   organization_id = "437"
-
 }
 output "org" {
   value = apsarastack_ascm_resource_group.default.*

@@ -1,7 +1,7 @@
 ---
 subcategory: "KMS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_kms_ciphertext"
+page_title: "Apsarastack: apsarastack_kms_ciphertext"
 sidebar_current: "docs-apsarastack-resource-kms-ciphertext"
 description: |-
   Encrypt data with KMS.

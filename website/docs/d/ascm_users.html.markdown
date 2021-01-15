@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_users"
+page_title: "Apsarastack: apsarastack_ascm_users"
 sidebar_current: "docs-apsarastack-datasource-ascm-users"
 description: |-
     Provides a list of users to the user.
@@ -14,8 +14,20 @@ This data source provides the users of the current Apsara Stack Cloud user.
 ## Example Usage
 
 ```
+resource "apsarastack_ascm_user" "default" {
+  cellphone_number = "899999537"
+   email = "test@gmail.com"
+   display_name = "C2C-DEL3"
+   organization_id = "54437"
+   mobile_nation_code = "91"
+   login_name = "C2C_apsarastack_C2C"
+
+}
+output "org" {
+  value = apsarastack_ascm_user.default.*
+}
 data "apsarastack_ascm_users" "users" {
- ids = [apsarastack_ascm_user.user.id]
+ ids = [apsarastack_ascm_user.user.user_id]
 }
 output "users" {
  value = data.apsarastack_ascm_users.users.*

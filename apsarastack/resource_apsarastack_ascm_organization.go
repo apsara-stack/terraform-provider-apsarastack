@@ -31,7 +31,8 @@ func resourceApsaraStackAscmOrganization() *schema.Resource {
 			},
 			"parent_id": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+				Default:  "1",
 			},
 			"person_num": {
 				Type:     schema.TypeString,
@@ -103,22 +104,77 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
-		if len(check.Data) != 0 {
-			return nil
-		}
 		return resource.RetryableError(err)
 	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_organization", "Failed to create Organization", ApsaraStackSdkGoERROR)
-	}
 
-	d.SetId(check.Data[0].Name + SLASH_SEPARATED + fmt.Sprint(check.Data[0].ID))
+	d.SetId(check.Data[0].Name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
 
 	return resourceApsaraStackAscmOrganizationUpdate(d, meta)
 
 }
 
 func resourceApsaraStackAscmOrganizationUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*connectivity.ApsaraStackClient)
+	ascmService := AscmService{client}
+	name := d.Get("name").(string)
+	attributeUpdate := false
+	check, err := ascmService.DescribeAscmOrganization(d.Id())
+	did := strings.Split(d.Id(), COLON_SEPARATED)
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsOrganizationExist", ApsaraStackSdkGoERROR)
+	}
+
+	if d.HasChange("name") {
+		if v, ok := d.GetOk("name"); ok {
+			name = v.(string)
+		}
+		check.Data[0].Name = name
+		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("name"); ok {
+			name = v.(string)
+		}
+		check.Data[0].Name = name
+	}
+	request := requests.NewCommonRequest()
+	request.QueryParams = map[string]string{
+		"RegionId":        client.RegionId,
+		"AccessKeySecret": client.SecretKey,
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Product":         "Ascm",
+		"Action":          "UpdateOrganization",
+		"Version":         "2019-05-10",
+		"name":            name,
+		"id":              did[1],
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.Domain = client.Domain
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.SetHTTPSInsecure(true)
+	request.ApiName = "UpdateOrganization"
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+
+	if attributeUpdate {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_instance", "ConsoleInstanceCreate", raw)
+		}
+		addDebug(request.GetActionName(), raw, request)
+
+	}
+
+	d.SetId(name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
+
 	return resourceApsaraStackAscmOrganizationRead(d, meta)
 
 }
@@ -128,7 +184,7 @@ func resourceApsaraStackAscmOrganizationRead(d *schema.ResourceData, meta interf
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	object, err := ascmService.DescribeAscmOrganization(d.Id())
-	did := strings.Split(d.Id(), SLASH_SEPARATED)
+	did := strings.Split(d.Id(), COLON_SEPARATED)
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -154,7 +210,7 @@ func resourceApsaraStackAscmOrganizationDelete(d *schema.ResourceData, meta inte
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
 	check, err := ascmService.DescribeAscmOrganization(d.Id())
-	did := strings.Split(d.Id(), SLASH_SEPARATED)
+	did := strings.Split(d.Id(), COLON_SEPARATED)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsOrganizationExist", ApsaraStackSdkGoERROR)
 	}

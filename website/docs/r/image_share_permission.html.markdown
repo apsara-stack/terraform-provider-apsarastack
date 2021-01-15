@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_image_share_permission"
+page_title: "Apsarastack: apsarastack_image_share_permission"
 sidebar_current: "docs-apsarastack-resource-image-share-permission"
 description: |-
   Provides an ECS image share permission resource.
