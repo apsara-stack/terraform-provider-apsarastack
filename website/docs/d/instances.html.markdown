@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "Apsarastack: apsarastack_instance"
+page_title: "Apsarastack: apsarastack_instances"
 sidebar_current: "docs-apsarastack-datasource-instances"
 description: |-
     Provides a list of ECS instances to the user.

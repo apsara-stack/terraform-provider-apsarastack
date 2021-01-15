@@ -1,7 +1,7 @@
 ---
 subcategory: "VPC"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_router_interface"
+page_title: "Apsarastack: apsarastack_router_interface"
 sidebar_current: "docs-apsarastack-resource-router-interface"
 description: |-
   Provides a VPC router interface resource to connect two VPCs.

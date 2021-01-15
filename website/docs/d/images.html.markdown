@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_images"
+page_title: "Apsarastack: apsarastack_images"
 sidebar_current: "docs-apsarastack-datasource-images"
 description: |-
     Provides a list of images available to the user.

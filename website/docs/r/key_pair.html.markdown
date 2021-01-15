@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_cloud_key_pair"
+page_title: "Apsarastack: apsarastack_cloud_key_pair"
 sidebar_current: "docs-apsarastack-resource-key-pair"
 description: |-
   Provides a ApsaraStack key pair resource.

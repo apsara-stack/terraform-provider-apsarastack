@@ -1,7 +1,7 @@
 ---
 subcategory: "Log Service (SLS)"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_log_machine_group"
+page_title: "Apsarastack: apsarastack_log_machine_group"
 sidebar_current: "docs-apsarastack-resource-log-machine-group"
 description: |-
   Provides a ApsaraStack log tail machine group resource.

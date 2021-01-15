@@ -1,13 +1,13 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "Apsarastack: Apsarastack_snapshot"
-sidebar_current: "docs-Apsarastack-resource-snapshot"
+page_title: "Apsarastack: apsarastack_snapshot"
+sidebar_current: "docs-apsarastack-resource-snapshot"
 description: |-
   Provides an ECS snapshot resource.
 ---
 
-# Apsarastack\_snapshot
+# apsarastack\_snapshot
 
 Provides an ECS snapshot resource.
 
