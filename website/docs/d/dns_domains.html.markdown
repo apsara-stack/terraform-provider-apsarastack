@@ -33,9 +33,9 @@ The following arguments are supported:
 * `ali_domain` - (Optional, type: bool) Specifies whether the domain is from Apsarastack Cloud or not.
 * `instance_id` - (Optional) Cloud analysis product ID.
 * `version_code` - (Optional) Cloud analysis version code.
-* `ids` (Optional, Available in 1.53.0+) - A list of domain IDs.
+* `ids` (Optional) - A list of domain IDs.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
-* `resource_group_id` - (Optional, ForceNew, Available in 1.59.0+) The Id of resource group which the dns belongs.
+* `resource_group_id` - (Optional, ForceNew) The Id of resource group which the dns belongs.
 
 ## Attributes Reference
 

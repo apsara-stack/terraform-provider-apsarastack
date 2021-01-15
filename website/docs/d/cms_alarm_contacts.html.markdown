@@ -11,8 +11,6 @@ description: |-
 
 Provides a list of alarm contact owned by an Apsarastack Cloud account.
 
--> **NOTE:** Available in v1.99.0+.
-
 ## Example Usage
 
 Basic Usage

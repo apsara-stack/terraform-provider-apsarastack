@@ -43,7 +43,6 @@ The following arguments are supported:
 * `vswitch_id` - (Optional) Used to retrieve instances belong to specified `vswitch` resources.
 * `connection_mode` - (Optional) `Standard` for standard access mode and `Safe` for high security access mode.
 * `tags` - (Optional) A map of tags assigned to the DB instances. 
-Note:The value's format is a `json` string which including `TagKey` and `TagValue`. `TagKey` cannot be null, and `TagValue` can be empty. Format example `"{\"key1\":\"value1\"}"`
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
@@ -73,5 +72,5 @@ The following attributes are exported in addition to the arguments listed above:
   * `vpc_id` - ID of the VPC the instance belongs to.
   * `vswitch_id` - ID of the VSwitch the instance belongs to.
   * `port` - () RDS database connection port.
-  * `connection_string` -  RDS database connection string.
+  * `connection_string` - RDS database connection string.
   * `instance_storage` -  User-defined DB instance storage space.

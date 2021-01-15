@@ -66,6 +66,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The ENI ID.
-* `mac` - The MAC address of an ENI.
+* `mac` -The MAC address of an ENI.
 
 
