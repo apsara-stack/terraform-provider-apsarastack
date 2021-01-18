@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_slbs
 
-This data source provides the server load balancers of the current Alibaba Cloud user.
+This data source provides the server load balancers of the current Apsarastack Cloud user.
 
 ## Example Usage
 

@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_images
 
-This data source provides available image resources. It contains user's private images, system images provided by Alibaba Cloud, 
+This data source provides available image resources. It contains user's private images, system images provided by Apsarastack Cloud, 
 other public images and the ones available on the image market. 
 
 ## Example Usage

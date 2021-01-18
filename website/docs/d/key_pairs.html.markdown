@@ -4,12 +4,12 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_key_pairs"
 sidebar_current: "docs-apsarastack-datasource-key-pairs"
 description: |-
-    Provides a list of available key pairs that can be used by an Alibaba Cloud account.
+    Provides a list of available key pairs that can be used by an Apsarastack Cloud account.
 ---
 
 # apsarastack\_key\_pairs
 
-This data source provides a list of key pairs in an Alibaba Cloud account according to the specified filters.
+This data source provides a list of key pairs in an Apsarastack Cloud account according to the specified filters.
 
 ## Example Usage
 
@@ -33,6 +33,7 @@ The following arguments are supported:
 * `finger_print` - (Optional) A finger print used to retrieve specified key pair.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 * `tags` - (Optional) A mapping of tags to assign to the resource.
+
 ## Attributes Reference
 
 The following attributes are exported in addition to the arguments listed above:
