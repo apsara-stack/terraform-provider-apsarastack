@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_db\_zones
 
-This data source provides availability zones for RDS that can be accessed by an Alibaba Cloud account within the region configured in the provider.
+This data source provides availability zones for RDS that can be accessed by an Apsarastack Cloud account within the region configured in the provider.
 
 
 ## Example Usage

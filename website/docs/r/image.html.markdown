@@ -46,7 +46,7 @@ The following arguments are supported:
 * `delete` - (Defaults to 10 mins) Used when terminating the image.
    
    
- ## Attributes Reference
+### Attributes Reference
  
  The following attributes are exported:
  

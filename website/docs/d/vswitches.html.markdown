@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_vswitches
 
-This data source provides a list of VSwitches owned by an Alibaba Cloud account.
+This data source provides a list of VSwitches owned by an Apsarastack Cloud account.
 
 ## Example Usage
 

@@ -7,7 +7,7 @@ description: |-
   Provides a Apsarastack snat resource.
 ---
 
-# apsarastack\_snat
+# apsarastack\_snat_entry
 
 Provides a snat resource.
 
