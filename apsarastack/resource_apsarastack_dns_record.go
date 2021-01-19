@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 )
 
 func resourceApsaraStackDnsRecord() *schema.Resource {
@@ -83,7 +84,11 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	request.Product = "GenesisDns"
 	request.Domain = client.Domain
 	request.Version = "2018-07-20"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "AddGlobalRrSet"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.RegionId = client.RegionId
@@ -144,7 +149,11 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 		request.Product = "GenesisDns"
 		request.Domain = client.Domain
 		request.Version = "2018-07-20"
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "RemarkGlobalRrSet"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId
@@ -239,7 +248,11 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 		request.Product = "GenesisDns"
 		request.Domain = client.Domain
 		request.Version = "2018-07-20"
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "UpdateGlobalRrSet"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId
@@ -299,7 +312,11 @@ func resourceApsaraStackDnsRecordDelete(d *schema.ResourceData, meta interface{}
 	request.Product = "GenesisDns"
 	request.Domain = client.Domain
 	request.Version = "2018-07-20"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "DeleteGlobalRrSet"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{

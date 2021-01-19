@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"strconv"
+	"strings"
 )
 
 func resourceApsaraStackDnsDomain() *schema.Resource {
@@ -65,7 +66,11 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 	request.Product = "GenesisDns" // Specify product
 	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2018-07-20" // Specify product version
-	request.Scheme = "http"        // Set request scheme. Default: http
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "AddGlobalAuthZone"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
@@ -139,7 +144,11 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 		request.Product = "GenesisDns"
 		request.Domain = client.Domain
 		request.Version = "2018-07-20"
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "RemarkGlobalAuthZone"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId
@@ -171,7 +180,11 @@ func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}
 	request.Product = "GenesisDns" // Specify product
 	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2018-07-20" // Specify product version
-	request.Scheme = "http"        // Set request scheme. Default: http
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "DeleteGlobalZone"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{

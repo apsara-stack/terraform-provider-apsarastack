@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func dataSourceApsaraStackDnsRecords() *schema.Resource {
@@ -94,7 +95,11 @@ func dataSourceApsaraStackDnsRecordsRead(d *schema.ResourceData, meta interface{
 	request.Product = "GenesisDns"
 	request.Domain = client.Domain
 	request.Version = "2018-07-20"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ObtainGlobalAuthRecordList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
