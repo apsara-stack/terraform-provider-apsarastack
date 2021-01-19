@@ -15,7 +15,7 @@ This data source provides a list of DNS Domain Records in an ApsaraStack Cloud a
 
 ```
 resource "apsarastack_dns_domain" "default" {
-  domain_name = "Domain_test."
+  domain_name = "domaintest."
   remark = "testing Domain"
 }
 
