@@ -17,12 +17,12 @@ Provides a DNS domain resource.
 
 ```
 # Add a new Domain.
-resource "apsarastack_dns_domain" "dns" {
+resource "apsarastack_dns_domain" "default" {
   domain_name     = "starmove."
-  tags = {
-    Created     = "Terraform"
-    Environment = "test"
-  }
+  "remark"   =  "testing Domain"
+}
+output "dns" {
+  value = apsarastack_dns_domain.default.*
 }
 ```
 ## Argument Reference
@@ -34,10 +34,6 @@ The following arguments are supported:
 * `resource_group_id` - (Optional, ForceNew) The Id of resource group which the dns domain belongs.
 * `lang` - (Optional) User language.
 * `remark` - (Optional) Remarks information for your domain name.
-* `tags` - (Optional) A mapping of tags to assign to the resource.
-    - Key: It can be up to 64 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It cannot be a null string.
-    - Value: It can be up to 128 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It can be a null string.
-
 
 ## Attributes Reference
 

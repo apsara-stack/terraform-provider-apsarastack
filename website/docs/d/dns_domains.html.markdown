@@ -15,7 +15,7 @@ This data source provides a list of DNS Domains in an Apsarastack Cloud account 
 
 ```
 resource "apsarastack_dns_domain" "default" {
-  domain_name = "Domain_test."
+  domain_name = "domaintest."
   remark = "testing Domain"
 }
 data "apsarastack_dns_domains" "default"{

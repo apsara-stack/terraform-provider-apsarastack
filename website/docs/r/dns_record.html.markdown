@@ -15,7 +15,7 @@ Provides a DNS Record resource.
 
 ```
 resource "apsarastack_dns_domain" "default" {
-  domain_name = "Domain_test."
+  domain_name = "domaintest."
   remark = "testing Domain"
 }
 
