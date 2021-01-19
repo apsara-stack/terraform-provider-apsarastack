@@ -157,6 +157,37 @@ type User struct {
 	Success      bool `json:"success"`
 }
 
+type DeletedUser struct {
+	Redirect       bool   `json:"redirect"`
+	AsapiSuccess   bool   `json:"asapiSuccess"`
+	Code           string `json:"code"`
+	Cost           int    `json:"cost"`
+	AsapiRequestID string `json:"asapiRequestId"`
+	Data           []struct {
+		CellphoneNum       string `json:"cellphoneNum"`
+		Default            bool   `json:"default"`
+		Deleted            bool   `json:"deleted"`
+		DisplayName        string `json:"displayName"`
+		EnableDingTalk     bool   `json:"enableDingTalk"`
+		LoginName          string `json:"loginName"`
+		ID                 int    `json:"id"`
+		MobileNationCode   string `json:"mobileNationCode"`
+		EnableEmail        bool   `json:"enableEmail"`
+		Email              string `json:"email"`
+		EnableShortMessage bool   `json:"enableShortMessage"`
+		Status             string `json:"status"`
+	} `json:"data"`
+	Success  bool `json:"success"`
+	PageInfo struct {
+		Total       int `json:"total"`
+		TotalPage   int `json:"totalPage"`
+		PageSize    int `json:"pageSize"`
+		CurrentPage int `json:"currentPage"`
+	} `json:"pageInfo"`
+	PureListData bool   `json:"pureListData"`
+	Message      string `json:"message"`
+}
+
 type PasswordPolicy struct {
 	Code string `json:"code"`
 	Cost int    `json:"cost"`
@@ -206,46 +237,6 @@ type Organization struct {
 	Success      bool   `json:"success"`
 }
 
-type LoginPolicy struct {
-	Code string `json:"code"`
-	Cost int    `json:"cost"`
-	Data []struct {
-		CuserID  string `json:"cuserId"`
-		Default  bool   `json:"default"`
-		Enable   bool   `json:"enable"`
-		ID       int    `json:"id"`
-		IPRanges []struct {
-			IPRange       string `json:"ipRange"`
-			LoginPolicyID int    `json:"loginPolicyId"`
-			Protocol      string `json:"protocol"`
-		} `json:"ipRanges"`
-		LpID                   string `json:"lpId"`
-		MuserID                string `json:"muserId"`
-		Name                   string `json:"name"`
-		OrganizationVisibility string `json:"organizationVisibility"`
-		OwnerOrganizationID    int    `json:"ownerOrganizationId"`
-		Rule                   string `json:"rule"`
-		TimeRanges             []struct {
-			EndTime       string `json:"endTime"`
-			LoginPolicyID int    `json:"loginPolicyId"`
-			StartTime     string `json:"startTime"`
-		} `json:"timeRanges"`
-		UserCount   int    `json:"userCount"`
-		Description string `json:"description,omitempty"`
-		Mtime       int64  `json:"mtime,omitempty"`
-	} `json:"data"`
-	Message  string `json:"message"`
-	PageInfo struct {
-		CurrentPage int `json:"currentPage"`
-		PageSize    int `json:"pageSize"`
-		Total       int `json:"total"`
-		TotalPage   int `json:"totalPage"`
-	} `json:"pageInfo"`
-	PureListData bool `json:"pureListData"`
-	Redirect     bool `json:"redirect"`
-	Success      bool `json:"success"`
-}
-
 type Roles struct {
 	Code string `json:"code"`
 	Cost int    `json:"cost"`
@@ -278,6 +269,47 @@ type Roles struct {
 	Success      bool `json:"success"`
 }
 
+type LoginPolicy struct {
+	Redirect       bool   `json:"redirect"`
+	AsapiSuccess   bool   `json:"asapiSuccess"`
+	Code           string `json:"code"`
+	Cost           int    `json:"cost"`
+	AsapiRequestID string `json:"asapiRequestId"`
+	Data           []struct {
+		MuserID    string `json:"muserId"`
+		TimeRanges []struct {
+			LoginPolicyID int    `json:"loginPolicyId"`
+			StartTime     string `json:"startTime"`
+			EndTime       string `json:"endTime"`
+		} `json:"timeRanges"`
+		Description string `json:"description"`
+		Rule        string `json:"rule"`
+		LpID        string `json:"lpId"`
+		IPRanges    []struct {
+			Protocol      string `json:"protocol"`
+			IPRange       string `json:"ipRange"`
+			LoginPolicyID int    `json:"loginPolicyId"`
+		} `json:"ipRanges"`
+		Default                bool   `json:"default"`
+		UserCount              int    `json:"userCount"`
+		OwnerOrganizationID    int    `json:"ownerOrganizationId"`
+		Enable                 bool   `json:"enable"`
+		Name                   string `json:"name"`
+		ID                     int    `json:"id"`
+		CuserID                string `json:"cuserId"`
+		OrganizationVisibility string `json:"organizationVisibility"`
+	} `json:"data"`
+	Success  bool `json:"success"`
+	PageInfo struct {
+		Total       int `json:"total"`
+		TotalPage   int `json:"totalPage"`
+		PageSize    int `json:"pageSize"`
+		CurrentPage int `json:"currentPage"`
+	} `json:"pageInfo"`
+	PureListData bool   `json:"pureListData"`
+	Message      string `json:"message"`
+}
+
 type RegionsByProduct struct {
 	Body struct {
 		RegionList []struct {
@@ -299,39 +331,35 @@ type SpecificField struct {
 	RequestID interface{} `json:"requestId"`
 	HTTPOk    bool        `json:"httpOk"`
 }
+
 type InstanceFamily struct {
-	Success bool `json:"success"`
-	Data    []struct {
-		ID          interface{} `json:"id"`
-		GmtCreate   string      `json:"gmtCreate"`
-		GmtModified string      `json:"gmtModified"`
-		Creator     string      `json:"creator"`
-		Modifier    string      `json:"modifier"`
-		IsDeleted   string      `json:"isDeleted"`
-		PageStart   int         `json:"pageStart"`
-		PageSize    int         `json:"pageSize"`
-		PageSort    string      `json:"pageSort"`
-		PageOrder   string      `json:"pageOrder"`
+	AsapiSuccess   bool   `json:"asapiSuccess"`
+	Code           int    `json:"code"`
+	AsapiRequestID string `json:"asapiRequestId"`
+	Data           []struct {
+		GmtModified string `json:"gmtModified"`
+		Creator     string `json:"creator"`
+		SeriesName  string `json:"seriesName"`
+		Modifier    string `json:"modifier"`
+		PageSize    int    `json:"pageSize"`
 		OrderBy     struct {
 			ID string `json:"id"`
 		} `json:"orderBy"`
-		RegionID        interface{} `json:"regionId"`
-		SpecFrom        interface{} `json:"specFrom"`
-		BaseVersion     interface{} `json:"baseVersion"`
-		Status          interface{} `json:"status"`
-		SeriesID        string      `json:"seriesId"`
-		SeriesName      string      `json:"seriesName"`
-		SeriesNameLabel string      `json:"seriesNameLabel"`
-		ResourceType    string      `json:"resourceType"`
-		Deleted         bool        `json:"deleted"`
+		GmtCreate       string `json:"gmtCreate"`
+		SeriesID        string `json:"seriesId"`
+		PageOrder       string `json:"pageOrder"`
+		Deleted         bool   `json:"deleted"`
+		IsDeleted       string `json:"isDeleted"`
+		PageSort        string `json:"pageSort"`
+		PageStart       int    `json:"pageStart"`
+		SeriesNameLabel string `json:"seriesNameLabel"`
+		ResourceType    string `json:"resourceType"`
 	} `json:"data"`
-	Message   string      `json:"message"`
-	Code      int         `json:"code"`
-	HTTPCode  interface{} `json:"httpCode"`
-	IP        interface{} `json:"ip"`
-	RequestID interface{} `json:"requestId"`
-	HTTPOk    bool        `json:"httpOk"`
+	HTTPOk  bool   `json:"httpOk"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
+
 type EnvironmentProduct struct {
 	Code    int      `json:"code"`
 	Result  []string `json:"result"`
@@ -353,6 +381,7 @@ type EcsInstanceFamily struct {
 	RequestID interface{} `json:"requestId"`
 	HTTPOk    bool        `json:"httpOk"`
 }
+
 type ClustersByProduct struct {
 	Body struct {
 		ClusterList []struct {

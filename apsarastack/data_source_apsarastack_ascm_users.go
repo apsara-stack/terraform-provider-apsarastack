@@ -30,26 +30,6 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"cell_phone_number": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"display_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"email": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
-			"mobile_nation_code": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-			},
 			"names": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -69,11 +49,6 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"login_policy_id": {
-				Type:     schema.TypeInt,
-				Optional: true,
-			},
-
 			"users": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -136,11 +111,23 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 	} else {
 		request.Scheme = "http"
 	}
+	loginName := d.Get("name_regex").(string)
+
 	request.RegionId = client.RegionId
 	request.ApiName = "ListUsers"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListUsers", "Version": "2019-05-10"}
 	response := User{}
+	request.QueryParams = map[string]string{
+		"AccessKeyId":     client.AccessKey,
+		"AccessKeySecret": client.SecretKey,
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Product":         "ascm",
+		"RegionId":        client.RegionId,
+		"Action":          "ListUsers",
+		"Version":         "2019-05-10",
+		"loginName":       loginName,
+	}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

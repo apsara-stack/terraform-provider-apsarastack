@@ -106,6 +106,7 @@ func dataSourceApsaraStackDnsDomains() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"tags": tagsSchema(),
 					},
 				},
 			},

@@ -47,5 +47,5 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - Name of the user. The value is in format `Name`
+* `id` - Login Name of the user.
 * `user_id` - The ID of the user.

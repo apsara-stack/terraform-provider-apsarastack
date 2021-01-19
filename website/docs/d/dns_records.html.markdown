@@ -14,17 +14,19 @@ This data source provides a list of DNS Domain Records in an ApsaraStack Cloud a
 ## Example Usage
 
 ```
-resource "apsarastack_dns_record" "default" {
-  domain_id   = "106"
-  host_record = "test_record"
-  type        = "A"
-  description = "Dns Record"
-  ttl         = 300
-  rr_set      = ["192.168.2.5"]
+resource "apsarastack_dns_domain" "default" {
+  domain_name = "Domain_test."
+  remark = "testing Domain"
 }
 
-output "record" {
-  value = apsarastack_dns_record.default.*
+# Create a new Domain record
+resource "apsarastack_dns_record" "default" {
+  domain_id   = apsarastack_dns_domain.default.id
+  host_record = "testing_record"
+  type        = "A"
+  description = "testing Record"
+  ttl         = 300
+  rr_set      = ["192.168.2.4","192.168.2.7","10.0.0.4"]
 }
 
 data "apsarastack_dns_records" "default"{
