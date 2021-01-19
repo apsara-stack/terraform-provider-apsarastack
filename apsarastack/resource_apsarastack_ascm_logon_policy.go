@@ -44,6 +44,28 @@ func resourceApsaraStackLogonPolicy() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"ALLOW", "DENY"}, false),
 			},
+			"time_range": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Default:  "flannel",
+							Optional: true,
+						},
+						"config": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"disabled": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -71,19 +93,20 @@ func resourceApsaraStackLogonPolicyCreate(d *schema.ResourceData, meta interface
 			request.SetHTTPSInsecure(client.Config.Insecure)
 		}
 		request.QueryParams = map[string]string{
-			"RegionId":         client.RegionId,
-			"AccessKeySecret":  client.SecretKey,
-			"Product":          "ascm",
-			"Department":       client.Department,
-			"ResourceGroup":    client.ResourceGroup,
-			"Action":           "AddLoginPolicy",
-			"AccountInfo":      "123456",
-			"Version":          "2019-05-10",
-			"SignatureVersion": "1.0",
-			"ProductName":      "ascm",
-			"Name":             name,
-			"Description":      descr,
-			"Rule":             rule,
+			"RegionId":               client.RegionId,
+			"AccessKeySecret":        client.SecretKey,
+			"Product":                "ascm",
+			"Department":             client.Department,
+			"ResourceGroup":          client.ResourceGroup,
+			"Action":                 "AddLoginPolicy",
+			"AccountInfo":            "123456",
+			"Version":                "2019-05-10",
+			"SignatureVersion":       "1.0",
+			"ProductName":            "ascm",
+			"name":                   name,
+			"description":            descr,
+			"rule":                   rule,
+			"organizationVisibility": "organizationVisibility.organization",
 		}
 		request.Domain = client.Domain
 		request.Method = "POST"
@@ -152,20 +175,18 @@ func resourceApsaraStackLogonPolicyUpdate(d *schema.ResourceData, meta interface
 	policyId := fmt.Sprint(d.Get("policy_id").(int))
 
 	request.QueryParams = map[string]string{
-		"RegionId":         client.RegionId,
-		"AccessKeySecret":  client.SecretKey,
-		"Product":          "ascm",
-		"Department":       client.Department,
-		"ResourceGroup":    client.ResourceGroup,
-		"Action":           "ModifyLoginPolicy",
-		"AccountInfo":      "123456",
-		"Version":          "2019-05-10",
-		"SignatureVersion": "1.0",
-		"ProductName":      "ascm",
-		"id":               policyId,
-		"Name":             name,
-		"Rule":             rule,
-		"Description":      desc,
+		"RegionId":        client.RegionId,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "ascm",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Action":          "ModifyLoginPolicy",
+		"Version":         "2019-05-10",
+		"ProductName":     "ascm",
+		"id":              policyId,
+		"Name":            name,
+		"Rule":            rule,
+		"Description":     desc,
 	}
 	request.Domain = client.Domain
 	request.Method = "POST"
@@ -282,10 +303,4 @@ func resourceApsaraStackLogonPolicyDelete(d *schema.ResourceData, meta interface
 	})
 
 	return nil
-}
-
-type IPRanges []struct {
-	IPRange       string `json:"ipRange"`
-	LoginPolicyID int    `json:"loginPolicyId"`
-	Protocol      string `json:"protocol"`
 }

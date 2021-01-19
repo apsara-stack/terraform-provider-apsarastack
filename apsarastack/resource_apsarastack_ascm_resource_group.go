@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -29,8 +30,8 @@ func resourceApsaraStackAscmResourceGroup() *schema.Resource {
 				Required: true,
 			},
 			"rg_id": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 		},
 	}
@@ -100,13 +101,76 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		}
 		return resource.RetryableError(err)
 	})
-	d.SetId(check.Data[0].ResourceGroupName)
+	d.SetId(check.Data[0].ResourceGroupName + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
 
 	return resourceApsaraStackAscmResourceGroupUpdate(d, meta)
 
 }
 
 func resourceApsaraStackAscmResourceGroupUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*connectivity.ApsaraStackClient)
+	ascmService := AscmService{client}
+	name := d.Get("name").(string)
+	attributeUpdate := false
+	check, err := ascmService.DescribeAscmResourceGroup(d.Id())
+	did := strings.Split(d.Id(), COLON_SEPARATED)
+
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsResourceGroupExist", ApsaraStackSdkGoERROR)
+	}
+
+	if d.HasChange("name") {
+		if v, ok := d.GetOk("name"); ok {
+			name = v.(string)
+		}
+		check.Data[0].ResourceGroupName = name
+		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("name"); ok {
+			name = v.(string)
+		}
+		check.Data[0].ResourceGroupName = name
+	}
+
+	request := requests.NewCommonRequest()
+	request.QueryParams = map[string]string{
+		"RegionId":          client.RegionId,
+		"AccessKeySecret":   client.SecretKey,
+		"Department":        client.Department,
+		"ResourceGroup":     client.ResourceGroup,
+		"Product":           "ascm",
+		"Action":            "UpdateResourceGroup",
+		"Version":           "2019-05-10",
+		"resourceGroupName": name,
+		"id":                did[1],
+	}
+	request.Method = "POST"
+	request.Product = "ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = client.Domain
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.SetHTTPSInsecure(true)
+	request.ApiName = "UpdateResourceGroup"
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+
+	if attributeUpdate {
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_resource_group", "UpdateResourceGroup", raw)
+		}
+		addDebug(request.GetActionName(), raw, request)
+
+	}
+	d.SetId(name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
+
 	return resourceApsaraStackAscmResourceGroupRead(d, meta)
 
 }
@@ -116,6 +180,7 @@ func resourceApsaraStackAscmResourceGroupRead(d *schema.ResourceData, meta inter
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	object, err := ascmService.DescribeAscmResourceGroup(d.Id())
+	did := strings.Split(d.Id(), COLON_SEPARATED)
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -128,8 +193,7 @@ func resourceApsaraStackAscmResourceGroupRead(d *schema.ResourceData, meta inter
 		return nil
 	}
 
-	d.Set("rg_id", object.Data[0].ID)
-	d.Set("name", object.Data[0].ResourceGroupName)
+	d.Set("name", did[0])
 	d.Set("organization_id", object.Data[0].OrganizationID)
 
 	return nil
@@ -140,10 +204,12 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
 	check, err := ascmService.DescribeAscmResourceGroup(d.Id())
+	did := strings.Split(d.Id(), COLON_SEPARATED)
+
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsResourceGroupExist", ApsaraStackSdkGoERROR)
 	}
-	addDebug("IsResourceGroupExist", check, requestInfo, map[string]string{"resourceGroupName": d.Id()})
+	addDebug("IsResourceGroupExist", check, requestInfo, map[string]string{"resourceGroupName": did[0]})
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
@@ -157,7 +223,7 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 			"Action":            "RemoveResourceGroup",
 			"Version":           "2019-05-10",
 			"ProductName":       "ascm",
-			"resourceGroupName": d.Id(),
+			"resourceGroupName": did[0],
 		}
 
 		request.Method = "POST"

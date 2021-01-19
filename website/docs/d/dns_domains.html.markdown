@@ -14,13 +14,15 @@ This data source provides a list of DNS Domains in an Apsarastack Cloud account 
 ## Example Usage
 
 ```
-data "apsarastack_dns_domains" "domains_ds" {
-  domain_name_regex = "^hegu"
-  output_file       = "domains.txt"
+resource "apsarastack_dns_domain" "default" {
+  domain_name = "Domain_test."
+  remark = "testing Domain"
 }
-
-output "first_domain_id" {
-  value = "${data.apsarastack_dns_domains.domains_ds.domains.0.domain_id}"
+data "apsarastack_dns_domains" "default"{
+  domain_name_regex         = apsarastack_dns_domain.default.domain_name
+}
+output "domains" {
+  value = data.apsarastack_dns_domains.default.*
 }
 ```
 
@@ -29,13 +31,9 @@ output "first_domain_id" {
 The following arguments are supported:
 
 * `domain_name_regex` - (Optional) A regex string to filter results by the domain name. 
-* `group_name_regex` - (Optional)  A regex string to filter results by the group name.
-* `ali_domain` - (Optional, type: bool) Specifies whether the domain is from Apsarastack Cloud or not.
-* `instance_id` - (Optional) Cloud analysis product ID.
-* `version_code` - (Optional) Cloud analysis version code.
-* `ids` (Optional, Available in 1.53.0+) - A list of domain IDs.
+* `ids` (Optional) - A list of domain IDs.
+* `resource_group_id` - (Optional, ForceNew) The ID of resource group which the dns belongs.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
-* `resource_group_id` - (Optional, ForceNew, Available in 1.59.0+) The Id of resource group which the dns belongs.
 
 ## Attributes Reference
 
@@ -46,11 +44,5 @@ The following attributes are exported in addition to the arguments listed above:
 * `domains` - A list of domains. Each element contains the following attributes:
   * `domain_id` - ID of the domain.
   * `domain_name` - Name of the domain.
-  * `ali_domain` - Indicates whether the domain is an Apsarastack Cloud domain.
-  * `group_id` - Id of group that contains the domain.
-  * `group_name` - Name of group that contains the domain.
-  * `instance_id` - Cloud analysis product ID of the domain.
-  * `version_code` - Cloud analysis version code of the domain.
-  * `puny_code` - Punycode of the Chinese domain.
   * `dns_servers` - DNS list of the domain in the analysis system.
-  * `resource_group_id` - The Id of resource group which the dns belongs.
+  * `resource_group_id` - The ID of resource group which the dns belongs.

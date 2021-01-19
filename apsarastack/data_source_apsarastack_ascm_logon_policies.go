@@ -7,7 +7,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -91,26 +90,6 @@ func dataSourceApsaraStackAscmLogonPolicies() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						//"time_ranges": {
-						//	Type:     schema.TypeList,
-						//	Computed: true,
-						//	Elem: &schema.Resource{
-						//		Schema: map[string]*schema.Schema{
-						//			"end_time": {
-						//				Type:     schema.TypeString,
-						//				Computed: true,
-						//			},
-						//			"login_policy_id": {
-						//				Type:     schema.TypeInt,
-						//				Computed: true,
-						//			},
-						//			"start_time": {
-						//				Type:     schema.TypeString,
-						//				Computed: true,
-						//			},
-						//		},
-						//	},
-						//},
 					},
 				},
 			},
@@ -155,7 +134,6 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_logon_policies", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		log.Printf("Suraj raw %s", raw)
 
 		bresponse, _ := raw.(*responses.CommonResponse)
 
@@ -166,8 +144,6 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 		if response.Code == "200" {
 			break
 		}
-		log.Printf("Suraj bresponse %s", bresponse)
-
 	}
 
 	var r *regexp.Regexp
@@ -175,7 +151,6 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 		r = regexp.MustCompile(nameRegex.(string))
 	}
 	var ids []string
-	//var s []map[string]interface{}
 	var t []map[string]interface{}
 	for _, u := range response.Data {
 		if r != nil && !r.MatchString(name) {
@@ -195,32 +170,17 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 					}
 				}
 				allmapping := map[string]interface{}{
-					"id":          fmt.Sprint(u.ID),
-					"name":        u.Name,
-					"rule":        u.Rule,
-					"description": u.Description,
-					"ip_range":    iprange,
-					//"time_ranges":      u.TimeRanges,
-					//"end_time":        u.TimeRanges.EndTime,
+					"id":              fmt.Sprint(u.ID),
+					"name":            u.Name,
+					"rule":            u.Rule,
+					"description":     u.Description,
+					"ip_range":        iprange,
 					"login_policy_id": u.LpID,
-					//}
-					//s = append(s, allmapping)
-					//	allmapping = map[string]interface{}{
-					//	"id":          fmt.Sprint(u.ID),
-					//	"name":        name,
-					//	"rule":        u.Rule,
-					//	"description": u.Description,
-					//	"ip_range":    iprange,
-					"start_time": k.StartTime,
-					"end_time":   k.EndTime,
-					//"login_policy_id": u.LpID,
+					"start_time":      k.StartTime,
+					"end_time":        k.EndTime,
 				}
 				t = append(t, allmapping)
 			}
-			//for k, v := range t {
-			//	s[k] = v
-			//}
-
 		}
 
 	}
@@ -230,10 +190,6 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 	if err := d.Set("policies", t); err != nil {
 		return WrapError(err)
 	}
-	//if err := d.Set("time_ranges", t); err != nil {
-	//	return WrapError(err)
-	//}
-
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), t)
 	}

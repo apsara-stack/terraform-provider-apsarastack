@@ -1,175 +1,50 @@
 package apsarastack
 
 import (
-	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
-
-	"github.com/hashicorp/terraform/helper/acctest"
 )
 
-func TestAccApsaraStackDnsRecordsDataSource(t *testing.T) {
-	rand := acctest.RandInt()
-	resourceId := "data.apsarastack_dns_records.default"
+func TestAccApsaraStackDnsRecordDataSource(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: dataSourceApsaraStackDnsRecord,
+				Check: resource.ComposeTestCheckFunc(
 
-	testAccConfig := dataSourceTestAccConfigFunc(resourceId,
-		fmt.Sprintf("tf-testacc%sdns%v.abc", defaultRegionToTest, rand),
-		dataSourceDnsRecordsConfigDependence)
-
-	domainNameConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-		}),
-	}
-
-	hostRecordRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name":       "${apsarastack_dns_record.default.name}",
-			"host_record_regex": "^ali",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"domain_name":       "${apsarastack_dns_record.default.name}",
-			"host_record_regex": "anyother",
-		}),
-	}
-
-	typeConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"type":        "CNAME",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"type":        "TXT",
-		}),
-	}
-
-	valueRegexConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"value_regex": "^mail",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"value_regex": "anyother",
-		}),
-	}
-
-	lineConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"line":        "default",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"line":        "telecom",
-		}),
-	}
-
-	statusConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"status":      "enable",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"status":      "disable",
-		}),
-	}
-
-	isLockConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"is_locked":   "false",
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"is_locked":   "true",
-		}),
-	}
-
-	idsConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"ids":         []string{"${apsarastack_dns_record.default.id}"},
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"domain_name": "${apsarastack_dns_record.default.name}",
-			"ids":         []string{"${apsarastack_dns_record.default.id}-fake"},
-		}),
-	}
-
-	allConf := dataSourceTestAccConfig{
-		existConfig: testAccConfig(map[string]interface{}{
-			"domain_name":       "${apsarastack_dns_record.default.name}",
-			"host_record_regex": "^ali",
-			"value_regex":       "^mail",
-			"type":              "CNAME",
-			"line":              "default",
-			"status":            "enable",
-			"is_locked":         "false",
-			"ids":               []string{"${apsarastack_dns_record.default.id}"},
-		}),
-		fakeConfig: testAccConfig(map[string]interface{}{
-			"domain_name":       "${apsarastack_dns_record.default.name}",
-			"host_record_regex": "^ali",
-			"value_regex":       "^mail",
-			"type":              "CNAME",
-			"line":              "default",
-			"status":            "enable",
-			"is_locked":         "true",
-			"ids":               []string{"${apsarastack_dns_record.default.id}"},
-		}),
-	}
-
-	var existDnsRecordsMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"ids.#":                 "1",
-			"ids.0":                 CHECKSET,
-			"urls.#":                "1",
-			"urls.0":                fmt.Sprintf("alimail.tf-testacc%sdns%d.abc", defaultRegionToTest, rand),
-			"records.#":             "1",
-			"domain_name":           fmt.Sprintf("tf-testacc%sdns%d.abc", defaultRegionToTest, rand),
-			"records.0.locked":      "false",
-			"records.0.host_record": "alimail",
-			"records.0.type":        "CNAME",
-			"records.0.value":       "mail.mxhichin.com",
-			"records.0.record_id":   CHECKSET,
-			"records.0.ttl":         "600",
-			"records.0.priority":    "0",
-			"records.0.line":        "default",
-			"records.0.status":      "enable",
-		}
-	}
-
-	var fakeDnsRecordsMapFunc = func(rand int) map[string]string {
-		return map[string]string{
-			"ids.#":     "0",
-			"urls.#":    "0",
-			"records.#": "0",
-		}
-	}
-
-	var dnsRecordsCheckInfo = dataSourceAttr{
-		resourceId:   resourceId,
-		existMapFunc: existDnsRecordsMapFunc,
-		fakeMapFunc:  fakeDnsRecordsMapFunc,
-	}
-
-	dnsRecordsCheckInfo.dataSourceTestCheck(t, rand, domainNameConf, hostRecordRegexConf, typeConf, valueRegexConf, valueRegexConf,
-		lineConf, statusConf, isLockConf, idsConf, allConf)
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_dns_records.default"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_dns_records.default", "records.record_id"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_dns_records.default", "records.domain_id"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_dns_records.default", "records.host_record"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_dns_records.default", "records.type"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_dns_records.default", "records.rr_set"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_dns_records.default", "records.ttl"),
+				),
+			},
+		},
+	})
 }
 
-func dataSourceDnsRecordsConfigDependence(name string) string {
-	return fmt.Sprintf(`
-resource "apsarastack_dns" "default" {
-  name = "%s"
-}
+const dataSourceApsaraStackDnsRecord = `
 
+resource "apsarastack_dns_domain" "default" {
+ domain_name = "testdummy."
+ remark = "test_dummy_1"
+}
 resource "apsarastack_dns_record" "default" {
-  name = "${apsarastack_dns.default.name}"
-  host_record = "alimail"
-  type = "CNAME"
-  value = "mail.mxhichin.com"
+ domain_id   = apsarastack_dns_domain.default.id
+ host_record = "testrecord"
+ type        = "A"
+ ttl         = 300
+ rr_set      = ["192.168.2.4","192.168.2.7","10.0.0.4"]
 }
-`, name)
+
+data "apsarastack_dns_records" "default"{
+ domain_id         = apsarastack_dns_record.default.domain_id
+ host_record_regex = apsarastack_dns_record.default.host_record
 }
+`
