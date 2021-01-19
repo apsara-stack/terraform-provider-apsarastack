@@ -11,11 +11,6 @@ description: |-
 
 Provides an Application Load Balancer resource.
 
--> **NOTE:** At present, to avoid some unnecessary regulation confusion, SLB can not support apsarastack international account to create "paybybandwidth" instance.
-
--> **NOTE:** The supported specifications vary by region. Currently not all regions support guaranteed-performance instances.
-For more details about guaranteed-performance instance, see [Guaranteed-performance instances](https://www.alibabacloud.com/help/doc-detail/27657.htm).
-
 ## Example Usage
 
 ```
@@ -51,16 +46,11 @@ The following arguments are supported:
 * `name` - (Optional) The name of the SLB. This name must be unique within your apsarastack account, can have a maximum of 80 characters,
 must contain only alphanumeric characters or hyphens, such as "-","/",".","_", and must not begin or end with a hyphen. If not specified,
 Terraform will autogenerate a name beginning with `tf-lb`.
-* `address_type` - (Optional, ForceNew, Available in 1.55.3+) The network type of the SLB instance. Valid values: ["internet", "intranet"]. If load balancer launched in VPC, this value must be "intranet".
+* `address_type` - (Optional, ForceNew) The network type of the SLB instance. Valid values: ["internet", "intranet"]. If load balancer launched in VPC, this value must be "intranet".
     - internet: After an Internet SLB instance is created, the system allocates a public IP address so that the instance can forward requests from the Internet.
     - intranet: After an intranet SLB instance is created, the system allocates an intranet IP address so that the instance can only forward intranet requests.
 * `vswitch_id` - (Required for a VPC SLB, Forces New Resource) The VSwitch ID to launch in. If `address_type` is internet, it will be ignore.
 
--> **NOTE:** A "Shared-Performance" instance can be changed to "Performance-guaranteed", but the change is irreversible.
-
--> **NOTE:** To change a "Shared-Performance" instance to a "Performance-guaranteed" instance, the SLB will have a short probability of business interruption (10 seconds-30 seconds). Advise to change it during the business downturn, or migrate business to other SLB Instances by using GSLB before changing.
-
--> **NOTE:** Currently, the apsarastack cloud international account does not support creating a PrePaid SLB instance.
 
 ## Attributes Reference
 

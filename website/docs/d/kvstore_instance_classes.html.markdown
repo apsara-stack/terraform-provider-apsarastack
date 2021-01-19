@@ -11,8 +11,6 @@ description: |-
 
 This data source provides the KVStore instance classes resource available info of Apsara Stack Cloud.
 
--> **NOTE:** Available in v1.49.0+
-
 ## Example Usage
 
 ```tf
@@ -44,9 +42,9 @@ The following arguments are supported:
 * `architecture` - (Optional) The KVStore instance system architecture required by the user. Valid values: `standard`, `cluster` and `rwsplit`.
 * `node_type` - (Optional) The KVStore instance node type required by the user. Valid values: `double`, `single`, `readone`, `readthree` and `readfive`.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform apply`).
-* `edition_type` - (Optional, Available in 1.68.0+) The KVStore instance edition type required by the user. Valid values: `Community` and `Enterprise`.
-* `series_type` - (Optional, Available in 1.68.0+) The KVStore instance series type required by the user. Valid values: `enhanced_performance_type` and `hybrid_storage`.
-* `shard_number` - (Optional, Available in 1.68.0+) The number of shard.Valid values: `1`, `2`, `4`, `8`, `16`, `32`, `64`, `128`, `256`.
+* `edition_type` - (Optional) The KVStore instance edition type required by the user. Valid values: `Community` and `Enterprise`.
+* `series_type` - (Optional) The KVStore instance series type required by the user. Valid values: `enhanced_performance_type` and `hybrid_storage`.
+* `shard_number` - (Optional) The number of shard.Valid values: `1`, `2`, `4`, `8`, `16`, `32`, `64`, `128`, `256`.
 
 ## Attributes Reference
 

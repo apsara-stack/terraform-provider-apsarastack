@@ -4,12 +4,12 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_vswitches"
 sidebar_current: "docs-apsarastack-datasource-vswitches"
 description: |-
-    Provides a list of VSwitch owned by an Alibaba Cloud account.
+    Provides a list of VSwitch owned by an Apsarastack Cloud account.
 ---
 
 # apsarastack\_vswitches
 
-This data source provides a list of VSwitches owned by an Alibaba Cloud account.
+This data source provides a list of VSwitches owned by an Apsarastack Cloud account.
 
 ## Example Usage
 
@@ -41,7 +41,7 @@ The following arguments are supported:
 * `is_default` - (Optional, type: bool) Indicate whether the VSwitch is created by the system.
 * `vpc_id` - (Optional) ID of the VPC that owns the VSwitch.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
-* `ids` - (Optional, Available in 1.52.0+) A list of VSwitch IDs.
+* `ids` - (Optional) A list of VSwitch IDs.
 
 ## Attributes Reference
 

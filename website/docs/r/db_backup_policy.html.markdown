@@ -59,8 +59,8 @@ resource "apsarastack_db_backup_policy" "policy" {
 The following arguments are supported:
 
 * `instance_id` - (Required, ForceNew) The Id of instance that can run database.
-* `preferred_backup_period` - (Optional, available in 1.69.0+) DB Instance backup period. Please set at least two days to ensure backing up at least twice a week. Valid values: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]. Default to ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].
-* `preferred_backup_time` - (Optional, available in 1.69.0+) DB instance backup time, in the format of HH:mmZ- HH:mmZ. Time setting interval is one hour. Default to "02:00Z-03:00Z". China time is 8 hours behind it.
+* `preferred_backup_period` - (Optional) DB Instance backup period. Please set at least two days to ensure backing up at least twice a week. Valid values: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]. Default to ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].
+* `preferred_backup_time` - (Optional) DB instance backup time, in the format of HH:mmZ- HH:mmZ. Time setting interval is one hour. Default to "02:00Z-03:00Z". China time is 8 hours behind it.
 * `backup_retention_period` - (Optional, available in 1.69.0+) Instance backup retention days. Valid values: [7-730]. Default to 7. But mysql local disk is unlimited.
 * `enable_backup_log` - (Optional, available in 1.68.0+) Whether to backup instance log. Valid values are `true`, `false`, Default to `true`. Note: The 'Basic Edition' category Rds instance does not support setting log backup. [What is Basic Edition](https://www.alibabacloud.com/help/doc-detail/48980.htm).
 * `log_backup_retention_period` - (Optional, available in 1.69.0+) Instance log backup retention days. Valid when the `enable_backup_log` is `1`. Valid values: [7-730]. Default to 7. It cannot be larger than `backup_retention_period`.

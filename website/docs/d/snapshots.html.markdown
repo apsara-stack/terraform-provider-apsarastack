@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_snapshots
 
-Use this data source to get a list of snapshot according to the specified filters in an Apsara Stack Cloud account.
+Use this data source to get a list of snapshot according to the specified filters in an Apsarastack Cloud account.
 
 ## Example Usage
 

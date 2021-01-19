@@ -294,7 +294,15 @@ func resourceApsaraStackInstanceCreate(d *schema.ResourceData, meta interface{})
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
-
+	if v, ok := d.GetOk("security_groups"); ok {
+		sgs := expandStringList(v.(*schema.Set).List())
+		if len(sgs) > 1 {
+			err := ecsService.JoinSecurityGroups(d.Id(), sgs[1:])
+			if err != nil {
+				return WrapError(err)
+			}
+		}
+	}
 	return resourceApsaraStackInstanceUpdate(d, meta)
 }
 

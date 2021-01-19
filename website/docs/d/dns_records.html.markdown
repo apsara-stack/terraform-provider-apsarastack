@@ -46,7 +46,7 @@ The following arguments are supported:
 * `host_record_regex` - (Optional) Host record regex. 
 * `value_regex` - (Optional) Host record value regex. 
 * `type` - (Optional) Record type. Valid items are `A`, `NS`, `MX`, `TXT`, `CNAME`, `SRV`, `AAAA`, `REDIRECT_URL`, `FORWORD_URL` .
-* `ids` - (Optional, Available 1.52.2+) A list of record IDs.
+* `ids` - (Optional) A list of record IDs.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 

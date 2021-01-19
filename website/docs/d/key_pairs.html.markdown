@@ -4,12 +4,12 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_key_pairs"
 sidebar_current: "docs-apsarastack-datasource-key-pairs"
 description: |-
-    Provides a list of available key pairs that can be used by an Alibaba Cloud account.
+    Provides a list of available key pairs that can be used by an Apsarastack Cloud account.
 ---
 
 # apsarastack\_key\_pairs
 
-This data source provides a list of key pairs in an Alibaba Cloud account according to the specified filters.
+This data source provides a list of key pairs in an Apsarastack Cloud account according to the specified filters.
 
 ## Example Usage
 
@@ -29,10 +29,11 @@ data "apsarastack_key_pairs" "default" {
 The following arguments are supported:
 
 * `name_regex` - (Optional) A regex string to apply to the resulting key pairs.
-* `ids` - (Optional, Available 1.52.1+) A list of key pair IDs.
+* `ids` - (Optional) A list of key pair IDs.
 * `finger_print` - (Optional) A finger print used to retrieve specified key pair.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
-* `tags` - (Optional, Available in v1.66.0+) A mapping of tags to assign to the resource.
+* `tags` - (Optional) A mapping of tags to assign to the resource.
+
 ## Attributes Reference
 
 The following attributes are exported in addition to the arguments listed above:
@@ -49,4 +50,4 @@ The following attributes are exported in addition to the arguments listed above:
     * `vswitch_id` - The ID of the VSwitch attached to the ECS instance.
     * `public_ip` - The public IP address or EIP of the ECS instance.
     * `private_ip` - The private IP address of the ECS instance.
-  * `tags` - (Optional, Available in v1.66.0+) A mapping of tags to assign to the resource.
+  * `tags` - (Optional) A mapping of tags to assign to the resource.
