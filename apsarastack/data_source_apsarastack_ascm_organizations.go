@@ -8,7 +8,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -140,7 +139,6 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 		if response.Code == "200" || len(response.Data) < 1 {
 			break
 		}
-		log.Printf("")
 	}
 
 	var r *regexp.Regexp

@@ -16,7 +16,6 @@ This data source provides the organizations of the current Apsara Stack Cloud us
 ```
 resource "apsarastack_ascm_organization" "default" {
   name = "Test_org"
-  parent_id = "122"
 }
 output "orgres" {
   value = apsarastack_ascm_organization.default.*

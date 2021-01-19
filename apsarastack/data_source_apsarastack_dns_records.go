@@ -123,7 +123,7 @@ func dataSourceApsaraStackDnsRecordsRead(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.AsapiSuccess == false {
+		if response.Records != nil {
 			break
 		}
 
