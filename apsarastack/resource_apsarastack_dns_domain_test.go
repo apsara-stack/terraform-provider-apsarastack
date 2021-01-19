@@ -1,206 +1,90 @@
 package apsarastack
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"strconv"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"strings"
 	"testing"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform/helper/acctest"
 )
 
-func init() {
-	resource.AddTestSweepers(
-		"apsarastack_dns_domain",
-		&resource.Sweeper{
-			Name: "apsarastack_dns_domain",
-			F:    testSweepDnsDomain,
-		})
-}
-
-func testSweepDnsDomain(region string) error {
-	rawClient, err := sharedClientForRegion(region)
-	if err != nil {
-		return WrapError(err)
-	}
-	client := rawClient.(*connectivity.ApsaraStackClient)
-	queryRequest := alidns.CreateDescribeDomainsRequest()
-	var allDomains []alidns.Domain
-	queryRequest.Headers = map[string]string{"RegionId": client.RegionId}
-	queryRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	queryRequest.QueryParams["Department"] = client.Department
-	queryRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
-	queryRequest.PageSize = requests.NewInteger(PageSizeLarge)
-	queryRequest.PageNumber = requests.NewInteger(1)
-
-	for {
-		raw, err := client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
-			return dnsClient.DescribeDomains(queryRequest)
-		})
-		if err != nil {
-			log.Printf("[ERROR] %s get an error %#v", queryRequest.GetActionName(), err)
+func (rc *resourceCheck) checkResourceDnsDomainDestroy() resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		strs := strings.Split(rc.resourceId, ":")
+		var resourceType string
+		for _, str := range strs {
+			if strings.Contains(str, "apsarastack_") {
+				resourceType = strings.Trim(str, " ")
+				break
+			}
 		}
-		addDebug(queryRequest.GetActionName(), raw)
-		response, _ := raw.(*alidns.DescribeDomainsResponse)
-		domains := response.Domains.Domain
-		for _, domain := range domains {
-			if strings.HasPrefix(domain.DomainName, "tf-testacc"+defaultRegionToTest) {
-				allDomains = append(allDomains, domain)
+
+		if resourceType == "" {
+			return WrapError(Error("The resourceId %s is not correct and it should prefix with apsarastack_", rc.resourceId))
+		}
+
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != resourceType {
+				continue
+			}
+			outValue, err := rc.callDescribeMethod(rs)
+			errorValue := outValue[1]
+			if !errorValue.IsNil() {
+				err = errorValue.Interface().(error)
+				if err != nil {
+					if NotFoundError(err) {
+						continue
+					}
+					return WrapError(err)
+				}
 			} else {
-				log.Printf("Skip %#v", domain)
+				return WrapError(Error("the resource %s %s was not destroyed ! ", rc.resourceId, rs.Primary.ID))
 			}
 		}
-
-		if len(domains) < PageSizeLarge {
-			break
-		}
-
-		if page, err := getNextpageNumber(queryRequest.PageNumber); err != nil {
-			return WrapError(err)
-		} else {
-			queryRequest.PageNumber = page
-		}
-
-		removeRequest := alidns.CreateDeleteDomainRequest()
-		removeRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		removeRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-		removeRequest.QueryParams["Department"] = client.Department
-		removeRequest.QueryParams["ResourceGroup"] = client.ResourceGroup
-		removeRequest.DomainName = ""
-		for _, domain := range allDomains {
-			removeRequest.DomainName = domain.DomainName
-			raw, err := client.WithDnsClient(func(dnsClietn *alidns.Client) (interface{}, error) {
-				return dnsClietn.DeleteDomain(removeRequest)
-			})
-			if err != nil {
-				log.Printf("[ERROR] %s get an error %s", removeRequest.GetActionName(), err)
-			}
-			addDebug(removeRequest.GetActionName(), raw)
-		}
+		return nil
 	}
-	return nil
 }
 
 func TestAccApsaraStackDnsDomain_basic(t *testing.T) {
+	var v *DnsDomains
 	resourceId := "apsarastack_dns_domain.default"
-	randInt := acctest.RandIntRange(10000, 99999)
-	var v alidns.DescribeDomainInfoResponse
-	ra := resourceAttrInit(resourceId, map[string]string{})
+	ra := resourceAttrInit(resourceId, dnsDomainBasicMap)
 	serviceFunc := func() interface{} {
 		return &DnsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
+
 	testAccCheck := rac.resourceAttrMapUpdateSet()
-
-	testAccConfig := resourceTestAccConfigFunc(resourceId, strconv.FormatInt(int64(randInt), 10), resourceDnsDomainConfigDependence)
-
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-
+		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  rac.checkResourceDestroy(),
+		CheckDestroy:  rac.checkResourceDnsRecordDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccConfig(map[string]interface{}{
-					"domain_name":       "${var.dnsName}",
-					"resource_group_id": os.Getenv("APSARASTACK_RESOURCE_GROUP_ID"),
-					"remark":            "test new domain",
-					"tags": map[string]string{
-						"Created": "TF",
-					},
-				}),
+				Config: resourceApsaraStackDns_Domain,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"domain_name":  fmt.Sprintf("tf-testacc%sdnsbasic%d.abc", defaultRegionToTest, randInt),
-						"remark":       "test new domain",
-						"tags.%":       "1",
-						"tags.Created": "TF",
-					}),
-				),
-			},
-			{
-				ResourceName:            resourceId,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"resource_group_id"},
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"group_id": "${apsarastack_dns_group.default.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"group_id": CHECKSET,
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"tags": map[string]string{
-						"Created": "TFM",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "1",
-						"tags.Created": "TFM",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"remark": "test new domain again",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"remark": "test new domain again",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"domain_name": "${var.dnsName}",
-					"remark":      "test new domain",
-					"tags": map[string]string{
-						"Created": "TF",
-					},
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"domain_name":  fmt.Sprintf("tf-testacc%sdnsbasic%d.abc", defaultRegionToTest, randInt),
-						"remark":       "test new domain",
-						"tags.%":       "1",
-						"tags.Created": "TF",
-					}),
+					testAccCheck(nil),
 				),
 			},
 		},
 	})
+
 }
 
-func resourceDnsDomainConfigDependence(name string) string {
-	return fmt.Sprintf(`
-variable "dnsName"{
-	default = "tf-testacc%sdnsbasic%s.abc"
+const resourceApsaraStackDns_Domain = `
+resource "apsarastack_dns_domain" "default" {
+	domain_name = "testdummy."
+	remark = "test_dummy_1"
 }
+`
 
-variable "dnsGroupName"{
-	default = "tf-testaccdns%s"
-}
-
-resource "apsarastack_dns_group" "default" {
-  name = "${var.dnsGroupName}"
-}
-`, defaultRegionToTest, name, name)
+var dnsDomainBasicMap = map[string]string{
+	"domain_name": CHECKSET,
+	"remark":      CHECKSET,
 }

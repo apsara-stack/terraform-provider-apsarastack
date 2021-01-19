@@ -53,14 +53,8 @@ func resourceApsaraStackDnsDomain() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"tags": tagsSchema(),
 		},
 	}
-}
-
-type DnsDomain struct {
-	RequestID string `json:"RequestId"`
-	ID        int    `json:"Id"`
 }
 
 func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}) error {
@@ -83,8 +77,8 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 		"Version":         "2018-07-20",
 		"DomainName":      DomainName,
 	}
-	raw, err := client.WithEcsClient(func(alidnsClient *ecs.Client) (interface{}, error) {
-		return alidnsClient.ProcessCommonRequest(request)
+	raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
+		return dnsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", request.GetActionName(), ApsaraStackSdkGoERROR)
@@ -94,7 +88,7 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 	response, _ := raw.(*responses.CommonResponse)
 	ok := json.Unmarshal(response.GetHttpContentBytes(), &dnsresp)
 	if ok != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "ParseKubernetesClusterResponse", raw)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "AddGlobalAuthZone", raw)
 	}
 	id := strconv.Itoa(dnsresp.ID)
 	d.SetId(id)
@@ -112,12 +106,62 @@ func resourceApsaraStackDnsDomainRead(d *schema.ResourceData, meta interface{}) 
 		return WrapError(err)
 	}
 
-	d.Set("domain_name", object.DomainName)
+	d.Set("domain_name", object.ZoneList[0].DomainName)
 	d.Set("domain_id", d.Id())
 	return nil
 }
 func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*connectivity.ApsaraStackClient)
+	dnsService := DnsService{client}
+	remarkUpdate := false
+	check, err := dnsService.DescribeDnsDomain(d.Id())
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsDomainExist", ApsaraStackSdkGoERROR)
+	}
 
+	var desc string
+
+	if d.HasChange("remark") {
+		if v, ok := d.GetOk("remark"); ok {
+			desc = v.(string)
+		}
+		check.ZoneList[0].Remark = desc
+		remarkUpdate = true
+	} else {
+		if v, ok := d.GetOk("remark"); ok {
+			desc = v.(string)
+		}
+		check.ZoneList[0].Remark = desc
+	}
+	if remarkUpdate {
+		request := requests.NewCommonRequest()
+		request.Method = "POST"
+		request.Product = "GenesisDns"
+		request.Domain = client.Domain
+		request.Version = "2018-07-20"
+		request.Scheme = "http"
+		request.ApiName = "RemarkGlobalAuthZone"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.RegionId = client.RegionId
+
+		request.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"AccessKeyId":     client.AccessKey,
+			"Product":         "GenesisDns",
+			"RegionId":        client.RegionId,
+			"Action":          "RemarkGlobalAuthZone",
+			"Version":         "2018-07-20",
+			"Id":              d.Id(),
+			"Remark":          desc,
+		}
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "RemarkGlobalAuthZone", raw)
+		}
+		addDebug(request.GetActionName(), raw, request)
+	}
 	return resourceApsaraStackDnsDomainRead(d, meta)
 }
 func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}) error {
@@ -139,8 +183,8 @@ func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}
 		"Version":         "2018-07-20",
 		"Id":              d.Id(),
 	}
-	raw, err := client.WithEcsClient(func(alidnsClient *ecs.Client) (interface{}, error) {
-		return alidnsClient.ProcessCommonRequest(request)
+	raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
+		return dnsClient.ProcessCommonRequest(request)
 	})
 	addDebug(request.GetActionName(), raw)
 	if err != nil {

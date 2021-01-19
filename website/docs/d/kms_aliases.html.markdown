@@ -7,7 +7,7 @@ description: |-
     Provides a list of available KMS Aliases.
 ---
 
-# apsarastack\_kms\aliases
+# apsarastack\_kms\_aliases
 
 This data source provides a list of KMS aliases in an Apsarastack Cloud account according to the specified filters.
  

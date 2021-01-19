@@ -15,12 +15,12 @@ Filters support regular expression for the instance name, searches by tags, and 
 ## Example Usage
 
 ```
-    data "apsarastack_kvstore_instances" "default" {
-        name_regex = "checkapsarastackkvinstancesdatasoource`
-    }
-    output "first_instance_name" {
-        value = "${data.apsarastack_kvstore_instances.default.instances.name}"
-    }
+data "apsarastack_kvstore_instances" "default" {
+    name_regex = "checkapsarastackkvinstancesdatasoource"
+}
+output "first_instance_name" {
+    value = data.apsarastack_kvstore_instances.default.instances.name
+}
 ```
 
 ## Argument Reference
