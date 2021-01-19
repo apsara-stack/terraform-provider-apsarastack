@@ -103,20 +103,20 @@ The following arguments are supported:
     Note: There is extra 5 GB storage for SQL Server Instance and it is not in specified `instance_storage`.
 
 * `instance_name` - (Optional) The name of DB instance. It a string of 2 to 256 characters.
-* `zone_id` - (ForceNew) The Zone to launch the DB instance. From version 1.8.1, it supports multiple zone.
+* `zone_id` - (ForceNew) The Zone to launch the DB instance.
 If it is a multi-zone and `vswitch_id` is specified, the vswitch must in the one of them.
 The multiple zone ID can be retrieved by setting `multi` to "true" in the data source `apsarastack_zones`.
 * `vswitch_id` - (ForceNew) The virtual switch ID to launch DB instances in one VPC.
 * `security_ips` - (Optional) List of IP addresses allowed to access all databases of an instance. The list contains up to 1,000 IP addresses, separated by commas. Supported formats include 0.0.0.0/0, 10.23.12.24 (IP), and 10.23.12.24/24 (Classless Inter-Domain Routing (CIDR) mode. /24 represents the length of the prefix in an IP address. The range of the prefix length is [1,32]).
-* `security_ip_mode` - (Optional, Available in 1.62.1+)  Valid values are `normal`, `safety`, Default to `normal`. support `safety` switch to high security access mode 
+* `security_ip_mode` - (Optional)  Valid values are `normal`, `safety`, Default to `normal`. support `safety` switch to high security access mode 
 * `parameters` - (Optional) Set of parameters needs to be set after DB instance was launched. Available parameters can refer to the latest docs [View database parameter templates](https://www.alibabacloud.com/help/doc-detail/26284.htm) .
-* `force_restart` - (Optional, Available in 1.75.0+) Set it to true to make some parameter efficient when modifying them. Default to false.
+* `force_restart` - (Optional) Set it to true to make some parameter efficient when modifying them. Default to false.
 * `tags` - (Optional) A mapping of tags to assign to the resource.
     - Key: It can be up to 64 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It cannot be a null string.
     - Value: It can be up to 128 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It can be a null string.
 
-   Note: From 1.63.0, the tag key and value are case sensitive. Before that, they are not case sensitive.
-* `maintain_time` - (Optional, Available in 1.56.0+) Maintainable time period format of the instance: HH:MMZ-HH:MMZ (UTC time)
+   
+* `maintain_time` - (Optional) Maintainable time period format of the instance: HH:MMZ-HH:MMZ (UTC time)
 
 -> **NOTE:** Because of data backup and migration, change DB instance type and storage would cost 15~20 minutes. Please make full preparation before changing them.
 

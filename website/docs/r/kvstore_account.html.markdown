@@ -11,7 +11,7 @@ description: |-
 
 Provides a kvstore account resource and used to manage databases.
 
--> **NOTE:** Available in 1.66.0+
+
 
 ## Example Usage
 

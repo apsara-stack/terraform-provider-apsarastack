@@ -7,7 +7,7 @@ description: |-
   Provides a ApsaraStack KMS Alias resource.
 ---
 
-# apsarastack\_kms\_alias
+# apsarastack\_kms_alias
 
 Create an alias for the master key (CMK).
 

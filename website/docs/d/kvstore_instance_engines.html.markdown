@@ -11,8 +11,6 @@ description: |-
 
 This data source provides the KVStore instance engines resource available info of Apsara Stack Cloud.
 
--> **NOTE:** Available in v1.51.0+
-
 ## Example Usage
 
 ```tf

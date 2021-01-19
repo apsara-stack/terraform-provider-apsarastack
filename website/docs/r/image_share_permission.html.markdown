@@ -31,10 +31,11 @@ resource "apsarastack_image_share_permission" "default" {
 The following arguments are supported:
 
 * `image_id` - (Required, ForceNew) The source image ID.
-* `account_id` - (Required, ForceNew) ApsaraStack Account ID. It is used to share images.
+* `account_id` - (Required, ForceNew) Apsarastack Account ID. It is used to share images.
    
    
- ## Attributes Reference0
+
+### Attributes Reference0
  
  The following attributes are exported:
  

@@ -11,7 +11,7 @@ description: |-
 
 This data source provides the CMS Groups of the current Apsarastack Cloud user.
 
--> **NOTE:** Available in v1.101.0+.
+
 
 ## Example Usage
 

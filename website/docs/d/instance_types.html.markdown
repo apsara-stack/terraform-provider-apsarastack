@@ -41,8 +41,8 @@ The following arguments are supported:
 * `availability_zone` - (Optional) The zone where instance types are supported.
 * `cpu_core_count` - (Optional) Filter the results to a specific number of cpu cores.
 * `memory_size` - (Optional) Filter the results to a specific memory size in GB.
-* `gpu_amount` - (Optional, Available in 1.69.0+) The GPU amount of an instance type.
-* `gpu_spec` - (Optional, Available in 1.69.0+) The GPU spec of an instance type.
+* `gpu_amount` - (Optional) The GPU amount of an instance type.
+* `gpu_spec` - (Optional) The GPU spec of an instance type.
 * `instance_type_family` - (Optional) Filter the results based on their family name. For example: 'ecs.n4'.
 * `eni_amount` - (Optional) Filter the result whose network interface number is no more than `eni_amount`.
 * `kubernetes_node_role` - (Optional) Filter the result which is used to create a kubernetes cluster Optional Values: `Master` and `Worker`.

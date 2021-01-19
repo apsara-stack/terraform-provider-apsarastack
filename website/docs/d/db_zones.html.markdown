@@ -4,12 +4,12 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_db_zones"
 sidebar_current: "docs-apsarastack-datasource-db-zones"
 description: |-
-    Provides a list of availability zones for RDS that can be used by an Alibaba Cloud account.
+    Provides a list of availability zones for RDS that can be used by an Apsarastack Cloud account.
 ---
 
 # apsarastack\_db\_zones
 
-This data source provides availability zones for RDS that can be accessed by an Alibaba Cloud account within the region configured in the provider.
+This data source provides availability zones for RDS that can be accessed by an Apsarastack Cloud account within the region configured in the provider.
 
 
 ## Example Usage
