@@ -8,7 +8,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -103,10 +102,24 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 	} else {
 		request.Scheme = "http"
 	}
+	var parentId string
+	if v, ok := d.GetOk("parent_id"); ok {
+		parentId = fmt.Sprint(v.(int))
+	} else {
+		parentId = client.Department
+	}
+
 	request.RegionId = client.RegionId
 	request.ApiName = "GetOrganizationList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "GetOrganizationList", "Version": "2019-05-10", "id": client.Department}
+	request.QueryParams = map[string]string{
+		"AccessKeyId":     client.AccessKey,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "ascm",
+		"RegionId":        client.RegionId,
+		"Action":          "GetOrganizationList",
+		"Version":         "2019-05-10",
+		"id":              parentId}
 	response := Organization{}
 
 	for {
@@ -126,13 +139,14 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 		if response.Code == "200" || len(response.Data) < 1 {
 			break
 		}
-		log.Printf("")
 	}
 
 	var r *regexp.Regexp
 	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
 		r = regexp.MustCompile(nameRegex.(string))
 	}
+
+	//parent_id
 	var ids []string
 	var s []map[string]interface{}
 	for _, rg := range response.Data {

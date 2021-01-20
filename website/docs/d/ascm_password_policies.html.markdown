@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_password_policies"
+page_title: "Apsarastack: apsarastack_ascm_password_policies"
 sidebar_current: "docs-apsarastack-datasource-ascm-password-policies"
 description: |-
     Provides a list of password policies to the user.

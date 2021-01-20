@@ -1,7 +1,7 @@
 ---
 subcategory: "AnalyticDB for PostgreSQL (GPDB)"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_gpdb_instances"
+page_title: "Apsarastack: apsarastack_gpdb_instances"
 sidebar_current: "docs-apsarastack-datasource-gpdb-instances"
 description: |-
     Provides a collection of AnalyticDB for PostgreSQL instances according to the specified filters.
@@ -11,8 +11,6 @@ description: |-
 
 The `apsarastack_gpdb_instances` data source provides a collection of AnalyticDB for PostgreSQL instances available in ApsaraStack account.
 Filters support regular expression for the instance name or availability_zone.
-
--> **NOTE:**  Available in 1.47.0+
 
 ## Example Usage
 
@@ -36,7 +34,7 @@ The following arguments are supported:
 * `name_regex` - (Optional) A regex string to apply to the instance name.
 * `availability_zone` - (Optional) Instance availability zone.
 * `vswitch_id` - (Optional) Used to retrieve instances belong to specified `vswitch` resources.
-* `tags` - (Optional, Available in v1.55.3+) A mapping of tags to assign to the resource.
+* `tags` - (Optional) A mapping of tags to assign to the resource.
 * `output_file` - (Optional) The name of file that can save the collection of instances after running `terraform plan`.
 
 ## Attributes Reference

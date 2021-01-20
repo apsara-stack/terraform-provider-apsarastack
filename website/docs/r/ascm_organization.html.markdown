@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_organization"
+page_title: "Apsarastack: apsarastack_ascm_organization"
 sidebar_current: "docs-apsarastack-resource-ascm-organization"
 description: |-
   Provides an Ascm organization resource.
@@ -26,9 +26,8 @@ output "org" {
 
 The following arguments are supported:
 
-* `org_id` - (Computed) The ID of the organization.
 * `name` - (Required) The name of the organization. This name can have a string of 2 to 128 characters, must contain only alphanumeric characters or hyphens, such as "-",".","_", and must not begin or end with a hyphen, and must not begin with http:// or https://. Default value is null.
-* `parent_id` - (Required) Parent ID.
+* `parent_id` - (Optional) ID of its Parent organization. Default value for parent_id is "1".
 * `person_num` - (Optional) A reserved parameter.
 * `resource_group_num` - (Optional) A reserved parameter.
 
@@ -36,4 +35,5 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - Name and ID of the organization. The value is in format `Name/ID`
+* `id` - Name and ID of the organization. The value is in format `Name:ID`
+* `org_id` - The ID of the organization.

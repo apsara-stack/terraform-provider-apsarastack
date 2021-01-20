@@ -11,10 +11,6 @@ description: |-
 
 A Load Balancer CA Certificate is used by the listener of the protocol https.
 
-For information about slb and how to use it, see [What is Server Load Balancer](https://www.alibabacloud.com/help/doc-detail/27539.htm).
-
-For information about CA Certificate and how to use it, see [Configure CA Certificate](https://www.alibabacloud.com/help/doc-detail/85968.htm).
-
 
 ## Example Usage
 
@@ -43,6 +39,7 @@ The following arguments are supported:
 
 * `name` - (Optional) Name of the CA Certificate.
 * `ca_certificate` - (Required, ForceNew) the content of the CA certificate.
+
 ## Attributes Reference
 
 The following attributes are exported:

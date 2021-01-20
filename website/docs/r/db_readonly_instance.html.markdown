@@ -1,7 +1,7 @@
 ---
 subcategory: "RDS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_db_readonly_instance"
+page_title: "Apsarastack: apsarastack_db_readonly_instance"
 sidebar_current: "docs-apsarastack-resource-db-readonly-instance"
 description: |-
   Provides an RDS readonly instance resource.
@@ -71,7 +71,7 @@ The following arguments are supported:
 * `parameters` - (Optional) Set of parameters needs to be set after DB instance was launched. Available parameters can refer to the latest docs [View database parameter templates](https://www.alibabacloud.com/help/doc-detail/26284.htm).
 * `zone_id` - (Optional, ForceNew) The Zone to launch the DB instance.
 * `vswitch_id` - (Optional, ForceNew) The virtual switch ID to launch DB instances in one VPC.
-* `tags` - (Optional, Available in 1.68.0+) A mapping of tags to assign to the resource.
+* `tags` - (Optional) A mapping of tags to assign to the resource.
     - Key: It can be up to 64 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It cannot be a null string.
     - Value: It can be up to 128 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It can be a null string.
 * `db_instance_storage_type` - (Required) The storage type of the instance. Valid values:
@@ -94,7 +94,6 @@ The following attributes are exported:
 
 ### Timeouts
 
--> **NOTE:** Available in 1.52.1+.
 
 The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/docs/configuration-0-11/resources.html#timeouts) for certain actions:
 
