@@ -1,17 +1,16 @@
 ---
 subcategory: "KMS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_kms_aliases"
+page_title: "Apsarastack: apsarastack_kms_aliases"
 sidebar_current: "docs-apsarastack-datasource-kms-aliases"
 description: |-
     Provides a list of available KMS Aliases.
 ---
 
-# apsarastack\_kms\aliases
+# apsarastack\_kms\_aliases
 
 This data source provides a list of KMS aliases in an Apsarastack Cloud account according to the specified filters.
  
-
 
 ## Example Usage
 

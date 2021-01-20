@@ -1,16 +1,14 @@
 package apsarastack
 
 import (
-	"strconv"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"strings"
 )
 
 func resourceApsaraStackDnsRecord() *schema.Resource {
@@ -24,9 +22,13 @@ func resourceApsaraStackDnsRecord() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": {
+			"domain_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"record_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
 			},
 			"host_record": {
 				Type:         schema.TypeString,
@@ -38,33 +40,20 @@ func resourceApsaraStackDnsRecord() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringInSlice([]string{"A", "NS", "MX", "TXT", "CNAME", "SRV", "AAAA", "CAA", "REDIRECT_URL", "FORWORD_URL"}, false),
 			},
-			"value": {
-				Type:             schema.TypeString,
-				Required:         true,
-				DiffSuppressFunc: dnsValueDiffSuppressFunc,
+			"rr_set": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				MinItems: 1,
 			},
 			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  600,
+				Default:  300,
 			},
-			"priority": {
-				Type:             schema.TypeInt,
-				Optional:         true,
-				DiffSuppressFunc: dnsPriorityDiffSuppressFunc,
-			},
-			"routing": {
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "default",
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"locked": {
-				Type:     schema.TypeBool,
-				Computed: true,
 			},
 		},
 	}
@@ -72,80 +61,224 @@ func resourceApsaraStackDnsRecord() *schema.Resource {
 
 func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	request := alidns.CreateAddDomainRecordRequest()
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.RegionId = client.RegionId
-	request.DomainName = d.Get("name").(string)
-	request.RR = d.Get("host_record").(string)
-	request.Type = d.Get("type").(string)
-	request.Value = d.Get("value").(string)
-	request.TTL = requests.NewInteger(d.Get("ttl").(int))
-
-	if v, ok := d.GetOk("priority"); !ok && request.Type == "MX" {
-		return WrapError(Error("'priority': required field when 'type' is MX."))
-	} else if ok {
-		request.Priority = requests.Integer(strconv.Itoa(v.(int)))
-	}
-
-	if v, ok := d.GetOk("routing"); ok {
-		routing := v.(string)
-		if routing != "default" && request.Type == "FORWORD_URL" {
-			return WrapError(Error("The ForwordURLRecord only support default line."))
-		}
-		request.Line = routing
-	}
-
-	if err := resource.Retry(3*time.Minute, func() *resource.RetryError {
-		raw, err := client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
-			return dnsClient.AddDomainRecord(request)
-		})
-		if err != nil {
-			if IsExpectedErrors(err, []string{"InternalError"}) {
-				return resource.RetryableError(err)
+	var requestInfo *ecs.Client
+	DomainID := d.Get("domain_id").(string)
+	RR := d.Get("host_record").(string)
+	Type := d.Get("type").(string)
+	var rrset string
+	var rrsets []string
+	if v, ok := d.GetOk("rr_set"); ok {
+		rrsets = expandStringList(v.(*schema.Set).List())
+		for i, k := range rrsets {
+			if i != 0 {
+				rrset = fmt.Sprintf("%s\",\"%s", rrset, k)
+			} else {
+				rrset = k
 			}
-			return resource.NonRetryableError(err)
 		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		response, _ := raw.(*alidns.AddDomainRecordResponse)
-		d.SetId(response.RecordId)
-		return nil
-	}); err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_record", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
+	TTL := d.Get("ttl").(int)
+
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "GenesisDns"
+	request.Domain = client.Domain
+	request.Version = "2018-07-20"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "AddGlobalRrSet"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.RegionId = client.RegionId
+
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "GenesisDns",
+		"RegionId":        client.RegionId,
+		"Action":          "AddGlobalRrSet",
+		"Version":         "2018-07-20",
+		"Type":            Type,
+		"Ttl":             fmt.Sprint(TTL),
+		"RrSet":           fmt.Sprintf("[\"%s\"]", rrset),
+		"ZoneId":          DomainID,
+		"Rr":              RR,
+	}
+
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_record", "AddGlobalRrSet", raw)
+	}
+	addDebug("AddGlobalRrSet", raw, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	if bresponse.GetHttpStatus() != 200 {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_record", "AddGlobalRrSet", ApsaraStackSdkGoERROR)
+	}
+	addDebug("AddGlobalRrSet", raw, requestInfo, bresponse.GetHttpContentString())
+
+	d.SetId(RR + COLON_SEPARATED + DomainID)
 
 	return resourceApsaraStackDnsRecordRead(d, meta)
 }
 
 func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-
-	request := alidns.CreateUpdateDomainRecordRequest()
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.RegionId = client.RegionId
-	request.RecordId = d.Id()
-	request.RR = d.Get("host_record").(string)
-	request.Type = d.Get("type").(string)
-	if request.Type == "MX" {
-		request.Priority = requests.NewInteger(d.Get("priority").(int))
-	}
-	request.TTL = requests.NewInteger(d.Get("ttl").(int))
-	request.Line = d.Get("routing").(string)
-
-	request.Value = d.Get("value").(string)
-
-	raw, err := client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
-		return dnsClient.UpdateDomainRecord(request)
-	})
+	dnsService := DnsService{client}
+	RecordID := d.Get("record_id").(int)
+	Rr := d.Get("host_record").(string)
+	check, err := dnsService.DescribeDnsRecord(d.Id())
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsRecordExist", ApsaraStackSdkGoERROR)
 	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	attributeUpdate := false
+
+	var desc string
+
+	if d.HasChange("description") {
+		if v, ok := d.GetOk("description"); ok {
+			desc = v.(string)
+		}
+		check.Records[0].Remark = desc
+		request := requests.NewCommonRequest()
+		request.Method = "POST"
+		request.Product = "GenesisDns"
+		request.Domain = client.Domain
+		request.Version = "2018-07-20"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		request.ApiName = "RemarkGlobalRrSet"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.RegionId = client.RegionId
+
+		request.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"AccessKeyId":     client.AccessKey,
+			"Product":         "GenesisDns",
+			"RegionId":        client.RegionId,
+			"Action":          "RemarkGlobalRrSet",
+			"Version":         "2018-07-20",
+			"Id":              fmt.Sprint(RecordID),
+			"Remark":          desc,
+		}
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_record", "RemarkGlobalRrSet", raw)
+		}
+		addDebug(request.GetActionName(), raw, request)
+	} else {
+		if v, ok := d.GetOk("description"); ok {
+			desc = v.(string)
+		}
+		check.Records[0].Remark = desc
+	}
+
+	var Type string
+	var Ttl int
+
+	if d.HasChange("type") {
+		if v, ok := d.GetOk("type"); ok {
+			Type = v.(string)
+		}
+		check.Records[0].Type = Type
+		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("type"); ok {
+			Type = v.(string)
+		}
+		check.Records[0].Type = Type
+	}
+	if d.HasChange("ttl") {
+		if v, ok := d.GetOk("ttl"); ok {
+			Ttl = v.(int)
+		}
+		check.Records[0].TTL = Ttl
+		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("ttl"); ok {
+			Ttl = v.(int)
+		}
+		check.Records[0].TTL = Ttl
+	}
+
+	var rrset string
+	var rrsets []string
+
+	if d.HasChange("rr_set") {
+		if v, ok := d.GetOk("rr_set"); ok {
+			rrsets = expandStringList(v.(*schema.Set).List())
+
+			for i, k := range rrsets {
+				if i != 0 {
+					rrset = fmt.Sprintf("%s\",\"%s", rrset, k)
+				} else {
+					rrset = k
+				}
+			}
+			check.Records[0].RrSet = rrsets
+		}
+		attributeUpdate = true
+	} else {
+		if v, ok := d.GetOk("rr_set"); ok {
+			rrsets = expandStringList(v.(*schema.Set).List())
+			for i, k := range rrsets {
+				if i != 0 {
+					rrset = fmt.Sprintf("%s\",\"%s", rrset, k)
+				} else {
+					rrset = k
+				}
+			}
+			check.Records[0].RrSet = rrsets
+		}
+	}
+
+	if attributeUpdate {
+
+		request := requests.NewCommonRequest()
+		request.Method = "POST"
+		request.Product = "GenesisDns"
+		request.Domain = client.Domain
+		request.Version = "2018-07-20"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		request.ApiName = "UpdateGlobalRrSet"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.RegionId = client.RegionId
+
+		request.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"AccessKeyId":     client.AccessKey,
+			"Product":         "GenesisDns",
+			"RegionId":        client.RegionId,
+			"Action":          "UpdateGlobalRrSet",
+			"Version":         "2018-07-20",
+			"RrsetId":         fmt.Sprint(RecordID),
+			"RrSet":           fmt.Sprintf("[\"%s\"]", rrset),
+			"Ttl":             fmt.Sprint(Ttl),
+			"Type":            Type,
+			"Rr":              Rr,
+		}
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_record", "UpdateGlobalRrSet", raw)
+		}
+		addDebug(request.GetActionName(), raw, request)
+
+	}
 
 	return resourceApsaraStackDnsRecordRead(d, meta)
 }
@@ -162,50 +295,51 @@ func resourceApsaraStackDnsRecordRead(d *schema.ResourceData, meta interface{}) 
 		}
 		return WrapError(err)
 	}
-	d.Set("ttl", object.TTL)
-	d.Set("priority", object.Priority)
-	d.Set("name", object.DomainName)
-	d.Set("host_record", object.RR)
-	d.Set("type", object.Type)
-	d.Set("value", object.Value)
-	d.Set("routing", object.Line)
-	d.Set("status", object.Status)
-	d.Set("locked", object.Locked)
+	d.Set("ttl", object.Records[0].TTL)
+	d.Set("record_id", object.Records[0].RecordID)
+	d.Set("host_record", object.Records[0].Rr)
+	d.Set("type", object.Records[0].Type)
+	d.Set("description", object.Records[0].Remark)
 
 	return nil
 }
 
 func resourceApsaraStackDnsRecordDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	dnsService := &DnsService{client: client}
-	request := alidns.CreateDeleteDomainRecordRequest()
+	RecordID := d.Get("record_id").(int)
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "GenesisDns"
+	request.Domain = client.Domain
+	request.Version = "2018-07-20"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "DeleteGlobalRrSet"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = client.Department
-	request.QueryParams["ResourceGroup"] = client.ResourceGroup
-	request.RegionId = client.RegionId
-	request.RecordId = d.Id()
-	return resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err := client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
-			return dnsClient.DeleteDomainRecord(request)
-		})
-		if err != nil {
-			if IsExpectedErrors(err, []string{"DomainRecordNotBelongToUser"}) {
-				return nil
-			}
-			if IsExpectedErrors(err, []string{"RecordForbidden.DNSChange", "InternalError"}) {
-				return resource.RetryableError(WrapErrorf(err, DefaultTimeoutMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR))
-			}
-			return resource.NonRetryableError(WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR))
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		_, err = dnsService.DescribeDnsRecord(d.Id())
-		if err != nil {
-			if NotFoundError(err) {
-				return nil
-			}
-			return resource.NonRetryableError(WrapError(err))
-		}
-		return resource.RetryableError(WrapErrorf(err, DefaultTimeoutMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR))
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "GenesisDns",
+		"RegionId":        client.RegionId,
+		"Action":          "DeleteGlobalRrSet",
+		"Version":         "2018-07-20",
+		"Id":              fmt.Sprint(RecordID),
+	}
+	raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
+		return dnsClient.ProcessCommonRequest(request)
 	})
+	addDebug(request.GetActionName(), raw)
+
+	if err != nil {
+		if IsExpectedErrors(err, []string{"DomainRecordNotBelongToUser"}) {
+			return nil
+		}
+		if IsExpectedErrors(err, []string{"RecordForbidden.DNSChange", "InternalError"}) {
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+	}
+	return nil
 }

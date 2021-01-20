@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_slb_listeners
 
-This data source provides the listeners related to a server load balancer of the current Alibaba Cloud user.
+This data source provides the listeners related to a server load balancer of the current Apsarastack Cloud user.
 
 ## Example Usage
 

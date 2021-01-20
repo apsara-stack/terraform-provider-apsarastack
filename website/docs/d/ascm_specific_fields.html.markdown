@@ -1,7 +1,7 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_ascm_specific_fields"
+page_title: "Apsarastack: apsarastack_ascm_specific_fields"
 sidebar_current: "docs-apsarastack-datasource-ascm-specific-fields"
 description: |-
     Provides a list of specific fields to the user.
@@ -29,9 +29,9 @@ output "specifields" {
 The following arguments are supported:
 
 * `ids` - (Optional) A list of specific fields IDs.
-* `group_filed` - (Required) Filter the results by specified group filed.
-* `resource_type` - (Required) Filter the results by the specified resource type.
-* `label` - (Optional) Filter the results by the specified label. Takes Bool Value.
+* `group_filed` - (Required) The field for which to query valid values.
+* `resource_type` - (Required) Filter the results by the specified resource type. Valid values: OSS, ADB, DRDS, SLB, NAT, MAXCOMPUTE, POSTGRESQL, ECS, RDS, IPSIX, REDIS, MONGODB, and HITSDB.
+* `label` - (Optional) Specifies whether to internationalize the field. Valid values: true and false.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference

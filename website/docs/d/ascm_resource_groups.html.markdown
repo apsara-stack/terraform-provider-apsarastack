@@ -29,7 +29,7 @@ output "resource_group" {
 The following arguments are supported:
 
 * `ids` - (Optional) A list of Resource Groups IDs.
-* `name_regex` - (Optional) Name of Resource Groups.
+* `name_regex` - (Optional) A regex string to filter results by name of Resource Group.
 * `organization_id` - (Optional) Organization ID Apsarastack Cloud account.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 

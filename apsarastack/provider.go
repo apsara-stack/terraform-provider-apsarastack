@@ -208,7 +208,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_roles":                 dataSourceApsaraStackAscmRoles(),
 			"apsarastack_ascm_organizations":         dataSourceApsaraStackAscmOrganizations(),
 			"apsarastack_ascm_instance_families":     dataSourceApsaraStackInstanceFamilies(),
-			"apsarastack_ascm_regions":               dataSourceApsaraStackRegions(),
+			"apsarastack_ascm_regions_by_product":    dataSourceApsaraStackRegions(),
 			"apsarastack_ascm_service_cluster":       dataSourceApsaraStackServiceCluster(),
 			"apsarastack_ascm_ecs_instance_families": dataSourceApsaraStackEcsInstanceFamilies(),
 			"apsarastack_ascm_specific_fields":       dataSourceApsaraStackSpecificFields(),
