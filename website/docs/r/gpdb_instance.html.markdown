@@ -12,12 +12,6 @@ description: |-
 Provides a AnalyticDB for PostgreSQL instance resource supports replica set instances only. the AnalyticDB for PostgreSQL provides stable, reliable, and automatic scalable database services. 
 You can see detail product introduction [here](https://www.alibabacloud.com/help/doc-detail/35387.htm)
 
--> **NOTE:**  Available in 1.47.0+
-
--> **NOTE:**  The following regions don't support create Classic network Gpdb instance.
-[`ap-southeast-2`,`ap-southeast-3`,`ap-southeast-5`,`ap-south-1`,`me-east-1`,`ap-northeast-1`,`eu-west-1`,`us-east-1`,`eu-central-1`,`cn-shanghai-finance-1`,`cn-shenzhen-finance-1`,`cn-hangzhou-finance`]
-
--> **NOTE:**  Create instance or change instance would cost 10~15 minutes. Please make full preparation.
 
 ## Example Usage
 
@@ -66,11 +60,9 @@ If it is a multi-zone and `vswitch_id` is specified, the vswitch must in one of 
 The multiple zone ID can be retrieved by setting `multi` to "true" in the data source `apsarastack_zones`.
 * `vswitch_id` - (Optional, ForceNew) The virtual switch ID to launch DB instances in one VPC.
 * `security_ip_list` - (Optional) List of IP addresses allowed to access all databases of an instance. The list contains up to 1,000 IP addresses, separated by commas. Supported formats include 0.0.0.0/0, 10.23.12.24 (IP), and 10.23.12.24/24 (Classless Inter-Domain Routing (CIDR) mode. /24 represents the length of the prefix in an IP address. The range of the prefix length is [1,32]).
-* `tags` - (Optional, Available in v1.55.3+) A mapping of tags to assign to the resource.
+* `tags` - (Optional) A mapping of tags to assign to the resource.
 
 ### Timeouts
-
--> **NOTE:** Available in 1.53.0+.
 
 The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/docs/configuration-0-11/resources.html#timeouts) for certain actions:
 

@@ -7,12 +7,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"strings"
-
-	//"github.com/coreos/etcd/client"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"reflect"
-	"strconv"
+	"strings"
 	"time"
 )
 
@@ -20,44 +17,78 @@ type DnsService struct {
 	client *connectivity.ApsaraStackClient
 }
 
-func (dns *DnsService) DescribeDnsRecord(id string) (*alidns.DescribeDomainRecordInfoResponse, error) {
-	response := &alidns.DescribeDomainRecordInfoResponse{}
-	request := alidns.CreateDescribeDomainRecordInfoRequest()
-	request.Headers = map[string]string{"RegionId": dns.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": dns.client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = dns.client.Department
-	request.QueryParams["ResourceGroup"] = dns.client.ResourceGroup
-	request.RecordId = id
-	request.RegionId = dns.client.RegionId
-	raw, err := dns.client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
-		return dnsClient.DescribeDomainRecordInfo(request)
+func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err error) {
+	var requestInfo *ecs.Client
+	did, err := ParseResourceId(id, 2)
+	if err != nil {
+		return response, WrapError(err)
+	}
+	RR := did[0]
+	DomainId := did[1]
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "GenesisDns",
+		"Action":          "ObtainGlobalAuthRecordList",
+		"Version":         "2018-07-20",
+		"Id":              DomainId,
+		"keyword":         RR,
+	}
+	request.Method = "POST"
+	request.Product = "GenesisDns"
+	request.Version = "2018-07-20"
+	request.ServiceCode = "GenesisDns"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ObtainGlobalAuthRecordList"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &DnsRecord{}
+	raw, err := s.client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {
+		return cmsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
-		if IsExpectedErrors(err, []string{"DomainRecordNotBelongToUser", "InvalidRR.NoExist"}) {
-			return response, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		if IsExpectedErrors(err, []string{"ErrorRecordNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return response, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ObtainGlobalAuthRecordList", ApsaraStackSdkGoERROR)
+
 	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	response, _ = raw.(*alidns.DescribeDomainRecordInfoResponse)
-	if response.RecordId != id {
-		return response, WrapErrorf(Error(GetNotFoundMessage("DnsRecord", id)), NotFoundMsg, ProviderERROR)
+	addDebug("ObtainGlobalAuthRecordList", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
 	}
-	return response, nil
+
+	if len(resp.Records) < 1 || resp.AsapiSuccess == true {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
 }
 
-func (dns *DnsService) DescribeDnsGroup(id string) (alidns.DomainGroup, error) {
+func (s *DnsService) DescribeDnsGroup(id string) (alidns.DomainGroup, error) {
 	var group alidns.DomainGroup
 	request := alidns.CreateDescribeDomainGroupsRequest()
-	request.Headers = map[string]string{"RegionId": dns.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": dns.client.SecretKey, "Product": "alidns"}
-	request.QueryParams["Department"] = dns.client.Department
-	request.QueryParams["ResourceGroup"] = dns.client.ResourceGroup
-	request.RegionId = dns.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "alidns"}
+	request.QueryParams["Department"] = s.client.Department
+	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
+	request.RegionId = s.client.RegionId
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	for {
-		raw, err := dns.client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
+		raw, err := s.client.WithDnsClient(func(dnsClient *alidns.Client) (interface{}, error) {
 			return dnsClient.DescribeDomainGroups(request)
 		})
 		if err != nil {
@@ -225,55 +256,8 @@ func (s *DnsService) SetResourceTags(d *schema.ResourceData, resourceType string
 	return nil
 }
 
-type Domain struct {
-	DomainId        string `json:"DomainId" xml:"DomainId"`
-	DomainName      string `json:"DomainName" xml:"DomainName"`
-	PunyCode        string `json:"PunyCode" xml:"PunyCode"`
-	AliDomain       bool   `json:"AliDomain" xml:"AliDomain"`
-	RecordCount     int64  `json:"RecordCount" xml:"RecordCount"`
-	RegistrantEmail string `json:"RegistrantEmail" xml:"RegistrantEmail"`
-	Remark          string `json:"Remark" xml:"Remark"`
-	GroupId         string `json:"GroupId" xml:"GroupId"`
-	GroupName       string `json:"GroupName" xml:"GroupName"`
-	InstanceId      string `json:"InstanceId" xml:"InstanceId"`
-	VersionCode     string `json:"VersionCode" xml:"VersionCode"`
-	VersionName     string `json:"VersionName" xml:"VersionName"`
-	InstanceEndTime string `json:"InstanceEndTime" xml:"InstanceEndTime"`
-	InstanceExpired bool   `json:"InstanceExpired" xml:"InstanceExpired"`
-	Starmark        bool   `json:"Starmark" xml:"Starmark"`
-	CreateTime      string `json:"CreateTime" xml:"CreateTime"`
-	CreateTimestamp int64  `json:"CreateTimestamp" xml:"CreateTimestamp"`
-	ResourceGroupId string `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	//DnsServers      DnsServersInDescribeDomains `json:"DnsServers" xml:"DnsServers"`
-	//Tags            TagsInDescribeDomains       `json:"Tags" xml:"Tags"`
-}
-type DnsDomains struct {
-	RequestID       string    `json:"RequestId"`
-	PageSize        int       `json:"PageSize"`
-	PageNumber      int       `json:"PageNumber"`
-	TotalItems      int       `json:"TotalItems"`
-	DomainID        int       `json:"DomainId"`
-	DomainName      string    `json:"DomainName"`
-	VpcNumber       int       `json:"VpcNumber"`
-	CreateTime      time.Time `json:"CreateTime"`
-	UpdateTime      time.Time `json:"UpdateTime"`
-	UpdateTimestamp int64     `json:"UpdateTimestamp"`
-	RecordCount     int       `json:"RecordCount"`
-	CreateTimestamp int64     `json:"CreateTimestamp"`
-	ZoneList        []struct {
-		DomainID        int       `json:"DomainId"`
-		DomainName      string    `json:"DomainName"`
-		VpcNumber       int       `json:"VpcNumber"`
-		CreateTime      time.Time `json:"CreateTime"`
-		UpdateTime      time.Time `json:"UpdateTime"`
-		UpdateTimestamp int64     `json:"UpdateTimestamp"`
-		RecordCount     int       `json:"RecordCount"`
-		CreateTimestamp int64     `json:"CreateTimestamp"`
-	} `json:"ZoneList"`
-}
-
 func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err error) {
-	var domain = &responses.CommonResponse{}
+	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
 	request.Method = "POST"          // Set request method
 	request.Product = "GenesisDns"   // Specify product
@@ -283,7 +267,7 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
-	} // Set request scheme. Default: http
+	}
 	request.ApiName = "ObtainGlobalAuthZoneList"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{
@@ -295,31 +279,28 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 		"Version":         "2018-07-20",
 		"Id":              id,
 	}
-	raw, err := s.client.WithEcsClient(func(alidnsClient *ecs.Client) (interface{}, error) {
-		return alidnsClient.ProcessCommonRequest(request)
+	resp := &DnsDomains{}
+	raw, err := s.client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {
+		return cmsClient.ProcessCommonRequest(request)
 	})
 	if err != nil {
-		if IsExpectedErrors(err, []string{"InvalidDomainName.NoExist"}) {
-			err = WrapErrorf(Error(GetNotFoundMessage("DnsDomain", id)), NotFoundMsg, ProviderERROR)
-			return
+		if IsExpectedErrors(err, []string{"ErrorDomainNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
-		return
-	}
-	var dnsdomain = DnsDomains{}
-	domain, _ = raw.(*responses.CommonResponse)
-	_ = json.Unmarshal(domain.GetHttpContentBytes(), &dnsdomain)
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ObtainGlobalAuthZoneList", ApsaraStackSdkGoERROR)
 
-	ID, _ := strconv.Atoi(id)
-	dm := &DnsDomains{}
-	for _, k := range dnsdomain.ZoneList {
-		if k.DomainID == ID {
-			dm.DomainID = k.DomainID
-			dm.DomainName = k.DomainName
-			dm.CreateTime = k.CreateTime
-			dm.UpdateTime = k.UpdateTime
-		}
 	}
-	addDebug(request.GetActionName(), raw, response, request)
-	return dm, nil
+	addDebug("ObtainGlobalAuthRecordList", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.ZoneList) < 1 || resp.AsapiSuccess == true {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
 }

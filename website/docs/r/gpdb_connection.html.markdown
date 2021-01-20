@@ -1,7 +1,7 @@
 ---
 subcategory: "AnalyticDB for PostgreSQL (GPDB)"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_gpdb_connection"
+page_title: "Apsarastack: apsarastack_gpdb_connection"
 sidebar_current: "docs-apsarastack-resource-gpdb-connection"
 description: |-
   Provides an AnalyticDB for PostgreSQL instance connection resource.
@@ -10,8 +10,6 @@ description: |-
 # apsarastack\_gpdb\_connection
 
 Provides a connection resource to allocate an Internet connection string for instance.
-
--> **NOTE:**  Available in 1.48.0+
 
 -> **NOTE:** Each instance will allocate a intranet connection string automatically and its prefix is instance ID.
  To avoid unnecessary conflict, please specified a internet connection prefix before applying the resource.
@@ -67,8 +65,6 @@ The following arguments are supported:
 * `port` - (Optional) Internet connection port. Valid value: [3200-3999]. Default to 3306.
 
 ### Timeouts
-
--> **NOTE:** Available in 1.53.0+.
 
 The `timeouts` block allows you to specify [timeouts](https://www.terraform.io/docs/configuration-0-11/resources.html#timeouts) for certain actions:
 

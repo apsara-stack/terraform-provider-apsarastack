@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_disk_attachment"
+page_title: "Apsarastack: apsarastack_disk_attachment"
 sidebar_current: "docs-apsarastack-resource-disk-attachment"
 description: |-
   Provides a ECS Disk Attachment resource.

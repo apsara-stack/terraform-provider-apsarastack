@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_image"
+page_title: "Apsarastack: apsarastack_image"
 sidebar_current: "docs-apsarastack-resource-image"
 description: |-
   Provides an ECS image resource.
@@ -46,7 +46,7 @@ The following arguments are supported:
 * `delete` - (Defaults to 10 mins) Used when terminating the image.
    
    
- ## Attributes Reference
+### Attributes Reference
  
  The following attributes are exported:
  

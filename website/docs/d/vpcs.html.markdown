@@ -35,7 +35,7 @@ The following arguments are supported:
 * `is_default` - (Optional, type: bool) Indicate whether the VPC is the default one in the specified region.
 * `vswitch_id` - (Optional) Filter results by the specified VSwitch.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
-* `ids` - (Optional, Available in 1.52.0+) A list of VPC IDs.
+* `ids` - (Optional) A list of VPC IDs.
 
 ## Attributes Reference
 

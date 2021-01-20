@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func dataSourceApsaraStackDnsDomains() *schema.Resource {
@@ -106,6 +107,7 @@ func dataSourceApsaraStackDnsDomains() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"tags": tagsSchema(),
 					},
 				},
 			},
@@ -119,7 +121,11 @@ func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{
 	request.Product = "GenesisDns"
 	request.Domain = client.Domain
 	request.Version = "2018-07-20"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "ObtainGlobalAuthZoneList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{

@@ -41,9 +41,9 @@ The following arguments are supported:
 * `snapshot_id` - (Optional) A snapshot to base the disk off of. If the disk size required by a snapshot is greater than `size`, the `size` will be ignored, conflict with `encrypted`.
 * `tags` - (Optional) A mapping of tags to assign to the resource.
 * `encrypted` - (Optional) If true, the disk will be encrypted, conflict with `snapshot_id`.
-* `delete_auto_snapshot` - (Optional Available in 1.53.0+) Indicates whether the automatic snapshot is deleted when the disk is released. Default value: false.
-* `delete_with_instance` - (Optional Available in 1.53.0+) Indicates whether the disk is released together with the instance: Default value: false.
-* `enable_auto_snapshot` - (Optional Available in 1.53.0+) Indicates whether to apply a created automatic snapshot policy to the disk. Default value: false.
+* `delete_auto_snapshot` - (Optional) Indicates whether the automatic snapshot is deleted when the disk is released. Default value: false.
+* `delete_with_instance` - (Optional) Indicates whether the disk is released together with the instance: Default value: false.
+* `enable_auto_snapshot` - (Optional) Indicates whether to apply a created automatic snapshot policy to the disk. Default value: false.
 
 ## Attributes Reference
 
