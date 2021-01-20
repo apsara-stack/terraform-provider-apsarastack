@@ -27,7 +27,6 @@ Attaches/Detaches vserver groups to a specified scaling group.
 
 -> **NOTE:** Modifing `weight` attribute means detach vserver group first and then, attach with new weight parameter.
 
--> **NOTE:** Resource `apsarastack_ess_scalinggroup_vserver_groups` is available in 1.53.0+.
 
 ## Example Usage
 
@@ -101,7 +100,7 @@ The following arguments are supported:
 
 * `scaling_group_id` - (Required) ID of the scaling group.
 * `vserver_groups` - (Optional) A list of vserver groups attached on scaling group. See [Block vserver_group](#block-vserver_group) below for details.
-* `force` - (Optional, Available in 1.64.0+) If instances of scaling group are attached/removed from slb backend server when attach/detach vserver group from scaling group. Default to true.
+* `force` - (Optional) If instances of scaling group are attached/removed from slb backend server when attach/detach vserver group from scaling group. Default to true.
 
 ## Block vserver_group
 

@@ -1,7 +1,7 @@
-    ---
+---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_instance"
+page_title: "Apsarastack: apsarastack_instances"
 sidebar_current: "docs-apsarastack-datasource-instances"
 description: |-
     Provides a list of ECS instances to the user.
@@ -39,7 +39,7 @@ The following arguments are supported:
 * `vpc_id` - (Optional) ID of the VPC linked to the instances.
 * `vswitch_id` - (Optional) ID of the VSwitch linked to the instances.
 * `availability_zone` - (Optional) Availability zone where instances are located.
-* `ram_role_name` - (Optional, ForceNew, Available in 1.69.0+) The RAM role name which the instance attaches.
+* `ram_role_name` - (Optional, ForceNew) The RAM role name which the instance attaches.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference

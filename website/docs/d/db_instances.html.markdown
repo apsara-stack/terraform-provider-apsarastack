@@ -35,7 +35,7 @@ output "first_db_instance_id" {
 The following arguments are supported:
 
 * `name_regex` - (Optional) A regex string to filter results by instance name.
-* `ids` - (Optional, Available 1.52.0+) A list of RDS instance IDs. 
+* `ids` - (Optional) A list of RDS instance IDs. 
 * `engine` - (Optional) Database type. Options are `MySQL`, `SQLServer`, `PostgreSQL` and `PPAS`. If no value is specified, all types are returned.
 * `status` - (Optional) Status of the instance.
 * `db_type` - (Optional) `Primary` for primary instance, `Readonly` for read-only instance, `Guard` for disaster recovery instance, and `Temp` for temporary instance.
@@ -43,7 +43,6 @@ The following arguments are supported:
 * `vswitch_id` - (Optional) Used to retrieve instances belong to specified `vswitch` resources.
 * `connection_mode` - (Optional) `Standard` for standard access mode and `Safe` for high security access mode.
 * `tags` - (Optional) A map of tags assigned to the DB instances. 
-Note: Before 1.60.0, the value's format is a `json` string which including `TagKey` and `TagValue`. `TagKey` cannot be null, and `TagValue` can be empty. Format example `"{\"key1\":\"value1\"}"`
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
@@ -73,5 +72,5 @@ The following attributes are exported in addition to the arguments listed above:
   * `vpc_id` - ID of the VPC the instance belongs to.
   * `vswitch_id` - ID of the VSwitch the instance belongs to.
   * `port` - () RDS database connection port.
-  * `connection_string` - (Available in 1.70.3+) RDS database connection string.
-  * `instance_storage` - (Available in 1.70.3+) User-defined DB instance storage space.
+  * `connection_string` - RDS database connection string.
+  * `instance_storage` -  User-defined DB instance storage space.

@@ -67,7 +67,16 @@ func dataSourceApsaraStackEcsInstanceFamiliesRead(d *schema.ResourceData, meta i
 	request.RegionId = client.RegionId
 	request.ApiName = "DescribeInstanceTypeFamilies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Action": "DescribeInstanceTypeFamilies", "Version": "2019-05-10"}
+	request.QueryParams = map[string]string{
+		"AccessKeyId":     client.AccessKey,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "ascm",
+		"RegionId":        client.RegionId,
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Action":          "DescribeInstanceTypeFamilies",
+		"Version":         "2019-05-10",
+	}
 	response := EcsInstanceFamily{}
 
 	for {
@@ -97,7 +106,7 @@ func dataSourceApsaraStackEcsInstanceFamiliesRead(d *schema.ResourceData, meta i
 			"instance_type_family_id": rg.InstanceTypeFamilyID,
 			"generation":              rg.Generation,
 		}
-		ids = append(ids, string(rg.InstanceTypeFamilyID))
+		ids = append(ids, rg.InstanceTypeFamilyID)
 		s = append(s, mapping)
 	}
 

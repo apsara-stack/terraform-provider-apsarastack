@@ -1,7 +1,7 @@
 ---
 subcategory: "ECS"
 layout: "apsarastack"
-page_title: "ApsaraStack: apsarastack_images"
+page_title: "Apsarastack: apsarastack_images"
 sidebar_current: "docs-apsarastack-datasource-images"
 description: |-
     Provides a list of images available to the user.
@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_images
 
-This data source provides available image resources. It contains user's private images, system images provided by Alibaba Cloud, 
+This data source provides available image resources. It contains user's private images, system images provided by Apsarastack Cloud, 
 other public images and the ones available on the image market. 
 
 ## Example Usage

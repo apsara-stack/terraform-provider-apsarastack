@@ -65,7 +65,10 @@ func (s *AscmService) DescribeAscmLogonPolicy(id string) (response *LoginPolicy,
 }
 func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGroup, err error) {
 	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
+
 	request := requests.NewCommonRequest()
+
 	if s.client.Config.Insecure {
 		request.SetHTTPSInsecure(s.client.Config.Insecure)
 	}
@@ -75,7 +78,7 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 		"Product":           "ascm",
 		"Action":            "ListResourceGroup",
 		"Version":           "2019-05-10",
-		"resourceGroupName": id,
+		"resourceGroupName": did[0],
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -98,7 +101,7 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 		if IsExpectedErrors(err, []string{"ErrorResourceGroupNotFound"}) {
 			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListResourceGroup", ApsaraStackSdkGoERROR)
+		return resp, WrapErrorf(err, DefaultErrorMsg, did[0], "ListResourceGroup", ApsaraStackSdkGoERROR)
 
 	}
 	addDebug("ListResourceGroup", response, requestInfo, request)
@@ -168,10 +171,61 @@ func (s *AscmService) DescribeAscmUser(id string) (response *User, err error) {
 
 	return resp, nil
 }
+func (s *AscmService) DescribeAscmDeletedUser(id string) (response *DeletedUser, err error) {
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "ascm",
+		"Action":          "ListDeletedUsers",
+		"Version":         "2019-05-10",
+		"loginName":       id,
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListDeletedUsers"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &DeletedUser{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorUserNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListDeletedUsers", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListDeletedUsers", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+	if resp.Data != nil {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
 
 func (s *AscmService) DescribeAscmOrganization(id string) (response *Organization, err error) {
 	var requestInfo *ecs.Client
-	did := strings.Split(id, SLASH_SEPARATED)
+	did := strings.Split(id, COLON_SEPARATED)
 	request := requests.NewCommonRequest()
 	if s.client.Config.Insecure {
 		request.SetHTTPSInsecure(s.client.Config.Insecure)
@@ -187,7 +241,7 @@ func (s *AscmService) DescribeAscmOrganization(id string) (response *Organizatio
 		"name":            did[0],
 	}
 	request.Method = "POST"
-	request.Product = "Ascm"
+	request.Product = "ascm"
 	request.Version = "2019-05-10"
 	request.ServiceCode = "ascm"
 	request.Domain = s.client.Domain
@@ -218,7 +272,7 @@ func (s *AscmService) DescribeAscmOrganization(id string) (response *Organizatio
 		return resp, WrapError(err)
 	}
 
-	if len(resp.Data) < 1 || resp.Code == "200" {
+	if resp.Code == "200" {
 		return resp, WrapError(err)
 	}
 
