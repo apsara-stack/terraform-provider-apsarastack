@@ -14,15 +14,18 @@ Provides a RAM role attachment resource to bind role for several ECS instances.
 ## Example Usage
 
 ```
-resource "apsarastack_ram_role_attachment" "default" {
-  role_name    = apsarastack_ascm_ram_role.ramrole.role_name
-  instance_ids = ["i-2sdfdasd3423g48dhsa"]
+data "apsarastack_ascm_ram_service_roles" "role" {
+  product = "ecs"
 }
 
-output "ramrole" {
-  value = apsarastack_ram_role_attachment.default.role_name
+resource "apsarastack_ram_role_attachment" "attach" {
+  role_name    = data.apsarastack_ascm_ram_service_roles.role.roles.0.name
+  instance_ids = ["i-23jkek3dkhsdby8kba"]
 }
 
+output "attach" {
+  value = apsarastack_ram_role_attachment.attach.*
+}
 ```
 
 ## Argument Reference
