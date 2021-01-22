@@ -167,7 +167,7 @@ func resourceApsaraStackInstance() *schema.Resource {
 							ForceNew: true,
 						},
 						"kms_key_id": {
-							Type:     schema.TypeBool,
+							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
 						},
