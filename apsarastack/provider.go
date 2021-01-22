@@ -217,6 +217,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_quota":                 dataSourceApsaraStackQuota(),
 			"apsarastack_cms_alarm_contacts":         dataSourceApsarastackCmsAlarmContacts(),
 			"apsarastack_cms_alarm_contact_groups":   dataSourceApsarastackCmsAlarmContactGroups(),
+			"apsarastack_cms_project_meta":           dataSourceApsarastackCmsProjectMeta(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
