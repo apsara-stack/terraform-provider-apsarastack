@@ -12,9 +12,9 @@ import (
 	//"log"
 )
 
-func dataSourceApsaraStackServiceCluster() *schema.Resource {
+func dataSourceApsaraStackServiceClusterByProduct() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackServiceClusterRead,
+		Read: dataSourceApsaraStackServiceClusterByProductRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
@@ -49,7 +49,7 @@ func dataSourceApsaraStackServiceCluster() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackServiceClusterRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackServiceClusterByProductRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
