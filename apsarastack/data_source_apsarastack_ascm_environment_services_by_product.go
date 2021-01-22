@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-func dataSourceApsaraStackAscmEnvironmentServices() *schema.Resource {
+func dataSourceApsaraStackAscmEnvironmentServicesByProduct() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackAscmEnvironmentServicesRead,
+		Read: dataSourceApsaraStackAscmEnvironmentServicesByProductRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
@@ -36,7 +36,7 @@ func dataSourceApsaraStackAscmEnvironmentServices() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackAscmEnvironmentServicesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackAscmEnvironmentServicesByProductRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
@@ -61,7 +61,7 @@ func dataSourceApsaraStackAscmEnvironmentServicesRead(d *schema.ResourceData, me
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_environment_services", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_environment_services_by_product", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)

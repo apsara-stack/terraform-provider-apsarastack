@@ -193,7 +193,6 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_records":                    dataSourceApsaraStackDnsRecords(),
 			"apsarastack_dns_groups":                     dataSourceApsaraStackDnsGroups(),
 			"apsarastack_dns_domains":                    dataSourceApsaraStackDnsDomains(),
-
 			"apsarastack_kvstore_instances":          dataSourceApsaraStackKVStoreInstances(),
 			"apsarastack_kvstore_zones":              dataSourceApsaraStackKVStoreZones(),
 			"apsarastack_kvstore_instance_classes":   dataSourceApsaraStackKVStoreInstanceClasses(),
@@ -312,7 +311,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_mongodb_instance":                    resourceApsaraStackMongoDBInstance(),
 			"apsarastack_mongodb_sharding_instance":           resourceApsaraStackMongoDBShardingInstance(),
 			"apsarastack_ascm_resource_group":                 resourceApsaraStackAscmResourceGroup(),
+			"apsarastack_ascm_resource_group_user_attachment": resourceApsaraStackAscmResourceGroupUserAttachment(),
 			"apsarastack_ascm_user":                           resourceApsaraStackAscmUser(),
+			"apsarastack_ascm_user_role_binding":              resourceApsaraStackAscmUserRoleBinding(),
+			"apsarastack_ascm_ram_role":                       resourceApsaraStackAscmRamRole(),
 			"apsarastack_ascm_organization":                   resourceApsaraStackAscmOrganization(),
 			"apsarastack_cms_alarm":                           resourceApsaraStackCmsAlarm(),
 			"apsarastack_cms_site_monitor":                    resourceApsaraStackCmsSiteMonitor(),

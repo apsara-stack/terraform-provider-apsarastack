@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-func dataSourceApsaraStackRegions() *schema.Resource {
+func dataSourceApsaraStackRegionsByProduct() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackRegionsRead,
+		Read: dataSourceApsaraStackRegionsByProductRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
@@ -54,7 +54,7 @@ func dataSourceApsaraStackRegions() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackRegionsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackRegionsByProductRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
@@ -79,7 +79,7 @@ func dataSourceApsaraStackRegionsRead(d *schema.ResourceData, meta interface{}) 
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_regions", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_regions_by_product", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)

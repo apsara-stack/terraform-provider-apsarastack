@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -70,6 +71,7 @@ func dataSourceApsaraStackAscmResourceGroups() *schema.Resource {
 
 func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+	name := d.Get("name_regex").(string)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
@@ -85,7 +87,15 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 	request.RegionId = client.RegionId
 	request.ApiName = "ListResourceGroup"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListResourceGroup", "Version": "2019-05-10"}
+	request.QueryParams = map[string]string{
+		"AccessKeyId":       client.AccessKey,
+		"AccessKeySecret":   client.SecretKey,
+		"Product":           "ascm",
+		"RegionId":          client.RegionId,
+		"Action":            "ListResourceGroup",
+		"Version":           "2019-05-10",
+		"resourceGroupName": name,
+	}
 	response := ResourceGroup{}
 
 	for {
@@ -115,7 +125,7 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 	var ids []string
 	var s []map[string]interface{}
 	for _, rg := range response.Data {
-		if r != nil && !r.MatchString(rg.ResourceGroupName) {
+		if r != nil && !r.MatchString(name) {
 			continue
 		}
 		mapping := map[string]interface{}{
@@ -123,7 +133,7 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 			"name":            rg.ResourceGroupName,
 			"organization_id": rg.OrganizationID,
 		}
-		ids = append(ids, string(rune(rg.ID)))
+		ids = append(ids, fmt.Sprint(rg.ID))
 		s = append(s, mapping)
 	}
 

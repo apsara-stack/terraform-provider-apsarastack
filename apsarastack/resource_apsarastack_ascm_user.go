@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -55,6 +56,15 @@ func resourceApsaraStackAscmUser() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"role_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"role_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -69,6 +79,7 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 	cellnum := d.Get("cellphone_number").(string)
 	mobnationcode := d.Get("mobile_nation_code").(string)
 	organizationid := d.Get("organization_id").(string)
+	loginpolicyid := d.Get("login_policy_id").(int)
 	check, err := ascmService.DescribeAscmDeletedUser(lname)
 	if check.Data != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_resource_group", "\"Login Name already exist in Historical Users, try with a different name.\"", ApsaraStackSdkGoERROR)
@@ -91,6 +102,10 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 			"mobileNationCode": mobnationcode,
 			"email":            email,
 			"organizationId":   organizationid,
+			"loginPolicyId":    fmt.Sprint(loginpolicyid),
+			"policyId":         fmt.Sprint(loginpolicyid),
+			"fullName":         dname,
+			"userEmail":        email,
 		}
 		request.Method = "POST"
 		request.Product = "Ascm"
@@ -132,8 +147,8 @@ func resourceApsaraStackAscmUserUpdate(d *schema.ResourceData, meta interface{})
 	client := meta.(*connectivity.ApsaraStackClient)
 	lname := d.Get("login_name").(string)
 	organizationid := d.Get("organization_id").(string)
-
 	var dname, cellnum, mobnationcode, email string
+	var loginpolicyid int
 
 	if d.HasChange("display_name") {
 		dname = d.Get("display_name").(string)
@@ -148,6 +163,9 @@ func resourceApsaraStackAscmUserUpdate(d *schema.ResourceData, meta interface{})
 	}
 	if d.HasChange("email") {
 		email = d.Get("email").(string)
+	}
+	if d.HasChange("login_policy_id") {
+		loginpolicyid = d.Get("login_policy_id").(int)
 	}
 
 	request := requests.NewCommonRequest()
@@ -170,6 +188,8 @@ func resourceApsaraStackAscmUserUpdate(d *schema.ResourceData, meta interface{})
 		"mobileNationCode": mobnationcode,
 		"email":            email,
 		"organization_id":  organizationid,
+		"loginPolicyId":    fmt.Sprint(loginpolicyid),
+		"policyId":         fmt.Sprint(loginpolicyid),
 	}
 	request.Domain = client.Domain
 	request.Method = "POST"
@@ -218,7 +238,25 @@ func resourceApsaraStackAscmUserRead(d *schema.ResourceData, meta interface{}) e
 		d.SetId("")
 		return nil
 	}
+	var roleids []string
+	var roleid string
+	var t []map[string]interface{}
 
+	for _, times := range object.Data {
+		for _, k := range times.Roles {
+			roleids = append(roleids, fmt.Sprint(k.ID))
+			if len(roleids) > 1 {
+				roleid = roleid + "," + fmt.Sprint(k.ID)
+			} else {
+				roleid = fmt.Sprint(k.ID)
+			}
+
+			roleidmapping := map[string]interface{}{
+				"id": roleid,
+			}
+			t = append(t, roleidmapping)
+		}
+	}
 	d.Set("user_id", object.Data[0].ID)
 	d.Set("login_name", object.Data[0].LoginName)
 	d.Set("display_name", object.Data[0].DisplayName)
@@ -226,9 +264,12 @@ func resourceApsaraStackAscmUserRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("mobile_nation_code", object.Data[0].MobileNationCode)
 	d.Set("cellphone_number", object.Data[0].CellphoneNum)
 	d.Set("organization_id", object.Data[0].Organization.ID)
+	d.Set("login_policy_id", object.Data[0].LoginPolicy.ID)
+	d.Set("role_id", t)
 
 	return nil
 }
+
 func resourceApsaraStackAscmUserDelete(d *schema.ResourceData, meta interface{}) error {
 
 	client := meta.(*connectivity.ApsaraStackClient)
