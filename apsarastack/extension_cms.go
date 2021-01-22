@@ -38,3 +38,21 @@ type CmsContact struct {
 	Redirect bool   `json:"Redirect"`
 	Success  bool   `json:"Success"`
 }
+type MetaList struct {
+	TotalCount int    `json:"TotalCount"`
+	RequestID  string `json:"RequestId"`
+	Resources  struct {
+		Resource []struct {
+			MetricName  string `json:"MetricName"`
+			Periods     string `json:"Periods"`
+			Description string `json:"Description"`
+			Dimensions  string `json:"Dimensions"`
+			Labels      string `json:"Labels"`
+			Unit        string `json:"Unit"`
+			Statistics  string `json:"Statistics"`
+			Namespace   string `json:"Namespace"`
+		} `json:"Resource"`
+	} `json:"Resources"`
+	Code    int  `json:"Code"`
+	Success bool `json:"Success"`
+}

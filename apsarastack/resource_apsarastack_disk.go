@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -142,11 +143,15 @@ func resourceApsaraStackDiskCreate(d *schema.ResourceData, meta interface{}) err
 
 	if v, ok := d.GetOk("encrypted"); ok {
 		request.Encrypted = requests.NewBoolean(v.(bool))
+		if v.(bool) == true {
+			if j, ok4 := d.GetOk("kms_key_id"); ok4 {
+				request.KMSKeyId = j.(string)
+			}
+			if request.KMSKeyId == "" {
+				return WrapError(errors.New("KmsKeyId can not be empty if encrypted is set to \"true\""))
+			}
+		}
 	}
-	if v, ok := d.GetOk("kms_key_id"); ok {
-		request.KMSKeyId = v.(string)
-	}
-
 	if v, ok := d.GetOk("tags"); ok && len(v.(map[string]interface{})) > 0 {
 		tags := make([]ecs.CreateDiskTag, len(v.(map[string]interface{})))
 		for key, value := range v.(map[string]interface{}) {
