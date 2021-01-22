@@ -30,7 +30,7 @@ func resourceApsaraStackAscmResourceGroup() *schema.Resource {
 				Required: true,
 			},
 			"rg_id": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -194,6 +194,7 @@ func resourceApsaraStackAscmResourceGroupRead(d *schema.ResourceData, meta inter
 	}
 
 	d.Set("name", did[0])
+	d.Set("rg_id", did[1])
 	d.Set("organization_id", object.Data[0].OrganizationID)
 
 	return nil

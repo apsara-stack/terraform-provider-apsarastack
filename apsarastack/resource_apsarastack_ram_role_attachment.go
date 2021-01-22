@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -34,10 +35,18 @@ func resourceApsaraStackRamRoleAttachment() *schema.Resource {
 
 func resourceApsaraStackInstanceRoleAttachmentCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	ramService := RamService{client}
-
-	instanceIds := convertListToJsonString(d.Get("instance_ids").(*schema.Set).List())
-
+	var instanceId string
+	var instanceIds []string
+	if v, ok := d.GetOk("instance_ids"); ok {
+		instanceIds = expandStringList(v.(*schema.Set).List())
+		for i, k := range instanceIds {
+			if i != 0 {
+				instanceId = fmt.Sprintf("%s\",\"%s", instanceId, k)
+			} else {
+				instanceId = k
+			}
+		}
+	}
 	request := ecs.CreateAttachInstanceRamRoleRequest()
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
@@ -46,14 +55,12 @@ func resourceApsaraStackInstanceRoleAttachmentCreate(d *schema.ResourceData, met
 	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	request.InstanceIds = instanceIds
-	request.RamRoleName = d.Get("role_name").(string)
-
-	err := ramService.JudgeRolePolicyPrincipal(request.RamRoleName)
-	if err != nil {
-		return WrapError(err)
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup,
 	}
+	request.InstanceIds = fmt.Sprintf("[\"%s\"]", instanceId)
+	request.RamRoleName = d.Get("role_name").(string)
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -66,7 +73,7 @@ func resourceApsaraStackInstanceRoleAttachmentCreate(d *schema.ResourceData, met
 			return resource.NonRetryableError(WrapErrorf(err, DefaultErrorMsg, "ram_role_attachment", request.GetActionName(), ApsaraStackSdkGoERROR))
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetId(d.Get("role_name").(string) + COLON_SEPARATED + instanceIds)
+		d.SetId(d.Get("role_name").(string) + COLON_SEPARATED + instanceId)
 		return resource.NonRetryableError(WrapError(resourceApsaraStackInstanceRoleAttachmentRead(d, meta)))
 	})
 }
@@ -120,7 +127,7 @@ func resourceApsaraStackInstanceRoleAttachmentDelete(d *schema.ResourceData, met
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RamRoleName = roleName
-	request.InstanceIds = instanceIds
+	request.InstanceIds = fmt.Sprintf("[\"%s\"]", instanceIds)
 
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

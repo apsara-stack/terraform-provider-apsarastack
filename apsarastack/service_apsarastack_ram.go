@@ -525,8 +525,18 @@ func (s *RamService) DescribeRamRoleAttachment(id string) (*ecs.DescribeInstance
 	}
 	request := ecs.CreateDescribeInstanceRamRoleRequest()
 	request.RegionId = s.client.RegionId
-
-	request.InstanceIds = parts[1]
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup,
+	}
+	request.InstanceIds = fmt.Sprintf("[\"%s\"]", parts[1])
 	var raw interface{}
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err = s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
