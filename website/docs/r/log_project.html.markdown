@@ -10,7 +10,7 @@ description: |-
 # apsarastack\_log\_project
 
 The project is the resource management unit in Log Service and is used to isolate and control resources.
-You can manage all the logs and the related log sources of an application by using projects.
+You can manage all the logs, and the related log sources of an application by using projects.
 
 ## Example Usage
 
@@ -35,7 +35,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - The ID of the log project. It sames as its name.
+* `id` - The ID of the log project. It same as its name.
 * `name` - Log project name.
 * `description` - Log project description.
 
