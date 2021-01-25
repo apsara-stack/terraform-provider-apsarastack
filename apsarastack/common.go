@@ -627,6 +627,14 @@ func expandStringList(configured []interface{}) []string {
 	return vs
 }
 
+//func expandIntList(configured []interface{}) []int {
+//	vs := make([]int, 0, len(configured))
+//	for _, v := range configured {
+//		vs = append(vs, v.(int))
+//	}
+//	return vs
+//}
+
 func computePeriodByUnit(createTime, endTime interface{}, currentPeriod int, periodUnit string) (int, error) {
 	var createTimeStr, endTimeStr string
 	switch value := createTime.(type) {
