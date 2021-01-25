@@ -39,7 +39,7 @@ func dataSourceApsaraStackQuota() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"region_name": {
+			"region": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
@@ -49,7 +49,7 @@ func dataSourceApsaraStackQuota() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"groups": {
+			"quota": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
@@ -172,7 +172,7 @@ func dataSourceApsaraStackQuotaRead(d *schema.ResourceData, meta interface{}) er
 	s = append(s, mapping)
 
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("groups", s); err != nil {
+	if err := d.Set("quota", s); err != nil {
 		return WrapError(err)
 	}
 
