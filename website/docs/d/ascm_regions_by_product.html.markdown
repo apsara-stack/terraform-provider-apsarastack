@@ -1,25 +1,25 @@
 ---
 subcategory: "ASCM"
 layout: "apsarastack"
-page_title: "Apsarastack: apsarastack_ascm_regions"
-sidebar_current: "docs-apsarastack-datasource-ascm-regions"
+page_title: "Apsarastack: apsarastack_ascm_regions_by_product"
+sidebar_current: "docs-apsarastack-datasource-ascm-regions-by-product"
 description: |-
     Provides a list of regions to the user.
 ---
 
-# apsarastack\_ascm_regions
+# apsarastack\_ascm_regions_by_product
 
 This data source provides the regions of the current Apsara Stack Cloud user.
 
 ## Example Usage
 
 ```
-data "apsarastack_ascm_regions" "regions" {
+data "apsarastack_ascm_regions_by_product" "regions" {
   output_file = "product_regions"
   product_name = "ecs"
 }
 output "regions" {
-  value = data.apsarastack_ascm_regions.regions.*
+  value = data.apsarastack_ascm_regions_by_product.regions.*
 }
 ```
 
