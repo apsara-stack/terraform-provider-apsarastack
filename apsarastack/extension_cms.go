@@ -56,3 +56,51 @@ type MetaList struct {
 	Code    int  `json:"Code"`
 	Success bool `json:"Success"`
 }
+type AlarmsData struct {
+	RequestID string `json:"RequestId"`
+	Total     int    `json:"Total"`
+	Alarms    struct {
+		Alarm []struct {
+			GroupName           string `json:"GroupName"`
+			NoEffectiveInterval string `json:"NoEffectiveInterval"`
+			SilenceTime         int    `json:"SilenceTime"`
+			ContactGroups       string `json:"ContactGroups"`
+			MailSubject         string `json:"MailSubject"`
+			SourceType          string `json:"SourceType"`
+			RuleID              string `json:"RuleId"`
+			Period              int    `json:"Period"`
+			Dimensions          string `json:"Dimensions"`
+			EffectiveInterval   string `json:"EffectiveInterval"`
+			AlertState          string `json:"AlertState"`
+			Namespace           string `json:"Namespace"`
+			GroupID             string `json:"GroupId"`
+			MetricName          string `json:"MetricName"`
+			EnableState         bool   `json:"EnableState"`
+			Escalations         struct {
+				Critical struct {
+					ComparisonOperator string `json:"ComparisonOperator"`
+					Times              int    `json:"Times"`
+					Statistics         string `json:"Statistics"`
+					Threshold          string `json:"Threshold"`
+				} `json:"Critical"`
+				Info struct {
+					ComparisonOperator string `json:"ComparisonOperator"`
+					Times              int    `json:"Times"`
+					Statistics         string `json:"Statistics"`
+					Threshold          string `json:"Threshold"`
+				} `json:"Info"`
+				Warn struct {
+					ComparisonOperator string `json:"ComparisonOperator"`
+					Times              int    `json:"Times"`
+					Statistics         string `json:"Statistics"`
+					Threshold          string `json:"Threshold"`
+				} `json:"Warn"`
+			} `json:"Escalations"`
+			Webhook   string `json:"Webhook"`
+			Resources string `json:"Resources"`
+			RuleName  string `json:"RuleName"`
+		} `json:"Alarm"`
+	} `json:"Alarms"`
+	Code    string `json:"Code"`
+	Success bool   `json:"Success"`
+}
