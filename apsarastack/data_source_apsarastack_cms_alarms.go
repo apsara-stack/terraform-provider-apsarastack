@@ -225,7 +225,6 @@ func dataSourceApsarastackCmsAlarmsRead(d *schema.ResourceData, meta interface{}
 		}
 
 	}
-	log.Printf("bhushan123 %v", response)
 	var r *regexp.Regexp
 	if rt, ok := d.GetOk("name_regex"); ok && rt.(string) != "" {
 		r = regexp.MustCompile(rt.(string))
