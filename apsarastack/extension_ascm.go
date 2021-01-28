@@ -471,3 +471,48 @@ type QuotaData struct {
 	RequestID    string `json:"requestId"`
 	Success      bool   `json:"success"`
 }
+type MeteringQueryDataEcs struct {
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AsapiSuccess    bool   `json:"asapiSuccess"`
+	Code            string `json:"code"`
+	Cost            int    `json:"cost"`
+	PageNumber      int    `json:"pageNumber"`
+	Data            []struct {
+		PrivateIPAddress    string `json:"PrivateIpAddress"`
+		EndTime             string `json:"EndTime"`
+		InstanceTypeFamily  string `json:"InstanceTypeFamily"`
+		Memory              int    `json:"Memory"`
+		CPU                 int    `json:"Cpu"`
+		OSName              string `json:"OSName"`
+		OrgName             string `json:"OrgName"`
+		InstanceNetworkType string `json:"InstanceNetworkType"`
+		OtsValueTimeStamp   int64  `json:"OtsValueTimeStamp"`
+		EipAddress          string `json:"EipAddress"`
+		ResourceGName       string `json:"ResourceGName"`
+		InstanceType        string `json:"InstanceType"`
+		Status              string `json:"Status"`
+		CreateTime          string `json:"CreateTime"`
+		StartTime           string `json:"StartTime"`
+		NatIPAddress        string `json:"NatIpAddress"`
+		ResourceGID         string `json:"ResourceGId"`
+		SysDiskSize         int    `json:"SysDiskSize"`
+		GPUAmount           int    `json:"GPUAmount"`
+		InstanceName        string `json:"InstanceName"`
+		InsID               string `json:"InsId"`
+		EipBandwidth        string `json:"EipBandwidth"`
+		VpcID               string `json:"VpcId"`
+		Pos                 string `json:"Pos"`
+		DataDiskSize        int    `json:"DataDiskSize"`
+		RegionID            string `json:"RegionId"`
+	} `json:"data"`
+	PageSize       int    `json:"pageSize"`
+	Message        string `json:"message"`
+	ServerRole     string `json:"serverRole"`
+	Total          int    `json:"total"`
+	AsapiRequestID string `json:"asapiRequestId"`
+	RequestID      string `json:"requestId"`
+	Success        bool   `json:"success"`
+	Domain         string `json:"domain"`
+	API            string `json:"api"`
+	AsapiErrorCode string `json:"asapiErrorCode"`
+}
