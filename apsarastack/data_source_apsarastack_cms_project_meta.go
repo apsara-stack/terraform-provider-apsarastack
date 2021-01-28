@@ -93,7 +93,6 @@ func dataSourceApsarastackCmsProjectMetaRead(d *schema.ResourceData, meta interf
 		if response.Success == true || len(response.Resources.Resource) < 1 {
 			break
 		}
-
 	}
 
 	var r *regexp.Regexp
@@ -111,7 +110,6 @@ func dataSourceApsarastackCmsProjectMetaRead(d *schema.ResourceData, meta interf
 			"namespace":   rg.Namespace,
 			"labels":      rg.Labels,
 		}
-		//ids = append(re, rg.Description)
 		s = append(s, mapping)
 	}
 
