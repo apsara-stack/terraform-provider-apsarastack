@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -17,7 +18,7 @@ func dataSourceApsaraStackAscmPasswordPolicies() *schema.Resource {
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     &schema.Schema{Type: schema.TypeInt},
 				Computed: true,
 			},
 			"hard_expiry": {
@@ -169,7 +170,7 @@ func dataSourceApsaraStackAscmPasswordPoliciesRead(d *schema.ResourceData, meta 
 		"password_reuse_prevention":    response.Data.PasswordReusePrevention,
 	}
 	s = append(s, mapping)
-	ids = append(ids, response.Data.ID)
+	ids = append(ids, fmt.Sprint(response.Data.ID))
 
 	d.SetId(dataResourceIdHash(ids))
 

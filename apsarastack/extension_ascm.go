@@ -192,19 +192,19 @@ type PasswordPolicy struct {
 	Code string `json:"code"`
 	Cost int    `json:"cost"`
 	Data struct {
-		ID                           string `json:"id"`
-		HardExpiry                   bool   `json:"hardExpiry"`
-		MaxLoginAttemps              int    `json:"maxLoginAttemps"`
-		MaxPasswordAge               int    `json:"maxPasswordAge"`
-		MinimumPasswordLength        int    `json:"minimumPasswordLength"`
-		PasswordErrorCaptchaTime     int    `json:"passwordErrorCaptchaTime"`
-		PasswordErrorLockPeriod      int    `json:"passwordErrorLockPeriod"`
-		PasswordErrorTolerancePeriod int    `json:"passwordErrorTolerancePeriod"`
-		PasswordReusePrevention      int    `json:"passwordReusePrevention"`
-		RequireLowercaseCharacters   bool   `json:"requireLowercaseCharacters"`
-		RequireNumbers               bool   `json:"requireNumbers"`
-		RequireSymbols               bool   `json:"requireSymbols"`
-		RequireUppercaseCharacters   bool   `json:"requireUppercaseCharacters"`
+		ID                           int  `json:"id"`
+		HardExpiry                   bool `json:"hardExpiry"`
+		MaxLoginAttemps              int  `json:"maxLoginAttemps"`
+		MaxPasswordAge               int  `json:"maxPasswordAge"`
+		MinimumPasswordLength        int  `json:"minimumPasswordLength"`
+		PasswordErrorCaptchaTime     int  `json:"passwordErrorCaptchaTime"`
+		PasswordErrorLockPeriod      int  `json:"passwordErrorLockPeriod"`
+		PasswordErrorTolerancePeriod int  `json:"passwordErrorTolerancePeriod"`
+		PasswordReusePrevention      int  `json:"passwordReusePrevention"`
+		RequireLowercaseCharacters   bool `json:"requireLowercaseCharacters"`
+		RequireNumbers               bool `json:"requireNumbers"`
+		RequireSymbols               bool `json:"requireSymbols"`
+		RequireUppercaseCharacters   bool `json:"requireUppercaseCharacters"`
 	} `json:"data"`
 	Message      string `json:"message"`
 	PureListData bool   `json:"pureListData"`
