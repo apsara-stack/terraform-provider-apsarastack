@@ -218,6 +218,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_cms_alarm_contact_groups":             dataSourceApsarastackCmsAlarmContactGroups(),
 			"apsarastack_cms_project_meta":                     dataSourceApsarastackCmsProjectMeta(),
 			"apsarastack_cms_metric_metalist":                  dataSourceApsarastackCmsMetricMetalist(),
+			"apsarastack_ram_service_role_products":            dataSourceApsarastackRamServiceRoleProducts(),
+			"apsarastack_cms_alarms":                           dataSourceApsarastackCmsAlarms(),
+			"apsarastack_ascm_metering_query_ecs":              dataSourceApsarastackAscmMeteringQueryEcs(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
