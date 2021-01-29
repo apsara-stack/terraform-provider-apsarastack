@@ -37,16 +37,28 @@ func (s *CmsService) BuildCmsAlarmRequest(id string) *requests.CommonRequest {
 
 func (s *CmsService) DescribeAlarm(id string) (alarm cms.Alarm, err error) {
 	request := cms.CreateDescribeMetricRuleListRequest()
-	request.RuleIds = id
+	parts, err := ParseResourceId(id, 2)
+	if err != nil {
+		return alarm, WrapError(err)
+	}
+	request.RuleIds = parts[0]
+
+	if len(parts) != 1 {
+		request.RuleName = parts[1]
+	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "cms", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "cms"}
 
 	wait := incrementalWait(3*time.Second, 5*time.Second)
 	var response *cms.DescribeMetricRuleListResponse
-	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
+	err = resource.Retry(10*time.Minute, func() *resource.RetryError {
 		raw, err := s.client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
 			return cmsClient.DescribeMetricRuleList(request)
 		})
+		if err != nil && IsExpectedErrors(err, []string{Throttling}) {
+			time.Sleep(10 * time.Second)
+			return resource.RetryableError(err)
+		}
 		if err != nil {
 			if IsExpectedErrors(err, []string{ThrottlingUser}) {
 				wait()
@@ -61,11 +73,9 @@ func (s *CmsService) DescribeAlarm(id string) (alarm cms.Alarm, err error) {
 	if err != nil {
 		return alarm, err
 	}
-
 	if len(response.Alarms.Alarm) < 1 {
 		return alarm, GetNotFoundErrorFromString(GetNotFoundMessage("Alarm Rule", id))
 	}
-
 	return response.Alarms.Alarm[0], nil
 }
 
