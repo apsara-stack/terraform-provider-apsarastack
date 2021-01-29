@@ -317,6 +317,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_logon_policy":                   resourceApsaraStackLogonPolicy(),
 			"apsarastack_cms_alarm_contact":                   resourceApsarastackCmsAlarmContact(),
 			"apsarastack_cms_alarm_contact_group":             resourceApsarastackCmsAlarmContactGroup(),
+			"apsarastack_ascm_password_policy":                resourceApsaraStackAscmPasswordPolicy(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
