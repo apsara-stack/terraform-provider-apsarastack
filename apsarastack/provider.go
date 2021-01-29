@@ -213,7 +213,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_specific_fields":                 dataSourceApsaraStackSpecificFields(),
 			"apsarastack_ascm_environment_services_by_product": dataSourceApsaraStackAscmEnvironmentServicesByProduct(),
 			"apsarastack_ascm_password_policies":               dataSourceApsaraStackAscmPasswordPolicies(),
-			"apsarastack_ascm_quota":                           dataSourceApsaraStackQuota(),
+			"apsarastack_ascm_quotas":                          dataSourceApsaraStackQuotas(),
 			"apsarastack_cms_alarm_contacts":                   dataSourceApsarastackCmsAlarmContacts(),
 			"apsarastack_cms_alarm_contact_groups":             dataSourceApsarastackCmsAlarmContactGroups(),
 			"apsarastack_cms_project_meta":                     dataSourceApsarastackCmsProjectMeta(),
@@ -319,6 +319,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_logon_policy":                   resourceApsaraStackLogonPolicy(),
 			"apsarastack_cms_alarm_contact":                   resourceApsarastackCmsAlarmContact(),
 			"apsarastack_cms_alarm_contact_group":             resourceApsarastackCmsAlarmContactGroup(),
+			"apsarastack_ascm_quota":                          resourceApsaraStackAscmQuota(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
