@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -163,6 +164,11 @@ func resourceApsaraStackInstance() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
+							ForceNew: true,
+						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
 							ForceNew: true,
 						},
 						"snapshot_id": {
@@ -393,7 +399,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		//	d.Set("user_data", userDataHashSum(response.UserData))
 		//	log.Printf("set2")
 		//}
-		log.Printf("Roshan data : %s", old_s)
+		log.Printf("data : %s", old_s)
 
 	}
 
@@ -784,7 +790,19 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 				DeleteWithInstance: strconv.FormatBool(disk["delete_with_instance"].(bool)),
 				Encrypted:          strconv.FormatBool(disk["encrypted"].(bool)),
 			}
-
+			if enc, ok := disk["encrypted"]; ok {
+				if enc.(bool) == true {
+					if j, ok := disk["kms_key_id"]; ok {
+						dataDiskRequest.KMSKeyId = j.(string)
+					}
+					if dataDiskRequest.KMSKeyId == "" {
+						return nil, WrapError(errors.New("KmsKeyId can not be empty if encrypted is set to \"true\""))
+					}
+				}
+			}
+			if kms, ok := disk["kms_key_id"]; ok {
+				dataDiskRequest.KMSKeyId = kms.(string)
+			}
 			if name, ok := disk["name"]; ok {
 				dataDiskRequest.DiskName = name.(string)
 			}

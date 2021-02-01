@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -12,19 +13,19 @@ import (
 	"regexp"
 )
 
-func dataSourceApsaraStackAscmRoles() *schema.Resource {
+func dataSourceApsaraStackAscmRamServiceRoles() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackAscmRolesRead,
+		Read: dataSourceApsaraStackAscmRamServiceRolesRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 				ForceNew: true,
 				MinItems: 1,
 			},
-			"name_regex": {
+			"product": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -39,23 +40,17 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"user_count": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
-			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-
 			"roles": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
-							Type:     schema.TypeInt,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"name": {
@@ -66,23 +61,19 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"role_level": {
-							Type:     schema.TypeInt,
-							Computed: true,
-						},
 						"role_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"ram_role": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
-						"role_range": {
+						"product": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"user_count": {
+						"organization_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"aliyun_user_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -93,7 +84,7 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackAscmRamServiceRolesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
@@ -107,10 +98,10 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 		request.Scheme = "http"
 	}
 	request.RegionId = client.RegionId
-	request.ApiName = "ListRoles"
+	request.ApiName = "ListRAMServiceRoles"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "RegionId": client.RegionId, "Action": "ListRoles", "Version": "2019-05-10"}
-	response := Roles{}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "RegionId": client.RegionId, "Action": "ListRAMServiceRoles", "Version": "2019-05-10", "roleType": "ROLETYPE_RAM"}
+	response := RamRole{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -133,26 +124,26 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 	}
 
 	var r *regexp.Regexp
-	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
-		r = regexp.MustCompile(nameRegex.(string))
+	if nameRegex, ok := d.GetOk("product"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(strings.ToUpper(nameRegex.(string)))
 	}
 	var ids []string
 	var s []map[string]interface{}
 	for _, rg := range response.Data {
-		if r != nil && !r.MatchString(rg.RoleName) {
+		if r != nil && !r.MatchString(rg.Product) {
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":          rg.ID,
-			"name":        rg.RoleName,
-			"description": rg.Description,
-			"user_count":  rg.UserCount,
-			"role_level":  rg.RoleLevel,
-			"role_type":   rg.RoleType,
-			"role_range":  rg.RoleRange,
-			"ram_role":    rg.RAMRole,
+			"id":                fmt.Sprint(rg.ID),
+			"name":              rg.RoleName,
+			"description":       rg.Description,
+			"role_type":         rg.RoleType,
+			"product":           rg.Product,
+			"organization_name": rg.OrganizationName,
+			"aliyun_user_id":    rg.AliyunUserID,
 		}
-		ids = append(ids, string(rune(rg.ID)))
+
+		ids = append(ids, fmt.Sprint(rg.ID))
 		s = append(s, mapping)
 	}
 	d.SetId(dataResourceIdHash(ids))

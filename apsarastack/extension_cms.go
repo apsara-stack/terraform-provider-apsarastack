@@ -39,6 +39,7 @@ type CmsContact struct {
 	Success  bool   `json:"Success"`
 }
 
+
 type AlaramRul struct {
 	Redirect       bool   `json:"redirect"`
 	TotalCount     int    `json:"TotalCount"`
@@ -50,6 +51,30 @@ type AlaramRul struct {
 	PageNumber     int    `json:"PageNumber"`
 	Success        bool   `json:"success"`
 	Alarms         struct {
+
+    type MetaList struct {
+	TotalCount int    `json:"TotalCount"`
+	RequestID  string `json:"RequestId"`
+	Resources  struct {
+		Resource []struct {
+			MetricName  string `json:"MetricName"`
+			Periods     string `json:"Periods"`
+			Description string `json:"Description"`
+			Dimensions  string `json:"Dimensions"`
+			Labels      string `json:"Labels"`
+			Unit        string `json:"Unit"`
+			Statistics  string `json:"Statistics"`
+			Namespace   string `json:"Namespace"`
+		} `json:"Resource"`
+	} `json:"Resources"`
+	Code    int  `json:"Code"`
+	Success bool `json:"Success"`
+}
+type AlarmsData struct {
+	RequestID string `json:"RequestId"`
+	Total     int    `json:"Total"`
+	Alarms    struct {
+
 		Alarm []struct {
 			GroupName           string `json:"GroupName"`
 			NoEffectiveInterval string `json:"NoEffectiveInterval"`
@@ -65,7 +90,10 @@ type AlaramRul struct {
 			Namespace           string `json:"Namespace"`
 			GroupID             string `json:"GroupId"`
 			MetricName          string `json:"MetricName"`
+
 			Department          int    `json:"Department"`
+
+
 			EnableState         bool   `json:"EnableState"`
 			Escalations         struct {
 				Critical struct {
@@ -75,6 +103,7 @@ type AlaramRul struct {
 					Threshold          string `json:"Threshold"`
 				} `json:"Critical"`
 				Info struct {
+
 				} `json:"Info"`
 				Warn struct {
 				} `json:"Warn"`
@@ -125,4 +154,25 @@ type AlarmRules []struct {
 		Unit                                  string `json:"Unit"`
 		InstanceID                            string `json:"instanceID"`
 	} `json:"params"`
+
+					ComparisonOperator string `json:"ComparisonOperator"`
+					Times              int    `json:"Times"`
+					Statistics         string `json:"Statistics"`
+					Threshold          string `json:"Threshold"`
+				} `json:"Info"`
+				Warn struct {
+					ComparisonOperator string `json:"ComparisonOperator"`
+					Times              int    `json:"Times"`
+					Statistics         string `json:"Statistics"`
+					Threshold          string `json:"Threshold"`
+				} `json:"Warn"`
+			} `json:"Escalations"`
+			Webhook   string `json:"Webhook"`
+			Resources string `json:"Resources"`
+			RuleName  string `json:"RuleName"`
+		} `json:"Alarm"`
+	} `json:"Alarms"`
+	Code    string `json:"Code"`
+	Success bool   `json:"Success"`
+
 }
