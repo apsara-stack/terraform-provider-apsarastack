@@ -145,21 +145,6 @@ func resourceApsaraStackAscmPasswordPolicyRead(d *schema.ResourceData, meta inte
 }
 
 func resourceApsaraStackAscmPasswordPolicyUpdate(d *schema.ResourceData, meta interface{}) error {
-	//client := meta.(*connectivity.ApsaraStackClient)
-	//request := requests.NewCommonRequest()
-	//if client.Config.Insecure {
-	//	request.SetHTTPSInsecure(client.Config.Insecure)
-	//}
-	//request.QueryParams = map[string]string{
-	//	"RegionId":         client.RegionId,
-	//	"AccessKeySecret":  client.SecretKey,
-	//	"Product":          "ascm",
-	//	"Department":       client.Department,
-	//	"ResourceGroup":    client.ResourceGroup,
-	//	"Action":           "",
-	//	"Version":          "",
-	//	"ProductName":      "ascm",
-	//}
 	return resourceApsaraStackAscmPasswordPolicyRead(d, meta)
 }
 
