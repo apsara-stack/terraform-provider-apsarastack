@@ -16,18 +16,11 @@ resource "apsarastack_ascm_organization" "default" {
     name = "Dummy_Test_1"
 }
 
-data "apsarastack_ascm_organizations" "default" {
-    name_regex = apsarastack_ascm_organization.default.name
-    parent_id = apsarastack_ascm_organization.default.parent_id
-}
-
 resource "apsarastack_ascm_resource_group" "default" {
     organization_id = apsarastack_ascm_organization.default.org_id
     name = "Resource_Group_Name"
 }
-output "rgres" {
-    value = apsarastack_ascm_resource_group.default.*
-}
+
 data "apsarastack_ascm_resource_groups" "default" {
     name_regex = apsarastack_ascm_resource_group.default.name
 }

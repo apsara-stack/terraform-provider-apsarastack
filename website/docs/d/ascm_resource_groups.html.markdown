@@ -37,7 +37,7 @@ The following arguments are supported:
 
 The following attributes are exported in addition to the arguments listed above:
 
-* `ids` - (Optional) A list of Resource Groups IDs.
+* `ids` - A list of Resource Groups IDs.
 * `names` - A list of Resource Groups names.
 * `groups` - A list of Resource Groups. Each element contains the following attributes:
   * `id` - ID of the Resource Group.

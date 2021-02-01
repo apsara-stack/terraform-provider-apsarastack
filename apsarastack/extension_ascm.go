@@ -25,6 +25,23 @@ type ResourceGroup struct {
 	Redirect     bool `json:"redirect"`
 	Success      bool `json:"success"`
 }
+type AddRoleList struct {
+	LoginName  string   `json:"loginName"`
+	RoleIDList []string `json:"roleIdList"`
+}
+type AscmUser struct {
+	DisplayName      string   `json:"displayName"`
+	Email            string   `json:"email"`
+	LoginPolicyID    int      `json:"loginPolicyId"`
+	MobileNationCode string   `json:"mobileNationCode"`
+	PolicyID         int      `json:"policyId"`
+	OrganizationID   string   `json:"organizationId"`
+	LoginName        string   `json:"loginName"`
+	FullName         string   `json:"fullName"`
+	RoleIDList       []string `json:"roleIdList"`
+	CellphoneNum     string   `json:"cellphoneNum"`
+	UserEmail        string   `json:"userEmail"`
+}
 
 type User struct {
 	Code string `json:"code"`
@@ -58,15 +75,16 @@ type User struct {
 			RoleRange              string `json:"roleRange"`
 			RoleType               string `json:"roleType"`
 		} `json:"defaultRole"`
-		Deleted            bool   `json:"deleted"`
-		DisplayName        string `json:"displayName"`
-		Email              string `json:"email"`
-		EnableDingTalk     bool   `json:"enableDingTalk"`
-		EnableEmail        bool   `json:"enableEmail"`
-		EnableShortMessage bool   `json:"enableShortMessage"`
-		ID                 int    `json:"id"`
-		LastLoginTime      int64  `json:"lastLoginTime"`
-		LoginName          string `json:"loginName"`
+		Deleted            bool     `json:"deleted"`
+		DisplayName        string   `json:"displayName"`
+		Email              string   `json:"email"`
+		EnableDingTalk     bool     `json:"enableDingTalk"`
+		EnableEmail        bool     `json:"enableEmail"`
+		EnableShortMessage bool     `json:"enableShortMessage"`
+		ID                 int      `json:"id"`
+		RoleIDList         []string `json:"roleIdList"`
+		LastLoginTime      int64    `json:"lastLoginTime"`
+		LoginName          string   `json:"loginName"`
 		LoginPolicy        struct {
 			CuserID  string `json:"cuserId"`
 			Default  bool   `json:"default"`
@@ -237,6 +255,39 @@ type Organization struct {
 	Success      bool   `json:"success"`
 }
 
+type RamRole struct {
+	Redirect       bool   `json:"redirect"`
+	AsapiSuccess   bool   `json:"asapiSuccess"`
+	Code           string `json:"code"`
+	Cost           int    `json:"cost"`
+	AsapiRequestID string `json:"asapiRequestId"`
+	Data           []struct {
+		Product                  string `json:"product"`
+		AssumeRolePolicyDocument string `json:"assumeRolePolicyDocument"`
+		OrganizationName         string `json:"organizationName"`
+		RoleID                   string `json:"roleId"`
+		Description              string `json:"description"`
+		RoleType                 string `json:"roleType"`
+		AliyunUserID             int    `json:"aliyunUserId"`
+		OrganizationID           int    `json:"organizationId"`
+		RoleName                 string `json:"roleName"`
+		Ctime                    int64  `json:"ctime"`
+		ID                       int    `json:"id"`
+		Arn                      string `json:"arn"`
+		Region                   string `json:"region"`
+		CuserID                  string `json:"cuserId"`
+	} `json:"data"`
+	Success  bool `json:"success"`
+	PageInfo struct {
+		Total       int `json:"total"`
+		TotalPage   int `json:"totalPage"`
+		PageSize    int `json:"pageSize"`
+		CurrentPage int `json:"currentPage"`
+	} `json:"pageInfo"`
+	PureListData bool   `json:"pureListData"`
+	Message      string `json:"message"`
+}
+
 type Roles struct {
 	Code string `json:"code"`
 	Cost int    `json:"cost"`
@@ -252,7 +303,10 @@ type Roles struct {
 		OwnerOrganizationID    int    `json:"ownerOrganizationId"`
 		RAMRole                bool   `json:"rAMRole"`
 		RoleLevel              int64  `json:"roleLevel"`
-		RoleName               string `json:"roleName"`
+		RoleID                 int    `json:"roleId"`
+		NewRoleName            string `json:"newRoleName"`
+		NewDescription         string `json:"newDescription"`
+		RoleName               string `json:"roleName,newRoleName"`
 		RoleRange              string `json:"roleRange"`
 		RoleType               string `json:"roleType"`
 		UserCount              int    `json:"userCount"`
@@ -392,28 +446,110 @@ type ClustersByProduct struct {
 	SuccessResponse bool `json:"successResponse"`
 }
 
-type QuotaData struct {
-	Code string `json:"code"`
-	Cost int    `json:"cost"`
-	Data struct {
-		UsedVipInternal     int    `json:"usedVipInternal"`
-		Cluster             string `json:"cluster"`
-		AllocateVipPublic   int    `json:"allocateVipPublic"`
-		QuotaTypeID         int    `json:"quotaTypeId"`
-		TotalVipPublic      int    `json:"totalVipPublic"`
-		TotalVipInternal    int    `json:"totalVipInternal"`
-		UsedVipPublic       int    `json:"usedVipPublic"`
-		AllocateVipInternal int    `json:"allocateVipInternal"`
-		TargetType          string `json:"targetType"`
-		QuotaType           string `json:"quotaType"`
-		DtFlag              bool   `json:"dtFlag"`
-		Ctime               int64  `json:"ctime"`
-		ID                  int    `json:"id"`
-		Region              string `json:"region"`
+type AscmQuota struct {
+	Redirect        bool   `json:"redirect"`
+	AsapiSuccess    bool   `json:"asapiSuccess"`
+	Code            string `json:"code"`
+	Cost            int    `json:"cost"`
+	AsapiRequestID  string `json:"asapiRequestId"`
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	Data            struct {
+		QuotaTypeID                 int    `json:"quotaTypeId"`
+		QuotaBody                   string `json:"quotaBody"`
+		QuotaType                   string `json:"quotaType"`
+		RegionID                    string `json:"regionId"`
+		ProductName                 string `json:"productName"`
+		RegionName                  string `json:"regionName"`
+		AllocateDiskCloudSsd        int    `json:"allocateDisk_cloud_ssd"`
+		Cluster                     string `json:"cluster"`
+		TotalMem                    int    `json:"totalMem"`
+		TotalDisk                   int    `json:"totalDisk"`
+		TotalDiskCloudEfficiency    int    `json:"totalDisk_cloud_efficiency"`
+		AllocateGpu                 int    `json:"allocateGpu"`
+		TargetType                  string `json:"targetType"`
+		UsedMem                     int    `json:"usedMem"`
+		AllocateCPU                 int    `json:"allocateCpu"`
+		UsedDiskCloudEfficiency     int    `json:"usedDisk_cloud_efficiency"`
+		TotalDiskCloudSsd           int    `json:"totalDisk_cloud_ssd"`
+		UsedDiskCloudSsd            int    `json:"usedDisk_cloud_ssd"`
+		TotalCPU                    int    `json:"totalCpu"`
+		TotalCU                     int    `json:"totalCu"`
+		DtFlag                      bool   `json:"dtFlag"`
+		Ctime                       int64  `json:"ctime"`
+		ID                          int    `json:"id"`
+		UsedGpu                     int    `json:"usedGpu"`
+		Region                      string `json:"region"`
+		AllocateMem                 int    `json:"allocateMem"`
+		AllocateDiskCloudEfficiency int    `json:"allocateDisk_cloud_efficiency"`
+		TotalGpu                    int    `json:"totalGpu"`
+		UsedCPU                     int    `json:"usedCpu"`
+		TotalVPC                    int    `json:"totalVPC"`
+		TotalEIP                    int    `json:"totalEIP"`
+		UsedVPC                     int    `json:"usedVPC"`
+		AllocateVPC                 int    `json:"allocateVPC"`
+		TotalAmount                 int    `json:"totalAmount"`
+		UsedVipInternal             int    `json:"usedVipInternal"`
+		AllocateVipPublic           int    `json:"allocateVipPublic"`
+		TotalVipPublic              int    `json:"totalVipPublic"`
+		TotalVipInternal            int    `json:"totalVipInternal"`
+		UsedVipPublic               int    `json:"usedVipPublic"`
+		AllocateVipInternal         int    `json:"allocateVipInternal"`
+		UsedAmount                  int    `json:"usedAmount"`
+		AllocateAmount              int    `json:"allocateAmount"`
+		UsedDisk                    int    `json:"usedDisk"`
+		AllocateDisk                int    `json:"allocateDisk"`
 	} `json:"data"`
-	Message      string `json:"message"`
-	PureListData bool   `json:"pureListData"`
-	Redirect     bool   `json:"redirect"`
-	RequestID    string `json:"requestId"`
-	Success      bool   `json:"success"`
+	RequestID      string `json:"requestId"`
+	Success        bool   `json:"success"`
+	PureListData   bool   `json:"pureListData"`
+	Message        string `json:"message"`
+	ServerRole     string `json:"serverRole"`
+	Domain         string `json:"domain"`
+	API            string `json:"api"`
+	AsapiErrorCode string `json:"asapiErrorCode"`
+}
+type MeteringQueryDataEcs struct {
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AsapiSuccess    bool   `json:"asapiSuccess"`
+	Code            string `json:"code"`
+	Cost            int    `json:"cost"`
+	PageNumber      int    `json:"pageNumber"`
+	Data            []struct {
+		PrivateIPAddress    string `json:"PrivateIpAddress"`
+		EndTime             string `json:"EndTime"`
+		InstanceTypeFamily  string `json:"InstanceTypeFamily"`
+		Memory              int    `json:"Memory"`
+		CPU                 int    `json:"Cpu"`
+		OSName              string `json:"OSName"`
+		OrgName             string `json:"OrgName"`
+		InstanceNetworkType string `json:"InstanceNetworkType"`
+		OtsValueTimeStamp   int64  `json:"OtsValueTimeStamp"`
+		EipAddress          string `json:"EipAddress"`
+		ResourceGName       string `json:"ResourceGName"`
+		InstanceType        string `json:"InstanceType"`
+		Status              string `json:"Status"`
+		CreateTime          string `json:"CreateTime"`
+		StartTime           string `json:"StartTime"`
+		NatIPAddress        string `json:"NatIpAddress"`
+		ResourceGID         string `json:"ResourceGId"`
+		SysDiskSize         int    `json:"SysDiskSize"`
+		GPUAmount           int    `json:"GPUAmount"`
+		InstanceName        string `json:"InstanceName"`
+		InsID               string `json:"InsId"`
+		EipBandwidth        string `json:"EipBandwidth"`
+		VpcID               string `json:"VpcId"`
+		Pos                 string `json:"Pos"`
+		DataDiskSize        int    `json:"DataDiskSize"`
+		RegionID            string `json:"RegionId"`
+	} `json:"data"`
+	PageSize       int    `json:"pageSize"`
+	Message        string `json:"message"`
+	ServerRole     string `json:"serverRole"`
+	Total          int    `json:"total"`
+	AsapiRequestID string `json:"asapiRequestId"`
+	RequestID      string `json:"requestId"`
+	Success        bool   `json:"success"`
+	Domain         string `json:"domain"`
+	API            string `json:"api"`
+	AsapiErrorCode string `json:"asapiErrorCode"`
 }

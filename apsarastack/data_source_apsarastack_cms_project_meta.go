@@ -2,64 +2,43 @@ package apsarastack
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"regexp"
+	"strings"
 )
 
-func dataSourceApsaraStackAscmResourceGroups() *schema.Resource {
+func dataSourceApsarastackCmsProjectMeta() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackAscmResourceGroupsRead,
+		Read: dataSourceApsarastackCmsProjectMetaRead,
 		Schema: map[string]*schema.Schema{
-			"ids": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
-				Computed: true,
-				ForceNew: true,
-				MinItems: 1,
-			},
 			"name_regex": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.ValidateRegexp,
+				ForceNew:     true,
 			},
-			"names": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-			"organization_id": {
-				Type:     schema.TypeInt,
-				Computed: true,
-				Optional: true,
-			},
-			"output_file": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
-			"groups": {
+			"resources": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeInt,
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
 							Computed: true,
 						},
-						"name": {
+						"labels": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"organization_id": {
-							Type:     schema.TypeInt,
+						"namespace": {
+							Type:     schema.TypeString,
+							Optional: true,
 							Computed: true,
 						},
 					},
@@ -69,41 +48,40 @@ func dataSourceApsaraStackAscmResourceGroups() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsarastackCmsProjectMetaRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	name := d.Get("name_regex").(string)
+
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
 	request.Method = "POST"
 	request.Product = "ascm"
-	request.Version = "2019-05-10"
+	request.Version = "2019-01-01"
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
 	request.RegionId = client.RegionId
-	request.ApiName = "ListResourceGroup"
+	request.ApiName = "DescribeProjectMeta"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":       client.AccessKey,
-		"AccessKeySecret":   client.SecretKey,
-		"Product":           "ascm",
-		"RegionId":          client.RegionId,
-		"Action":            "ListResourceGroup",
-		"Version":           "2019-05-10",
-		"resourceGroupName": name,
+		"AccessKeyId":     client.AccessKey,
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "Cms",
+		"RegionId":        client.RegionId,
+		"Action":          "DescribeProjectMeta",
+		"Version":         "2019-01-01",
 	}
-	response := ResourceGroup{}
+	response := Data{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_resource_groups", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
@@ -112,33 +90,31 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Code == "200" || len(response.Data) < 1 {
+		if response.Success == true || len(response.Resources.Resource) < 1 {
 			break
 		}
-
 	}
 
 	var r *regexp.Regexp
-	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
-		r = regexp.MustCompile(nameRegex.(string))
+	if rt, ok := d.GetOk("name_regex"); ok && rt.(string) != "" {
+		r = regexp.MustCompile(rt.(string))
 	}
 	var ids []string
 	var s []map[string]interface{}
-	for _, rg := range response.Data {
-		if r != nil && !r.MatchString(name) {
+	for _, rg := range response.Resources.Resource {
+		if r != nil && !r.MatchString(rg.Description) {
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":              rg.ID,
-			"name":            rg.ResourceGroupName,
-			"organization_id": rg.OrganizationID,
+			"description": rg.Description,
+			"namespace":   rg.Namespace,
+			"labels":      rg.Labels,
 		}
-		ids = append(ids, fmt.Sprint(rg.ID))
 		s = append(s, mapping)
 	}
 
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("groups", s); err != nil {
+	if err := d.Set("resources", s); err != nil {
 		return WrapError(err)
 	}
 
@@ -146,4 +122,20 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 		writeToFile(output.(string), s)
 	}
 	return nil
+}
+
+type Data struct {
+	PageSize   int    `json:"PageSize"`
+	RequestID  string `json:"RequestId"`
+	PageNumber int    `json:"PageNumber"`
+	Total      int    `json:"Total"`
+	Resources  struct {
+		Resource []struct {
+			Description string `json:"Description"`
+			Labels      string `json:"Labels"`
+			Namespace   string `json:"Namespace"`
+		} `json:"Resource"`
+	} `json:"Resources"`
+	Code    int  `json:"Code"`
+	Success bool `json:"Success"`
 }
