@@ -35,6 +35,7 @@ github.com/aliyun/alibaba-cloud-sdk-go/services/gpdb
 github.com/aliyun/alibaba-cloud-sdk-go/services/hbase
 github.com/aliyun/alibaba-cloud-sdk-go/services/kms
 github.com/aliyun/alibaba-cloud-sdk-go/services/location
+github.com/aliyun/alibaba-cloud-sdk-go/services/maxcompute
 github.com/aliyun/alibaba-cloud-sdk-go/services/ons
 github.com/aliyun/alibaba-cloud-sdk-go/services/ots
 github.com/aliyun/alibaba-cloud-sdk-go/services/polardb

@@ -280,7 +280,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	}
 	if len(dimList) > 0 {
 		if bytes, err := json.Marshal(dimList); err != nil {
-			return fmt.Errorf("Marshaling dimensions to json string got an error: %#v.", err)
+			return fmt.Errorf("marshaling dimensions to json string got an error: %#v", err)
 		} else {
 			request.Resources = string(bytes[:])
 		}
