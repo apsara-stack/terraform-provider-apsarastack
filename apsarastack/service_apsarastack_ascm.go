@@ -388,3 +388,128 @@ func (s *AscmService) DescribeAscmOrganization(id string) (response *Organizatio
 
 	return resp, nil
 }
+func (s *AscmService) DescribeAscmQuota(id string) (response *AscmQuota, err error) {
+	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
+	var targetType string
+	if did[0] == "RDS" {
+		targetType = "MySql"
+	} else if did[0] == "R-KVSTORE" {
+		targetType = "redis"
+	} else if did[0] == "DDS" {
+		targetType = "mongodb"
+	} else {
+		targetType = ""
+	}
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"regionName ":     s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"Product":         "ascm",
+		"Action":          "GetQuota",
+		"Version":         "2019-05-10",
+		"productName":     did[0],
+		"quotaType":       did[1],
+		"quotaTypeId":     did[2],
+		"targetType":      targetType,
+	}
+	request.Method = "GET"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.ApiName = "GetQuota"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &AscmQuota{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorQuotaNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, did[0], "GetQuota", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("GetQuota", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+	if resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
+
+func (s *AscmService) DescribeAscmPasswordPolicy(id string) (response *PasswordPolicy, err error) {
+	var requestInfo *ecs.Client
+	//	did := strings.Split(id, COLON_SEPARATED)
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"Product":         "ascm",
+		"Action":          "GetPasswordPolicy",
+		"Version":         "2019-05-10",
+		"id":              id,
+	}
+	request.Method = "POST"
+	request.Product = "ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "GetPasswordPolicy"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	request.Domain = s.client.Domain
+	var resp = &PasswordPolicy{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorOrganizationNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "GetPasswordPolicy", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("GetPasswordPolicy", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
