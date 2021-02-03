@@ -329,6 +329,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_ram_policy":                     resourceApsaraStackAscmRamPolicy(),
 			"apsarastack_ascm_ram_role":                       resourceApsaraStackAscmRamRole(),
 			"apsarastack_ascm_ram_policy_for_role":            resourceApsaraStackAscmRamPolicyForRole(),
+
 		},
 		ConfigureFunc: providerConfigure,
 	}

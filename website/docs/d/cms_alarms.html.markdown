@@ -2,9 +2,9 @@
 subcategory: "CMS"
 layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_cms_alarms"
-sidebar_current: "docs-apsarastack-cms-alarms"
+sidebar_current: "docs-apsarastack-datasource-cms-alarms"
 description: |-
-Provides a list of Cms alarms.
+   Provides a list of Cms alarms.
 ---
 # apsarastack\_cms_alarms
 
@@ -25,7 +25,7 @@ output "alarms_list" {
 The following arguments are supported:
 
 * `name_regex` - (Optional) A regex string to filter Alarms list by Rule name.
-* `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
+* `rule_id` -  (Optional) A regex string to filter id of the Alarm.
 
 ## Attributes Reference
 
@@ -34,7 +34,6 @@ The following attributes are exported:
 * `alarms` - The list of the Alarms. Each element contains the following attributes:
     * `group_name` - The name of the application group.
     * `metric_name` - The name of the Logon Policy.
-    * `description` - The description of the Alarm Rule.
     * `no_effective_interval` - TThe time period during which the alert
        rule is ineffective.
     * `silence_time` - Notification silence period in the alarm state, in seconds. Valid value range: [300, 86400]. Default to 86400
