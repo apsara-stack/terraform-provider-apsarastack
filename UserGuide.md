@@ -61,7 +61,7 @@ Download terraform for macos of  [0.12](https://releases.hashicorp.com/terraform
 
 
 You can download the apsarastack terraform provider 
-binary from [Github](https://github.com/Click2Cloud/terraform-provider-apsarastack/releases/tag/V0.5.6) , extract  and keep the binary on working directory for terraform  0.12+ and for terraform 0.13+ keep the binary at the location as mentioned above.
+binary from [Github](https://github.com/Click2Cloud/terraform-provider-apsarastack/releases/tag/V0.6.6) , extract  and keep the binary on working directory for terraform  0.12+ and for terraform 0.13+ keep the binary at the location as mentioned above.
 
 Using terraform:
 - To Prepare your working directory for other commands:
