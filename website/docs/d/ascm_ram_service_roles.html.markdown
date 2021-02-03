@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_ascm_ram_service_roles"
 sidebar_current: "docs-apsarastack-datasource-ascm-ram-service-roles"
 description: |-
-    Provides a list of ram roles to the user.
+    Provides a list of RAM Service roles to the user.
 ---
 
 # apsarastack\_ascm_ram_service_roles

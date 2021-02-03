@@ -8,17 +8,17 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
-	"strings"
+	"time"
 )
 
-func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
+func dataSourceApsaraStackAscmRamPolicies() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackInstanceFamiliesRead,
+		Read: dataSourceApsaraStackAscmRamPoliciesRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     &schema.Schema{Type: schema.TypeInt},
 				Computed: true,
 				ForceNew: true,
 				MinItems: 1,
@@ -26,50 +26,48 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 			"name_regex": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
-			"resource_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-			"status": {
-				Type:     schema.TypeString,
-				Optional: true,
+			"names": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"output_file": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"families": {
+			"policies": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"order_by_id": {
+						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"series_name": {
+						"ctime": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"modifier": {
+						"cuser_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"series_name_label": {
+						"region": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"is_deleted": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_type": {
+						"policy_document": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -80,42 +78,34 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackAscmRamPoliciesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-
+	//name := d.Get("name_regex").(string)
 	request := requests.NewCommonRequest()
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
-	request.Method = "POST"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
+	request.Scheme = "http"
 	request.RegionId = client.RegionId
-	request.ApiName = "DescribeSeriesIdFamilies"
+	request.ApiName = "ListRamPolicies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
 		"AccessKeyId":     client.AccessKey,
 		"AccessKeySecret": client.SecretKey,
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ascm",
 		"RegionId":        client.RegionId,
-		"Action":          "DescribeSeriesIdFamilies",
+		"Action":          "ListRamPolicies",
 		"Version":         "2019-05-10",
+		"pageSize":        "1000",
+		//"policyName":name,
 	}
-	response := InstanceFamily{}
+	response := RamPolicies{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ram_policies", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
@@ -124,37 +114,36 @@ func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta inte
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Success == true || len(response.Data) < 1 {
+		if response.Code == "200" || len(response.Data) < 1 {
 			break
 		}
 
 	}
 
 	var r *regexp.Regexp
-	if rt, ok := d.GetOk("name_regex"); ok && rt.(string) != "" {
-		r = regexp.MustCompile(rt.(string))
+	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
 	}
 	var ids []string
 	var s []map[string]interface{}
-	for _, rg := range response.Data {
-		if r != nil && !r.MatchString(rg.SeriesName) {
+	for _, rp := range response.Data {
+		if r != nil && !r.MatchString(rp.PolicyName) {
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":                rg.SeriesID,
-			"order_by_id":       rg.OrderBy.ID,
-			"resource_type":     rg.ResourceType,
-			"series_name":       rg.SeriesName,
-			"modifier":          rg.Modifier,
-			"series_name_label": rg.SeriesNameLabel,
-			"is_deleted":        rg.IsDeleted,
+			"id":              rp.ID,
+			"name":            rp.PolicyName,
+			"description":     rp.Description,
+			"region":          rp.Region,
+			"cuser_id":        rp.CuserID,
+			"ctime":           time.Unix(rp.Ctime/1000, 0).Format("2006-01-02 03:04:05"),
+			"policy_document": rp.PolicyDocument,
 		}
-		ids = append(ids, rg.SeriesID)
+		ids = append(ids, string(rune(rp.ID)))
 		s = append(s, mapping)
 	}
-
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("families", s); err != nil {
+	if err := d.Set("policies", s); err != nil {
 		return WrapError(err)
 	}
 
