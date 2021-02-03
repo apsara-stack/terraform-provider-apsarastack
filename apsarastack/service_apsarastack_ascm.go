@@ -118,8 +118,9 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 
 	return resp, nil
 }
-func (s *AscmService) DescribeAscmRamRole(id string) (response *Roles, err error) {
+func (s *AscmService) DescribeAscmRamRole(id string) (response *AscmRoles, err error) {
 	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
 
 	request := requests.NewCommonRequest()
 
@@ -134,7 +135,7 @@ func (s *AscmService) DescribeAscmRamRole(id string) (response *Roles, err error
 		"Product":         "ascm",
 		"Action":          "ListRoles",
 		"Version":         "2019-05-10",
-		"roleName":        id,
+		"roleName":        did[0],
 		"roleType":        "ROLETYPE_RAM",
 	}
 	request.Method = "POST"
@@ -150,7 +151,7 @@ func (s *AscmService) DescribeAscmRamRole(id string) (response *Roles, err error
 	request.ApiName = "ListRoles"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
-	var resp = &Roles{}
+	var resp = &AscmRoles{}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ProcessCommonRequest(request)
 	})
@@ -175,6 +176,65 @@ func (s *AscmService) DescribeAscmRamRole(id string) (response *Roles, err error
 
 	return resp, nil
 }
+
+func (s *AscmService) DescribeAscmRamServiceRole(id string) (response *RamRole, err error) {
+	var requestInfo *ecs.Client
+
+	request := requests.NewCommonRequest()
+
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"Product":         "ascm",
+		"id":              id,
+		"Action":          "GetRAMServiceRole",
+		"Version":         "2019-05-10",
+		"roleType":        "ROLETYPE_RAM",
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListRAMServiceRoles"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &RamRole{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorRamServiceRoleNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListRAMServiceRoles", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListRAMServiceRoles", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
+
 func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (response *User, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
@@ -230,6 +290,58 @@ func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (respon
 }
 
 func (s *AscmService) DescribeAscmUser(id string) (response *User, err error) {
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "ascm",
+		"Action":          "ListUsers",
+		"Version":         "2019-05-10",
+		"loginName":       id,
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListUsers"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &User{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorUserNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListUsers", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListUsers", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
+func (s *AscmService) DescribeAscmUserRoleBinding(id string) (response *User, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
 	if s.client.Config.Insecure {
@@ -375,6 +487,62 @@ func (s *AscmService) DescribeAscmOrganization(id string) (response *Organizatio
 
 	}
 	addDebug("GetOrganization", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
+func (s *AscmService) DescribeAscmRamPolicy(id string) (response *RamPolicies, err error) {
+	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeyId":     s.client.AccessKey,
+		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"Product":         "ascm",
+		"Action":          "ListRAMPolicies",
+		"Version":         "2019-05-10",
+		"policyName":      did[0],
+	}
+	request.Method = "POST"
+	request.Product = "ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListRAMPolicies"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &RamPolicies{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorRamPolicyNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListRAMPolicies", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListRAMPolicies", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
