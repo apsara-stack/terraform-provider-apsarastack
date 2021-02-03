@@ -207,14 +207,6 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ContactGroups = strings.Join(expandStringList(d.Get("contact_groups").([]interface{})), ",")
 	// 兼容弃用参数
-	request.EscalationsCriticalStatistics = d.Get("statistics").(string)
-	request.EscalationsCriticalComparisonOperator = convertOperator(d.Get("operator").(string))
-	if v, ok := d.GetOk("threshold"); ok && v.(string) != "" {
-		request.EscalationsCriticalThreshold = v.(string)
-	}
-	request.EscalationsCriticalThreshold = d.Get("threshold").(string)
-	request.EscalationsCriticalTimes = requests.NewInteger(d.Get("triggered_count").(int))
-
 	// Critical
 	if v, ok := d.GetOk("escalations_critical"); ok && len(v.([]interface{})) != 0 {
 		for _, val := range v.([]interface{}) {
@@ -294,6 +286,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	nrequest.Domain = client.Domain
 	nrequest.Version = "2019-01-01"
 	nrequest.ApiName = "PutResourceMetricRule"
+
 	nrequest.Headers = map[string]string{"RegionId": client.RegionId}
 	nrequest.QueryParams = map[string]string{
 		"AccessKeySecret":   client.SecretKey,
