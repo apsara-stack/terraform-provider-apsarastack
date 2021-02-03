@@ -221,6 +221,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ram_service_role_products":            dataSourceApsarastackRamServiceRoleProducts(),
 			"apsarastack_cms_alarms":                           dataSourceApsarastackCmsAlarms(),
 			"apsarastack_ascm_metering_query_ecs":              dataSourceApsarastackAscmMeteringQueryEcs(),
+			"apsarastack_ascm_roles":                           dataSourceApsaraStackAscmRoles(),
+			"apsarastack_ascm_ram_policies":                    dataSourceApsaraStackAscmRamPolicies(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -324,7 +326,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_cms_alarm_contact_group":             resourceApsarastackCmsAlarmContactGroup(),
 			"apsarastack_ascm_password_policy":                resourceApsaraStackAscmPasswordPolicy(),
 			"apsarastack_ascm_quota":                          resourceApsaraStackAscmQuota(),
-
+			"apsarastack_ascm_ram_policy":                     resourceApsaraStackAscmRamPolicy(),
+			"apsarastack_ascm_ram_role":                       resourceApsaraStackAscmRamRole(),
+			"apsarastack_ascm_ram_policy_for_role":            resourceApsaraStackAscmRamPolicyForRole(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

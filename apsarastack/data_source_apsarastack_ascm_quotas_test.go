@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAccApsaraStackAscm_quotaDataSource(t *testing.T) { //not completed
+func TestAccApsaraStackAscm_quotasDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -33,7 +33,7 @@ const dataSourceApsaraStackAscm_Quota = `
 
 data "apsarastack_ascm_quotas" "default" {
   quota_type = "organization"
-  quota_type_id = 54437
+  quota_type_id = 1
   product_name = "SLB"
 }
 `

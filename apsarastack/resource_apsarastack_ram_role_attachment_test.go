@@ -1,36 +1,23 @@
 package apsarastack
 
 import (
-	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"strings"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"testing"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccApsaraStackRamRoleAttachment_basic(t *testing.T) {
-	var instanceA ecs.Instance
-	var instanceB ecs.Instance
 	var v *ecs.DescribeInstanceRamRoleResponse
 	resourceId := "apsarastack_ram_role_attachment.default"
 	ra := resourceAttrInit(resourceId, ramRoleAttachmentMap)
-	serviceFuncRam := func() interface{} {
+	serviceFunc := func() interface{} {
 		return &RamService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}
-	serviceFuncEcs := func() interface{} {
-		return &EcsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-	}
-	rc := resourceCheckInit(resourceId, &v, serviceFuncRam)
-	rcInstanceA := resourceCheckInit("apsarastack_instance.default.0", &instanceA, serviceFuncEcs)
-	rcInstanceB := resourceCheckInit("apsarastack_instance.default.1", &instanceB, serviceFuncEcs)
-
+	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
-
-	rand := acctest.RandIntRange(1000000, 9999999)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -40,111 +27,90 @@ func TestAccApsaraStackRamRoleAttachment_basic(t *testing.T) {
 		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckRamRoleAttachmentDestroy,
+		//CheckDestroy:  rac.checkResourceDestroy(),
+		CheckDestroy: testAccCheckRamRoleAttachmentDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRamRoleAttachmentConfig(EcsInstanceCommonTestCase, rand),
+				Config: testAccCheckAscm_RamRoleAttachment,
 				Check: resource.ComposeTestCheckFunc(
-					rcInstanceA.checkResourceExists(),
-					rcInstanceB.checkResourceExists(),
 					testAccCheck(nil),
 				),
 			},
 		},
 	})
-}
 
-var ramRoleAttachmentMap = map[string]string{
-	"role_name":      CHECKSET,
-	"instance_ids.#": "2",
-}
-
-func testAccRamRoleAttachmentConfig(common string, rand int) string {
-	return fmt.Sprintf(`
-	%s
-	variable "name" {
-		default = "tf-testAcc%sRamRoleAttachmentConfig-%d"
-	}
-	resource "apsarastack_instance" "default" {
-		vswitch_id = "${apsarastack_vswitch.default.id}"
-		image_id = "${data.apsarastack_images.default.images.0.id}"
-		# series III
-		instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
-		instance_name = "${var.name}"
-		system_disk_category = "cloud_efficiency"
-		count = 2
-		internet_charge_type = "PayByTraffic"
-		internet_max_bandwidth_out = 5
-		security_groups = ["${apsarastack_security_group.default.id}"]
-	}
-	resource "apsarastack_ram_role" "default" {
-	  name = "${var.name}"
-	  document = <<EOF
-		{
-		  "Statement": [
-			{
-			  "Action": "sts:AssumeRole",
-			  "Effect": "Allow",
-			  "Principal": {
-				"Service": [
-				  "ecs.aliyuncs.com"
-				]
-			  }
-			}
-		  ],
-		  "Version": "1"
-		}
-	  EOF
-	  description = "this is a test"
-	  force = true
-	}
-	resource "apsarastack_ram_role_attachment" "default" {
-	  role_name = "${apsarastack_ram_role.default.name}"
-	  instance_ids = "${apsarastack_instance.default.*.id}"
-	}`, common, defaultRegionToTest, rand)
 }
 
 func testAccCheckRamRoleAttachmentDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*connectivity.ApsaraStackClient)
+	ascmService := RamService{client}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "apsarastack_ram_role_attachment" {
+		if rs.Type == "apsarastack_ram_role_attachment" || rs.Type != "apsarastack_ram_role_attachment" {
 			continue
 		}
-
-		// Try to find the attachment
-		client := testAccProvider.Meta().(*connectivity.ApsaraStackClient)
-
-		request := ecs.CreateDescribeInstanceRamRoleRequest()
-		if strings.ToLower(client.Config.Protocol) == "https" {
-			request.Scheme = "https"
-		} else {
-			request.Scheme = "http"
-		}
-		request.InstanceIds = strings.Split(rs.Primary.ID, ":")[1]
-
-		for {
-			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-				return ecsClient.DescribeInstanceRamRole(request)
-			})
-			if IsExpectedErrors(err, []string{"unexpected end of JSON input"}) {
+		ascm, err := ascmService.DescribeRamRoleAttachment(rs.Primary.ID)
+		if err != nil {
+			if NotFoundError(err) {
 				continue
-			}
-			if IsExpectedErrors(err, []string{"InvalidInstanceId.NotFound"}) {
-				break
-			}
-			if err == nil {
-				response, _ := raw.(*ecs.DescribeInstanceRamRoleResponse)
-				if len(response.InstanceRamRoleSets.InstanceRamRoleSet) > 0 {
-					for _, v := range response.InstanceRamRoleSets.InstanceRamRoleSet {
-						if v.RamRoleName != "" {
-							return WrapError(fmt.Errorf("Attach %s still exists.", rs.Primary.ID))
-						}
-					}
-				}
-				break
 			}
 			return WrapError(err)
 		}
+		if ascm.InstanceRamRoleSets.InstanceRamRoleSet[0].RamRoleName != "" {
+			return WrapError(Error("resource  still exist"))
+		}
 	}
+
 	return nil
+}
+
+const testAccCheckAscm_RamRoleAttachment = `
+variable "name" {
+  default = "Test_ram_role_attachment"
+}
+data "apsarastack_zones" "default" {
+  available_disk_category     = "cloud_efficiency"
+  available_resource_creation = "VSwitch"
+}
+
+data "apsarastack_images" "default" {
+  most_recent = true
+  owners = "system"
+}
+resource "apsarastack_vpc" "default" {
+  name = var.name
+  cidr_block = "192.168.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id = apsarastack_vpc.default.id
+  cidr_block = "192.168.0.0/16"
+  availability_zone = data.apsarastack_zones.default.zones[0].id
+  name = var.name
+}
+resource "apsarastack_security_group" "default" {
+  name = var.name
+  vpc_id = apsarastack_vpc.default.id
+}
+resource "apsarastack_instance" "default" {
+  image_id = data.apsarastack_images.default.images.0.id
+  instance_type = "ecs.n4.small"
+  instance_name = var.name
+  security_groups = [apsarastack_security_group.default.id]
+  availability_zone = data.apsarastack_zones.default.zones[0].id
+  system_disk_category = "cloud_efficiency"
+  system_disk_size = 100
+  vswitch_id = apsarastack_vswitch.default.id
+}
+
+data "apsarastack_ascm_ram_service_roles" "role" {
+  product = "ecs"
+}
+resource "apsarastack_ram_role_attachment" "default" {
+   role_name    = data.apsarastack_ascm_ram_service_roles.role.roles.0.name
+   instance_ids = [apsarastack_instance.default.id]
+}
+`
+
+var ramRoleAttachmentMap = map[string]string{
+	"role_name": CHECKSET,
 }

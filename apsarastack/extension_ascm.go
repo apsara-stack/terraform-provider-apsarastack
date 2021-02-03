@@ -289,6 +289,46 @@ type RamRole struct {
 }
 
 type Roles struct {
+	Redirect        bool   `json:"redirect"`
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AsapiSuccess    bool   `json:"asapiSuccess"`
+	Code            string `json:"code"`
+	Cost            int    `json:"cost"`
+	Data            []struct {
+		RoleRange              string `json:"roleRange"`
+		ArID                   string `json:"arId"`
+		RAMRole                bool   `json:"rAMRole"`
+		Code                   string `json:"code"`
+		Active                 bool   `json:"active"`
+		Description            string `json:"description"`
+		RoleType               string `json:"roleType"`
+		Default                bool   `json:"default"`
+		UserCount              int    `json:"userCount"`
+		OwnerOrganizationID    int    `json:"ownerOrganizationId"`
+		Enable                 bool   `json:"enable"`
+		RoleName               string `json:"roleName"`
+		ID                     int    `json:"id"`
+		RoleLevel              int64  `json:"roleLevel,omitempty"`
+		OrganizationVisibility string `json:"organizationVisibility"`
+		Rolevel                int64  `json:"rolevel,omitempty"`
+	} `json:"data"`
+	PageInfo struct {
+		Total       int `json:"total"`
+		TotalPage   int `json:"totalPage"`
+		PageSize    int `json:"pageSize"`
+		CurrentPage int `json:"currentPage"`
+	} `json:"pageInfo"`
+	Message        string `json:"message"`
+	ServerRole     string `json:"serverRole"`
+	AsapiRequestID string `json:"asapiRequestId"`
+	Success        bool   `json:"success"`
+	Domain         string `json:"domain"`
+	PureListData   bool   `json:"pureListData"`
+	API            string `json:"api"`
+	AsapiErrorCode string `json:"asapiErrorCode"`
+}
+
+type AscmRoles struct {
 	Code string `json:"code"`
 	Cost int    `json:"cost"`
 	Data []struct {
@@ -310,6 +350,7 @@ type Roles struct {
 		RoleRange              string `json:"roleRange"`
 		RoleType               string `json:"roleType"`
 		UserCount              int    `json:"userCount"`
+		Rolevel                int64  `json:"rolevel,omitempty"`
 	} `json:"data"`
 	Message  string `json:"message"`
 	PageInfo struct {
@@ -371,8 +412,8 @@ type RegionsByProduct struct {
 			RegionType string `json:"RegionType"`
 		} `json:"RegionList"`
 	} `json:"body"`
-	Code            int  `json:"code"`
-	SuccessResponse bool `json:"successResponse"`
+	Code int `json:"code"`
+	//SuccessResponse string `json:"successResponse"`
 }
 
 type SpecificField struct {
@@ -439,7 +480,9 @@ type EcsInstanceFamily struct {
 type ClustersByProduct struct {
 	Body struct {
 		ClusterList []struct {
-			Region []string `json:"cn-neimeng-env30-d01"`
+			Region30 []string `json:"cn-neimeng-env30-d01"`
+			Region66 []string `json:"cn-qingdao-env66-d01"`
+			Region17 []string `json:"cn-wulan-env82-d01"`
 		} `json:"ClusterList"`
 	} `json:"body"`
 	Code            int  `json:"code"`
@@ -550,6 +593,43 @@ type MeteringQueryDataEcs struct {
 	RequestID      string `json:"requestId"`
 	Success        bool   `json:"success"`
 	Domain         string `json:"domain"`
+	API            string `json:"api"`
+	AsapiErrorCode string `json:"asapiErrorCode"`
+}
+type RamPolicies struct {
+	Redirect        bool   `json:"redirect"`
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AsapiSuccess    bool   `json:"asapiSuccess"`
+	Code            string `json:"code"`
+	Cost            int    `json:"cost"`
+	Data            []struct {
+		PolicyDocument    string `json:"policyDocument"`
+		NewPolicyDocument string `json:"newPolicyDocument"`
+		PolicyName        string `json:"policyName"`
+		NewPolicyName     string `json:"newPolicyName"`
+		Ctime             int64  `json:"ctime"`
+		ID                int    `json:"id"`
+		RamPolicyId       int    `json:"ramPolicyId"`
+		RoleId            int    `json:"roleId"`
+		Region            string `json:"region"`
+		Description       string `json:"description,omitempty"`
+		NewDescription    string `json:"newDescription"`
+		CuserID           string `json:"cuserId,omitempty"`
+		MuserID           string `json:"muserId,omitempty"`
+		Mtime             int64  `json:"mtime,omitempty"`
+	} `json:"data"`
+	PageInfo struct {
+		Total       int `json:"total"`
+		TotalPage   int `json:"totalPage"`
+		PageSize    int `json:"pageSize"`
+		CurrentPage int `json:"currentPage"`
+	} `json:"pageInfo"`
+	Message        string `json:"message"`
+	ServerRole     string `json:"serverRole"`
+	AsapiRequestID string `json:"asapiRequestId"`
+	Success        bool   `json:"success"`
+	Domain         string `json:"domain"`
+	PureListData   bool   `json:"pureListData"`
 	API            string `json:"api"`
 	AsapiErrorCode string `json:"asapiErrorCode"`
 }

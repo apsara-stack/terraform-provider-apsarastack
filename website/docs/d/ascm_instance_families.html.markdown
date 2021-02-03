@@ -15,13 +15,14 @@ This data source provides the instance families of the current Apsara Stack Clou
 
 ```
 data "apsarastack_ascm_instance_families" "default" {
-    name_regex = "AutoTest"
-    output_file = "instance_families"
-    resource_type = "DRDS"
+  output_file = "instance_families"
+  resource_type = "DRDS"
+  status = "Available"
 }
-output "families" {
-    value = data.apsarastack_ascm_instance_families.default.*
+output "instfam" {
+  value = data.apsarastack_ascm_instance_families.default.*
 }
+
 ```
 
 ## Argument Reference
@@ -29,7 +30,7 @@ output "families" {
 The following arguments are supported:
 
 * `ids` - (Optional) A list of instance family IDs.
-* `name_regex` - (Optional) A regex string to filter the resulting instance families by their series_names.
+* `status` - (Optional) Specify Status to filter the resulting instance families by their availability.
 * `resource_type` - (Optional) Filter the results by the specified resource type.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
