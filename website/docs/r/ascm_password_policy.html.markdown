@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_ascm_password_policy"
 sidebar_current: "docs-apsarastack-resource-ascm-password-policy"
 description: |-
-Provides a Apsarastack Logon Policy resource.
+   Provides a Ascm password policy configuration.
 ---
 # apsarastack\_ascm_password_policy
 
