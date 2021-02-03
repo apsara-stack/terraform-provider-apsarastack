@@ -40,8 +40,8 @@ The following arguments are supported:
 The following attributes are exported in addition to the arguments listed above:
 
   * `id` - ID of the quota.
-  * `quota_type` - Name of an organization.
-  * `quota_type_id` - ID of an organization.
+  * `quota_type` - Name of an organization, or a Resource Group.
+  * `quota_type_id` - ID of an organization, or a Resource Group.
   * `total_vip_internal` - Total vip internal.
   * `total_vip_public` - Total vip public.
   * `region` - name of the region where product belong.

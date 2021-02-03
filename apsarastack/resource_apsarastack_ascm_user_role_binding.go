@@ -1,7 +1,6 @@
 package apsarastack
 
 import (
-	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -24,9 +23,8 @@ func resourceApsaraStackAscmUserRoleBinding() *schema.Resource {
 				Required: true,
 			},
 			"role_id": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 			},
 		},
 	}
@@ -36,7 +34,7 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *ecs.Client
 	lname := d.Get("login_name").(string)
-	roleid := d.Get("role_id")
+	roleid := d.Get("role_id").(string)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
@@ -49,7 +47,7 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 		"Version":         "2019-05-10",
 		"ProductName":     "ascm",
 		"LoginName":       lname,
-		"RoleId":          fmt.Sprint(roleid),
+		"RoleId":          roleid,
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -88,7 +86,7 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 func resourceApsaraStackAscmUserRoleBindingRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	object, err := ascmService.DescribeAscmUser(d.Id())
+	object, err := ascmService.DescribeAscmUserRoleBinding(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -101,6 +99,7 @@ func resourceApsaraStackAscmUserRoleBindingRead(d *schema.ResourceData, meta int
 		return nil
 	}
 	d.Set("login_name", object.Data[0].LoginName)
+	//d.Set("role_id", object.Data[0].UserRoles[0].ID)
 
 	return nil
 }
@@ -115,8 +114,8 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
-	roleid := d.Get("role_id").(int)
-	check, err := ascmService.DescribeAscmUser(d.Id())
+	roleid := d.Get("role_id").(string)
+	check, err := ascmService.DescribeAscmUserRoleBinding(d.Id())
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsBindingExist", ApsaraStackSdkGoERROR)
 	}
@@ -135,7 +134,7 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 			"Version":         "2019-05-10",
 			"ProductName":     "ascm",
 			"LoginName":       d.Id(),
-			"RoleId":          fmt.Sprint(roleid),
+			"RoleId":          roleid,
 		}
 
 		request.Method = "POST"
@@ -158,7 +157,7 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 		if err != nil {
 			return resource.RetryableError(err)
 		}
-		check, err = ascmService.DescribeAscmUser(d.Id())
+		check, err = ascmService.DescribeAscmUserRoleBinding(d.Id())
 
 		if err != nil {
 			return resource.NonRetryableError(err)

@@ -4,17 +4,21 @@ package connectivity
 type Region string
 
 const (
-	Hangzhou    = Region("cn-hangzhou")
-	Qingdao     = Region("cn-qingdao")
-	Beijing     = Region("cn-beijing")
-	Hongkong    = Region("cn-hongkong")
-	Shenzhen    = Region("cn-shenzhen")
-	Shanghai    = Region("cn-shanghai")
-	Zhangjiakou = Region("cn-zhangjiakou")
-	Huhehaote   = Region("cn-huhehaote")
-	ChengDu     = Region("cn-chengdu")
-	HeYuan      = Region("cn-heyuan")
-	WuLanChaBu  = Region("cn-wulanchabu")
+	NeimengEnv30 = Region("cn-neimeng-env30-d01")
+	QingdaoEnv66 = Region("cn-qingdao-env66-d01")
+	QingdaoEnv17 = Region("cn-qingdao-env17-d01")
+	WulanEnv82   = Region("cn-wulan-env82-d01")
+	Hangzhou     = Region("cn-hangzhou")
+	Qingdao      = Region("cn-qingdao")
+	Beijing      = Region("cn-beijing")
+	Hongkong     = Region("cn-hongkong")
+	Shenzhen     = Region("cn-shenzhen")
+	Shanghai     = Region("cn-shanghai")
+	Zhangjiakou  = Region("cn-zhangjiakou")
+	Huhehaote    = Region("cn-huhehaote")
+	ChengDu      = Region("cn-chengdu")
+	HeYuan       = Region("cn-heyuan")
+	WuLanChaBu   = Region("cn-wulanchabu")
 
 	APSouthEast1 = Region("ap-southeast-1")
 	APNorthEast1 = Region("ap-northeast-1")
@@ -37,7 +41,7 @@ const (
 )
 
 var ValidRegions = []Region{
-	Hangzhou, Qingdao, Beijing, Shenzhen, Hongkong, Shanghai, Zhangjiakou, Huhehaote, ChengDu, HeYuan, WuLanChaBu,
+	NeimengEnv30, QingdaoEnv66, QingdaoEnv17, WulanEnv82, Hangzhou, Qingdao, Beijing, Shenzhen, Hongkong, Shanghai, Zhangjiakou, Huhehaote, ChengDu, HeYuan, WuLanChaBu,
 	USWest1, USEast1,
 	APNorthEast1, APSouthEast1, APSouthEast2, APSouthEast3, APSouthEast5,
 	APSouth1,

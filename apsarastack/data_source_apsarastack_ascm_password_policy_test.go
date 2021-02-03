@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAccApsaraStackAscm_Password_policies_DataSource(t *testing.T) { //not completed
+func TestAccApsaraStackAscm_PasswordPolicies_DataSource(t *testing.T) { //not completed
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -13,7 +13,7 @@ func TestAccApsaraStackAscm_Password_policies_DataSource(t *testing.T) { //not c
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceApsaraStackAscm_Passwordpolicies,
+				Config: dataSourceApsaraStackAscm_PasswordPolicies,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckApsaraStackDataSourceID("data.apsarastack_ascm_password_policies.default"),
 					resource.TestCheckNoResourceAttr("data.apsarastack_ascm_password_policies.default", "policies.hard_expiry"),
@@ -32,7 +32,7 @@ func TestAccApsaraStackAscm_Password_policies_DataSource(t *testing.T) { //not c
 	})
 }
 
-const dataSourceApsaraStackAscm_Passwordpolicies = `
+const dataSourceApsaraStackAscm_PasswordPolicies = `
 
 data "apsarastack_ascm_password_policies" "default" {
 

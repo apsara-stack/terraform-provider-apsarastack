@@ -153,7 +153,7 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 	var ids []string
 	var t []map[string]interface{}
 	for _, u := range response.Data {
-		if r != nil && !r.MatchString(name) {
+		if r != nil && !r.MatchString(u.Name) {
 			continue
 		}
 		for _, times := range response.Data {

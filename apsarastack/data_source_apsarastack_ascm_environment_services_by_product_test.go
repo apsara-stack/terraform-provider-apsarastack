@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAccApsaraStackAscm_Enviroment_DataSource(t *testing.T) { //not completed
+func TestAccApsaraStackAscm_EnviromentServiceByProduct_DataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -13,20 +13,20 @@ func TestAccApsaraStackAscm_Enviroment_DataSource(t *testing.T) { //not complete
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceApsaraStackAscm_Enviromenttest,
+				Config: dataSourceApsaraStackAscm_EnviromentServiceByProduct,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApsaraStackDataSourceID("data.apsarastack_ascm_environment_services.default"),
-					/*		resource.TestCheckResourceAttrSet("data.apsarastack_ascm_environment_services.default", "ids.#"),*/
-					//resource.TestCheckNoResourceAttr("data.apsarastack_ascm_specific_fields.default", "group_filed"),
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_ascm_environment_services_by_product.default"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ascm_environment_services_by_product.default", "result"),
 				),
 			},
 		},
 	})
 }
 
-const dataSourceApsaraStackAscm_Enviromenttest = `
+const dataSourceApsaraStackAscm_EnviromentServiceByProduct = `
 
-data "apsarastack_ascm_environment_services" "default" {
-
+data "apsarastack_ascm_environment_services_by_product" "default" {
+  output_file = "environment"
 }
+
 `
