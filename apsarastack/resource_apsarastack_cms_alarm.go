@@ -52,7 +52,6 @@ func resourceApsaraStackCmsAlarm() *schema.Resource {
 			"period": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  300,
 			},
 			"escalations_critical": {
 				Type:     schema.TypeList,
@@ -318,6 +317,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 		"Format":                                  "JSON",
 		"SilenceTime":                             fmt.Sprint(request.SilenceTime),
 		"SignatureVersion":                        "1.0",
+		"Period":                                  request.Period,
 	}
 
 	raw, err := client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {
