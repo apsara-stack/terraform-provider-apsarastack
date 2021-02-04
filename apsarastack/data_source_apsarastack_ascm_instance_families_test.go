@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAccApsaraStackAscm_Instance_families_DataSource(t *testing.T) { //not completed
+func TestAccApsaraStackAscm_Instance_families_DataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)

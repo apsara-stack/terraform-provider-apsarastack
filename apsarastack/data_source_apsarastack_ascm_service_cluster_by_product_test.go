@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAccApsaraStackAscm_Service_ClusterDataSource(t *testing.T) { //not completed
+func TestAccApsaraStackAscm_Service_ClusterByProductDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -13,19 +13,19 @@ func TestAccApsaraStackAscm_Service_ClusterDataSource(t *testing.T) { //not comp
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: dataSourceApsaraStackAscm_servicebasic,
+				Config: dataSourceApsaraStackAscm_ServiceClusterByProductbasic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckApsaraStackDataSourceID("data.apsarastack_ascm_service_cluster.default"),
-					resource.TestCheckNoResourceAttr("data.apsarastack_ascm_service_cluster.default", "cluster_list"),
+					testAccCheckApsaraStackDataSourceID("data.apsarastack_ascm_service_cluster_by_product.default"),
+					resource.TestCheckNoResourceAttr("data.apsarastack_ascm_service_cluster_by_product.default", "cluster_list"),
 				),
 			},
 		},
 	})
 }
 
-const dataSourceApsaraStackAscm_servicebasic = `
+const dataSourceApsaraStackAscm_ServiceClusterByProductbasic = `
 
-data "apsarastack_ascm_service_cluster" "default" {
-  product_name = "slb"
+data "apsarastack_ascm_service_cluster_by_product" "default" {
+  product_name = "ecs"
 }
 `

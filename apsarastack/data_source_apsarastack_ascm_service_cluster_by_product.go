@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"strings"
-	//"log"
 )
 
 func dataSourceApsaraStackServiceClusterByProduct() *schema.Resource {
@@ -93,10 +92,33 @@ func dataSourceApsaraStackServiceClusterByProductRead(d *schema.ResourceData, me
 	var ids []string
 	var s []map[string]interface{}
 	for _, rg := range response.Body.ClusterList {
-		mapping := map[string]interface{}{
-			"cluster_by_region": rg.Region,
+
+		if client.RegionId == "cn-neimeng-env30-d01" {
+			mapping := map[string]interface{}{
+				"cluster_by_region": rg.Region30,
+			}
+			s = append(s, mapping)
+		} else if client.RegionId == "cn-qingdao-env66-d01" {
+			mapping := map[string]interface{}{
+				"cluster_by_region": rg.Region66,
+			}
+			s = append(s, mapping)
+		} else if client.RegionId == string(connectivity.QingdaoEnv17) {
+			mapping := map[string]interface{}{
+				"cluster_by_region": rg.Region17,
+			}
+			s = append(s, mapping)
+		} else if client.RegionId == string(connectivity.WulanEnv82) {
+			mapping := map[string]interface{}{
+				"cluster_by_region": rg.Region17,
+			}
+			s = append(s, mapping)
+		} else {
+			mapping := map[string]interface{}{
+				"cluster_by_region": rg.Region17,
+			}
+			s = append(s, mapping)
 		}
-		s = append(s, mapping)
 	}
 
 	d.SetId(dataResourceIdHash(ids))

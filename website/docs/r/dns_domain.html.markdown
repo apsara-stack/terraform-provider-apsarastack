@@ -19,7 +19,7 @@ Provides a DNS domain resource.
 # Add a new Domain.
 resource "apsarastack_dns_domain" "default" {
   domain_name     = "starmove."
-  "remark"   =  "testing Domain"
+  remark   =  "testing Domain"
 }
 output "dns" {
   value = apsarastack_dns_domain.default.*

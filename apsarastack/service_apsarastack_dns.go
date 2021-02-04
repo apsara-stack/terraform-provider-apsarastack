@@ -258,6 +258,8 @@ func (s *DnsService) SetResourceTags(d *schema.ResourceData, resourceType string
 
 func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err error) {
 	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
+
 	request := requests.NewCommonRequest()
 	request.Method = "POST"          // Set request method
 	request.Product = "GenesisDns"   // Specify product
@@ -277,7 +279,8 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 		"RegionId":        s.client.RegionId,
 		"Action":          "ObtainGlobalAuthZoneList",
 		"Version":         "2018-07-20",
-		"Id":              id,
+		//"Id":              did[1],
+		"DomainName": did[0],
 	}
 	resp := &DnsDomains{}
 	raw, err := s.client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {
@@ -290,7 +293,7 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ObtainGlobalAuthZoneList", ApsaraStackSdkGoERROR)
 
 	}
-	addDebug("ObtainGlobalAuthRecordList", response, requestInfo, request)
+	addDebug("ObtainGlobalAuthZoneList", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)

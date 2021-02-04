@@ -8,17 +8,16 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
-	"strings"
 )
 
-func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
+func dataSourceApsaraStackAscmRoles() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackInstanceFamiliesRead,
+		Read: dataSourceApsaraStackAscmRolesRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
+				Elem:     &schema.Schema{Type: schema.TypeInt},
 				Computed: true,
 				ForceNew: true,
 				MinItems: 1,
@@ -26,13 +25,21 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 			"name_regex": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 			},
-			"resource_type": {
+			"names": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"description": {
 				Type:     schema.TypeString,
+				Computed: true,
 				Optional: true,
 			},
-			"status": {
-				Type:     schema.TypeString,
+			"user_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
 				Optional: true,
 			},
 			"output_file": {
@@ -40,37 +47,41 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 				Optional: true,
 			},
 
-			"families": {
+			"roles": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"order_by_id": {
+						"description": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"series_name": {
+						"role_level": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"role_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"modifier": {
+						"ram_role": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"role_range": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"series_name_label": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"is_deleted": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"resource_type": {
-							Type:     schema.TypeString,
+						"user_count": {
+							Type:     schema.TypeInt,
 							Computed: true,
 						},
 					},
@@ -80,42 +91,32 @@ func dataSourceApsaraStackInstanceFamilies() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-
 	request := requests.NewCommonRequest()
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
-	request.Method = "POST"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
+	request.Scheme = "http"
 	request.RegionId = client.RegionId
-	request.ApiName = "DescribeSeriesIdFamilies"
+	request.ApiName = "ListRoles"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
 		"AccessKeyId":     client.AccessKey,
 		"AccessKeySecret": client.SecretKey,
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ascm",
 		"RegionId":        client.RegionId,
-		"Action":          "DescribeSeriesIdFamilies",
+		"Action":          "ListRoles",
 		"Version":         "2019-05-10",
+		"pageSize":        "1000",
 	}
-	response := InstanceFamily{}
+	response := AscmRoles{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_instance_families", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_roles", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
@@ -124,37 +125,36 @@ func dataSourceApsaraStackInstanceFamiliesRead(d *schema.ResourceData, meta inte
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Success == true || len(response.Data) < 1 {
+		if response.Code == "200" || len(response.Data) < 1 {
 			break
 		}
-
 	}
 
 	var r *regexp.Regexp
-	if rt, ok := d.GetOk("name_regex"); ok && rt.(string) != "" {
-		r = regexp.MustCompile(rt.(string))
+	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
+		r = regexp.MustCompile(nameRegex.(string))
 	}
 	var ids []string
 	var s []map[string]interface{}
 	for _, rg := range response.Data {
-		if r != nil && !r.MatchString(rg.SeriesName) {
+		if r != nil && !r.MatchString(rg.RoleName) {
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":                rg.SeriesID,
-			"order_by_id":       rg.OrderBy.ID,
-			"resource_type":     rg.ResourceType,
-			"series_name":       rg.SeriesName,
-			"modifier":          rg.Modifier,
-			"series_name_label": rg.SeriesNameLabel,
-			"is_deleted":        rg.IsDeleted,
+			"id":          rg.ID,
+			"name":        rg.RoleName,
+			"description": rg.Description,
+			"user_count":  rg.UserCount,
+			"role_level":  rg.RoleLevel,
+			"role_type":   rg.RoleType,
+			"role_range":  rg.RoleRange,
+			"ram_role":    rg.RAMRole,
 		}
-		ids = append(ids, rg.SeriesID)
+		ids = append(ids, string(rune(rg.ID)))
 		s = append(s, mapping)
 	}
-
 	d.SetId(dataResourceIdHash(ids))
-	if err := d.Set("families", s); err != nil {
+	if err := d.Set("roles", s); err != nil {
 		return WrapError(err)
 	}
 
