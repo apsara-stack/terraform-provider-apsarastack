@@ -106,86 +106,6 @@ func resourceApsaraStackAscmRamRoleCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceApsaraStackAscmRamRoleUpdate(d *schema.ResourceData, meta interface{}) error {
-	//client := meta.(*connectivity.ApsaraStackClient)
-	//ascmService := AscmService{client}
-	//attributeUpdate := false
-	//check, err := ascmService.DescribeAscmRamRole(d.Id())
-	//
-	//if err != nil {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsRamRoleExist", ApsaraStackSdkGoERROR)
-	//}
-	//var rname, desc string
-	//if d.HasChange("role_name") {
-	//	if v, ok := d.GetOk("role_name"); ok {
-	//		rname = v.(string)
-	//	}
-	//	check.Data[0].RoleName = rname
-	//	check.Data[0].NewRoleName = rname
-	//	attributeUpdate = true
-	//} else {
-	//	if v, ok := d.GetOk("role_name"); ok {
-	//		rname = v.(string)
-	//	}
-	//	check.Data[0].RoleName = rname
-	//}
-	//if d.HasChange("description") {
-	//	if v, ok := d.GetOk("description"); ok {
-	//		desc = v.(string)
-	//	}
-	//	check.Data[0].Description = desc
-	//	check.Data[0].NewDescription = desc
-	//	attributeUpdate = true
-	//} else {
-	//	if v, ok := d.GetOk("description"); ok {
-	//		desc = v.(string)
-	//	}
-	//	check.Data[0].Description = desc
-	//}
-	//
-	//request := requests.NewCommonRequest()
-	//request.QueryParams = map[string]string{
-	//	"RegionId":          client.RegionId,
-	//	"AccessKeySecret":   client.SecretKey,
-	//	"Department":        client.Department,
-	//	"ResourceGroup":     client.ResourceGroup,
-	//	"Product":           "ascm",
-	//	"Action":            "UpdateRoleInfo",
-	//	"Version":           "2019-05-10",
-	//	"newRoleName": rname,
-	//	//"RoleName": rname,
-	//	"newDescription": desc,
-	//	//"Description": desc,
-	//	"id":          fmt.Sprint(check.Data[0].ID),
-	//}
-	//request.Method = "POST"
-	//request.Product = "ascm"
-	//request.Version = "2019-05-10"
-	//request.ServiceCode = "ascm"
-	//request.Domain = client.Domain
-	//if strings.ToLower(client.Config.Protocol) == "https" {
-	//	request.Scheme = "https"
-	//} else {
-	//	request.Scheme = "http"
-	//}
-	//request.SetHTTPSInsecure(true)
-	//request.ApiName = "UpdateRoleInfo"
-	//request.RegionId = client.RegionId
-	//request.Headers = map[string]string{"RegionId": client.RegionId}
-	//
-	//if attributeUpdate {
-	//	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-	//		return ecsClient.ProcessCommonRequest(request)
-	//	})
-	//	if err != nil {
-	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_role", "UpdateRoleInfo", raw)
-	//	}
-	//	addDebug(request.GetActionName(), raw, request)
-	//	//d.Set("role_name", check.Data[0].NewRoleName)
-	//	//d.Set("role_id", check.Data[0].ID)
-	//	//d.Set("description", check.Data[0].NewDescription)
-	//}
-	//d.SetId(rname)
-
 	return resourceApsaraStackAscmRamRoleRead(d, meta)
 
 }
@@ -217,10 +137,6 @@ func resourceApsaraStackAscmRamRoleRead(d *schema.ResourceData, meta interface{}
 	} else {
 		d.Set("organization_visibility", visibility)
 	}
-	//log.Printf("suraj visibility %s",visibility)
-	//d.Set("role_name", object.Data[0].RoleName)
-	//d.Set("role_id", object.Data[0].ID)
-	//d.Set("description", object.Data[0].Description)
 	return nil
 }
 

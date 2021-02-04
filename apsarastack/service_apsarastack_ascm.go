@@ -136,7 +136,8 @@ func (s *AscmService) DescribeAscmRamRole(id string) (response *AscmRoles, err e
 		"Action":          "ListRoles",
 		"Version":         "2019-05-10",
 		"roleName":        did[0],
-		"roleType":        "ROLETYPE_RAM",
+		//"id":        did[1],
+		"roleType": "ROLETYPE_RAM",
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -170,7 +171,7 @@ func (s *AscmService) DescribeAscmRamRole(id string) (response *AscmRoles, err e
 		return resp, WrapError(err)
 	}
 
-	if len(resp.Data) < 1 || resp.Code == "200" {
+	if resp.AsapiErrorCode == "200" {
 		return resp, WrapError(err)
 	}
 

@@ -7,7 +7,6 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"log"
 	"strings"
 	"time"
 )
@@ -68,7 +67,6 @@ func resourceApsaraStackAscmRamPolicyForRoleCreate(d *schema.ResourceData, meta 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ProcessCommonRequest(request)
 	})
-	log.Printf("Suraj raw %s", raw)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_policy_for_role", "AddRAMPolicyToRole", raw)
 	}
