@@ -105,4 +105,5 @@ ApsaraDB for MongoDB (DDS)
 
 The following attributes are exported in addition to the arguments listed above:
 
+* `quota_id` - ID of the quota.
 * `id` - ProductName, QuotaType and QuotaTypeId of the Service. The value is in format `ProductName:QuotaType:QuotaTypeId`.
