@@ -7,33 +7,35 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"strings"
 	"time"
 )
 
-func resourceApsaraStackAscmUserRoleBinding() *schema.Resource {
+func resourceApsaraStackAscmRamPolicyForRole() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApsaraStackAscmUserRoleBindingCreate,
-		Read:   resourceApsaraStackAscmUserRoleBindingRead,
-		Update: resourceApsaraStackAscmUserRoleBindingUpdate,
-		Delete: resourceApsaraStackAscmUserRoleBindingDelete,
+		Create: resourceApsaraStackAscmRamPolicyForRoleCreate,
+		Read:   resourceApsaraStackAscmRamPolicyForRoleRead,
+		Update: resourceApsaraStackAscmRamPolicyForRoleUpdate,
+		Delete: resourceApsaraStackAscmRamPolicyForRoleDelete,
 		Schema: map[string]*schema.Schema{
-			"login_name": {
+			"ram_policy_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 			"role_id": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
+				ForceNew: true,
 			},
 		},
 	}
 }
 
-func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackAscmRamPolicyForRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *ecs.Client
-	lname := d.Get("login_name").(string)
+	ram_id := d.Get("ram_policy_id").(string)
 	roleid := d.Get("role_id").(string)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
@@ -43,11 +45,11 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 		"RegionId":        client.RegionId,
 		"AccessKeySecret": client.SecretKey,
 		"Product":         "Ascm",
-		"Action":          "AddRoleToUser",
+		"Action":          "AddRAMPolicyToRole",
 		"Version":         "2019-05-10",
 		"ProductName":     "ascm",
-		"LoginName":       lname,
-		"RoleId":          roleid,
+		"ramPolicyId":     ram_id,
+		"roleId":          roleid,
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -59,34 +61,35 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 	} else {
 		request.Scheme = "http"
 	}
-	request.ApiName = "AddRoleToUser"
+	request.ApiName = "AddRAMPolicyToRole"
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ProcessCommonRequest(request)
 	})
+	log.Printf("Suraj raw %s", raw)
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_role_binding", "AddRoleToUser", raw)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_policy_for_role", "AddRAMPolicyToRole", raw)
 	}
 
-	addDebug("AddRoleToUser", raw, requestInfo, request)
+	addDebug("AddRAMPolicyToRole", raw, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
 	if bresponse.GetHttpStatus() != 200 {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_role_binding", "AddRoleToUser", ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_policy_for_role", "AddRAMPolicyToRole", ApsaraStackSdkGoERROR)
 	}
-	addDebug("AddRoleToUser", raw, requestInfo, bresponse.GetHttpContentString())
+	addDebug("AddRAMPolicyToRole", raw, requestInfo, bresponse.GetHttpContentString())
 
-	d.SetId(lname)
+	d.SetId(ram_id)
 
-	return resourceApsaraStackAscmUserRoleBindingRead(d, meta)
+	return resourceApsaraStackAscmRamPolicyForRoleRead(d, meta)
 }
 
-func resourceApsaraStackAscmUserRoleBindingRead(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackAscmRamPolicyForRoleRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	object, err := ascmService.DescribeAscmUserRoleBinding(d.Id())
+	object, err := ascmService.DescribeAscmRamPolicy(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -98,28 +101,28 @@ func resourceApsaraStackAscmUserRoleBindingRead(d *schema.ResourceData, meta int
 		d.SetId("")
 		return nil
 	}
-	d.Set("login_name", object.Data[0].LoginName)
-	//d.Set("role_id", object.Data[0].UserRoles[0].ID)
+	d.Set("ram_policy_id", object.Data[0].RamPolicyId)
+	d.Set("role_id", object.Data[0].RoleId)
 
 	return nil
 }
 
-func resourceApsaraStackAscmUserRoleBindingUpdate(d *schema.ResourceData, meta interface{}) error {
-	return resourceApsaraStackAscmUserRoleBindingCreate(d, meta)
+func resourceApsaraStackAscmRamPolicyForRoleUpdate(d *schema.ResourceData, meta interface{}) error {
+	return resourceApsaraStackAscmRamPolicyForRoleCreate(d, meta)
 
 }
 
-func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackAscmRamPolicyForRoleDelete(d *schema.ResourceData, meta interface{}) error {
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
 	roleid := d.Get("role_id").(string)
-	check, err := ascmService.DescribeAscmUserRoleBinding(d.Id())
+	check, err := ascmService.DescribeAscmRamPolicy(d.Id())
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsBindingExist", ApsaraStackSdkGoERROR)
 	}
-	addDebug("IsBindingExist", check, requestInfo, map[string]string{"loginName": d.Id()})
+	addDebug("IsBindingExist", check, requestInfo, map[string]string{"ramPolicyId": d.Id()})
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
@@ -130,11 +133,11 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 			"RegionId":        client.RegionId,
 			"AccessKeySecret": client.SecretKey,
 			"Product":         "ascm",
-			"Action":          "RemoveRoleFromUser",
+			"Action":          "RemoveRAMPolicyFromRole",
 			"Version":         "2019-05-10",
 			"ProductName":     "ascm",
-			"LoginName":       d.Id(),
-			"RoleId":          roleid,
+			"ramPolicyId":     d.Id(),
+			"roleId":          roleid,
 		}
 
 		request.Method = "POST"
@@ -147,7 +150,7 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 		} else {
 			request.Scheme = "http"
 		}
-		request.ApiName = "RemoveRoleFromUser"
+		request.ApiName = "RemoveRAMPolicyFromRole"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId
 
@@ -157,7 +160,7 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 		if err != nil {
 			return resource.RetryableError(err)
 		}
-		check, err = ascmService.DescribeAscmUserRoleBinding(d.Id())
+		check, err = ascmService.DescribeAscmRamPolicy(d.Id())
 
 		if err != nil {
 			return resource.NonRetryableError(err)
