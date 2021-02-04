@@ -169,7 +169,6 @@ func resourceApsaraStackCmsAlarm() *schema.Resource {
 				Default:      86400,
 				ValidateFunc: validation.IntBetween(300, 86400),
 			},
-
 			"enabled": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -206,8 +205,6 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ContactGroups = strings.Join(expandStringList(d.Get("contact_groups").([]interface{})), ",")
-	// 兼容弃用参数
-	// Critical
 	if v, ok := d.GetOk("escalations_critical"); ok && len(v.([]interface{})) != 0 {
 		for _, val := range v.([]interface{}) {
 			val := val.(map[string]interface{})
@@ -251,9 +248,6 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	}
 	request.SilenceTime = requests.NewInteger(d.Get("silence_time").(int))
 
-	if webhook, ok := d.GetOk("webhook"); ok && webhook.(string) != "" {
-		request.Webhook = webhook.(string)
-	}
 	var instanceId string
 	var dimList []map[string]string
 	if dimensions, ok := d.GetOk("dimensions"); ok {
@@ -281,29 +275,32 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	// make a request
 	nrequest := requests.NewCommonRequest()
 	nrequest.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	nrequest.Method = "POST"
-	nrequest.Product = "cms" // Specify product
+	nrequest.Product = "cms"
 	nrequest.Domain = client.Domain
 	nrequest.Version = "2019-01-01"
 	nrequest.ApiName = "PutResourceMetricRule"
 
 	nrequest.Headers = map[string]string{"RegionId": client.RegionId}
 	nrequest.QueryParams = map[string]string{
-		"AccessKeySecret":   client.SecretKey,
-		"Product":           "cms",
-		"Department":        client.Department,
-		"ResourceGroup":     client.ResourceGroup,
-		"RegionId":          client.RegionId,
-		"Action":            "PutResourceMetricRule",
-		"Version":           "2019-01-01",
-		"Namespace":         request.Namespace,
-		"EffectiveInterval": request.EffectiveInterval,
-		//"Webhook":"",
-		"ContactGroups": request.ContactGroups,
-		"InstanceID":    instanceId,
-		//"EmailSubject":"",
-		"Resources":                               request.Resources,
-		"Escalations.Critical.Threshold":          request.EscalationsCriticalThreshold,
+		"AccessKeySecret":                client.SecretKey,
+		"Product":                        "cms",
+		"Department":                     client.Department,
+		"ResourceGroup":                  client.ResourceGroup,
+		"RegionId":                       client.RegionId,
+		"Action":                         "PutResourceMetricRule",
+		"Version":                        "2019-01-01",
+		"Namespace":                      request.Namespace,
+		"EffectiveInterval":              request.EffectiveInterval,
+		"ContactGroups":                  request.ContactGroups,
+		"InstanceID":                     instanceId,
+		"Resources":                      request.Resources,
+		"Escalations.Critical.Threshold": request.EscalationsCriticalThreshold,
 		"Escalations.Critical.ComparisonOperator": request.EscalationsCriticalComparisonOperator,
 		"Escalations.Critical.Statistics":         request.EscalationsCriticalStatistics,
 		"Escalations.Critical.Times":              fmt.Sprint(request.EscalationsCriticalTimes),
@@ -343,7 +340,6 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	d.SetPartial("end_time")
 	d.SetPartial("silence_time")
 	d.SetPartial("notify_type")
-	d.SetPartial("webhook")
 
 	if d.Get("enabled").(bool) {
 		request := cms.CreateEnableMetricRulesRequest()
@@ -407,7 +403,7 @@ func resourceApsaraStackCmsAlarmRead(d *schema.ResourceData, meta interface{}) e
 	client := meta.(*connectivity.ApsaraStackClient)
 	cmsService := CmsService{client}
 
-	alarm, err := cmsService.DescribeAlarm(d.Id())
+	alarm, err := cmsService.DescribeCmsAlarm(d.Id())
 
 	if err != nil {
 		if NotFoundError(err) {
@@ -497,7 +493,6 @@ func resourceApsaraStackCmsAlarmRead(d *schema.ResourceData, meta interface{}) e
 	}
 	d.Set("status", alarm.AlertState)
 	d.Set("enabled", alarm.EnableState)
-	d.Set("webhook", alarm.Webhook)
 	d.Set("contact_groups", strings.Split(alarm.ContactGroups, ","))
 
 	var dims []string
@@ -543,7 +538,7 @@ func resourceApsaraStackCmsAlarmDelete(d *schema.ResourceData, meta interface{})
 			return resource.NonRetryableError(fmt.Errorf("Deleting alarm rule got an error: %#v", err))
 		}
 
-		_, err = cmsService.DescribeAlarm(d.Id())
+		_, err = cmsService.DescribeCmsAlarm(d.Id())
 		if err != nil {
 			if NotFoundError(err) {
 				return nil

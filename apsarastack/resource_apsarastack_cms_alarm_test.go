@@ -1,454 +1,93 @@
 package apsarastack
 
 import (
-	"fmt"
-	"log"
-	"regexp"
-	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-
-	"strings"
-
-	"strconv"
-
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cms"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"testing"
 )
 
-func init() {
-	resource.AddTestSweepers("apsarastack_cms_alarm", &resource.Sweeper{
-		Name: "apsarastack_cms_alarm",
-		F:    testSweepCMSAlarms,
-	})
-}
-
-func testSweepCMSAlarms(region string) error {
-	rawClient, err := sharedClientForRegion(region)
-	if err != nil {
-		return fmt.Errorf("error getting ApsaraStack client: %s", err)
+func TestAccApsaraStackCmsAlarmBasic(t *testing.T) {
+	var v cms.Alarm
+	resourceId := "apsarastack_cms_alarm.default"
+	ra := resourceAttrInit(resourceId, testAccCheckAlarm)
+	serviceFunc := func() interface{} {
+		return &CmsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}
-	client := rawClient.(*connectivity.ApsaraStackClient)
-
-	prefixes := []string{
-		"tf-testAcc",
-		"tf_testAcc",
-	}
-
-	var alarms []cms.Alarm
-	req := cms.CreateDescribeMetricRuleListRequest()
-	req.Headers = map[string]string{"RegionId": client.RegionId}
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	req.RegionId = client.RegionId
-	req.PageSize = strconv.Itoa(PageSizeLarge)
-	req.Page = strconv.Itoa(1)
-	for {
-		raw, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
-			return cmsClient.DescribeMetricRuleList(req)
-		})
-		if err != nil {
-			log.Printf("[ERROR] Error retrieving CMS Alarm: %s", err)
-		}
-		resp, _ := raw.(*cms.DescribeMetricRuleListResponse)
-		if resp == nil || len(resp.Alarms.Alarm) < 1 {
-			break
-		}
-		alarms = append(alarms, resp.Alarms.Alarm...)
-
-		if len(resp.Alarms.Alarm) < PageSizeLarge {
-			break
-		}
-		current, err := strconv.Atoi(req.Page)
-		if err != nil {
-			break
-		}
-		req.Page = strconv.Itoa(current + 1)
-	}
-
-	for _, v := range alarms {
-		name := v.RuleName
-		id := v.RuleId
-		skip := true
-		for _, prefix := range prefixes {
-			if strings.HasPrefix(strings.ToLower(name), strings.ToLower(prefix)) {
-				skip = false
-				break
-			}
-		}
-		if skip && v.AlertState == "INSUFFICIENT_DATA" {
-			skip = false
-		}
-		if skip {
-			log.Printf("[INFO] Skipping CMS Alarm: %s (%s)", name, id)
-			continue
-		}
-
-		log.Printf("[INFO] Deleting CMS Alarm: %s (%s). Status: %s", name, id, v.State)
-		req := cms.CreateDeleteMetricRulesRequest()
-		req.Headers = map[string]string{"RegionId": client.RegionId}
-		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		req.Id = &[]string{id}
-		_, err := client.WithCmsClient(func(cmsClient *cms.Client) (interface{}, error) {
-			return cmsClient.DeleteMetricRules(req)
-		})
-		if err != nil {
-			log.Printf("[ERROR] Failed to delete CMS Alarm (%s (%s)): %s", name, id, err)
-		}
-	}
-	return nil
-}
-
-// At present, the provider does not support creating contact group resource, so you should create manually a contact group
-// by web console and set it by environment variable ALICLOUD_CMS_CONTACT_GROUP before running the following test case.
-func TestAccApsaraStackCmsAlarm_basic(t *testing.T) {
-	var alarm cms.Alarm
-	resourceName := "apsarastack_cms_alarm.basic"
-	rand := acctest.RandIntRange(1000000, 9999999)
-	name := fmt.Sprintf("tf-testAcc%sCmsAlarmContactGroup%d", defaultRegionToTest, rand)
+	rc := resourceCheckInit(resourceId, &v, serviceFunc)
+	rac := resourceAttrCheckInit(rc, ra)
+	testAccCheck := rac.resourceAttrMapUpdateSet()
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
 
-		IDRefreshName: resourceName,
-
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCmsAlarmDestroy,
+		// module name
+		IDRefreshName: resourceId,
+		Providers:     testAccProviders,
+		//CheckDestroy:  rac.checkResourceDestroy(),
+		CheckDestroy: testAccCheckCmsAlarm_Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCmsAlarm_basic(name),
+				Config: testAccCheckCmsAlarm,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCmsAlarmExists("apsarastack_cms_alarm.basic", &alarm),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.basic", "name", "tf-testAccCmsAlarm_basic"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.basic", "dimensions.%", "2"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.basic", "dimensions.device", "/dev/vda1,/dev/vdb1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.basic", "escalations_critical.#", "1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.basic", "escalations_warn.#", "1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.basic", "escalations_info.#", "1"),
-				),
-			},
-			{
-				ResourceName:            resourceName,
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"dimensions", "start_time", "end_time"},
-			},
-		},
-	})
-}
-
-func TestAccApsaraStackCmsAlarm_update(t *testing.T) {
-	var alarm cms.Alarm
-	rand := acctest.RandIntRange(1000000, 9999999)
-	name := fmt.Sprintf("tf-testAcc%sCmsAlarmContactGroup%d", defaultRegionToTest, rand)
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-
-		IDRefreshName: "apsarastack_cms_alarm.update",
-
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCmsAlarmDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCmsAlarm_update(name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCmsAlarmExists("apsarastack_cms_alarm.update", &alarm),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "name", "tf-testAccCmsAlarm_update"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "escalations_critical.#", "1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "escalations_warn.#", "1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "escalations_info.#", "1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "dimensions.%", "2"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "dimensions.device", "/dev/vda1,/dev/vdb1"),
-					resource.TestMatchResourceAttr("apsarastack_cms_alarm.update", "webhook", regexp.MustCompile("^https://[0-9]+.eu-central-1.fc.aliyuncs.com/[0-9-]+/proxy/Terraform/AlarmEndpointMock/$")),
-				),
-			},
-
-			{
-				Config: testAccCmsAlarm_updateAfter(name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCmsAlarmExists("apsarastack_cms_alarm.update", &alarm),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "escalations_critical.#", "1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "escalations_warn.#", "1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "escalations_info.#", "1"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "dimensions.%", "2"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.update", "dimensions.device", "/dev/vda1,/dev/vdb1"),
-					resource.TestMatchResourceAttr("apsarastack_cms_alarm.update", "webhook", regexp.MustCompile("^https://[0-9]+.eu-central-1.fc.aliyuncs.com/[0-9-]+/proxy/Terraform/AlarmEndpointMock/updated$")),
+					testAccCheck(nil),
 				),
 			},
 		},
 	})
+
 }
 
-func TestAccApsaraStackCmsAlarm_disable(t *testing.T) {
-	var alarm cms.Alarm
-	rand := acctest.RandIntRange(1000000, 9999999)
-	name := fmt.Sprintf("tf-testAcc%sCmsAlarmContactGroup%d", defaultRegionToTest, rand)
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-
-		IDRefreshName: "apsarastack_cms_alarm.disable",
-
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckCmsAlarmDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCmsAlarm_disable(name),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCmsAlarmExists("apsarastack_cms_alarm.disable", &alarm),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.disable", "name", "tf-testAccCmsAlarm_disable"),
-					resource.TestCheckResourceAttr("apsarastack_cms_alarm.disable", "enabled", "false"),
-				),
-			},
-		},
-	})
-}
-
-func testAccCheckCmsAlarmExists(n string, d *cms.Alarm) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		alarm, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found:%s", n)
-		}
-
-		if alarm.Primary.ID == "" {
-			return fmt.Errorf("No Cloud monitor alarm ID is set")
-		}
-
-		client := testAccProvider.Meta().(*connectivity.ApsaraStackClient)
-		cmsService := CmsService{client}
-		attr, err := cmsService.DescribeAlarm(alarm.Primary.ID)
-		log.Printf("[DEBUG] check alarm %s attribute %#v", alarm.Primary.ID, attr)
-
-		if err != nil {
-			return err
-		}
-
-		if attr.RuleId == "" {
-			return fmt.Errorf("Alarm rule not found")
-		}
-
-		*d = attr
-		return nil
-	}
-}
-
-func testAccCheckCmsAlarmDestroy(s *terraform.State) error {
+func testAccCheckCmsAlarm_Destroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*connectivity.ApsaraStackClient)
 	cmsService := CmsService{client}
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "apsarastack_cms_alarm" {
+		if rs.Type == "apsarastack_cms_alarm" || rs.Type != "apsarastack_cms_alarm" {
 			continue
 		}
-
-		alarm, err := cmsService.DescribeAlarm(rs.Primary.ID)
-
+		cms, err := cmsService.DescribeCmsAlarm(rs.Primary.ID)
 		if err != nil {
 			if NotFoundError(err) {
 				continue
 			}
-			return err
+			return WrapError(err)
 		}
-
-		if alarm.RuleId != "" {
-			return fmt.Errorf("Error alarm rule %s still exists.", rs.Primary.ID)
+		if cms.RuleName != "" {
+			return WrapError(Error("resource  still exist"))
 		}
 	}
 
 	return nil
 }
 
-func testAccCmsAlarm_basic(name string) string {
-	return fmt.Sprintf(`
-	variable "name" {
-		default = "%s"
-	}
-
-	resource "apsarastack_cms_alarm_contact_group" "default" {
-	  alarm_contact_group_name = "${var.name}"
-	  describe = "Test For Alarm."  
-	}
-
-	resource "apsarastack_cms_alarm" "basic" {
-	  name = "tf-testAccCmsAlarm_basic"
-	  project = "acs_ecs_dashboard"
-	  metric = "disk_writebytes"
-	  dimensions = {
-	    instanceId = "i-bp1247jeep0y53nu3bnk,i-bp11gdcik8z6dl5jm84p"
-	    device = "/dev/vda1,/dev/vdb1"
-	  }
-	  period = 900
-	  escalations_critical {
-		statistics = "Average"
-		comparison_operator = "<="
-		threshold = 35
-		times = 2
-	  }
-	  escalations_warn {
-		statistics = "Average"
-		comparison_operator = "<="
-		threshold = 35
-		times = 2
-	  }
-	  escalations_info {
-		statistics = "Average"
-		comparison_operator = "<="
-		threshold = 35
-		times = 2
-	  }
-	  contact_groups = [apsarastack_cms_alarm_contact_group.default.alarm_contact_group_name]
-      effective_interval = "06:00-20:00"
-	}
-	`, name)
+const testAccCheckCmsAlarm = `
+resource "apsarastack_slb" "basic" {
+ name          = "terraform_omega_1"
 }
-
-func testAccCmsAlarm_update(name string) string {
-	return fmt.Sprintf(`
-	variable "name" {
-		default = "%s"
-	}
-
-	resource "apsarastack_cms_alarm_contact_group" "default" {
-	  alarm_contact_group_name = "${var.name}"
-	  describe = "Test For Alarm."  
-	}
-
-data "apsarastack_account" "current"{
-}
-
-resource "apsarastack_cms_alarm" "update" {
-  name = "tf-testAccCmsAlarm_update"
-  project = "acs_ecs_dashboard"
-  metric = "disk_writebytes"
+resource "apsarastack_cms_alarm" "default" {
+  name    = "TfAccCmsAlarm_omega_1"
+  project = "acs_slb_dashboard"
+  metric  = "ActiveConnection"
   dimensions = {
-    instanceId = "i-bp1247jeep0y53nu3bnk,i-bp11gdcik8z6dl5jm84p"
-    device = "/dev/vda1,/dev/vdb1"
+    instanceId = apsarastack_slb.basic.id
   }
-  period = 900
   escalations_critical {
-	statistics = "Average"
-	comparison_operator = "<="
-	threshold = 35
-	times = 2
+    statistics = "Average"
+    comparison_operator = "<="
+    threshold = 35
+    times = 2
   }
-  escalations_warn {
-	statistics = "Average"
-	comparison_operator = "<="
-	threshold = 35
-	times = 2
-  }
-  escalations_info {
-	statistics = "Average"
-	comparison_operator = "<="
-	threshold = 35
-	times = 2
-  }
-  contact_groups = [apsarastack_cms_alarm_contact_group.default.alarm_contact_group_name]
-  effective_interval = "06:00-20:00"
-  webhook = "https://${data.apsarastack_account.current.id}.eu-central-1.fc.aliyuncs.com/2016-08-15/proxy/Terraform/AlarmEndpointMock/"
+  enabled =      true
+  contact_groups     = ["test-group"]
+  effective_interval = "0:00-2:00"
 }
-`, name)
-}
+`
 
-func testAccCmsAlarm_updateAfter(name string) string {
-	return fmt.Sprintf(`
-	variable "name" {
-		default = "%s"
-	}
-
-	resource "apsarastack_cms_alarm_contact_group" "default" {
-	  alarm_contact_group_name = "${var.name}"
-	  describe = "Test For Alarm."  
-	}
-
-	data "apsarastack_account" "current"{
-	}
-	
-	resource "apsarastack_cms_alarm" "update" {
-	  name = "tf-testAccCmsAlarm_update"
-	  project = "acs_ecs_dashboard"
-	  metric = "disk_writebytes"
-	  dimensions = {
-	    instanceId = "i-bp1247jeep0y53nu3bnk,i-bp11gdcik8z6dl5jm84p"
-	    device = "/dev/vda1,/dev/vdb1"
-	  }
-	  period = 900
-	  escalations_critical {
-		statistics = "Average"
-		comparison_operator = "<"
-		threshold = 35
-		times = 3
-	  }
-	  escalations_warn {
-		statistics = "Average"
-		comparison_operator = "<"
-		threshold = 35
-		times = 3
-	  }
-	  escalations_info {
-		statistics = "Average"
-		comparison_operator = "<"
-		threshold = 35
-		times = 2
-	  }
-    contact_groups = [apsarastack_cms_alarm_contact_group.default.alarm_contact_group_name]
-      effective_interval = "06:00-20:00"
-  	  webhook = "https://${data.apsarastack_account.current.id}.eu-central-1.fc.aliyuncs.com/2016-08-15/proxy/Terraform/AlarmEndpointMock/updated"
-	}
-	`, name)
-}
-
-func testAccCmsAlarm_disable(name string) string {
-	return fmt.Sprintf(`
-	variable "name" {
-		default = "%s"
-	}
-
-	resource "apsarastack_cms_alarm_contact_group" "default" {
-	  alarm_contact_group_name = "${var.name}"
-	  describe = "Test For Alarm."  
-	}
-
-	data "apsarastack_account" "current"{
-	}
-	
-	resource "apsarastack_cms_alarm" "disable" {
-	  name = "tf-testAccCmsAlarm_disable"
-	  project = "acs_ecs_dashboard"
-	  metric = "disk_writebytes"
-	  dimensions = {
-	    instanceId = "i-bp1247jeep0y53nu3bnk,i-bp11gdcik8z6dl5jm84p"
-	    device = "/dev/vda1,/dev/vdb1"
-	  }
-	  period = 900
-	  escalations_critical {
-		statistics = "Average"
-		comparison_operator = "<"
-		threshold = 35
-		times = 3
-	  }
-	  escalations_warn {
-		statistics = "Average"
-		comparison_operator = "<"
-		threshold = 35
-		times = 3
-	  }
-	  escalations_info {
-		statistics = "Average"
-		comparison_operator = "<"
-		threshold = 35
-		times = 2
-	  }
-    contact_groups = [apsarastack_cms_alarm_contact_group.default.alarm_contact_group_name]
-      effective_interval = "06:00-20:00"
-	  enabled = false
-	  webhook = "https://${data.apsarastack_account.current.id}.eu-central-1.fc.aliyuncs.com/2016-08-15/proxy/Terraform/AlarmEndpointMock/"
-	}
-	`, name)
+var testAccCheckAlarm = map[string]string{
+	"name":    CHECKSET,
+	"project": CHECKSET,
+	"metric":  CHECKSET,
 }
