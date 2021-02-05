@@ -97,11 +97,6 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 	request.Method = "GET"
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
 	var parentId string
 	if v, ok := d.GetOk("parent_id"); ok {
 		parentId = fmt.Sprint(v.(int))

@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
+	"strings"
 )
 
 func dataSourceApsaraStackAscmRoles() *schema.Resource {
@@ -96,13 +97,19 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 	request := requests.NewCommonRequest()
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.RegionId = client.RegionId
 	request.ApiName = "ListRoles"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
 		"AccessKeyId":     client.AccessKey,
 		"AccessKeySecret": client.SecretKey,
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ascm",
 		"RegionId":        client.RegionId,
 		"Action":          "ListRoles",
