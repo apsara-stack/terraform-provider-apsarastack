@@ -15,7 +15,7 @@ Provides a list of alarm contact owned by an Apsarastack Cloud account.
 
 Basic Usage
 
-```terraform
+```
 data "apsarastack_cms_alarm_contacts" "example" {
 
 }
