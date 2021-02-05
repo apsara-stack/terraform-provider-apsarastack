@@ -10,13 +10,12 @@ description: |-
 # apsarastack\_cms\_alarm
 
 This resource provides a alarm rule resource and it can be used to monitor several cloud services according different metrics.
-Details for [alarm rule](https://www.alibabacloud.com/help/doc-detail/28608.htm).
 
 ## Example Usage
 
 Basic Usage
 
-```terraform 
+``` 
 resource "apsarastack_cms_alarm" "basic1" {
   name    = "tf-testAccCmsAlarm_basic"
   project = "acs_slb_dashboard"
@@ -30,7 +29,7 @@ resource "apsarastack_cms_alarm" "basic1" {
     threshold = 35
     times = 2
   }
-  period  =    900
+  period  =    300
   enabled =      true
   contact_groups     = ["test-group"]
   effective_interval = "0:00-2:00"
@@ -45,7 +44,7 @@ The following arguments are supported:
 * `project` - (Required, ForceNew) Monitor project name, such as "acs_ecs_dashboard" and "acs_rds_dashboard". For more information, see [Metrics Reference](https://www.alibabacloud.com/help/doc-detail/28619.htm).
 * `metric` - (Required, ForceNew) Name of the monitoring metrics corresponding to a project, such as "CPUUtilization" and "networkin_rate". For more information, see [Metrics Reference](https://www.alibabacloud.com/help/doc-detail/28619.htm).
 * `dimensions` - (Required, ForceNew) Map of the resources associated with the alarm rule, such as "instanceId", "device" and "port". Each key's value is a string and it uses comma to split multiple items. For more information, see [Metrics Reference](https://www.alibabacloud.com/help/doc-detail/28619.htm).
-* `period` - Index query cycle, which must be consistent with that defined for metrics. Default to 300, in seconds.
+* `period` - Index query cycle, which must be consistent with that defined for metrics. 
 * `escalations_critical` - (Optional) A configuration of critical alarm (documented below).
 * `escalations_warn` - (Optional) A configuration of critical warn (documented below).
 * `escalations_info` - (Optional) A configuration of critical info (documented below).

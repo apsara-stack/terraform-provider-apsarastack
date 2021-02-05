@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_ess\_notification
 
-Provides a ESS notification resource. More about Ess notification, see [Autoscaling Notification](https://www.alibabacloud.com/help/doc-detail/71114.htm).
+Provides a ESS notification resource.
 
 ## Example Usage
 ```
