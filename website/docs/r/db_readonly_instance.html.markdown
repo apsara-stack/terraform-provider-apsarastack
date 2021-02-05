@@ -13,7 +13,7 @@ Provides an RDS readonly instance resource.
 
 ## Example Usage
 
-```terraform
+```
 variable "creation" {
   default = "Rds"
 }
