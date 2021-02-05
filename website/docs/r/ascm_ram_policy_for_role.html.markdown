@@ -24,7 +24,7 @@ resource "apsarastack_ascm_ram_policy" "default" {
 resource "apsarastack_ascm_ram_role" "default" {
   role_name = "TestRole"
   description = "TestingRole"
-  organization_visibility = "global"
+  organization_visibility = "organizationVisibility.global"
 }
 
 resource "apsarastack_ascm_ram_policy_for_role" "default" {
