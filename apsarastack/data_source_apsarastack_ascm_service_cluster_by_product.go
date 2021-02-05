@@ -67,7 +67,7 @@ func dataSourceApsaraStackServiceClusterByProductRead(d *schema.ResourceData, me
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	productName := d.Get("product_name").(string)
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "ascm", "RegionId": client.RegionId, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "productName": productName, "Action": "GetClustersByProduct", "Version": "2019-05-10"}
-	response := ClustersByProduct{}
+	response := ClustersByProduct1{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

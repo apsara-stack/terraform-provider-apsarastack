@@ -90,12 +90,10 @@ func resourceApsaraStackAscmRamPolicyCreate(d *schema.ResourceData, meta interfa
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
-		log.Printf("Suraj raw %s", raw)
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_policy", "CreateRAMPolicy", raw)
 		}
 		bresponse, _ := raw.(*responses.CommonResponse)
-		log.Printf("Suraj bresponse %s", bresponse)
 
 		if bresponse.GetHttpStatus() != 200 {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_policy", "CreateRAMPolicy", ApsaraStackSdkGoERROR)

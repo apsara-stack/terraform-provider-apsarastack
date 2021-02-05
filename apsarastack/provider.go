@@ -223,6 +223,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_metering_query_ecs":              dataSourceApsarastackAscmMeteringQueryEcs(),
 			"apsarastack_ascm_roles":                           dataSourceApsaraStackAscmRoles(),
 			"apsarastack_ascm_ram_policies":                    dataSourceApsaraStackAscmRamPolicies(),
+			"apsarastack_ascm_ram_policies_for_user":           dataSourceApsaraStackAscmRamPoliciesForUser(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -329,7 +330,6 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_ram_policy":                     resourceApsaraStackAscmRamPolicy(),
 			"apsarastack_ascm_ram_role":                       resourceApsaraStackAscmRamRole(),
 			"apsarastack_ascm_ram_policy_for_role":            resourceApsaraStackAscmRamPolicyForRole(),
-
 		},
 		ConfigureFunc: providerConfigure,
 	}

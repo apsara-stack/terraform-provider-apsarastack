@@ -7,14 +7,13 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"regexp"
 	"strings"
 	"time"
 )
 
-func dataSourceApsaraStackAscmRamPolicies() *schema.Resource {
+func dataSourceApsaraStackAscmRamPoliciesForUser() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceApsaraStackAscmRamPoliciesRead,
+		Read: dataSourceApsaraStackAscmRamPoliciesForUserRead,
 		Schema: map[string]*schema.Schema{
 			"ids": {
 				Type:     schema.TypeList,
@@ -24,15 +23,10 @@ func dataSourceApsaraStackAscmRamPolicies() *schema.Resource {
 				ForceNew: true,
 				MinItems: 1,
 			},
-			"name_regex": {
+			"login_name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ForceNew: true,
-			},
-			"names": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"output_file": {
 				Type:     schema.TypeString,
@@ -44,11 +38,11 @@ func dataSourceApsaraStackAscmRamPolicies() *schema.Resource {
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeInt,
+						"policy_name": {
+							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"name": {
+						"policy_type": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -56,15 +50,11 @@ func dataSourceApsaraStackAscmRamPolicies() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"ctime": {
+						"attach_date": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"cuser_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"region": {
+						"default_version": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -79,8 +69,9 @@ func dataSourceApsaraStackAscmRamPolicies() *schema.Resource {
 	}
 }
 
-func dataSourceApsaraStackAscmRamPoliciesRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceApsaraStackAscmRamPoliciesForUserRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+	lname := d.Get("login_name").(string)
 	request := requests.NewCommonRequest()
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
@@ -90,28 +81,27 @@ func dataSourceApsaraStackAscmRamPoliciesRead(d *schema.ResourceData, meta inter
 		request.Scheme = "http"
 	}
 	request.RegionId = client.RegionId
-	request.ApiName = "ListRamPolicies"
+	request.ApiName = "ListRAMPoliciesForUser"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
 		"AccessKeyId":     client.AccessKey,
 		"AccessKeySecret": client.SecretKey,
+		"Product":         "ascm",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
-		"Product":         "ascm",
 		"RegionId":        client.RegionId,
-		"Action":          "ListRamPolicies",
+		"Action":          "ListRAMPoliciesForUser",
 		"Version":         "2019-05-10",
-		"pageSize":        "1000",
-		//"policyName":name,
+		"LoginName":       lname,
 	}
-	response := RamPolicies{}
+	response := RamPolicyUser{}
 
 	for {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ram_policies", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ram_policies_for_user", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
@@ -126,29 +116,22 @@ func dataSourceApsaraStackAscmRamPoliciesRead(d *schema.ResourceData, meta inter
 
 	}
 
-	var r *regexp.Regexp
-	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
-		r = regexp.MustCompile(nameRegex.(string))
-	}
-	var ids []string
+	var names []string
 	var s []map[string]interface{}
 	for _, rp := range response.Data {
-		if r != nil && !r.MatchString(rp.PolicyName) {
-			continue
-		}
+
 		mapping := map[string]interface{}{
-			"id":              rp.ID,
-			"name":            rp.PolicyName,
+			"policy_name":     rp.PolicyName,
+			"policy_type":     rp.PolicyType,
 			"description":     rp.Description,
-			"region":          rp.Region,
-			"cuser_id":        rp.CuserID,
-			"ctime":           time.Unix(rp.Ctime/1000, 0).Format("2006-01-02 03:04:05"),
+			"default_version": rp.DefaultVersion,
+			"attach_date":     time.Unix(rp.AttachDate/1000, 0).Format("2006-01-02 03:04:05"),
 			"policy_document": rp.PolicyDocument,
 		}
-		ids = append(ids, string(rune(rp.ID)))
+		names = append(names, rp.PolicyName)
 		s = append(s, mapping)
 	}
-	d.SetId(dataResourceIdHash(ids))
+	d.SetId(dataResourceIdHash(names))
 	if err := d.Set("policies", s); err != nil {
 		return WrapError(err)
 	}

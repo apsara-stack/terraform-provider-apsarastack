@@ -1,13 +1,13 @@
 package apsarastack
 
 import (
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"log"
 	"strings"
 	"time"
 )
@@ -24,9 +24,8 @@ func resourceApsaraStackAscmRamPolicyForRole() *schema.Resource {
 				Required: true,
 			},
 			"role_id": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Required: true,
-				ForceNew: true,
 			},
 		},
 	}
@@ -36,7 +35,7 @@ func resourceApsaraStackAscmRamPolicyForRoleCreate(d *schema.ResourceData, meta 
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *ecs.Client
 	ram_id := d.Get("ram_policy_id").(string)
-	roleid := d.Get("role_id").(string)
+	roleid := d.Get("role_id").(int)
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
@@ -48,8 +47,8 @@ func resourceApsaraStackAscmRamPolicyForRoleCreate(d *schema.ResourceData, meta 
 		"Action":          "AddRAMPolicyToRole",
 		"Version":         "2019-05-10",
 		"ProductName":     "ascm",
-		"ramPolicyId":     ram_id,
-		"roleId":          roleid,
+		"RamPolicyId":     ram_id,
+		"RoleId":          fmt.Sprint(roleid),
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -68,7 +67,6 @@ func resourceApsaraStackAscmRamPolicyForRoleCreate(d *schema.ResourceData, meta 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ProcessCommonRequest(request)
 	})
-	log.Printf("Suraj raw %s", raw)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_policy_for_role", "AddRAMPolicyToRole", raw)
 	}
@@ -81,7 +79,7 @@ func resourceApsaraStackAscmRamPolicyForRoleCreate(d *schema.ResourceData, meta 
 	}
 	addDebug("AddRAMPolicyToRole", raw, requestInfo, bresponse.GetHttpContentString())
 
-	d.SetId(ram_id)
+	d.SetId(ram_id + COLON_SEPARATED + fmt.Sprint(roleid))
 
 	return resourceApsaraStackAscmRamPolicyForRoleRead(d, meta)
 }
@@ -89,7 +87,9 @@ func resourceApsaraStackAscmRamPolicyForRoleCreate(d *schema.ResourceData, meta 
 func resourceApsaraStackAscmRamPolicyForRoleRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	object, err := ascmService.DescribeAscmRamPolicy(d.Id())
+	_, err := ascmService.DescribeAscmRamPolicyForRole(d.Id())
+	did := strings.Split(d.Id(), COLON_SEPARATED)
+
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -97,12 +97,8 @@ func resourceApsaraStackAscmRamPolicyForRoleRead(d *schema.ResourceData, meta in
 		}
 		return WrapError(err)
 	}
-	if len(object.Data) == 0 {
-		d.SetId("")
-		return nil
-	}
-	d.Set("ram_policy_id", object.Data[0].RamPolicyId)
-	d.Set("role_id", object.Data[0].RoleId)
+	d.Set("ram_policy_id", did[0])
+	d.Set("role_id", did[1])
 
 	return nil
 }
@@ -117,12 +113,14 @@ func resourceApsaraStackAscmRamPolicyForRoleDelete(d *schema.ResourceData, meta 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
-	roleid := d.Get("role_id").(string)
-	check, err := ascmService.DescribeAscmRamPolicy(d.Id())
+	did := strings.Split(d.Id(), COLON_SEPARATED)
+
+	check, err := ascmService.DescribeAscmRamPolicyForRole(d.Id())
+
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsBindingExist", ApsaraStackSdkGoERROR)
 	}
-	addDebug("IsBindingExist", check, requestInfo, map[string]string{"ramPolicyId": d.Id()})
+	addDebug("IsBindingExist", check, requestInfo, map[string]string{"ramPolicyId": did[0]})
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
@@ -136,8 +134,8 @@ func resourceApsaraStackAscmRamPolicyForRoleDelete(d *schema.ResourceData, meta 
 			"Action":          "RemoveRAMPolicyFromRole",
 			"Version":         "2019-05-10",
 			"ProductName":     "ascm",
-			"ramPolicyId":     d.Id(),
-			"roleId":          roleid,
+			"ramPolicyId":     did[0],
+			"roleId":          did[1],
 		}
 
 		request.Method = "POST"
@@ -160,7 +158,7 @@ func resourceApsaraStackAscmRamPolicyForRoleDelete(d *schema.ResourceData, meta 
 		if err != nil {
 			return resource.RetryableError(err)
 		}
-		check, err = ascmService.DescribeAscmRamPolicy(d.Id())
+		check, err = ascmService.DescribeAscmRamPolicyForRole(d.Id())
 
 		if err != nil {
 			return resource.NonRetryableError(err)
