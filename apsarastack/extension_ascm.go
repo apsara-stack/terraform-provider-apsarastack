@@ -557,12 +557,21 @@ type EcsInstanceFamily struct {
 	HTTPOk    bool        `json:"httpOk"`
 }
 
-type ClustersByProduct struct {
+type ClustersByProduct1 struct {
 	Body struct {
 		ClusterList []struct {
 			Region30 []string `json:"cn-neimeng-env30-d01"`
 			Region66 []string `json:"cn-qingdao-env66-d01"`
 			Region17 []string `json:"cn-wulan-env82-d01"`
+		} `json:"ClusterList"`
+	} `json:"body"`
+	Code            int  `json:"code"`
+	SuccessResponse bool `json:"successResponse"`
+}
+type Env struct {
+	Body struct {
+		ClusterList []map[string]interface {
+			//CnWulanEnv82D01 []string `json:"cn-qingdao-env66-d01"`
 		} `json:"ClusterList"`
 	} `json:"body"`
 	Code            int  `json:"code"`
