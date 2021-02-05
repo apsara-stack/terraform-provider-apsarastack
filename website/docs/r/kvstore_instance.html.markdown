@@ -54,7 +54,6 @@ The following arguments are supported:
 * `kms_encrypted_password` - (Optional) An KMS encrypts password used to a instance. If the `password` is filled in, this field will be ignored.
 * `kms_encryption_context` - (Optional, MapString) An KMS encryption context used to decrypt `kms_encrypted_password` before creating or updating instance with `kms_encrypted_password`. See [Encryption Context](https://www.alibabacloud.com/help/doc-detail/42975.htm). It is valid when `kms_encrypted_password` is set.
 * `instance_class` - (Required) Type of the applied ApsaraDB for Redis instance. It can be retrieved by data source [`apsarastack_kvstore_instance_classes`](https://www.terraform.io/docs/providers/apsarastack/d/kvstore_instance_classes.html)
-or referring to help-docs [Instance type table](https://www.alibabacloud.com/help/doc-detail/26350.htm).
 * `availability_zone` - (Optional, ForceNew) The Zone to launch the DB instance.
 * `instance_charge_type` - (Optional) Valid values are `PrePaid`, `PostPaid`, Default to `PostPaid`.
 * `period` - (Optional) The duration that you will buy DB instance (in month). It is valid when instance_charge_type is `PrePaid`. Valid values: [1~9], 12, 24, 36. Default to 1.

@@ -10,7 +10,7 @@ description: |-
 # apsarastack\_gpdb\_instance
 
 Provides a AnalyticDB for PostgreSQL instance resource supports replica set instances only. the AnalyticDB for PostgreSQL provides stable, reliable, and automatic scalable database services. 
-You can see detail product introduction [here](https://www.alibabacloud.com/help/doc-detail/35387.htm)
+
 
 
 ## Example Usage
