@@ -17,7 +17,7 @@ This data source provides the CMS Groups of the current Apsarastack Cloud user.
 
 Basic Usage
 
-```terraform
+```
 data "apsarastack_cms_alarm_contact_group" "example" {
   name_regex = "tf-testacc"
 }

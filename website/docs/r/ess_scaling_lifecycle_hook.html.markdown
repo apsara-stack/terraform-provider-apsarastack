@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_ess\_lifecycle\_hook
 
-Provides a ESS lifecycle hook resource. More about Ess lifecycle hook, see [LifecycleHook](https://www.alibabacloud.com/help/doc-detail/73839.htm).
+Provides a ESS lifecycle hook resource.
 
 ## Example Usage
 ```
