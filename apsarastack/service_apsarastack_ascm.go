@@ -557,6 +557,64 @@ func (s *AscmService) DescribeAscmRamPolicy(id string) (response *RamPolicies, e
 
 	return resp, nil
 }
+func (s *AscmService) DescribeAscmRamPolicyForRole(id string) (response *RamPolicies, err error) {
+	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
+
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeyId":     s.client.AccessKey,
+		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"Product":         "ascm",
+		"Action":          "ListRAMPolicies",
+		"Version":         "2019-05-10",
+		"RamPolicyId":     did[0],
+		//"roleId":     did[1],
+	}
+	request.Method = "POST"
+	request.Product = "ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListRAMPolicies"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &RamPolicies{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorRamPolicyNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListRAMPolicies", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListRAMPolicies", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
 func (s *AscmService) DescribeAscmQuota(id string) (response *AscmQuota, err error) {
 	var requestInfo *ecs.Client
 	did := strings.Split(id, COLON_SEPARATED)
