@@ -17,7 +17,7 @@ This data source provides the roles of the current Apsara Stack Cloud user.
 resource "apsarastack_ascm_ram_role" "default" {
   role_name = "DELTA1"
   description = "Testing Complete"
-  organization_visibility = "global"
+  organization_visibility = "organizationVisibility.global"
 }
 
 data "apsarastack_ascm_roles" "default" {
