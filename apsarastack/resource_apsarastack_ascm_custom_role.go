@@ -69,9 +69,9 @@ func resourceApsaraStackAscmRoleCreate(d *schema.ResourceData, meta interface{})
 			}
 		}
 	}
-	check, err := ascmService.DescribeAscmRole(name)
+	check, err := ascmService.DescribeAscmCustomRole(name)
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_role", "role alreadyExist", ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_custom_role", "role alreadyExist", ApsaraStackSdkGoERROR)
 	}
 	organizationvisibility := d.Get("organization_visibility").(string)
 	if len(check.Data) == 0 {
@@ -80,18 +80,15 @@ func resourceApsaraStackAscmRoleCreate(d *schema.ResourceData, meta interface{})
 			request.SetHTTPSInsecure(client.Config.Insecure)
 		}
 		request.QueryParams = map[string]string{
-			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
-			//"Department":             client.Department,
-			//"ResourceGroup":          client.ResourceGroup,
-			"Product":     "ascm",
-			"Action":      "CreateRole",
-			"Version":     "2019-05-10",
-			"ProductName": "ascm",
-			"roleName":    name,
-			"description": description,
-			"roleRange":   roleRange,
-			//"roleType":               "ROLETYPE_RAM",
+			"RegionId":               client.RegionId,
+			"AccessKeySecret":        client.SecretKey,
+			"Product":                "ascm",
+			"Action":                 "CreateRole",
+			"Version":                "2019-05-10",
+			"ProductName":            "ascm",
+			"roleName":               name,
+			"description":            description,
+			"roleRange":              roleRange,
 			"organizationVisibility": organizationvisibility,
 			"privileges":             fmt.Sprintf("[\"%s\"]", priv),
 		}
@@ -114,18 +111,18 @@ func resourceApsaraStackAscmRoleCreate(d *schema.ResourceData, meta interface{})
 		})
 
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_role", "CreateRole", raw)
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_custom_role", "CreateRole", raw)
 		}
 		addDebug("CreateRole", raw, requestInfo, request)
 
 		bresponse, _ := raw.(*responses.CommonResponse)
 		if bresponse.GetHttpStatus() != 200 {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_role", "CreateRole", ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_custom_role", "CreateRole", ApsaraStackSdkGoERROR)
 		}
 		addDebug("CreateRole", raw, requestInfo, bresponse.GetHttpContentString())
 	}
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		check, err = ascmService.DescribeAscmRole(name)
+		check, err = ascmService.DescribeAscmCustomRole(name)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
@@ -144,7 +141,7 @@ func resourceApsaraStackAscmRoleRead(d *schema.ResourceData, meta interface{}) e
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	object, err := ascmService.DescribeAscmRole(d.Id())
+	object, err := ascmService.DescribeAscmCustomRole(d.Id())
 	did := strings.Split(d.Id(), COLON_SEPARATED)
 	if err != nil {
 		if NotFoundError(err) {
@@ -165,13 +162,13 @@ func resourceApsaraStackAscmRoleDelete(d *schema.ResourceData, meta interface{})
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
-	check, err := ascmService.DescribeAscmRole(d.Id())
+	check, err := ascmService.DescribeAscmCustomRole(d.Id())
 	did := strings.Split(d.Id(), COLON_SEPARATED)
 
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsRoleExist", ApsaraStackSdkGoERROR)
 	}
-	addDebug("IsRamRoleExist", check, requestInfo, map[string]string{"roleName": did[0]})
+	addDebug("IsCustomRoleExist", check, requestInfo, map[string]string{"roleName": did[0]})
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
@@ -208,7 +205,7 @@ func resourceApsaraStackAscmRoleDelete(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return resource.RetryableError(err)
 		}
-		_, err = ascmService.DescribeAscmRole(d.Id())
+		_, err = ascmService.DescribeAscmCustomRole(d.Id())
 
 		if err != nil {
 			return resource.NonRetryableError(err)

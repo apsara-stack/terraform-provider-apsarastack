@@ -23,6 +23,7 @@ resource "apsarastack_ascm_ram_role" "default" {
 data "apsarastack_ascm_roles" "default" {
   id = apsarastack_ascm_ram_role.default.role_id
   name_regex = apsarastack_ascm_ram_role.default.role_name
+  role_type = "ROLETYPE_RAM"
 }
 
 output "roles" {
