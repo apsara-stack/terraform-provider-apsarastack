@@ -118,6 +118,65 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 
 	return resp, nil
 }
+func (s *AscmService) DescribeAscmRole(id string) (response *AscmCustomRole, err error) {
+	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
+
+	request := requests.NewCommonRequest()
+
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		//"Department":      s.client.Department,
+		//"ResourceGroup":   s.client.ResourceGroup,
+		"Product":  "ascm",
+		"Action":   "ListRoles",
+		"Version":  "2019-05-10",
+		"roleName": did[0],
+		//"id":        did[1],
+		"roleType": "ROLETYPE_ASCM",
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListRoles"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &AscmCustomRole{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorRoleNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListRoles", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListRoles", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if resp.AsapiErrorCode == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
 func (s *AscmService) DescribeAscmRamRole(id string) (response *AscmRoles, err error) {
 	var requestInfo *ecs.Client
 	did := strings.Split(id, COLON_SEPARATED)
@@ -236,7 +295,19 @@ func (s *AscmService) DescribeAscmRamServiceRole(id string) (response *RamRole, 
 	return resp, nil
 }
 
-func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (response *User, err error) {
+type AscmResourceGroupUser struct {
+	CurrentPage     int    `json:"currentPage"`
+	PageSize        int    `json:"pageSize"`
+	ResourceGroupID int    `json:"resourceGroupId"`
+	RGID            int    `json:"resource_group_id"`
+	AscmUserIds     string `json:"ascm_user_ids"`
+}
+type BindResourceAndUsers struct {
+	ResourceGroupID int    `json:"resource_group_id"`
+	AscmUserIds     string `json:"ascm_user_ids"`
+}
+
+func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (response *AscmResourceGroupUser, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
 
@@ -249,7 +320,7 @@ func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (respon
 		"Product":         "ascm",
 		"Action":          "ListAscmUsersInsideResourceGroup",
 		"Version":         "2019-05-10",
-		"ResourceGroupId": id,
+		"resourceGroupId": id,
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -264,7 +335,7 @@ func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (respon
 	request.ApiName = "ListAscmUsersInsideResourceGroup"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
-	var resp = &User{}
+	var resp = &AscmResourceGroupUser{}
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ProcessCommonRequest(request)
 	})
@@ -283,7 +354,7 @@ func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (respon
 		return resp, WrapError(err)
 	}
 
-	if len(resp.Data) < 1 || resp.Code == "200" {
+	if resp.ResourceGroupID != 0 {
 		return resp, WrapError(err)
 	}
 

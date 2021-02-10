@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"strings"
 )
 
@@ -60,6 +61,8 @@ func dataSourceApsaraStackAscmEnvironmentServicesByProductRead(d *schema.Resourc
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" rsponse of raw GetEnvProducts : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_environment_services_by_product", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}

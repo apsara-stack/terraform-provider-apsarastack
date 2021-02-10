@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"strings"
 	"time"
 )
@@ -100,6 +101,8 @@ func dataSourceApsaraStackAscmRamPoliciesForUserRead(d *schema.ResourceData, met
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw ListRAMPoliciesForUser : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ram_policies_for_user", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}

@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 	"strings"
 	"time"
 )
@@ -78,16 +79,18 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 		request.QueryParams = map[string]string{
 			"AccessKeySecret": client.SecretKey,
 			"Product":         "ascm",
-			"Department":      client.Department,
-			"ResourceGroup":   client.ResourceGroup,
-			"RegionId":        client.RegionId,
-			"Action":          "CreateOrganization",
-			"ParentId":        parentid,
-			"name":            name,
+			//"Department":      client.Department,
+			//"ResourceGroup":   client.ResourceGroup,
+			"RegionId": client.RegionId,
+			"Action":   "CreateOrganization",
+			"ParentId": parentid,
+			"name":     name,
 		}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf("CreateOrganization SurajTest %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_organization", "CreateOrganization", raw)
 		}
@@ -98,6 +101,8 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_organization", "CreateOrganization", ApsaraStackSdkGoERROR)
 		}
 		addDebug("CreateOrganization", raw, requestInfo, bresponse.GetHttpContentString())
+		log.Printf("CreateOrganization SurajTest %s", request.QueryParams)
+
 	}
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		check, err = ascmService.DescribeAscmOrganization(name)
@@ -106,6 +111,7 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 		}
 		return resource.RetryableError(err)
 	})
+	log.Printf("CreateOrganization SurajTest %+v", check)
 
 	d.SetId(check.Data[0].Name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
 
@@ -140,13 +146,13 @@ func resourceApsaraStackAscmOrganizationUpdate(d *schema.ResourceData, meta inte
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
 		"AccessKeySecret": client.SecretKey,
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
-		"Product":         "Ascm",
-		"Action":          "UpdateOrganization",
-		"Version":         "2019-05-10",
-		"name":            name,
-		"id":              did[1],
+		//"Department":      client.Department,
+		//"ResourceGroup":   client.ResourceGroup,
+		"Product": "Ascm",
+		"Action":  "UpdateOrganization",
+		"Version": "2019-05-10",
+		"name":    name,
+		"id":      did[1],
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -166,6 +172,8 @@ func resourceApsaraStackAscmOrganizationUpdate(d *schema.ResourceData, meta inte
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw UpdateOrganization : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_instance", "ConsoleInstanceCreate", raw)
 		}
@@ -225,13 +233,13 @@ func resourceApsaraStackAscmOrganizationDelete(d *schema.ResourceData, meta inte
 			request.QueryParams = map[string]string{
 				"RegionId":        client.RegionId,
 				"AccessKeySecret": client.SecretKey,
-				"Department":      client.Department,
-				"ResourceGroup":   client.ResourceGroup,
-				"Product":         "ascm",
-				"Action":          "RemoveOrganization",
-				"Version":         "2019-05-10",
-				"ProductName":     "ascm",
-				"id":              did[1],
+				//"Department":      client.Department,
+				//"ResourceGroup":   client.ResourceGroup,
+				"Product":     "ascm",
+				"Action":      "RemoveOrganization",
+				"Version":     "2019-05-10",
+				"ProductName": "ascm",
+				"id":          did[1],
 			}
 
 			request.Method = "POST"

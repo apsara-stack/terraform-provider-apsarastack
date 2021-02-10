@@ -90,6 +90,7 @@ func resourceApsaraStackAscmRamPolicyCreate(d *schema.ResourceData, meta interfa
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" rsponse of CreateRAMPolicy : %s", raw)
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_policy", "CreateRAMPolicy", raw)
 		}
@@ -219,6 +220,8 @@ func resourceApsaraStackAscmRamPolicyUpdate(d *schema.ResourceData, meta interfa
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw UpdateRAMPolicy : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_policy", "UpdateRAMPolicy", raw)
 		}

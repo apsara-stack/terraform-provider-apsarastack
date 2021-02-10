@@ -7,6 +7,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"log"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -82,11 +83,20 @@ func dataSourceApsaraStackAscmUsers() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"role_id": {
+						"role_ids": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeInt},
+						},
+						"default_role_id": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
 						"login_policy_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"acc": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
@@ -133,6 +143,8 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw ListUsers : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_users", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
@@ -160,6 +172,12 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 		if r != nil && !r.MatchString(u.LoginName) {
 			continue
 		}
+
+		for _, rid := range response.Data[0].Roles {
+			roleids = append(roleids, rid.ID)
+		}
+		//for _, r := range response.Data[0].Roles {
+
 		mapping := map[string]interface{}{
 			"id":                 fmt.Sprint(u.ID),
 			"login_name":         u.LoginName,
@@ -168,13 +186,16 @@ func dataSourceApsaraStackAscmUsersRead(d *schema.ResourceData, meta interface{}
 			"display_name":       u.DisplayName,
 			"email":              u.Email,
 			"mobile_nation_code": u.MobileNationCode,
-			"role_id":            u.DefaultRole.ID,
+			"default_role_id":    u.DefaultRole.ID,
+			"role_ids":           roleids,
 			"login_policy_id":    u.LoginPolicy.ID,
 		}
+
 		ids = append(ids, fmt.Sprint(u.ID))
-		roleids = append(roleids, u.DefaultRole.ID)
+		//roleids = append(roleids, r.ID)
 		s = append(s, mapping)
 	}
+	//}
 	d.SetId(dataResourceIdHash(ids))
 
 	if err := d.Set("users", s); err != nil {
