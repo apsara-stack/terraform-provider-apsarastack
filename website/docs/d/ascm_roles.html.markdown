@@ -21,6 +21,7 @@ resource "apsarastack_ascm_ram_role" "default" {
 }
 
 data "apsarastack_ascm_roles" "default" {
+  id = apsarastack_ascm_ram_role.default.role_id
   name_regex = apsarastack_ascm_ram_role.default.role_name
 }
 
@@ -35,8 +36,9 @@ output "roles" {
 
 The following arguments are supported:
 
-* `ids` - (Optional) A list of roles IDs.
+* `id` - (Optional) It is used to filter results by role ID.
 * `name_regex` - (Optional) A regex string to filter results by role name.
+* `role_type` - (Optional) It is used to filter results by Role Type. Valid Values - "ROLETYPE_RAM", "ROLETYPE_ASCM".
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 
 ## Attributes Reference
