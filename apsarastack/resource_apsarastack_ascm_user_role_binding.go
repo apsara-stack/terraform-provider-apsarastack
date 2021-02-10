@@ -1,12 +1,14 @@
 package apsarastack
 
 import (
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"strings"
 	"time"
 )
@@ -22,9 +24,10 @@ func resourceApsaraStackAscmUserRoleBinding() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"role_id": {
-				Type:     schema.TypeString,
+			"role_ids": {
+				Type:     schema.TypeSet,
 				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeInt},
 			},
 		},
 	}
@@ -34,49 +37,62 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *ecs.Client
 	lname := d.Get("login_name").(string)
-	roleid := d.Get("role_id").(string)
-	request := requests.NewCommonRequest()
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
+	flag := false
+	var roleids []int
+	if v, ok := d.GetOk("role_ids"); ok {
+		roleids = expandIntList(v.(*schema.Set).List())
 	}
-	request.QueryParams = map[string]string{
-		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
-		"Product":         "Ascm",
-		"Action":          "AddRoleToUser",
-		"Version":         "2019-05-10",
-		"ProductName":     "ascm",
-		"LoginName":       lname,
-		"RoleId":          roleid,
-	}
-	request.Method = "POST"
-	request.Product = "Ascm"
-	request.Version = "2019-05-10"
-	request.ServiceCode = "ascm"
-	request.Domain = client.Domain
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
-	request.ApiName = "AddRoleToUser"
-	request.RegionId = client.RegionId
-	request.Headers = map[string]string{"RegionId": client.RegionId}
+	log.Printf("roleids is %v", roleids)
+	flag = true
+	if flag {
+		for i := range roleids {
+			request := requests.NewCommonRequest()
+			if client.Config.Insecure {
+				request.SetHTTPSInsecure(client.Config.Insecure)
+			}
+			request.QueryParams = map[string]string{
+				"RegionId":        client.RegionId,
+				"AccessKeySecret": client.SecretKey,
+				"Product":         "Ascm",
+				"Action":          "AddRoleToUser",
+				"Version":         "2019-05-10",
+				"ProductName":     "ascm",
+				"LoginName":       lname,
+				"RoleId":          fmt.Sprint(roleids[i]),
+			}
+			request.Method = "POST"
+			request.Product = "Ascm"
+			request.Version = "2019-05-10"
+			request.ServiceCode = "ascm"
+			request.Domain = client.Domain
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
+			request.ApiName = "AddRoleToUser"
+			request.RegionId = client.RegionId
+			request.Headers = map[string]string{"RegionId": client.RegionId}
+			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+				return ecsClient.ProcessCommonRequest(request)
+			})
+			log.Printf("response of raw AddRoleToUser Role(%d) is : %s", roleids[i], raw)
 
-	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-		return ecsClient.ProcessCommonRequest(request)
-	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_role_binding", "AddRoleToUser", raw)
-	}
+			if err != nil {
+				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_role_binding", "AddRoleToUser", raw)
+			}
 
-	addDebug("AddRoleToUser", raw, requestInfo, request)
+			addDebug("AddRoleToUser", raw, requestInfo, request)
 
-	bresponse, _ := raw.(*responses.CommonResponse)
-	if bresponse.GetHttpStatus() != 200 {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_role_binding", "AddRoleToUser", ApsaraStackSdkGoERROR)
+			bresponse, _ := raw.(*responses.CommonResponse)
+			if bresponse.GetHttpStatus() != 200 {
+				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_role_binding", "AddRoleToUser", ApsaraStackSdkGoERROR)
+			}
+			addDebug("AddRoleToUser", raw, requestInfo, bresponse.GetHttpContentString())
+			log.Printf("response of queryparams AddRoleToUser is : %s", request.QueryParams)
+		}
+
 	}
-	addDebug("AddRoleToUser", raw, requestInfo, bresponse.GetHttpContentString())
 
 	d.SetId(lname)
 
@@ -99,7 +115,6 @@ func resourceApsaraStackAscmUserRoleBindingRead(d *schema.ResourceData, meta int
 		return nil
 	}
 	d.Set("login_name", object.Data[0].LoginName)
-	//d.Set("role_id", object.Data[0].UserRoles[0].ID)
 
 	return nil
 }
@@ -114,53 +129,71 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
-	roleid := d.Get("role_id").(string)
+	var roleid int
+	flag := false
+	var roleids []int
+
+	if v, ok := d.GetOk("role_ids"); ok {
+		roleids = expandIntList(v.(*schema.Set).List())
+		for i := range roleids {
+			if len(roleids) > 1 {
+				roleid = roleids[i]
+				flag = true
+			} else {
+				roleid = roleids[0]
+				flag = true
+			}
+		}
+	}
+	log.Printf("roleid is %v", roleid)
+	log.Printf("roleids is %v", roleids)
 	check, err := ascmService.DescribeAscmUserRoleBinding(d.Id())
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsBindingExist", ApsaraStackSdkGoERROR)
 	}
 	addDebug("IsBindingExist", check, requestInfo, map[string]string{"loginName": d.Id()})
 	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
+		if flag {
+			request := requests.NewCommonRequest()
+			if client.Config.Insecure {
+				request.SetHTTPSInsecure(client.Config.Insecure)
+			}
+			request.QueryParams = map[string]string{
+				"RegionId":        client.RegionId,
+				"AccessKeySecret": client.SecretKey,
+				"Product":         "ascm",
+				"Action":          "RemoveRoleFromUser",
+				"Version":         "2019-05-10",
+				"ProductName":     "ascm",
+				"LoginName":       d.Id(),
+				"RoleId":          fmt.Sprint(roleid),
+			}
 
-		request := requests.NewCommonRequest()
-		if client.Config.Insecure {
-			request.SetHTTPSInsecure(client.Config.Insecure)
-		}
-		request.QueryParams = map[string]string{
-			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
-			"Product":         "ascm",
-			"Action":          "RemoveRoleFromUser",
-			"Version":         "2019-05-10",
-			"ProductName":     "ascm",
-			"LoginName":       d.Id(),
-			"RoleId":          roleid,
-		}
+			request.Method = "POST"
+			request.Product = "ascm"
+			request.Version = "2019-05-10"
+			request.ServiceCode = "ascm"
+			request.Domain = client.Domain
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
+			request.ApiName = "RemoveRoleFromUser"
+			request.Headers = map[string]string{"RegionId": client.RegionId}
+			request.RegionId = client.RegionId
 
-		request.Method = "POST"
-		request.Product = "ascm"
-		request.Version = "2019-05-10"
-		request.ServiceCode = "ascm"
-		request.Domain = client.Domain
-		if strings.ToLower(client.Config.Protocol) == "https" {
-			request.Scheme = "https"
-		} else {
-			request.Scheme = "http"
-		}
-		request.ApiName = "RemoveRoleFromUser"
-		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.RegionId = client.RegionId
+			_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
+				return csClient.ProcessCommonRequest(request)
+			})
+			if err != nil {
+				return resource.RetryableError(err)
+			}
+			check, err = ascmService.DescribeAscmUserRoleBinding(d.Id())
 
-		_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
-			return csClient.ProcessCommonRequest(request)
-		})
-		if err != nil {
-			return resource.RetryableError(err)
-		}
-		check, err = ascmService.DescribeAscmUserRoleBinding(d.Id())
-
-		if err != nil {
-			return resource.NonRetryableError(err)
+			if err != nil {
+				return resource.NonRetryableError(err)
+			}
 		}
 		return nil
 	})

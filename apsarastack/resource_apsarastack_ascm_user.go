@@ -9,6 +9,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"strings"
 	"time"
 )
@@ -80,6 +81,25 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 	mobnationcode := d.Get("mobile_nation_code").(string)
 	organizationid := d.Get("organization_id").(string)
 	loginpolicyid := d.Get("login_policy_id").(int)
+	//rids := d.Get("role_ids").([]interface{})
+	//var rid string
+	//var rids []string
+	//if v, ok := d.GetOk("role_ids"); ok {
+	//	rids = expandStringList(v.(*schema.List).List())
+	//	for i, k := range rids {
+	//		if i != 0 {
+	//			rid = fmt.Sprintf("%s\",\"%s", rid, k)
+	//		} else {
+	//			rid = k
+	//		}
+	//	}
+	//}
+
+	//if len(d.Get("role_ids").(*schema.Set).List()) > 0 {
+	//	rid = strings.Join(expandStringList(d.Get("role_ids").(*schema.Set).List())[:], "\"" + COMMA_SEPARATED + "\"")
+	//}
+	//log.Printf("rid SurajTestroleId %s", rid)
+
 	check, err := ascmService.DescribeAscmDeletedUser(lname)
 	if check.Data != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_resource_group", "\"Login Name already exist in Historical Users, try with a different name.\"", ApsaraStackSdkGoERROR)
@@ -106,6 +126,7 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 			"policyId":         fmt.Sprint(loginpolicyid),
 			"fullName":         dname,
 			"userEmail":        email,
+			//"roleIdList": "[2,4]",
 		}
 		request.Method = "POST"
 		request.Product = "Ascm"
@@ -124,6 +145,8 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf("AddUser SurajTestroleId %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "AddUser", raw)
 		}
@@ -134,7 +157,11 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 		if bresponse.GetHttpStatus() != 200 {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "AddUser", ApsaraStackSdkGoERROR)
 		}
+		log.Printf("AddUser SurajTestroleId bresponse %s", bresponse)
+
 		addDebug("AddUser", raw, requestInfo, bresponse.GetHttpContentString())
+		log.Printf("AddUser SurajTestroleId queryparams %s", request.QueryParams)
+
 	}
 
 	d.SetId(lname)

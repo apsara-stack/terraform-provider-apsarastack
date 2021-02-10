@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"strings"
 	"time"
 )
@@ -188,6 +189,8 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw RemarkGlobalAuthZone : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "RemarkGlobalAuthZone", raw)
 		}

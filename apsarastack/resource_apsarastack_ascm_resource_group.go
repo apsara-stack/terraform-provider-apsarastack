@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 	"strings"
 	"time"
 )
@@ -82,6 +83,8 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw CreateResourceGroup : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_resource_group", "CreateResourceGroup", raw)
 		}
@@ -163,6 +166,8 @@ func resourceApsaraStackAscmResourceGroupUpdate(d *schema.ResourceData, meta int
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw UpdateResourceGroup : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_resource_group", "UpdateResourceGroup", raw)
 		}
