@@ -118,7 +118,7 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 
 	return resp, nil
 }
-func (s *AscmService) DescribeAscmRole(id string) (response *AscmCustomRole, err error) {
+func (s *AscmService) DescribeAscmCustomRole(id string) (response *AscmCustomRole, err error) {
 	var requestInfo *ecs.Client
 	did := strings.Split(id, COLON_SEPARATED)
 
@@ -130,14 +130,11 @@ func (s *AscmService) DescribeAscmRole(id string) (response *AscmCustomRole, err
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
 		"AccessKeySecret": s.client.SecretKey,
-		//"Department":      s.client.Department,
-		//"ResourceGroup":   s.client.ResourceGroup,
-		"Product":  "ascm",
-		"Action":   "ListRoles",
-		"Version":  "2019-05-10",
-		"roleName": did[0],
-		//"id":        did[1],
-		"roleType": "ROLETYPE_ASCM",
+		"Product":         "ascm",
+		"Action":          "ListRoles",
+		"Version":         "2019-05-10",
+		"roleName":        did[0],
+		"roleType":        "ROLETYPE_ASCM",
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -195,8 +192,7 @@ func (s *AscmService) DescribeAscmRamRole(id string) (response *AscmRoles, err e
 		"Action":          "ListRoles",
 		"Version":         "2019-05-10",
 		"roleName":        did[0],
-		//"id":        did[1],
-		"roleType": "ROLETYPE_RAM",
+		"roleType":        "ROLETYPE_RAM",
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"

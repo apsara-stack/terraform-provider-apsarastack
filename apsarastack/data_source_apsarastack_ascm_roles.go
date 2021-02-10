@@ -93,6 +93,7 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	id := d.Get("id").(int)
+	roleType := d.Get("role_type").(string)
 	request := requests.NewCommonRequest()
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
@@ -114,6 +115,7 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 		"Action":          "ListRoles",
 		"Version":         "2019-05-10",
 		"pageSize":        "100000",
+		"roleType":        roleType,
 	}
 	response := AscmRoles{}
 
