@@ -73,6 +73,8 @@ func dataSourceApsaraStackServiceClusterByProductRead(d *schema.ResourceData, me
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw GetClustersByProduct : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_service_cluster", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
