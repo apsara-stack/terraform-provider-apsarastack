@@ -446,8 +446,6 @@ type AscmRoles struct {
 		RoleRange              string `json:"roleRange"`
 		RoleType               string `json:"roleType"`
 		UserCount              int    `json:"userCount"`
-		Rolevel                int64  `json:"rolevel,omitempty"`
-		Ramrole                bool   `json:"ramrole"`
 	} `json:"data"`
 	Message  string `json:"message"`
 	PageInfo struct {

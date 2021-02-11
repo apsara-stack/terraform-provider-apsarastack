@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -83,6 +84,26 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"default": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"active": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"owner_organization_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"code": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -115,7 +136,7 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 		"Action":          "ListRoles",
 		"Version":         "2019-05-10",
 		"pageSize":        "100000",
-		"roleType":        roleType,
+		//"roleType":        roleType,
 	}
 	response := AscmRoles{}
 
@@ -151,32 +172,43 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 		if r != nil && !r.MatchString(rg.RoleName) {
 			continue
 		}
-		if response.Data[0].ID == id {
+		if id != 0 && rg.ID == id {
 			mapping := map[string]interface{}{
-				"id":          rg.ID,
-				"name":        rg.RoleName,
-				"description": rg.Description,
-				"user_count":  rg.UserCount,
-				"role_level":  rg.RoleLevel,
-				"role_type":   rg.RoleType,
-				"role_range":  rg.RoleRange,
-				"ram_role":    rg.RAMRole,
+				"id":                    rg.ID,
+				"name":                  rg.RoleName,
+				"owner_organization_id": rg.OwnerOrganizationID,
+				"description":           rg.Description,
+				"user_count":            rg.UserCount,
+				"role_level":            rg.RoleLevel,
+				"role_type":             rg.RoleType,
+				"role_range":            rg.RoleRange,
+				"ram_role":              rg.RAMRole,
+				"enable":                rg.Enable,
+				"active":                rg.Active,
+				"default":               rg.Default,
+				"code":                  rg.Code,
 			}
-			//ids = append(ids, string(rune(rg.ID)))
+			ids = append(ids, fmt.Sprint(rg.ID))
 			s = append(s, mapping)
 			break
-		} else {
+		}
+		if id == 0 && roleType != "" && rg.RoleType == roleType {
 			mapping := map[string]interface{}{
-				"id":          rg.ID,
-				"name":        rg.RoleName,
-				"description": rg.Description,
-				"user_count":  rg.UserCount,
-				"role_level":  rg.RoleLevel,
-				"role_type":   rg.RoleType,
-				"role_range":  rg.RoleRange,
-				"ram_role":    rg.RAMRole,
+				"id":                    rg.ID,
+				"name":                  rg.RoleName,
+				"owner_organization_id": rg.OwnerOrganizationID,
+				"description":           rg.Description,
+				"user_count":            rg.UserCount,
+				"role_level":            rg.RoleLevel,
+				"role_type":             rg.RoleType,
+				"role_range":            rg.RoleRange,
+				"ram_role":              rg.RAMRole,
+				"enable":                rg.Enable,
+				"active":                rg.Active,
+				"default":               rg.Default,
+				"code":                  rg.Code,
 			}
-			ids = append(ids, string(rune(rg.ID)))
+			ids = append(ids, fmt.Sprint(rg.ID))
 			s = append(s, mapping)
 		}
 	}
