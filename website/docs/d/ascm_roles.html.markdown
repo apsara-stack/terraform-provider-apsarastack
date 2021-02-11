@@ -55,4 +55,9 @@ The following attributes are exported in addition to the arguments listed above:
     * `ram_role` - ram authorized role.
     * `role_range` - specific range for a role.
     * `user_count` - user count.
+    * `enable` - enable.
+    * `default` - default role.
+    * `active` - Role status.
+    * `owner_organization_id` - ID of the owner organization where role belongs.
+    * `code` - role code.
      
