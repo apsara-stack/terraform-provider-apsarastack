@@ -148,13 +148,12 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 		if r != nil && !r.MatchString(name) {
 			continue
 		}
-		log.Printf("resource group suraj %+v", rg)
 		mapping := map[string]interface{}{
-			"id":              rg.ID,
-			"name":            rg.ResourceGroupName,
-			"organization_id": rg.OrganizationID,
-			"creator":         rg.Creator,
-			"gmt_created":/*rg.GmtModified,*/ time.Unix(rg.GmtCreated/1000, 0).Format("2006-01-02 03:04:05"),
+			"id":                  rg.ID,
+			"name":                rg.ResourceGroupName,
+			"organization_id":     rg.OrganizationID,
+			"creator":             rg.Creator,
+			"gmt_created":         time.Unix(rg.GmtCreated/1000, 0).Format("2006-01-02 03:04:05"),
 			"rs_id":               rg.RsID,
 			"resource_group_type": rg.ResourceGroupType,
 		}

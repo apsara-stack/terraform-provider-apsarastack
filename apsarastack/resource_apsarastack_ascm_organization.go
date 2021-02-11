@@ -89,7 +89,7 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
-		log.Printf("CreateOrganization SurajTest %s", raw)
+		log.Printf("response of raw CreateOrganization is : %s", raw)
 
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_organization", "CreateOrganization", raw)
@@ -101,7 +101,6 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_organization", "CreateOrganization", ApsaraStackSdkGoERROR)
 		}
 		addDebug("CreateOrganization", raw, requestInfo, bresponse.GetHttpContentString())
-		log.Printf("CreateOrganization SurajTest %s", request.QueryParams)
 
 	}
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -111,7 +110,6 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 		}
 		return resource.RetryableError(err)
 	})
-	log.Printf("CreateOrganization SurajTest %+v", check)
 
 	d.SetId(check.Data[0].Name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
 
