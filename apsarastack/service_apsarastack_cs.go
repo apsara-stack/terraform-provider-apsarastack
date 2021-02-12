@@ -32,13 +32,13 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 		request.SetHTTPSInsecure(s.client.Config.Insecure)
 	}
 	request.QueryParams = map[string]string{
-		"RegionId":         s.client.RegionId,
-		"AccessKeySecret":  s.client.SecretKey,
-		"Product":          "CS",
-		"Department":       s.client.Department,
-		"ResourceGroup":    s.client.ResourceGroup,
-		"Action":           "DescribeClusters",
-		"AccountInfo":      "123456",
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "CS",
+		//"Department":       s.client.Department,
+		//"ResourceGroup":    s.client.ResourceGroup,
+		"Action": "DescribeClusters",
+		//"AccountInfo":      "123456",
 		"Version":          "2015-12-15",
 		"SignatureVersion": "1.0",
 		"ProductName":      "cs",
