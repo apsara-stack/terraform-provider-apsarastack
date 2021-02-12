@@ -289,6 +289,8 @@ func resourceApsaraStackOnsInstanceUpdate(d *schema.ResourceData, meta interface
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw ConsoleInstanceUpdate : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_instance", "ConsoleInstanceCreate", raw)
 		}

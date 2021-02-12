@@ -17,7 +17,7 @@ Provides Ascm ram role.
 resource "apsarastack_ascm_ram_role" "default" {
   role_name = "TestingRamRole"
   description = "TestingRam"
-  organization_visibility = "global"
+  organization_visibility = "organizationVisibility.global"
 }
 output "ramrole" {
   value = apsarastack_ascm_ram_role.default.*
@@ -28,7 +28,7 @@ output "ramrole" {
 The following arguments are supported:
 
 * `role_name` - (Required) Role name. 
-* `organization_visibility` - (Required) organization visibility.
+* `organization_visibility` - (Required) organization visibility. Valid Values are - "organizationVisibility.organization", "organizationVisibility.orgAndSubOrgs" and "organizationVisibility.global".
 * `description` - (Optional) Description for the ram role. Note - It should not contain any spaces.
 
 ## Attributes Reference

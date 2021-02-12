@@ -7,7 +7,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
@@ -62,6 +64,22 @@ func dataSourceApsaraStackAscmResourceGroups() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"rs_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"creator": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"gmt_created": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"resource_group_type": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -102,6 +120,8 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw ListResourceGroup : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_resource_groups", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
@@ -112,7 +132,7 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Code == "200" || len(response.Data) < 1 {
+		if response.Code == "200" || len(response.Data) < 1 /*|| response.Data[0].ID == id*/ {
 			break
 		}
 
@@ -129,9 +149,13 @@ func dataSourceApsaraStackAscmResourceGroupsRead(d *schema.ResourceData, meta in
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":              rg.ID,
-			"name":            rg.ResourceGroupName,
-			"organization_id": rg.OrganizationID,
+			"id":                  rg.ID,
+			"name":                rg.ResourceGroupName,
+			"organization_id":     rg.OrganizationID,
+			"creator":             rg.Creator,
+			"gmt_created":         time.Unix(rg.GmtCreated/1000, 0).Format("2006-01-02 03:04:05"),
+			"rs_id":               rg.RsID,
+			"resource_group_type": rg.ResourceGroupType,
 		}
 		ids = append(ids, fmt.Sprint(rg.ID))
 		s = append(s, mapping)
