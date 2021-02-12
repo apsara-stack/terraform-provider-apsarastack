@@ -153,6 +153,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw CreateQuota : %s", raw)
 
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_quota", "CreateQuota", raw)

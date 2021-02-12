@@ -31,7 +31,7 @@ const dataSourceApsaraStackAscm_Roles = `
 resource "apsarastack_ascm_ram_role" "default" {
   role_name = "TestRamRoles"
   description = "TestingRam"
-  organization_visibility = "global"
+  organization_visibility = "organizationVisibility.global"
 }
 
 data "apsarastack_ascm_roles" "default" {

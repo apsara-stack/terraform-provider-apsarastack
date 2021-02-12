@@ -67,7 +67,7 @@ const testAccAscm_RamRole_resource = `
 resource "apsarastack_ascm_ram_role" "default" {
   role_name = "Test_Ram_Role"
   description = "TestRole"
-  organization_visibility = "global"
+  organization_visibility = "organizationVisibility.global"
 }
 `
 

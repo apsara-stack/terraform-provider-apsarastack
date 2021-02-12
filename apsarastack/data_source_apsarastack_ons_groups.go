@@ -5,6 +5,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"log"
 	"regexp"
 
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -109,6 +110,8 @@ func dataSourceApsaraStackOnsGroupsRead(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw ConsoleGroupList : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_ons_groups", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}

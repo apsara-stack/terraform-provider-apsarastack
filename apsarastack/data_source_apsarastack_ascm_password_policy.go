@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"strings"
 )
 
@@ -142,6 +143,8 @@ func dataSourceApsaraStackAscmPasswordPoliciesRead(d *schema.ResourceData, meta 
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw GetPasswordPolicy : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_password_policies", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}

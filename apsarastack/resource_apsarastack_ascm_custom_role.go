@@ -9,17 +9,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 	"strings"
 	"time"
 )
 
-func resourceApsaraStackAscmRamRole() *schema.Resource {
+func resourceApsaraStackAscmRole() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceApsaraStackAscmRamRoleCreate,
-		Read:   resourceApsaraStackAscmRamRoleRead,
-		Update: resourceApsaraStackAscmRamRoleUpdate,
-		Delete: resourceApsaraStackAscmRamRoleDelete,
+		Create: resourceApsaraStackAscmRoleCreate,
+		Read:   resourceApsaraStackAscmRoleRead,
+		Update: resourceApsaraStackAscmRoleUpdate,
+		Delete: resourceApsaraStackAscmRoleDelete,
 		Schema: map[string]*schema.Schema{
 			"role_name": {
 				Type:         schema.TypeString,
@@ -34,24 +33,47 @@ func resourceApsaraStackAscmRamRole() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"role_range": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 			"role_id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"privileges": {
+				Type:     schema.TypeSet,
+				Required: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				MinItems: 1,
+			},
 		},
 	}
 }
-func resourceApsaraStackAscmRamRoleCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackAscmRoleCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *ecs.Client
 	ascmService := AscmService{client}
 	name := d.Get("role_name").(string)
 	description := d.Get("description").(string)
-	organizationvisibility := d.Get("organization_visibility").(string)
-	check, err := ascmService.DescribeAscmRamRole(name)
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_role", "role alreadyExist", ApsaraStackSdkGoERROR)
+	roleRange := d.Get("role_range").(string)
+	var priv string
+	var privs []string
+	if v, ok := d.GetOk("privileges"); ok {
+		privs = expandStringList(v.(*schema.Set).List())
+		for i, k := range privs {
+			if i != 0 {
+				priv = fmt.Sprintf("%s\",\"%s", priv, k)
+			} else {
+				priv = k
+			}
+		}
 	}
+	check, err := ascmService.DescribeAscmCustomRole(name)
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_custom_role", "role alreadyExist", ApsaraStackSdkGoERROR)
+	}
+	organizationvisibility := d.Get("organization_visibility").(string)
 	if len(check.Data) == 0 {
 		request := requests.NewCommonRequest()
 		if client.Config.Insecure {
@@ -60,17 +82,15 @@ func resourceApsaraStackAscmRamRoleCreate(d *schema.ResourceData, meta interface
 		request.QueryParams = map[string]string{
 			"RegionId":               client.RegionId,
 			"AccessKeySecret":        client.SecretKey,
-			"Department":             client.Department,
-			"ResourceGroup":          client.ResourceGroup,
 			"Product":                "ascm",
 			"Action":                 "CreateRole",
 			"Version":                "2019-05-10",
 			"ProductName":            "ascm",
 			"roleName":               name,
 			"description":            description,
-			"roleRange":              "roleRange.userGroup",
-			"roleType":               "ROLETYPE_RAM",
+			"roleRange":              roleRange,
 			"organizationVisibility": organizationvisibility,
+			"privileges":             fmt.Sprintf("[\"%s\"]", priv),
 		}
 		request.Method = "POST"
 		request.Product = "ascm"
@@ -89,40 +109,39 @@ func resourceApsaraStackAscmRamRoleCreate(d *schema.ResourceData, meta interface
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
-		log.Printf(" rsponse of CreateRole : %s", raw)
 
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_role", "CreateRole", raw)
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_custom_role", "CreateRole", raw)
 		}
 		addDebug("CreateRole", raw, requestInfo, request)
 
 		bresponse, _ := raw.(*responses.CommonResponse)
 		if bresponse.GetHttpStatus() != 200 {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ram_role", "CreateRole", ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_custom_role", "CreateRole", ApsaraStackSdkGoERROR)
 		}
 		addDebug("CreateRole", raw, requestInfo, bresponse.GetHttpContentString())
 	}
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		check, err = ascmService.DescribeAscmRamRole(name)
+		check, err = ascmService.DescribeAscmCustomRole(name)
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
 		return resource.RetryableError(err)
 	})
 	d.SetId(name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
-	return resourceApsaraStackAscmRamRoleUpdate(d, meta)
+	return resourceApsaraStackAscmRoleUpdate(d, meta)
 
 }
 
-func resourceApsaraStackAscmRamRoleUpdate(d *schema.ResourceData, meta interface{}) error {
-	return resourceApsaraStackAscmRamRoleRead(d, meta)
+func resourceApsaraStackAscmRoleUpdate(d *schema.ResourceData, meta interface{}) error {
+	return resourceApsaraStackAscmRoleRead(d, meta)
 }
 
-func resourceApsaraStackAscmRamRoleRead(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackAscmRoleRead(d *schema.ResourceData, meta interface{}) error {
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
-	object, err := ascmService.DescribeAscmRamRole(d.Id())
+	object, err := ascmService.DescribeAscmCustomRole(d.Id())
 	did := strings.Split(d.Id(), COLON_SEPARATED)
 	if err != nil {
 		if NotFoundError(err) {
@@ -138,18 +157,18 @@ func resourceApsaraStackAscmRamRoleRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceApsaraStackAscmRamRoleDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceApsaraStackAscmRoleDelete(d *schema.ResourceData, meta interface{}) error {
 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
-	check, err := ascmService.DescribeAscmRamRole(d.Id())
+	check, err := ascmService.DescribeAscmCustomRole(d.Id())
 	did := strings.Split(d.Id(), COLON_SEPARATED)
 
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsRamRoleExist", ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsRoleExist", ApsaraStackSdkGoERROR)
 	}
-	addDebug("IsRamRoleExist", check, requestInfo, map[string]string{"roleName": did[0]})
+	addDebug("IsCustomRoleExist", check, requestInfo, map[string]string{"roleName": did[0]})
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
@@ -186,7 +205,7 @@ func resourceApsaraStackAscmRamRoleDelete(d *schema.ResourceData, meta interface
 		if err != nil {
 			return resource.RetryableError(err)
 		}
-		_, err = ascmService.DescribeAscmRamRole(d.Id())
+		_, err = ascmService.DescribeAscmCustomRole(d.Id())
 
 		if err != nil {
 			return resource.NonRetryableError(err)

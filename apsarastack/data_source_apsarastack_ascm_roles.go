@@ -2,11 +2,13 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -15,13 +17,10 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceApsaraStackAscmRolesRead,
 		Schema: map[string]*schema.Schema{
-			"ids": {
-				Type:     schema.TypeList,
+			"id": {
+				Type:     schema.TypeInt,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
-				Computed: true,
 				ForceNew: true,
-				MinItems: 1,
 			},
 			"name_regex": {
 				Type:     schema.TypeString,
@@ -38,8 +37,8 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 				Computed: true,
 				Optional: true,
 			},
-			"user_count": {
-				Type:     schema.TypeInt,
+			"role_type": {
+				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
@@ -85,6 +84,26 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
+						"enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"default": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"active": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"owner_organization_id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"code": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -94,6 +113,8 @@ func dataSourceApsaraStackAscmRoles() *schema.Resource {
 
 func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+	id := d.Get("id").(int)
+	roleType := d.Get("role_type").(string)
 	request := requests.NewCommonRequest()
 	request.Product = "ascm"
 	request.Version = "2019-05-10"
@@ -114,7 +135,8 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 		"RegionId":        client.RegionId,
 		"Action":          "ListRoles",
 		"Version":         "2019-05-10",
-		"pageSize":        "1000",
+		"pageSize":        "100000",
+		//"roleType":        roleType,
 	}
 	response := AscmRoles{}
 
@@ -122,6 +144,8 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw ListRoles : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_roles", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
@@ -132,7 +156,7 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.Code == "200" || len(response.Data) < 1 {
+		if response.AsapiErrorCode == "200" || len(response.Data) < 1 {
 			break
 		}
 	}
@@ -143,22 +167,50 @@ func dataSourceApsaraStackAscmRolesRead(d *schema.ResourceData, meta interface{}
 	}
 	var ids []string
 	var s []map[string]interface{}
+
 	for _, rg := range response.Data {
 		if r != nil && !r.MatchString(rg.RoleName) {
 			continue
 		}
-		mapping := map[string]interface{}{
-			"id":          rg.ID,
-			"name":        rg.RoleName,
-			"description": rg.Description,
-			"user_count":  rg.UserCount,
-			"role_level":  rg.RoleLevel,
-			"role_type":   rg.RoleType,
-			"role_range":  rg.RoleRange,
-			"ram_role":    rg.RAMRole,
+		if id != 0 && rg.ID == id {
+			mapping := map[string]interface{}{
+				"id":                    rg.ID,
+				"name":                  rg.RoleName,
+				"owner_organization_id": rg.OwnerOrganizationID,
+				"description":           rg.Description,
+				"user_count":            rg.UserCount,
+				"role_level":            rg.RoleLevel,
+				"role_type":             rg.RoleType,
+				"role_range":            rg.RoleRange,
+				"ram_role":              rg.RAMRole,
+				"enable":                rg.Enable,
+				"active":                rg.Active,
+				"default":               rg.Default,
+				"code":                  rg.Code,
+			}
+			ids = append(ids, fmt.Sprint(rg.ID))
+			s = append(s, mapping)
+			break
 		}
-		ids = append(ids, string(rune(rg.ID)))
-		s = append(s, mapping)
+		if id == 0 && roleType != "" && rg.RoleType == roleType {
+			mapping := map[string]interface{}{
+				"id":                    rg.ID,
+				"name":                  rg.RoleName,
+				"owner_organization_id": rg.OwnerOrganizationID,
+				"description":           rg.Description,
+				"user_count":            rg.UserCount,
+				"role_level":            rg.RoleLevel,
+				"role_type":             rg.RoleType,
+				"role_range":            rg.RoleRange,
+				"ram_role":              rg.RAMRole,
+				"enable":                rg.Enable,
+				"active":                rg.Active,
+				"default":               rg.Default,
+				"code":                  rg.Code,
+			}
+			ids = append(ids, fmt.Sprint(rg.ID))
+			s = append(s, mapping)
+		}
 	}
 	d.SetId(dataResourceIdHash(ids))
 	if err := d.Set("roles", s); err != nil {

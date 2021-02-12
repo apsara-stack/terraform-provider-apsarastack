@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -121,6 +122,8 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" rsponse of raw MeteringWebQuery : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_organizations", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}

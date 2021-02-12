@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -209,6 +210,8 @@ func dataSourceApsarastackCmsAlarmsRead(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
+		log.Printf(" response of raw DescribeMetricRuleList : %s", raw)
+
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cms_alarms", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
