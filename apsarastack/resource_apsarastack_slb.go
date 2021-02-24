@@ -47,6 +47,13 @@ func resourceApsaraStackSlb() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
+			"address": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				ForceNew:     true,
+				Optional:     true,
+				ValidateFunc: validation.SingleIP(),
+			},
 		},
 	}
 }
