@@ -1044,14 +1044,27 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 	}
 	response := &ResourceGroup{}
 	err = json.Unmarshal(resp.GetHttpContentBytes(), response)
-
-	if len(response.Data) != 1 || response.Code != "200" {
+	var deptId int   // Organization ID
+	var resGrpId int //ID of resource set
+	deptId = 0
+	resGrpId = 0
+	if len(response.Data) == 0 || response.Code != "200" {
 		if len(response.Data) == 0 {
 			return "", "", fmt.Errorf("resource group ID and organization not found for resource set %s", config.ResourceSetName)
 		}
 		return "", "", fmt.Errorf("unable to initialize the ascm client: department or resource_group is not provided")
+	} else {
+		for _, j := range response.Data {
+			if j.ResourceGroupName == config.ResourceSetName {
+				deptId = j.OrganizationID
+				resGrpId = j.ID
+				break
+			}
+		}
 	}
 
-	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID))
-	return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID), err
+	//log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID))
+	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(deptId), fmt.Sprint(resGrpId))
+	//return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID), err
+	return fmt.Sprint(deptId), fmt.Sprint(resGrpId), err
 }

@@ -106,6 +106,14 @@ func resourceApsarastackAscmAccessKeyCreate(d *schema.ResourceData, meta interfa
 	addDebug("RamCreateAccessKey", raw, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
+	headers := bresponse.GetHttpHeaders()
+	if headers["X-Acs-Response-Success"][0] == "false" {
+		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		} else {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+		}
+	}
 	if bresponse.GetHttpStatus() != 200 {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_access_key", "", ApsaraStackSdkGoERROR)
 	}
@@ -236,6 +244,14 @@ func (s *AscmService) DescribeAscmKeypolicy(id string) (response *AccessKeyInCre
 	addDebug("RamListAccessKeys", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
+	headers := bresponse.GetHttpHeaders()
+	if headers["X-Acs-Response-Success"][0] == "false" {
+		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+			return value, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		} else {
+
+		}
+	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), value)
 	if err != nil {
 		return value, WrapError(err)
