@@ -3,6 +3,7 @@ package apsarastack
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"strings"
 	"time"
 
 	sls "github.com/aliyun/aliyun-log-go-sdk"
@@ -45,7 +46,11 @@ func resourceApsaraStackLogProjectCreate(d *schema.ResourceData, meta interface{
 	request.Product = "SLS"
 	request.Domain = client.Domain
 	request.Version = "2020-03-31"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "CreateProject"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
@@ -110,7 +115,11 @@ func resourceApsaraStackLogProjectUpdate(d *schema.ResourceData, meta interface{
 		request.Product = "SLS"
 		request.Domain = client.Domain
 		request.Version = "2020-03-31"
-		request.Scheme = "http"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
 		request.ApiName = "UpdateProject"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
@@ -149,7 +158,11 @@ func resourceApsaraStackLogProjectDelete(d *schema.ResourceData, meta interface{
 	request.Product = "SLS"
 	request.Domain = client.Domain
 	request.Version = "2020-03-31"
-	request.Scheme = "http"
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ApiName = "DeleteProject"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{

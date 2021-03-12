@@ -669,6 +669,14 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	}
 	clusterresponse := ClusterCommonResponse{}
 	cluster, _ := raw.(*responses.CommonResponse)
+	headers := cluster.GetHttpHeaders()
+	if headers["X-Acs-Response-Success"][0] == "false" {
+		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		} else {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", cluster.GetHttpContentString())
+		}
+	}
 	ok := json.Unmarshal(cluster.GetHttpContentBytes(), &clusterresponse)
 	if ok != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_cs_kubernetes", "ParseKubernetesClusterResponse", raw)
@@ -906,5 +914,4 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
 	return nil
-
 }

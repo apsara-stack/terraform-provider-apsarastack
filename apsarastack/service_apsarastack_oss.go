@@ -29,10 +29,10 @@ func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoRes
 	}
 	request.QueryParams = map[string]string{
 
-		"AccessKeySecret":  s.client.SecretKey,
-		"Product":          "OneRouter",
-		"Department":       s.client.Department,
-		"ResourceGroup":    s.client.ResourceGroup,
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "OneRouter",
+		//"Department":       s.client.Department,
+		//"ResourceGroup":    s.client.ResourceGroup,
 		"RegionId":         s.client.RegionId,
 		"Action":           "DoOpenApi",
 		"AccountInfo":      "123456",
@@ -67,6 +67,14 @@ func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoRes
 	}
 	addDebug("GetBucketInfo", raw, requestInfo, request)
 	bresponse, _ := raw.(*responses.CommonResponse)
+	headers := bresponse.GetHttpHeaders()
+	if headers["X-Acs-Response-Success"][0] == "false" {
+		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+			return response, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		} else {
+			return response, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+		}
+	}
 
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), bucketList)
 	if err != nil {
