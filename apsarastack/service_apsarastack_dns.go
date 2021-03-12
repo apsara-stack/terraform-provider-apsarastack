@@ -65,6 +65,12 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 	addDebug("ObtainGlobalAuthRecordList", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
+	headers := bresponse.GetHttpHeaders()
+	if headers["X-Acs-Response-Success"][0] == "false" {
+		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		}
+	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -296,6 +302,12 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 	addDebug("ObtainGlobalAuthZoneList", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
+	headers := bresponse.GetHttpHeaders()
+	if headers["X-Acs-Response-Success"][0] == "false" {
+		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		}
+	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)

@@ -79,13 +79,21 @@ func dataSourceApsaraStackRegionsByProductRead(d *schema.ResourceData, meta inte
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
-		log.Printf(" rsponse of raw GetRegionsByProduct : %s", raw)
+		log.Printf(" response of raw GetRegionsByProduct : %s", raw)
 
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_regions_by_product", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		bresponse, _ := raw.(*responses.CommonResponse)
+		headers := bresponse.GetHttpHeaders()
+		if headers["X-Acs-Response-Success"][0] == "false" {
+			if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+			} else {
+				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+			}
+		}
 
 		err = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
 		if err != nil {

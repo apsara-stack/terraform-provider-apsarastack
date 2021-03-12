@@ -96,6 +96,14 @@ func dataSourceApsaraStackCRNamespacesRead(d *schema.ResourceData, meta interfac
 	}
 	var crResp crListResponse
 	bresponse, _ := raw.(*responses.CommonResponse)
+	headers := bresponse.GetHttpHeaders()
+	if headers["X-Acs-Response-Success"][0] == "false" {
+		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		} else {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+		}
+	}
 	log.Printf("response for datasource %v", bresponse)
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), &crResp)
 	log.Printf("umarshalled response for datasource %v", crResp)
