@@ -67,6 +67,7 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 		}
 		return cluster, WrapErrorf(err, DefaultErrorMsg, id, "DescribeKubernetesCluster", DenverdinoApsaraStackgo)
 	}
+
 	if debugOn() {
 		requestMap := make(map[string]interface{})
 		requestMap["ClusterId"] = id
@@ -74,6 +75,14 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 	}
 	Cdetails := []Cluster{}
 	clusterdetails, _ := response.(*responses.CommonResponse)
+	headers := clusterdetails.GetHttpHeaders()
+	if headers["X-Acs-Response-Success"][0] == "false" {
+		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+			return cluster, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		} else {
+			return cluster, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", clusterdetails.GetHttpContentString())
+		}
+	}
 	_ = json.Unmarshal(clusterdetails.GetHttpContentBytes(), &Cdetails)
 
 	if len(Cdetails) < 1 {
