@@ -253,13 +253,13 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 		request.ApiName = "RemoveResourceGroup"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId
-
-		_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
+		raw, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
 			return csClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
 			return resource.RetryableError(err)
 		}
+		log.Printf(" response of raw RemoveResourceGroup : %s", raw)
 		_, err = ascmService.DescribeAscmResourceGroup(d.Id())
 
 		if err != nil {
