@@ -139,6 +139,9 @@ func resourceApsaraStackAscmRamRoleRead(d *schema.ResourceData, meta interface{}
 		}
 		return WrapError(err)
 	}
+	if strings.Contains(object.Data[0].OrganizationVisibility, "organizationVisibility.") {
+		object.Data[0].OrganizationVisibility = strings.TrimPrefix(object.Data[0].OrganizationVisibility, "organizationVisibility.")
+	}
 	d.Set("role_name", did[0])
 	d.Set("organization_visibility", object.Data[0].OrganizationVisibility)
 	d.Set("role_id", object.Data[0].ID)
