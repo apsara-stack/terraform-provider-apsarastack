@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 	"strings"
 	"time"
 )
@@ -90,7 +91,8 @@ func resourceApsaraStackAscmRoleCreate(d *schema.ResourceData, meta interface{})
 			"description":            description,
 			"roleRange":              roleRange,
 			"organizationVisibility": organizationvisibility,
-			"privileges":             fmt.Sprintf("[\"%s\"]", priv),
+			//"privileges":             fmt.Sprintf("[\"%s\"]", priv),
+			"params": fmt.Sprintf("{\"privileges\":%s}", priv),
 		}
 		request.Method = "POST"
 		request.Product = "ascm"
@@ -158,6 +160,7 @@ func resourceApsaraStackAscmRoleRead(d *schema.ResourceData, meta interface{}) e
 		}
 		return WrapError(err)
 	}
+	log.Printf("Privileges for did[0]:%v", object.Data[0].Privileges)
 	d.Set("role_name", did[0])
 	d.Set("organization_visibility", object.Data[0].OrganizationVisibility)
 	d.Set("role_id", object.Data[0].ID)
