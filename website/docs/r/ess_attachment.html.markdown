@@ -18,6 +18,7 @@ them can not larger than the scaling group "MaxSize".
 
 ## Example Usage
 
+
 ```
 variable "name" {
   default = "essattachmentconfig"
