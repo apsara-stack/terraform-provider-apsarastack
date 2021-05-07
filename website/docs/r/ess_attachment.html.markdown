@@ -6,7 +6,7 @@ sidebar_current: "docs-apsarastack-resource-ess-attachment"
 description: |- Provides a ESS Attachment resource to attach or remove ECS instances.
 ---
 
-# alicloud\_ess\_attachment
+# apsarastack\_ess\_attachment
 
 Attaches several ECS instances to a specified scaling group or remove them from it.
 
@@ -17,6 +17,7 @@ activity in progress.
 them can not larger than the scaling group "MaxSize".
 
 ## Example Usage
+
 
 ```
 variable "name" {
