@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 

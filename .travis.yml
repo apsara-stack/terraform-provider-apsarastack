@@ -1,4 +1,4 @@
-dist: xenial
+qdist: xenial
 sudo: required
 services:
   - docker
