@@ -1,4 +1,4 @@
-module github.com/aliyun/terraform-provider-apsarastack
+module github.com/apsara-stack/terraform-provider-apsarastack
 
 go 1.14
 

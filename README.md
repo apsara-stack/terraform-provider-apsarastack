@@ -28,14 +28,14 @@ Building The Provider
 Clone repository to: `$GOPATH/src/github.com/aliyun/terraform-provider-apsarastack`
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/aliyun; cd $GOPATH/src/github.com/aliyun
-$ git clone git@github.com:aliyun/terraform-provider-apsarastack
+$ mkdir -p $GOPATH/src/github.com/apsara-stack; cd $GOPATH/src/github.com/apsara-stack
+$ git clone git@github.com:apsara-stack/terraform-provider-apsarastack
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-$ cd $GOPATH/src/github.com/aliyun/terraform-provider-apsarastack
+$ cd $GOPATH/src/github.com/apsara-stack/terraform-provider-apsarastack
 $ make build
 ```
 
@@ -78,7 +78,7 @@ $ make testacc
 Before making a release, the resources and data sources are tested automatically with acceptance tests (the tests are located in the apsarastack/*_test.go files).
 You can run them by entering the following instructions in a terminal:
 ```
-cd $GOPATH/src/github.com/aliyun/terraform-provider-apsarastack
+cd $GOPATH/src/github.com/apsara-stack/terraform-provider-apsarastack
 export APSARASTACK_ACCESS_KEY=xxx
 export APSARASTACK_SECRET_KEY=xxx
 export APSARASTACK_REGION=xxx

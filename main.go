@@ -3,7 +3,7 @@
 package main
 
 import (
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack"
+	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack"
 	"github.com/hashicorp/terraform-plugin-sdk/plugin"
 )
 

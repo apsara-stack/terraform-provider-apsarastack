@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/aliyun/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
