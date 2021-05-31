@@ -15,7 +15,7 @@ Terraform Provider For ApsaraStack Cloud
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.12.x
+-	[Terraform](https://www.terraform.io/downloads.html) 0.13.x
 -	[Go](https://golang.org/doc/install) 1.13 (to build the provider plugin)
 -   [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports):
     ```
@@ -41,7 +41,37 @@ $ make build
 
 Using the provider
 ----------------------
-## Fill in for each provider
+### Create the main.tf on working directory & add following portion to configure provider
+
+````
+ terraform {
+  required_providers {
+    apsarastack = {
+      source = "apsara-stack/apsarastack"
+      version = "1.0.0"
+    }
+  }
+}
+
+# Configure the ApsaraStack Provider
+ provider "apsarastack" {
+  access_key = "ckhCs1K*********"
+  secret_key = "2lY9uNh***********************"
+  region =  "cn-xxxxxx-env00-d01"
+  proxy = "http://100.1.1.1:5001"
+  insecure = true
+  resource_group_set_name= "ResourceSet(wzw)"
+  domain = "server.asapi.cn-xxxxx-envXX-d01.intra.envXX.shuguang.com/asapi/v3"
+  protocol = "HTTP"
+}
+````                                               
+- Add following data in main.tf to create the resource vpc from terraform
+```
+resource "apsarastack_vpc" "default_vpc" {
+  name       = "vpc-test"
+  cidr_block = "172.16.0.0/12"
+}
+```
 
 Developing the Provider
 ---------------------------
@@ -82,34 +112,14 @@ cd $GOPATH/src/github.com/apsara-stack/terraform-provider-apsarastack
 export APSARASTACK_ACCESS_KEY=xxx
 export APSARASTACK_SECRET_KEY=xxx
 export APSARASTACK_REGION=xxx
-export APSARASTACK_ACCOUNT_ID=xxx
-export APSARASTACK_RESOURCE_GROUP_ID=xxx
+export APSARASTACK_DOMAIN=xxx
+export APSARASTACK_RESOURCE_GROUP_SET=xxx
 export outfile=gotest.out
 TF_ACC=1 TF_LOG=INFO go test ./apsarastack -v -run=TestAccApsaraStack -timeout=1440m | tee $outfile
 go2xunit -input $outfile -output $GOPATH/tests.xml
 ```
 
--> **Note:** The last line is optional, it allows to convert test results into a XML format compatible with xUnit.
-
-
--> **Note:** Most test cases will create PostPaid resources when running above test command. However, currently not all
- account site type support create PostPaid resources, so you need set your account site type before running the command:
-```
-# If your account belongs to domestic site
-export APSARASTACK_ACCOUNT_SITE=Domestic
-
-# If your account belongs to international site
-export APSARASTACK_ACCOUNT_SITE=International
-```
-The setting of acount site type can skip some unsupported cases automatically.
-
--> **Note:** At present, there is missing CMS contact group resource and please create manually a contact group by web console and set it by environment variable `APSARASTACK_CMS_CONTACT_GROUP`, like:
- ```
- export APSARASTACK_CMS_CONTACT_GROUP=tf-testAccCms
- ```
- Otherwise, all of resource `apsarastack_cms_alarm's` test cases will be skipped.
 
 ## Refer
 
-ApsaraStack Cloud Provider [Official Docs](https://www.terraform.io/docs/providers/apsarastack/index.html)
-ApsaraStack Cloud Provider Modules [Official Modules](https://registry.terraform.io/browse?provider=apsarastack)
+ApsaraStack Cloud Provider [Official Docs](https://registry.terraform.io/providers/apsara-stack/apsarastack/latest/docs)
