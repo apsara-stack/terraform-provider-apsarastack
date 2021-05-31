@@ -17,6 +17,15 @@ Use the navigation on the left to read about the available resources.
 ## Example Usage
 
 ```hcl
+terraform {
+  required_providers {
+    apsarastack = {
+      source = "apsara-stack/apsarastack"
+      version = "1.0.0"
+    }
+  }
+}
+
 # Configure the ApsaraStack Provider
 provider "apsarastack" {
   access_key = "${var.access_key}"
@@ -31,7 +40,7 @@ provider "apsarastack" {
 }
 
 
-data "apsarastack_instance_types" "c2g4" {
+data "apsarastack_instance_types" "default" {
   cpu_core_count = 2
   memory_size    = 4
 }
@@ -44,7 +53,7 @@ data "apsarastack_images" "default" {
 # Create a web server
 resource "apsarastack_instance" "web" {
   image_id              = "${data.apsarastack_images.default.images.0.id}"
-  instance_type        = "${data.apsarastack_instance_types.c2g4.instance_types.0.id}"
+  instance_type        = "${data.apsarastack_instance_types.default .instance_types.0.id}"
   system_disk_category = "cloud_efficiency"
   security_groups      = ["${apsarastack_security_group.default.id}"]
   instance_name        = "web"
