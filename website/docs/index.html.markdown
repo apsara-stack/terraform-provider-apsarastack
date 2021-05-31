@@ -34,9 +34,8 @@ provider "apsarastack" {
   insecure    =  true
   proxy      = "${var.proxy}"
   resource_group_set_name ="${var.resource_group_set_name}"
-  endpoints {
-     vpc = "${var.endpoints}"  
-   }
+  domain = "${var.domain}"
+  protocol = "HTTPS"
 }
 
 
