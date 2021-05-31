@@ -33,11 +33,11 @@ resource "apsarastack_vswitch" "vswitches" {
 
 resource "apsarastack_cs_kubernetes" "k8s" {
    name="apsara_test"
-   vswitch_id=apsarastack_vswitch.vswitches.id
+   master_vswitch_ids=[apsarastack_vswitch.vswitches.id,apsarastack_vswitch.vswitches.id,apsarastack_vswitch.vswitches.id]
+   worker_vswitch_ids=[apsarastack_vswitch.vswitches.id,apsarastack_vswitch.vswitches.id]
    version="1.14.8-aliyun.1"
    master_count=3
    timeout_mins=60
-   master_instance_charge_type="PrePaid"
    master_disk_category="cloud_ssd"
    master_disk_size=45
    worker_disk_category="cloud_ssd"
@@ -48,9 +48,9 @@ resource "apsarastack_cs_kubernetes" "k8s" {
    worker_data_disk_size=100
    new_nat_gateway=false
    slb_internet_enabled=true
-   master_instance_type = "ecs.e4.large"
-   worker_instance_type = "ecs.e4.large"
-   worker_number         = 6
+   master_instance_types = ["ecs.e4.large","ecs.e4.large","ecs.e4.large"]
+   worker_instance_types = ["ecs.e4.large","ecs.e4.large"]
+   worker_number         = 2
    enable_ssh            = true
    password              = "Test@123"
    pod_cidr              = "172.23.0.0/16"
@@ -59,6 +59,7 @@ resource "apsarastack_cs_kubernetes" "k8s" {
   addons {
      name="flannel"
   }
+  user_data="ZWNobyBoZWxsbw=="
 }
 ```
 
@@ -71,19 +72,11 @@ The following arguments are supported:
 * `version` - (Optional) Desired Kubernetes version. If you do not specify a value, the latest available version at resource creation is used and no upgrades will occur except you set a higher version number. The value must be configured and increased to upgrade the version when desired. Downgrades are not supported by ACK.
 * `password` - (Required, Sensitive) The password of ssh login cluster node. You have to specify one of `password` `key_name` `kms_encrypted_password` fields.
 * `kms_encrypted_password` - (Required) An KMS encrypts password used to a cs kubernetes. You have to specify one of `password` `key_name` `kms_encrypted_password` fields.
-* `kms_encryption_context` - (Optional, MapString) An KMS encryption context used to decrypt `kms_encrypted_password` before creating or updating a cs kubernetes with `kms_encrypted_password`.
 * `enable_ssh` - (Optional) Enable login to the node through SSH. default: false 
-* `install_cloud_monitor` - (Optional) Install cloud monitor agent on ECS. default: true 
 * `cpu_policy` - kubelet cpu policy. options: static|none. default: none.
 * `proxy_mode` - Proxy mode is option of kube-proxy. options: iptables|ipvs. default: ipvs.
-* `image_id` - Custom Image support. Must based on CentOS7 .
 * `user_data` - (Optional) Windows instances support batch and PowerShell scripts. If your script file is larger than 1 KB, we recommend that you upload the script to Object Storage Service (OSS) and pull it through the internal endpoint of your OSS bucket.
-* `exclude_autoscaler_nodes` - (Optional) Exclude autoscaler nodes from `worker_nodes`. default: false 
-* `node_name_mode` - (Optional) Each node name consists of a prefix, an IP substring, and a suffix. For example, if the node IP address is 192.168.0.55, IP substring length is 5, and the suffix is test, the node name will be .
-* `security_group_id` - (Optional) The ID of the security group to which the ECS instances in the cluster belong. If it is not specified, a new Security group will be built.
-* `is_enterprise_security_group` - (Optional) Enable to create advanced security group. default: false.
-* `service_account_issuer` - (Optional, ForceNew) The issuer of the Service Account token for Service Account Token Volume Projection, corresponds to the `iss` field in the token payload. Set this to `"kubernetes.default.svc"` to enable the Token Volume Projection feature (requires specifying `api_audiences` as well).
-* `api_audiences` - (Optional, ForceNew) A list of API audiences for Service Account Token Volume Projection. Set this to `["kubernetes.default.svc"]` if you want to enable the Token Volume Projection feature (requires specifying `service_account_issuer` as well.
+* `instances`- (Optional) A list of instances that can be attached as worker nodes in the same Vpc.
 
 #### Network
 * `pod_cidr` - (Required) [Flannel Specific] The CIDR block for the pod network when using Flannel. 
@@ -97,17 +90,18 @@ If you want to use `Terway` as CNI network plugin, You need to specific the `pod
 If you want to use `Flannel` as CNI network plugin, You need to specific the `pod_cidr` field and addons with `flannel`.
 
 #### Master params
-* `master_instance_charge_type` - (Optional) Master payment type. `PrePaid` or `PostPaid`, defaults to `PostPaid`.
-* `master_period_unit` - (Optional) Master payment period unit. `Month` or `Week`, defaults to `Month`.
-* `master_period` - (Optional) Master payment period. When period unit is `Month`, it can be one of { “1”, “2”, “3”, “4”, “5”, “6”, “7”, “8”, “9”, “12”, “24”, “36”,”48”,”60”}.  When period unit is `Week`, it can be one of {“1”, “2”, “3”, “4”}.
-* `master_auto_renew` - (Optional) Enable master payment auto-renew, defaults to false.
-* `master_auto_renew_period` - (Optional) Master payment auto-renew period. When period unit is `Month`, it can be one of {“1”, “2”, “3”, “6”, “12”}.  When period unit is `Week`, it can be one of {“1”, “2”, “3”}.
 * `master_disk_category` - (Optional) The system disk category of master node. Its valid value are `cloud_ssd` and `cloud_efficiency`. Default to `cloud_efficiency`.
 * `master_disk_size` - (Optional) The system disk size of master node. Its valid value range [20~500] in GB. Default to 20.
+* `master_vswtich_ids` - (Required) The vswitches used by master, you can specific 3 or 5 vswitches because of the amount of masters. Detailed below.
+* `master_instance_types` - (Required) The instance type of master node. Specify one type for single AZ Cluster, three types for MultiAZ Cluster.
 
 #### Worker params 
 * `worker_number` - (Required) The worker node number of the kubernetes cluster. Default to 3. It is limited up to 50 and if you want to enlarge it, please apply white list or contact with us.
+* `worker_vswtich_ids` - (Required) The vswitches used by worker, you can specific 1 or more than 1 vswitches.
 * `worker_disk_size` - (Optional) The system disk size of worker node. Its valid value range [20~32768] in GB. Default to 40.
+* `worker_disk_category` - (Optional) The system disk category of worker node. Its valid value are cloud, cloud_ssd, cloud_essd and cloud_efficiency. Default to cloud_efficiency.
+* `worker_disk_size` - (Optional) The system disk size of worker node. Its valid value range [40~500] in GB. Default to 40.
+* `worker_instance_types` - (Required) The instance type of worker node. Specify one type for single AZ Cluster, three types for MultiAZ Cluster.
 
 #### Computed params (No need to configure) 
 * `kube_config` - (Optional) The path of kube config, like `~/.kube/config`.
