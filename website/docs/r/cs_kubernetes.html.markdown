@@ -47,18 +47,24 @@ resource "apsarastack_cs_kubernetes" "k8s" {
    worker_data_disk_category="cloud_ssd"
    worker_data_disk_size=100
    new_nat_gateway=false
-   slb_internet_enabled=true
+   vpc_id=apsarastack_vpc.vpc.id
+   slb_internet_enabled=false
+   proxy_mode="ipvs"
    master_instance_types = ["ecs.e4.large","ecs.e4.large","ecs.e4.large"]
    worker_instance_types = ["ecs.e4.large","ecs.e4.large"]
-   worker_number         = 2
+   num_of_nodes         = 2
    enable_ssh            = true
    password              = "Test@123"
    pod_cidr              = "172.23.0.0/16"
    service_cidr          = "172.24.0.0/20"
    node_cidr_mask="26"
-  addons {
-     name="flannel"
-  }
+   dynamic "addons" {
+      for_each = var.cluster_addons
+      content {
+        name                    = lookup(addons.value, "name", var.cluster_addons)
+        config                  = lookup(addons.value, "config", var.cluster_addons)
+      }
+   }
   user_data="ZWNobyBoZWxsbw=="
 }
 ```
@@ -77,7 +83,10 @@ The following arguments are supported:
 * `proxy_mode` - Proxy mode is option of kube-proxy. options: iptables|ipvs. default: ipvs.
 * `user_data` - (Optional) Windows instances support batch and PowerShell scripts. If your script file is larger than 1 KB, we recommend that you upload the script to Object Storage Service (OSS) and pull it through the internal endpoint of your OSS bucket.
 * `instances`- (Optional) A list of instances that can be attached as worker nodes in the same Vpc.
-
+* `runtime`-  (Optional) The platform on which the clusters are going to run.
+    * `name`- (Optional) Name of the runtime platform
+    * `version`- (Optional) Version of the runtime platform
+    
 #### Network
 * `pod_cidr` - (Required) [Flannel Specific] The CIDR block for the pod network when using Flannel. 
 * `pod_vswitch_ids` - (Required) [Terway Specific] The vswitches for the pod network when using Terway.Be careful the `pod_vswitch_ids` can not equal to `worker_vswtich_ids` or `master_vswtich_ids` but must be in same availability zones.
@@ -96,11 +105,12 @@ If you want to use `Flannel` as CNI network plugin, You need to specific the `po
 * `master_instance_types` - (Required) The instance type of master node. Specify one type for single AZ Cluster, three types for MultiAZ Cluster.
 
 #### Worker params 
-* `worker_number` - (Required) The worker node number of the kubernetes cluster. Default to 3. It is limited up to 50 and if you want to enlarge it, please apply white list or contact with us.
+* `num_of_nodes` - (Required) The worker node number of the kubernetes cluster. Default to 3. It is limited up to 50 and if you want to enlarge it, please apply white list or contact with us.
 * `worker_vswtich_ids` - (Required) The vswitches used by worker, you can specific 1 or more than 1 vswitches.
-* `worker_disk_size` - (Optional) The system disk size of worker node. Its valid value range [20~32768] in GB. Default to 40.
-* `worker_disk_category` - (Optional) The system disk category of worker node. Its valid value are cloud, cloud_ssd, cloud_essd and cloud_efficiency. Default to cloud_efficiency.
-* `worker_disk_size` - (Optional) The system disk size of worker node. Its valid value range [40~500] in GB. Default to 40.
+* `worker_disk_size` - (Optional) The system disk size of worker node. Its valid value range [20~32768] in GB. 
+* `worker_disk_category` - (Optional) The system disk category of worker node. Its valid value are cloud, cloud_ssd, cloud_essd and cloud_efficiency. 
+* `worker_data_disk_category` - (Optional) The data disk category of worker node. Its valid value are cloud, cloud_ssd, cloud_essd and cloud_efficiency. 
+* `worker_data_disk_size` - (Optional) The data disk size of worker node. Its valid value range [40~500] in GB. 
 * `worker_instance_types` - (Required) The instance type of worker node. Specify one type for single AZ Cluster, three types for MultiAZ Cluster.
 
 #### Computed params (No need to configure) 
