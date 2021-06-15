@@ -29,6 +29,9 @@ const (
 	ClusterType                     = "Kubernetes"
 	OsType                          = "Linux"
 	Platform                        = "CentOS"
+	RuntimeName                     = "docker"
+	RuntimeVersion                  = "19.03.5"
+	PortRange                       = "30000-32767"
 )
 
 var (
@@ -191,6 +194,11 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Default:          false,
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 			},
+			"node_port_range": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  PortRange,
+			},
 			"image_id": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -334,6 +342,24 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 			"vpc_id": {
 				Type:     schema.TypeString,
 				Required: true,
+			},
+			"runtime": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  RuntimeName,
+						},
+						"version": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  RuntimeVersion,
+						},
+					},
+				},
 			},
 			"master_nodes": {
 				Type:     schema.TypeList,
@@ -560,7 +586,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				if i == 0 {
 					req = fmt.Sprintf("{\"name\" : \"%s\",\"config\": \"%s\"}", addon["name"].(string), addon["config"].(string))
 				} else {
-					req = fmt.Sprintf("%s,{\"name\" : \"%s\",\"config\": \"%s\"}", req, addon["name"].(string), addon["config"].(string))
+					req = fmt.Sprintf("%s,{\"name\" : \"%s\",\"config\": %q}", req, addon["name"].(string), addon["config"].(string))
 				}
 			}
 		}
@@ -568,6 +594,15 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	udata := d.Get("user_data").(string)
 	log.Printf("checking addons %v", addons)
 	log.Printf("check req final %s", req)
+	var runtime string
+	if v, ok := d.GetOk("runtime"); ok {
+		all, _ := v.([]interface{})
+		for _, a := range all {
+			run, _ := a.(map[string]interface{})
+			runtime = fmt.Sprintf("\"name\": \"%s\", \"version\": \"%s\"", run["name"].(string), run["version"].(string))
+		}
+	}
+	log.Printf("checking runtime %v", runtime)
 	var wdatadisksize int
 	var wdatadiskcat string
 	if workerdata == true {
@@ -612,7 +647,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		} else {
 			wvid = fmt.Sprintf("%s\",\"%s", wvid, k)
 		}
-
 	}
 	log.Printf("new worker vids %v ", wvid)
 	mvids := d.Get("master_vswitch_ids").([]interface{})
@@ -622,7 +656,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		} else {
 			mvid = fmt.Sprintf("%s\",\"%s", mvid, k)
 		}
-
 	}
 	log.Printf("master vswids %v", mvid)
 	winsts := d.Get("worker_instance_types").([]interface{})
@@ -632,7 +665,8 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		} else {
 			winst = fmt.Sprintf("%s\",\"%s", winst, k)
 		}
-
+		//log.Printf("instances %d %v",i,k)
+		//minst = fmt.Sprintf("%s\",\"%s", minst, k)
 	}
 	log.Printf("new worker inst %v ", winst)
 	insrsas := d.Get("master_instance_types").([]interface{})
@@ -645,6 +679,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		log.Printf("instances %d %v", i, k)
 		//minst = fmt.Sprintf("%s\",\"%s", minst, k)
 	}
+	//log.Printf("new master inst %v ",insrsas)
 	log.Printf("new master inst %v ", minst)
 
 	var insts, podids []string
@@ -680,20 +715,23 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 			}
 		}
 	}
+	nodeportrange := d.Get("node_port_range").(string)
+	cpuPolicy := d.Get("cpu_policy").(string)
 	log.Printf("wswitchids %v mswitchids %v", wvid, mvid)
 	log.Printf("winsts %v minsts %v", winst, minst)
 	if attachinst == 1 {
 		request.QueryParams = map[string]string{
-			"RegionId":         client.RegionId,
-			"AccessKeySecret":  client.SecretKey,
-			"Product":          "Cs",
-			"Department":       client.Department,
-			"ResourceGroup":    client.ResourceGroup,
-			"Action":           "CreateCluster",
+			"RegionId":        client.RegionId,
+			"AccessKeySecret": client.SecretKey,
+			"Product":         "Cs",
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
+			"Action":          "CreateCluster",
+			//"AccountInfo":      "123456",
 			"Version":          "2015-12-15",
 			"SignatureVersion": "1.0",
 			"ProductName":      "cs",
-			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\"}",
+			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\"}",
 				"Product", "Cs",
 				"OsType", OsType,
 				"Platform", Platform,
@@ -725,20 +763,24 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"format_disk", formatDisk,
 				"keep_instance_name", retainIname,
 				"user-data", udata,
+				"runtime", runtime,
+				"node_port_range", nodeportrange,
+				"cpu_policy", cpuPolicy,
 			),
 		}
 	} else {
 		request.QueryParams = map[string]string{
-			"RegionId":         client.RegionId,
-			"AccessKeySecret":  client.SecretKey,
-			"Product":          "Cs",
-			"Department":       client.Department,
-			"ResourceGroup":    client.ResourceGroup,
-			"Action":           "CreateCluster",
+			"RegionId":        client.RegionId,
+			"AccessKeySecret": client.SecretKey,
+			"Product":         "Cs",
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
+			"Action":          "CreateCluster",
+			//"AccountInfo":      "123456",
 			"Version":          "2015-12-15",
 			"SignatureVersion": "1.0",
 			"ProductName":      "cs",
-			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\"}",
+			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\"}",
 				"Product", "Cs",
 				"OsType", OsType,
 				"Platform", Platform,
@@ -773,6 +815,9 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"addons", req,
 				"proxy_mode", proxy_mode,
 				"user-data", udata,
+				"runtime", runtime,
+				"node_port_range", nodeportrange,
+				"cpu_policy", cpuPolicy,
 			),
 		}
 	}
@@ -818,13 +863,17 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	}
 	clusterresponse := ClusterCommonResponse{}
 	cluster, _ := raw.(*responses.CommonResponse)
-	headers := cluster.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", cluster.GetHttpContentString())
-		}
+	//headers := cluster.GetHttpHeaders()
+	//log.Printf("headers check %v",headers)
+	//if headers["X-Acs-Response-Success"][0] == "false" {
+	//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+	//	} else {
+	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", cluster.GetHttpContentString())
+	//	}
+	//}
+	if cluster.IsSuccess() == false {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", cluster.GetHttpContentString())
 	}
 	ok := json.Unmarshal(cluster.GetHttpContentBytes(), &clusterresponse)
 	if ok != nil {
