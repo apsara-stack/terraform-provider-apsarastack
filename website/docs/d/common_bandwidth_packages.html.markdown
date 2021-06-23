@@ -15,15 +15,20 @@ This data source provides a list of Common Bandwidth Packages owned by an Apsara
 ## Example Usage
 
 ```
-data "apsarastack_common_bandwidth_packages" "foo" {
-  name_regex = "^tf-testAcc.*"
-  ids        = ["${apsarastack_common_bandwidth_package.foo.id}"]
-}
 
 resource "apsarastack_common_bandwidth_package" "foo" {
   bandwidth   = "2"
   name        = "tf-testAccCommonBandwidthPackage"
   description = "tf-testAcc-CommonBandwidthPackage"
+}
+
+data "apsarastack_common_bandwidth_packages" "foo" {
+  name_regex = "^tf-testAcc.*"
+  ids        = ["${apsarastack_common_bandwidth_package.foo.id}"]
+}
+
+output "common_bandwidth_packages" {
+  value = "${data.apsarastack_common_bandwidth_packages.foo.packages}"
 }
 ```
 

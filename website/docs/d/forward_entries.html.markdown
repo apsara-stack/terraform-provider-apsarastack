@@ -62,6 +62,11 @@ resource "apsarastack_forward_entry" "default" {
 data "apsarastack_forward_entries" "default" {
   forward_table_id = "${apsarastack_forward_entry.default.forward_table_id}"
 }
+
+output "forward_entries" {
+  value = "${data.apsarastack_forward_entries.default.entries}"
+}
+
 ```
 
 ## Argument Reference

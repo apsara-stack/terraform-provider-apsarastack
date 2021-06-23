@@ -87,6 +87,10 @@ data "apsarastack_route_entries" "foo" {
   route_table_id = "${apsarastack_route_entry.foo.route_table_id}"
 }
 
+output "route_entries" {
+ data = data.apsarastack_route_entries.foo
+}
+
 ```
 
 ## Argument Reference

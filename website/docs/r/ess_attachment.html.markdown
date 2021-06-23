@@ -3,7 +3,8 @@ subcategory: "Auto Scaling(ESS)"
 layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_ess_attachment"
 sidebar_current: "docs-apsarastack-resource-ess-attachment"
-description: |- Provides a ESS Attachment resource to attach or remove ECS instances.
+description: |- 
+  Provides an ESS Attachment resource to attach or remove ECS instances.
 ---
 
 # apsarastack\_ess\_attachment

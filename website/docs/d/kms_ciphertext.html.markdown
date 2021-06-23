@@ -25,6 +25,10 @@ data "apsarastack_kms_ciphertext" "encrypted" {
   key_id    = apsarastack_kms_key.key.id
   plaintext = "example"
 }
+
+output "apsarastack_kms_ciphertext" {
+  value = "${data.apsarastack_kms_ciphertext.encrypted}"
+}
 ```
 
 ## Argument Reference

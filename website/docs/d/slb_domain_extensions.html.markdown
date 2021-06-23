@@ -18,6 +18,11 @@ data "apsarastack_slb_domain_extensions" "foo" {
   load_balancer_id  = "fake-lb-id"
   frontend_port     = "fake-port"
 }
+
+output "slb_domain_extension" {
+  value = "${data.apsarastack_slb_domain_extensions.foo.extensions.0.id}"
+}
+
 ```
 
 ## Argument Reference
