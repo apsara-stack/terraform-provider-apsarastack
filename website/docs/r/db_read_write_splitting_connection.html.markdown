@@ -63,7 +63,6 @@ resource "apsarastack_db_read_write_splitting_connection" "default" {
   instance_id       = "${apsarastack_db_instance.default.id}"
   connection_prefix = "t-con-123"
   distribution_type = "Standard"
-
   depends_on = ["apsarastack_db_readonly_instance.default"]
 }
 ```

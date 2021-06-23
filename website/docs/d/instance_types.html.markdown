@@ -24,14 +24,9 @@ data "apsarastack_instance_types" "types_ds" {
   memory_size    = 2
 }
 
-# Create ECS instance with the first matched instance_type
-
-resource "apsarastack_instance" "instance" {
-  instance_type = "${data.apsarastack_instance_types.types_ds.instance_types.0.id}"
-
-  # Other properties...
+output "instance_types"{
+  value=data.apsarastack_instance_types.types_ds.*
 }
-
 ```
 
 ## Argument Reference

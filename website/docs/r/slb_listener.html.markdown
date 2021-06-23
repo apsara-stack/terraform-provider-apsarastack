@@ -42,26 +42,26 @@ resource "apsarastack_slb_server_certificate" "servercertificate" {
 }
 
 resource "apsarastack_slb_listener" "listener" {
-load_balancer_id          = apsarastack_slb.slb.id
-backend_port              = 80
-frontend_port             = 80
-protocol                  = "http"
-bandwidth                 = 10
-server_certificate_id     =apsarastack_slb_server_certificate.servercertificate.id
-sticky_session            = "on"
-sticky_session_type       = "insert"
-cookie_timeout            = 86400
-cookie                    = "testslblistenercookie"
-health_check              = "on"
-health_check_domain       = "ali.com"
-health_check_uri          = "/cons"
-health_check_connect_port = 20
-healthy_threshold         = 8
-unhealthy_threshold       = 8
-health_check_timeout      = 8
-health_check_interval     = 5
-health_check_http_code    = "http_2xx,http_3xx"
-x_forwarded_for {
+  load_balancer_id          = apsarastack_slb.slb.id
+  backend_port              = 80
+  frontend_port             = 80
+  protocol                  = "http"
+  bandwidth                 = 10
+  server_certificate_id     =apsarastack_slb_server_certificate.servercertificate.id
+  sticky_session            = "on"
+  sticky_session_type       = "insert"
+  cookie_timeout            = 86400
+  cookie                    = "testslblistenercookie"
+  health_check              = "on"
+  health_check_domain       = "ali.com"
+  health_check_uri          = "/cons"
+  health_check_connect_port = 20
+  healthy_threshold         = 8
+  unhealthy_threshold       = 8
+  health_check_timeout      = 8
+  health_check_interval     = 5
+  health_check_http_code    = "http_2xx,http_3xx"
+  x_forwarded_for {
     retrive_slb_ip = true
     retrive_slb_id = true
   }

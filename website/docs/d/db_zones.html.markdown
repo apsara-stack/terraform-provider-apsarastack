@@ -18,12 +18,10 @@ This data source provides availability zones for RDS that can be accessed by an 
 # Declare the data source
 data "apsarastack_db_zones" "zones_ids" {}
 
-# Create an RDS instance with the first matched zone
-resource "apsarastack_db_instance" "db" {
-    zone_id = data.apsarastack_db_zones.zones_ids.zones[0]
-
-  # Other properties...
+output "db_zones" {
+  value = data.apsarastack_db_zones.zones_ids.zones.*
 }
+
 ```
 
 ## Argument Reference

@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Monitor"
+subcategory: "Cloud Monitor (CMS)"
 layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_cms_alarm_contact_group"
 sidebar_current: "docs-apsarastack-resource-cms-alarm-contact-group"

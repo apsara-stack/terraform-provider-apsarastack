@@ -20,12 +20,9 @@ data "apsarastack_security_groups" "sec_groups_ds" {
 }
 
 # In conjunction with a VPC
-resource "apsarastack_vpc" "primary_vpc_ds" {
-  # ...
-}
 
 data "apsarastack_security_groups" "primary_sec_groups_ds" {
-  vpc_id = "${apsarastack_vpc.primary_vpc_ds.id}"
+  vpc_id = var.vpc_id
 }
 
 output "first_group_id" {

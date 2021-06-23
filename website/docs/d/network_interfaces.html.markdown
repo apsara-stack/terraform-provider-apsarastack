@@ -22,11 +22,6 @@ resource "apsarastack_network_interface" "NetInterface" {
   private_ips_count = 1
   description = "Hello Network Interface"
 }
-resource "apsarastack_network_interface_attachment" "NetIntAttachment" {
-  count                = apsarastack_network_interface.NetInterface.private_ips_count
-  instance_id          = apsarastack_instance.apsarainstance.id
-  network_interface_id = apsarastack_network_interface.NetInterface.id
-}
 
 data "apsarastack_network_interfaces" "NetInterfaces" {
   ids = [
@@ -34,10 +29,9 @@ data "apsarastack_network_interfaces" "NetInterfaces" {
   ]
   name_regex = apsarastack_network_interface.NetInterface.name
   vswitch_id = apsarastack_vswitch.vsw.id
-  instance_id = apsarastack_instance.apsarainstance.id
 }
 
-output "eni0_name" {
+output "eni_name" {
     value = "${data.apsarastack_network_interface.NetInterface.interfaces.0.name}"
 }
 ```

@@ -1,5 +1,5 @@
 ---
-subcategory: "Cloud Monitor"
+subcategory: "Cloud Monitor (CMS)"
 layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_cms_alarm_contact_groups"
 sidebar_current: "docs-apsarastack-datasource-cms-alarm-contact-groups"
@@ -20,6 +20,10 @@ Basic Usage
 ```
 data "apsarastack_cms_alarm_contact_group" "example" {
   name_regex = "tf-testacc"
+}
+
+output "contact_groups" {
+  value = data.apsarastack_cms_alarm_contact_group.example
 }
 ```
 
