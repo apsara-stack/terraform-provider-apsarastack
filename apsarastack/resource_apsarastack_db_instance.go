@@ -1,7 +1,11 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"log"
 	"strings"
 	"time"
 
@@ -19,6 +23,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
+var tde_set = false
+
 func resourceApsaraStackDBInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApsaraStackDBInstanceCreate,
@@ -30,7 +36,7 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(40 * time.Minute),
 			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
@@ -45,6 +51,31 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Required: true,
+			},
+			"zone_id_slave1": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tde_status": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: tde_set,
+			},
+			"storage_type": {
+				Type:         schema.TypeString,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"local_ssd", "cloud_ssd"}, false),
+				Required:     true,
+			},
+			"encryption_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"encryption": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Default:  false,
 			},
 			"instance_type": {
 				Type:     schema.TypeString,
@@ -79,6 +110,11 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 				Optional:         true,
 				Default:          false,
 				DiffSuppressFunc: PostPaidDiffSuppressFunc,
+			},
+			"multi_zone": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
 			},
 			"auto_renew_period": {
 				Type:             schema.TypeInt,
@@ -157,6 +193,11 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+			"role_arn": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -170,23 +211,175 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	client := meta.(*connectivity.ApsaraStackClient)
 	rdsService := RdsService{client}
 
-	request, err := buildDBCreateRequest(d, meta)
-	if err != nil {
-		return WrapError(err)
-	}
-
+	vpcService := VpcService{client}
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "Rds"
+	request.Domain = client.Domain
+	request.Version = "2014-08-15"
+	request.Scheme = "http"
+	request.ApiName = "CreateDBInstance"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
-		return rdsClient.CreateDBInstance(request)
+	request.RegionId = string(client.Region)
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	var VSwitchId, InstanceNetworkType, ZoneIdSlave1, ZoneId, VPCId, arnrole string
+	var encryption bool
+	EncryptionKey := d.Get("encryption_key").(string)
+	encryption = d.Get("encryption").(bool)
+	log.Print("Encryption key input")
+	if EncryptionKey != "" && encryption == true {
+		log.Print("Encryption key condition passed")
+		req := requests.NewCommonRequest()
+		req.Method = "POST"
+		request.Product = "Rds"
+		req.Domain = client.Domain
+		req.Version = "2014-08-15"
+		req.Scheme = "http"
+		req.ApiName = "CheckCloudResourceAuthorized"
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.RegionId = string(client.Region)
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			req.Scheme = "https"
+		} else {
+			req.Scheme = "http"
+		}
+		req.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"AccessKeyId":     client.AccessKey,
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
+			"Product":         "Rds",
+			"RegionId":        client.RegionId,
+			"TargetRegionId":  client.RegionId,
+		}
+		ram, err := client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
+			return crClient.ProcessCommonRequest(req)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), req.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		var arnresp RoleARN
+		addDebug(request.GetActionName(), ram, req)
+		resparn, _ := ram.(*responses.CommonResponse)
+		log.Printf("raw response %v", resparn)
+		err = json.Unmarshal(resparn.GetHttpContentBytes(), &arnresp)
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "CheckCloudResourceAuthorized", request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		arnrole = arnresp.RoleArn
+		d.Set("role_arn", arnrole)
+
+		log.Printf("check arnrole %v", arnrole)
+	} else if EncryptionKey == "" && encryption == true {
+		return WrapErrorf(nil, "Add EncryptionKey or Set encryption to false", "CheckCloudResourceAuthorized", request.GetActionName())
+	} else if EncryptionKey != "" && encryption == false {
+		return WrapErrorf(nil, "Set encryption to true", "CheckCloudResourceAuthorized", request.GetActionName())
+	} else {
+		log.Print("Encryption key condition failed")
+		d.Set("encryption", true)
+		encryption = d.Get("encryption").(bool)
+	}
+	d.Set("encryption", encryption)
+	log.Printf("encryptionbool %v", d.Get("encryption").(bool))
+
+	enginever := Trim(d.Get("engine_version").(string))
+	engine := Trim(d.Get("engine").(string))
+	DBInstanceStorage := requests.NewInteger(d.Get("instance_storage").(int))
+	DBInstanceClass := Trim(d.Get("instance_type").(string))
+	DBInstanceNetType := string(Intranet)
+	DBInstanceDescription := d.Get("instance_name").(string)
+	MultiZone := strconv.FormatBool(d.Get("multi_zone").(bool))
+	if zone, ok := d.GetOk("zone_id"); ok && Trim(zone.(string)) != "" {
+		ZoneId = Trim(zone.(string))
+	}
+	vswitchId := Trim(d.Get("vswitch_id").(string))
+
+	InstanceNetworkType = string(Classic)
+	if vswitchId != "" {
+		VSwitchId = vswitchId
+		InstanceNetworkType = strings.ToUpper(string(Vpc))
+
+		// check vswitchId in zone
+		vsw, err := vpcService.DescribeVSwitch(vswitchId)
+		if err != nil {
+			return nil
+		}
+
+		if ZoneId == "" {
+			ZoneId = vsw.ZoneId
+		}
+
+		VPCId = vsw.VpcId
+	}
+	PayType := Trim(d.Get("instance_charge_type").(string))
+	DBInstanceStorageType := d.Get("storage_type").(string)
+	if d.Get("multi_zone").(bool) == true {
+		if ZoneIdSlave1 = d.Get("zone_id_slave1").(string); ZoneIdSlave1 == "" {
+			return WrapErrorf(nil, "ZoneIdSlave1 should be set if Multi Zone is true", d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+	}
+	SecurityIPList := LOCAL_HOST_IP
+	if len(d.Get("security_ips").(*schema.Set).List()) > 0 {
+		SecurityIPList = strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
+	}
+	uuid, err := uuid.GenerateUUID()
+	if err != nil {
+		uuid = resource.UniqueId()
+	}
+	ClientToken := fmt.Sprintf("Terraform-ApsaraStack-%d-%s", time.Now().Unix(), uuid)
+	request.QueryParams = map[string]string{
+		"AccessKeySecret":       client.SecretKey,
+		"Product":               "rds",
+		"Department":            client.Department,
+		"ResourceGroup":         client.ResourceGroup,
+		"EngineVersion":         enginever,
+		"Engine":                engine,
+		"Encryption":            strconv.FormatBool(encryption),
+		"DBInstanceStorage":     string(DBInstanceStorage),
+		"DBInstanceClass":       DBInstanceClass,
+		"DBInstanceNetType":     DBInstanceNetType,
+		"DBInstanceDescription": DBInstanceDescription,
+		"MultiZone":             MultiZone,
+		"InstanceNetworkType":   InstanceNetworkType,
+		"VSwitchId":             VSwitchId,
+		"PayType":               PayType,
+		"DBInstanceStorageType": DBInstanceStorageType,
+		"SecurityIPList":        SecurityIPList,
+		"ClientToken":           ClientToken,
+		"ZoneIdSlave1":          ZoneIdSlave1,
+		"EncryptionKey":         EncryptionKey,
+		"ZoneId":                ZoneId,
+		"VPCId":                 VPCId,
+		"RoleARN":               arnrole,
+	}
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	log.Printf("request245 %v", request.QueryParams)
+	raw, err := client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
+		return crClient.ProcessCommonRequest(request)
 	})
 
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	response, _ := raw.(*rds.CreateDBInstanceResponse)
-	d.SetId(response.DBInstanceId)
+	if arnrole != "" {
+		log.Print("arnrole has been added")
+	} else {
+		log.Print("arnrole has not been added")
+	}
+	var resp CreateDBInstanceResponse
+	addDebug(request.GetActionName(), raw, request)
+	response, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(response.GetHttpContentBytes(), &resp)
+	log.Printf("response for create %v", &resp)
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_db_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	log.Printf("response25 %v", response)
+	d.SetId(resp.DBInstanceId)
 
 	// wait instance status change from Creating to running
 	stateConf := BuildStateConf([]string{"Creating"}, []string{"Running"}, d.Timeout(schema.TimeoutCreate), 5*time.Minute, rdsService.RdsDBInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}))
@@ -198,16 +391,17 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
+	//const tde_set = false
 	client := meta.(*connectivity.ApsaraStackClient)
 	rdsService := RdsService{client}
 	d.Partial(true)
 	stateConf := BuildStateConf([]string{"DBInstanceClassChanging", "DBInstanceNetTypeChanging"}, []string{"Running"}, d.Timeout(schema.TimeoutUpdate), 10*time.Minute, rdsService.RdsDBInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}))
 
-	if d.HasChange("parameters") {
-		if err := rdsService.ModifyParameters(d, "parameters"); err != nil {
-			return WrapError(err)
-		}
-	}
+	//if d.HasChange("parameters") {
+	//	if err := rdsService.ModifyParameters(d, "parameters"); err != nil {
+	//		return WrapError(err)
+	//	}
+	//}
 
 	if err := rdsService.setInstanceTags(d); err != nil {
 		return WrapError(err)
@@ -328,26 +522,26 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		d.SetPartial("maintain_time")
 	}
 
-	if d.HasChange("security_ip_mode") && d.Get("security_ip_mode").(string) == SafetyMode {
-		request := rds.CreateMigrateSecurityIPModeRequest()
-		request.RegionId = client.RegionId
-		if strings.ToLower(client.Config.Protocol) == "https" {
-			request.Scheme = "https"
-		} else {
-			request.Scheme = "http"
-		}
-		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		request.DBInstanceId = d.Id()
-		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
-			return rdsClient.MigrateSecurityIPMode(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("security_ip_mode")
-	}
+	//if d.HasChange("security_ip_mode") && d.Get("security_ip_mode").(string) == SafetyMode {
+	//	request := rds.CreateMigrateSecurityIPModeRequest()
+	//	request.RegionId = client.RegionId
+	//	if strings.ToLower(client.Config.Protocol) == "https" {
+	//		request.Scheme = "https"
+	//	} else {
+	//		request.Scheme = "http"
+	//	}
+	//	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
+	//	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//	request.DBInstanceId = d.Id()
+	//	raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	//		return rdsClient.MigrateSecurityIPMode(request)
+	//	})
+	//	if err != nil {
+	//		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+	//	}
+	//	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	//	d.SetPartial("security_ip_mode")
+	//}
 
 	if d.IsNewResource() {
 		d.Partial(false)
@@ -446,6 +640,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	d.Partial(false)
+
 	return resourceApsaraStackDBInstanceRead(d, meta)
 }
 
@@ -483,7 +678,7 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 	d.Set("monitoring_period", monitoringPeriod)
 
 	d.Set("security_ips", ips)
-	d.Set("security_ip_mode", instance.SecurityIPMode)
+	//d.Set("security_ip_mode", instance.SecurityIPMode)
 
 	d.Set("engine", instance.Engine)
 	d.Set("engine_version", instance.EngineVersion)
@@ -498,9 +693,9 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 	d.Set("instance_name", instance.DBInstanceDescription)
 	d.Set("maintain_time", instance.MaintainTime)
 
-	if err = rdsService.RefreshParameters(d, "parameters"); err != nil {
-		return WrapError(err)
-	}
+	//if err = rdsService.RefreshParameters(d, "parameters"); err != nil {
+	//	return WrapError(err)
+	//}
 
 	if instance.PayType == string(Prepaid) {
 		request := rds.CreateDescribeInstanceAutoRenewalAttributeRequest()
@@ -590,73 +785,20 @@ func resourceApsaraStackDBInstanceDelete(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func buildDBCreateRequest(d *schema.ResourceData, meta interface{}) (*rds.CreateDBInstanceRequest, error) {
-	client := meta.(*connectivity.ApsaraStackClient)
-	vpcService := VpcService{client}
-	request := rds.CreateCreateDBInstanceRequest()
-	request.RegionId = string(client.Region)
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
-	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	request.EngineVersion = Trim(d.Get("engine_version").(string))
-	request.Engine = Trim(d.Get("engine").(string))
-	request.DBInstanceStorage = requests.NewInteger(d.Get("instance_storage").(int))
-	request.DBInstanceClass = Trim(d.Get("instance_type").(string))
-	request.DBInstanceNetType = string(Intranet)
-	request.DBInstanceDescription = d.Get("instance_name").(string)
+type CreateDBInstanceResponse struct {
+	*responses.BaseResponse
+	RequestId        string `json:"RequestId" xml:"RequestId"`
+	DBInstanceId     string `json:"DBInstanceId" xml:"DBInstanceId"`
+	OrderId          string `json:"OrderId" xml:"OrderId"`
+	ConnectionString string `json:"ConnectionString" xml:"ConnectionString"`
+	Port             string `json:"Port" xml:"Port"`
+}
 
-	if zone, ok := d.GetOk("zone_id"); ok && Trim(zone.(string)) != "" {
-		request.ZoneId = Trim(zone.(string))
-	}
-
-	vswitchId := Trim(d.Get("vswitch_id").(string))
-
-	request.InstanceNetworkType = string(Classic)
-
-	if vswitchId != "" {
-		request.VSwitchId = vswitchId
-		request.InstanceNetworkType = strings.ToUpper(string(Vpc))
-
-		// check vswitchId in zone
-		vsw, err := vpcService.DescribeVSwitch(vswitchId)
-		if err != nil {
-			return nil, WrapError(err)
-		}
-
-		if request.ZoneId == "" {
-			request.ZoneId = vsw.ZoneId
-		}
-
-		request.VPCId = vsw.VpcId
-	}
-
-	request.PayType = Trim(d.Get("instance_charge_type").(string))
-
-	if PayType(request.PayType) == Prepaid {
-
-		period := d.Get("period").(int)
-		request.UsedTime = strconv.Itoa(period)
-		request.Period = string(Month)
-		if period > 9 {
-			request.UsedTime = strconv.Itoa(period / 12)
-			request.Period = string(Year)
-		}
-	}
-
-	request.SecurityIPList = LOCAL_HOST_IP
-	if len(d.Get("security_ips").(*schema.Set).List()) > 0 {
-		request.SecurityIPList = strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
-	}
-
-	uuid, err := uuid.GenerateUUID()
-	if err != nil {
-		uuid = resource.UniqueId()
-	}
-	request.ClientToken = fmt.Sprintf("Terraform-ApsaraStack-%d-%s", time.Now().Unix(), uuid)
-
-	return request, nil
+type RoleARN struct {
+	AuthorizationState int    `json:"AuthorizationState"`
+	EagleEyeTraceID    string `json:"eagleEyeTraceId"`
+	AsapiSuccess       bool   `json:"asapiSuccess"`
+	AsapiRequestID     string `json:"asapiRequestId"`
+	RequestID          string `json:"RequestId"`
+	RoleArn            string `json:"RoleArn"`
 }
