@@ -14,26 +14,35 @@ Provides a ECS instance resource.
 ## Example Usage
 
 ```
-# Create a new ECS instance for a VPC
-
-resource "apsarastack_instance" "instance" {
-  image_id              = "${var.image_id}"
-  instance_type        = "${var.instance_type}"
-  system_disk_category = "cloud_efficiency"
-  security_groups      = ["${var.security_groups}"]
-  instance_name        = "${var.image_id}"
-  vswitch_id           = "vsw-abc1345"
-}
 
 # Create a new ECS instance for VPC
 resource "apsarastack_vpc" "vpc" {
-  # Other parameters...
+  name       = "tf_test_foo"
+  cidr_block = "${var.cidr_block}"
 }
 
-resource "apsarastack_vswitch" "vswitch" {
-  vpc_id = "${apsarastack_vpc.vpc.id}"
-  # Other parameters...
+resource "apsarastack_vswitch" "vsw" {
+  vpc_id            = "${apsarastack_vpc.vpc.id}"
+  cidr_block        = "${var.cidr_block}"
+  availability_zone = "${var.availability_zone}"
 }
+
+resource "apsarastack_security_group" "group" {
+  name   = "new-group"
+  vpc_id = "${apsarastack_vpc.vpc.id}"
+}
+
+resource "apsarastack_instance" "instance" {
+  image_id              = "ubuntu_18_04_64_20G_alibase_20190624.vhd"
+  instance_type        = "ecs.n4.large"
+  system_disk_category = "cloud_efficiency"
+  system_disk_size     = 40
+  system_disk_name     = "test_sys_disk"
+  security_groups      = [apsarastack_security_group.group.id]
+  instance_name        = "test_apsara_instance"
+  vswitch_id           = apsarastack_vswitch.vsw.id
+}
+
 
 ```
 

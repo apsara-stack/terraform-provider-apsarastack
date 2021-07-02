@@ -20,14 +20,19 @@ Represents a single `ingress` or `egress` group rule, which can be added to exte
 Basic Usage
 
 ```
-resource "apsarastack_security_group" "default" {
-  name = "default"
+resource "apsarastack_vpc" "vpc" {
+  cidr_block = "10.1.0.0/21"
+}
+
+resource "apsarastack_security_group" "group" {
+  name   = "new-group"
+  vpc_id = "${apsarastack_vpc.vpc.id}"
 }
 
 resource "apsarastack_security_group_rule" "allow_all_tcp" {
   type              = "ingress"
   ip_protocol       = "tcp"
-  nic_type          = "internet"
+  nic_type          = "intranet"
   policy            = "accept"
   port_range        = "1/65535"
   priority          = 1

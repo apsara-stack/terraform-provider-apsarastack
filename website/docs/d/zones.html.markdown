@@ -22,11 +22,8 @@ data "apsarastack_zones" "zones_ds" {
   available_disk_category = "cloud_ssd"
 }
 
-# Create an ECS instance with the first matched zone
-resource "apsarastack_instance" "instance" {
-  availability_zone = "${data.apsarastack_zones.zones_ds.zones.0.id}"
-
-  # Other properties...
+output "zones" {
+  value = data.apsarastack_zones.zones_ds.zones.*
 }
 ```
 

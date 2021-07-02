@@ -40,6 +40,11 @@ data "apsarastack_nat_gateways" "foo" {
   name_regex = "${apsarastack_nat_gateway.foo.name}"
   ids        = ["${apsarastack_nat_gateway.foo.id}"]
 }
+
+output "nat_gateways" {
+  value = "${data.apsarastack_nat_gateways.foo.gateways}"
+}
+
 ```
 
 ## Argument Reference

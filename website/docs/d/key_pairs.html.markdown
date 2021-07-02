@@ -18,10 +18,14 @@ This data source provides a list of key pairs in an Apsarastack Cloud account ac
 resource "apsarastack_key_pair" "default" {
   key_name = "keyPairDatasource"
 }
+
 data "apsarastack_key_pairs" "default" {
   name_regex = "${apsarastack_key_pair.default.key_name}"
 }
 
+output "key_pairs" {
+  value=data.apsarastack_key_pairs.default.*
+}
 ```
 
 ## Argument Reference

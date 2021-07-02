@@ -35,11 +35,10 @@ data "apsarastack_security_group_rules" "ingress_rules_ds" {
   ip_protocol = "TCP"
 }
 
-# Pass port_range to the backend service
-resource "apsarastack_instance" "backend" {
-  # ...
-  user_data = "config_service.sh --portrange=${data.apsarastack_security_group_rules.ingress_rules_ds.rules.0.port_range}"
+output "security_group_rules" {
+  value = data.apsarastack_security_group_rules.ingress_rules_ds
 }
+
 ```
 
 ## Argument Reference

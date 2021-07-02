@@ -27,13 +27,15 @@ resource "apsarastack_disk" "ecs_disk" {
   }
 }
 
-resource "apsarastack_instance" "ecs_instance" {
+resource "apsarastack_instance" "instance" {
   image_id              = "ubuntu_18_04_64_20G_alibase_20190624.vhd"
-  instance_type         = "${var.instance_type}"
-  availability_zone     = "${var.availability_zone}"
-  security_groups       = ["${var.security_groups}"]
-  instance_name         = "EcsInstance"
-
+  instance_type        = "ecs.n4.large"
+  system_disk_category = "cloud_efficiency"
+  system_disk_size     = 40
+  system_disk_name     = "test_sys_disk"
+  security_groups      = [var.security_group_id]
+  instance_name        = "test_apsara_instance"
+  vswitch_id           = var.vswitch_id
   tags = {
     Name = "TerraformTest-instance"
   }
@@ -41,7 +43,7 @@ resource "apsarastack_instance" "ecs_instance" {
 
 resource "apsarastack_disk_attachment" "ecs_disk_att" {
   disk_id     = "${apsarastack_disk.ecs_disk.id}"
-  instance_id = "${apsarastack_instance.ecs_instance.id}"
+  instance_id = "${apsarastack_instance.instance.id}"
 }
 ```
 ## Argument Reference
