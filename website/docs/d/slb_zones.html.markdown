@@ -17,6 +17,10 @@ This data source provides availability zones for SLB that can be accessed by an 
 ```
 # Declare the data source
 data "apsarastack_slb_zones" "zones_ids" {}
+
+output "slb_zones" {
+  value = data.apsarastack_slb_zones.zones_ids.*
+}
 ```
 
 ## Argument Reference

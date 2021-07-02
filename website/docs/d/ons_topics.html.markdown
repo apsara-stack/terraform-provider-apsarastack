@@ -47,7 +47,7 @@ data "apsarastack_ons_topics" "topics_ds" {
 }
 
 output "first_topic_name" {
-   value = data.apsarastack_ons_topics.topics.*
+   value = data.apsarastack_ons_topics.topics_ds.*
 }
 
 ```

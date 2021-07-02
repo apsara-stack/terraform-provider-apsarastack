@@ -35,7 +35,7 @@ data "apsarastack_ons_instances" "instances_ds" {
 }
 
 output "first_instance_id" {
-  value = data.apsarastack_ons_instances.onsins.*
+  value = data.apsarastack_ons_instances.instances_ds.*
 }
 ```
 

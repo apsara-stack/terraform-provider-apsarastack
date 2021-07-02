@@ -21,6 +21,10 @@ Basic Usage
 data "apsarastack_cms_alarm_contact_group" "example" {
   name_regex = "tf-testacc"
 }
+
+output "contact_groups" {
+  value = data.apsarastack_cms_alarm_contact_group.example
+}
 ```
 
 ## Argument Reference

@@ -20,8 +20,7 @@ resource "apsarastack_ascm_organization" "default" {
 
 resource "apsarastack_ascm_quota" "default" {
     quota_type = "organization"
-    quota_type_id = apsarastack_ascm_organization.default.parent_id // For creating FatherQuota
-    //quota_type_id = apsarastack_ascm_organization.default.org_id
+    quota_type_id = apsarastack_ascm_organization.default.parent_id
     product_name = "RDS"
     total_cpu = 1500
     total_disk = 1500

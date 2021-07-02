@@ -18,11 +18,11 @@ Create an alias for the master key (CMK).
 Basic Usage
 
 ```
-resource "apsarastack_kms_key" "this" {}
+resource "apsarastack_kms_key" "key" {}
 
-resource "apsarastack_kms_alias" "this" {
+resource "apsarastack_kms_alias" "alias" {
   alias_name = "alias/test_kms_alias"
-  key_id     = apsarastack_kms_key.this.id
+  key_id     = apsarastack_kms_key.key.id
 }
 ```
 

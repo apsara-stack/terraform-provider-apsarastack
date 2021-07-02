@@ -29,6 +29,10 @@ resource "apsarastack_vswitch" "vswitch" {
 data "apsarastack_vswitches" "default" {
   name_regex = "${apsarastack_vswitch.vswitch.name}"
 }
+
+output "vswitches" {
+  value = data.apsarastack_vswitches.default.vswitches.*
+}
 ```
 
 ## Argument Reference

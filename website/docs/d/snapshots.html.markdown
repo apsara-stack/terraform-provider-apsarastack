@@ -17,6 +17,10 @@ Use this data source to get a list of snapshot according to the specified filter
 data "apsarastack_snapshots" "snapshots" {
   name_regex = "${var.name_regex}"
 }
+
+output "snapshots" {
+  value = data.apsarastack_snapshots.snapshots
+}
 ```
 
 ##  Argument Reference

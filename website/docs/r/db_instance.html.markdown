@@ -45,6 +45,11 @@ resource "apsarastack_db_instance" "default" {
   instance_name        = "${var.name}"
   vswitch_id           = "${apsarastack_vswitch.default.id}"
   monitoring_period    = "60"
+  encryption=true
+  encryption_key="f23ed1c9-b91f-......"
+  multi_zone=true
+  zone_id_slave1="${data.apsarastack_zones.default.zones.0.id}"
+  zone_id="${data.apsarastack_zones.default.zones.0.id}"
 }
 ```
 
@@ -69,6 +74,11 @@ resource "apsarastack_db_instance" "default" {
   db_instance_class   = "rds.mysql.t1.small"
   db_instance_storage = "10"
   vswitch_id          = "${apsarastack_vswitch.default.id}"
+  encryption=true
+  encryption_key="f23ed1c9-b91f-......"
+  multi_zone=true
+  zone_id_slave1="${data.apsarastack_zones.default.zones.0.id}"
+  zone_id="${data.apsarastack_zones.default.zones.0.id}"
 }
 
 resource "apsarastack_db_instance" "default" {
@@ -104,6 +114,9 @@ The following arguments are supported:
 
 * `instance_name` - (Optional) The name of DB instance. It a string of 2 to 256 characters.
 * `zone_id` - (ForceNew) The Zone to launch the DB instance.
+* `encryption` - (Optional, ForceNew) To enable/disble encryption. Default `false`. 
+* `encryption_key` - (Optional) Add encryptionkey to the DBInstance. Must set `encryption` to true.
+* `zone_id_slave1` - (Optional) The zone ID of the secondary instance.
 If it is a multi-zone and `vswitch_id` is specified, the vswitch must in the one of them.
 The multiple zone ID can be retrieved by setting `multi` to "true" in the data source `apsarastack_zones`.
 * `vswitch_id` - (ForceNew) The virtual switch ID to launch DB instances in one VPC.

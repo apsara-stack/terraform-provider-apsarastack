@@ -57,6 +57,11 @@ resource "apsarastack_snat_entry" "foo" {
 data "apsarastack_snat_entries" "foo" {
   snat_table_id = "${apsarastack_snat_entry.foo.snat_table_id}"
 }
+
+output "snat_entries" {
+  value = "${data.apsarastack_snat_entries.foo.entries}"
+}
+
 ```
 
 ## Argument Reference

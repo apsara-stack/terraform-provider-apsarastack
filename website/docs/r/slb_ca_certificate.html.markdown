@@ -29,7 +29,7 @@ resource "apsarastack_slb_ca_certificate" "foo" {
 ```
 resource "apsarastack_slb_ca_certificate" "foo-file" {
   name           = "tf-testAccSlbCACertificate"
-  ca_certificate = "${file("${path.module}/ca_certificate.pem")}"
+  ca_certificate = file("${path.module}/ca_certificate.pem")
 }
 ```
 

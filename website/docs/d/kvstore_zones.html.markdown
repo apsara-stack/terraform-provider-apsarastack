@@ -18,11 +18,8 @@ This data source provides availability zones for KVStore that can be accessed by
 # Declare the data source
 data "apsarastack_kvstore_zones" "zones_ids" {}
 
-# Create an KVStore instance with the first matched zone
-resource "apsarastack_kvstore_instance" "kvstore" {
-    availability_zone = data.apsarastack_kvstore_zones.zones_ids.zones.0.id
-
-  # Other properties...
+output "kvstore_zones" {
+  value = "${data.apsarastack_kvstore_zones.zones_ids.zones}"
 }
 ```
 
