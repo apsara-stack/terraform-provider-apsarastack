@@ -23,8 +23,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-var tde_set = false
-
 func resourceApsaraStackDBInstance() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceApsaraStackDBInstanceCreate,
@@ -56,10 +54,18 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"zone_id_slave2": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"tde_status": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				ForceNew: tde_set,
+			},
+			"enable_ssl": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
 			},
 			"storage_type": {
 				Type:         schema.TypeString,
@@ -111,11 +117,11 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 				Default:          false,
 				DiffSuppressFunc: PostPaidDiffSuppressFunc,
 			},
-			"multi_zone": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
+			//"multi_zone": {
+			//	Type:             schema.TypeBool,
+			//	Optional:         true,
+			//	Default:          false,
+			//},
 			"auto_renew_period": {
 				Type:             schema.TypeInt,
 				ValidateFunc:     validation.IntBetween(1, 12),
@@ -211,7 +217,13 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	client := meta.(*connectivity.ApsaraStackClient)
 	rdsService := RdsService{client}
 
+	//request, err := buildDBCreateRequest(d, meta)
+	//if err != nil {
+	//	return WrapError(err)
+	//}
+	//client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
+	//request := rds.CreateCreateDBInstanceRequest()
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
 	request.Product = "Rds"
@@ -226,7 +238,9 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	} else {
 		request.Scheme = "http"
 	}
-	var VSwitchId, InstanceNetworkType, ZoneIdSlave1, ZoneId, VPCId, arnrole string
+
+	//request.Headers = map[string]string{"RegionId": string(client.RegionId)}
+	var VSwitchId, InstanceNetworkType, ZoneIdSlave1, ZoneIdSlave2, ZoneId, VPCId, arnrole string
 	var encryption bool
 	EncryptionKey := d.Get("encryption_key").(string)
 	encryption = d.Get("encryption").(bool)
@@ -272,7 +286,6 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 		}
 		arnrole = arnresp.RoleArn
 		d.Set("role_arn", arnrole)
-
 		log.Printf("check arnrole %v", arnrole)
 	} else if EncryptionKey == "" && encryption == true {
 		return WrapErrorf(nil, "Add EncryptionKey or Set encryption to false", "CheckCloudResourceAuthorized", request.GetActionName())
@@ -292,7 +305,6 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	DBInstanceClass := Trim(d.Get("instance_type").(string))
 	DBInstanceNetType := string(Intranet)
 	DBInstanceDescription := d.Get("instance_name").(string)
-	MultiZone := strconv.FormatBool(d.Get("multi_zone").(bool))
 	if zone, ok := d.GetOk("zone_id"); ok && Trim(zone.(string)) != "" {
 		ZoneId = Trim(zone.(string))
 	}
@@ -317,11 +329,13 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	}
 	PayType := Trim(d.Get("instance_charge_type").(string))
 	DBInstanceStorageType := d.Get("storage_type").(string)
-	if d.Get("multi_zone").(bool) == true {
-		if ZoneIdSlave1 = d.Get("zone_id_slave1").(string); ZoneIdSlave1 == "" {
-			return WrapErrorf(nil, "ZoneIdSlave1 should be set if Multi Zone is true", d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-	}
+	ZoneIdSlave1 = d.Get("zone_id_slave1").(string)
+	ZoneIdSlave2 = d.Get("zone_id_slave2").(string)
+	//if d.Get("multi_zone").(bool)==true{
+	//	if ZoneIdSlave1=d.Get("zone_id_slave1").(string);ZoneIdSlave1==""{
+	//		return WrapErrorf(nil, "ZoneIdSlave1 should be set if Multi Zone is true", d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+	//	}
+	//}
 	SecurityIPList := LOCAL_HOST_IP
 	if len(d.Get("security_ips").(*schema.Set).List()) > 0 {
 		SecurityIPList = strings.Join(expandStringList(d.Get("security_ips").(*schema.Set).List())[:], COMMA_SEPARATED)
@@ -343,7 +357,7 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 		"DBInstanceClass":       DBInstanceClass,
 		"DBInstanceNetType":     DBInstanceNetType,
 		"DBInstanceDescription": DBInstanceDescription,
-		"MultiZone":             MultiZone,
+		//"MultiZone":MultiZone,
 		"InstanceNetworkType":   InstanceNetworkType,
 		"VSwitchId":             VSwitchId,
 		"PayType":               PayType,
@@ -351,13 +365,19 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 		"SecurityIPList":        SecurityIPList,
 		"ClientToken":           ClientToken,
 		"ZoneIdSlave1":          ZoneIdSlave1,
+		"ZoneIdSlave2":          ZoneIdSlave2,
 		"EncryptionKey":         EncryptionKey,
 		"ZoneId":                ZoneId,
 		"VPCId":                 VPCId,
 		"RoleARN":               arnrole,
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
+	//request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	log.Printf("request245 %v", request.QueryParams)
+	//log.Printf("request245 %v",request)
+	//raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+	//	return rdsClient.CreateDBInstance(request)
+	//})
 	raw, err := client.WithEcsClient(func(crClient *ecs.Client) (interface{}, error) {
 		return crClient.ProcessCommonRequest(request)
 	})
@@ -380,6 +400,7 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	}
 	log.Printf("response25 %v", response)
 	d.SetId(resp.DBInstanceId)
+	d.Set("connection_string", resp.ConnectionString)
 
 	// wait instance status change from Creating to running
 	stateConf := BuildStateConf([]string{"Creating"}, []string{"Running"}, d.Timeout(schema.TimeoutCreate), 5*time.Minute, rdsService.RdsDBInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}))
@@ -387,6 +408,59 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
 
+	if tde := d.Get("tde_status"); tde == true {
+		client := meta.(*connectivity.ApsaraStackClient)
+		rdsService = RdsService{client}
+		tde_req := rds.CreateModifyDBInstanceTDERequest()
+		tde_req.RegionId = client.RegionId
+		tde_req.Headers = map[string]string{"RegionId": client.RegionId}
+		tde_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		tde_req.DBInstanceId = d.Id()
+		tde_req.TDEStatus = "Enabled"
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		tderaw, err := client.WithRdsClient(func(client *rds.Client) (interface{}, error) {
+			return client.ModifyDBInstanceTDE(tde_req)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_db_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+
+		if err := rdsService.WaitForDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
+			return WrapError(err)
+		}
+
+		log.Print("enabled TDE")
+		addDebug(request.GetActionName(), tderaw, request)
+	}
+	if ssl := d.Get("enable_ssl"); ssl == true {
+		ssl_req := rds.CreateModifyDBInstanceSSLRequest()
+		ssl_req.RegionId = client.RegionId
+		ssl_req.Headers = map[string]string{"RegionId": client.RegionId}
+		ssl_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
+		ssl_req.DBInstanceId = d.Id()
+		ssl_req.SSLEnabled = "1"
+		ssl_req.ConnectionString = d.Get("connection_string").(string)
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		sslraw, err := client.WithRdsClient(func(client *rds.Client) (interface{}, error) {
+			return client.ModifyDBInstanceSSL(ssl_req)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		if err := rdsService.WaitForDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
+			return WrapError(err)
+		}
+		log.Print("enabled SSL")
+		addDebug(request.GetActionName(), sslraw, request)
+	}
 	return resourceApsaraStackDBInstanceUpdate(d, meta)
 }
 
@@ -640,7 +714,90 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	d.Partial(false)
+	if d.HasChange("tde_status") {
+		//if tde:=d.Get("tde_status");tde==true{
+		client := meta.(*connectivity.ApsaraStackClient)
+		rdsService = RdsService{client}
+		tde_req := rds.CreateModifyDBInstanceTDERequest()
+		tde_req.RegionId = client.RegionId
+		tde_req.Headers = map[string]string{"RegionId": client.RegionId}
+		tde_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		tde_req.DBInstanceId = d.Id()
+		tde_req.TDEStatus = "Enabled"
+		//tde_req.RoleArn=d.Get("role_arn").(string)
+		//tde_req.EncryptionKey=d.Get("encryption_key").(string)
 
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		raw, err := client.WithRdsClient(func(client *rds.Client) (interface{}, error) {
+			return client.ModifyDBInstanceTDE(tde_req)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		if err := rdsService.WaitForDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
+			return WrapError(err)
+		}
+		log.Print("Updated TDE")
+		addDebug(request.GetActionName(), raw, request)
+		//}
+
+	}
+	if d.HasChange("enable_ssl") {
+		ssl := d.Get("enable_ssl").(bool)
+		if ssl == true {
+			ssl_req := rds.CreateModifyDBInstanceSSLRequest()
+			ssl_req.RegionId = client.RegionId
+			ssl_req.Headers = map[string]string{"RegionId": client.RegionId}
+			ssl_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
+			ssl_req.DBInstanceId = d.Id()
+			ssl_req.SSLEnabled = "1"
+			ssl_req.ConnectionString = d.Get("connection_string").(string)
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
+			sslraw, err := client.WithRdsClient(func(client *rds.Client) (interface{}, error) {
+				return client.ModifyDBInstanceSSL(ssl_req)
+			})
+			if err != nil {
+				return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+			}
+			if err := rdsService.WaitForDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
+				return WrapError(err)
+			}
+			log.Print("Updated SSL to true")
+			addDebug(request.GetActionName(), sslraw, request)
+		} else {
+			ssl_req := rds.CreateModifyDBInstanceSSLRequest()
+			ssl_req.RegionId = client.RegionId
+			ssl_req.Headers = map[string]string{"RegionId": client.RegionId}
+			ssl_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
+			ssl_req.DBInstanceId = d.Id()
+			ssl_req.SSLEnabled = "0"
+			ssl_req.ConnectionString = d.Get("connection_string").(string)
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
+			sslraw, err := client.WithRdsClient(func(client *rds.Client) (interface{}, error) {
+				return client.ModifyDBInstanceSSL(ssl_req)
+			})
+			if err != nil {
+				return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+			}
+			if err := rdsService.WaitForDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
+				return WrapError(err)
+			}
+			log.Print("Updated SSL to false")
+			addDebug(request.GetActionName(), sslraw, request)
+		}
+	}
 	return resourceApsaraStackDBInstanceRead(d, meta)
 }
 
