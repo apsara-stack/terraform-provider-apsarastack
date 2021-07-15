@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"log"
 	"strings"
 	"time"
 
@@ -122,7 +123,12 @@ func resourceApsaraStackDBReadonlyInstanceCreate(d *schema.ResourceData, meta in
 	if err != nil {
 		return WrapError(err)
 	}
+	log.Print("wait for instance to be ready")
 
+	if err := rdsService.WaitForDBInstance(request.DBInstanceId, Running, DefaultTimeout); err != nil {
+		return WrapError(err)
+	}
+	log.Print("instance is ready")
 	raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 		return rdsClient.CreateReadOnlyDBInstance(request)
 	})

@@ -47,6 +47,11 @@ resource "apsarastack_db_instance" "default" {
   vswitch_id           = apsarastack_vswitch.default.id
 }
 
+resource "apsarastack_db_connection" "connection" {
+  instance_id       = apsarastack_db_instance.default.id
+  connection_prefix = var.connection_prefix
+}
+
 resource "apsarastack_db_readonly_instance" "default" {
   master_db_instance_id = apsarastack_db_instance.default.id
   zone_id               = apsarastack_db_instance.default.zone_id
@@ -56,6 +61,7 @@ resource "apsarastack_db_readonly_instance" "default" {
   instance_name         = "${var.name}ro"
   vswitch_id            = apsarastack_vswitch.default.id
   db_instance_storage_type= "local_ssd"
+  depends_on = [apsarastack_db_connection.connection]
 }
 ```
 
