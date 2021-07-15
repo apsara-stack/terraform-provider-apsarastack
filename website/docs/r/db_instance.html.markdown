@@ -47,7 +47,8 @@ resource "apsarastack_db_instance" "default" {
   monitoring_period    = "60"
   encryption=true
   encryption_key="f23ed1c9-b91f-......"
-  multi_zone=true
+  tde_status=false
+  enable_ssl=false
   zone_id_slave1="${data.apsarastack_zones.default.zones.0.id}"
   zone_id="${data.apsarastack_zones.default.zones.0.id}"
 }
@@ -68,7 +69,7 @@ resource "apsarastack_vswitch" "default" {
   name              = "vpc-123456"
 }
 
-resource "apsarastack_db_instance" "default" {
+resource "apsarastack_db_instance" "default1" {
   engine              = "MySQL"
   engine_version      = "5.6"
   db_instance_class   = "rds.mysql.t1.small"
@@ -76,12 +77,13 @@ resource "apsarastack_db_instance" "default" {
   vswitch_id          = "${apsarastack_vswitch.default.id}"
   encryption=true
   encryption_key="f23ed1c9-b91f-......"
-  multi_zone=true
   zone_id_slave1="${data.apsarastack_zones.default.zones.0.id}"
   zone_id="${data.apsarastack_zones.default.zones.0.id}"
+  tde_status=false
+  enable_ssl=false
 }
 
-resource "apsarastack_db_instance" "default" {
+resource "apsarastack_db_instance" "default2" {
   engine              = "MySQL"
   engine_version      = "5.6"
   db_instance_class   = "rds.mysql.t1.small"
@@ -117,6 +119,9 @@ The following arguments are supported:
 * `encryption` - (Optional, ForceNew) To enable/disble encryption. Default `false`. 
 * `encryption_key` - (Optional) Add encryptionkey to the DBInstance. Must set `encryption` to true.
 * `zone_id_slave1` - (Optional) The zone ID of the secondary instance.
+* `zone_id_slave` - (Optional) The zone ID of the secondary instance.
+* `tde_status` - (Optional) Enables the Transparent Data Encryption (TDE) function for an ApsaraDB for RDS instance.
+* `enable_ssl` - (Optional) To enable the SSL encryption of an ApsaraDB RDS instance.
 If it is a multi-zone and `vswitch_id` is specified, the vswitch must in the one of them.
 The multiple zone ID can be retrieved by setting `multi` to "true" in the data source `apsarastack_zones`.
 * `vswitch_id` - (ForceNew) The virtual switch ID to launch DB instances in one VPC.

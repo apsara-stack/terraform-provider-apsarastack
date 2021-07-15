@@ -67,6 +67,39 @@ resource "apsarastack_cs_kubernetes" "k8s" {
    }
   user_data="ZWNobyBoZWxsbw=="
 }
+
+variable "cluster_addons" {
+  description = "Addon components in kubernetes cluster"
+
+  type = list(object({
+    name      = string
+    config    = string
+  }))
+
+  default = [
+    {
+      name     = "terway",
+      config   = "",
+    },
+    {
+      name     = "csi-plugin",
+      config   = "",
+    },
+    {
+      name     = "csi-provisioner",
+      config   = "",
+    },
+    {
+      name     = "logtail-ds",
+      config   = "{\"IngressDashboardEnabled\":\"true\",\"sls_project_name\":\"alibaba-test\"}",
+    },
+    {
+      name     = "nginx-ingress-controller",
+      config   = "{\"IngressSlbNetworkType\":\"internet\"}",
+    }
+  ]
+}
+
 ```
 
 ## Argument Reference
@@ -95,8 +128,8 @@ The following arguments are supported:
 * `node_cidr_mask` - (Optional) The node cidr block to specific how many pods can run on single node. 24-28 is allowed. 24 means 2^(32-24)-1=255 and the node can run at most 255 pods. default: 24
 * `slb_internet_enabled` - (Optional) Whether to create internet load balancer for API Server. Default to true.
 
-If you want to use `Terway` as CNI network plugin, You need to specific the `pod_vswitch_ids` field and addons with `terway-eniip`.    
-If you want to use `Flannel` as CNI network plugin, You need to specific the `pod_cidr` field and addons with `flannel`.
+If you want to use `Terway` as CNI network plugin, You need to specify the `pod_vswitch_ids` field and addons with `csi-plugin`,`csi-provisioner`,`logtail-ds` and `nginx-ingress-controller`.    
+If you want to use `Flannel` as CNI network plugin, You need to specify the `pod_cidr` field and addons with `flannel`.
 
 #### Master params
 * `master_disk_category` - (Optional) The system disk category of master node. Its valid value are `cloud_ssd` and `cloud_efficiency`. Default to `cloud_efficiency`.
