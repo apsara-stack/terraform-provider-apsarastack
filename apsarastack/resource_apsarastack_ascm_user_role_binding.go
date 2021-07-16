@@ -205,5 +205,8 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 		}
 		return nil
 	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "RemoveRoleFromUser", ApsaraStackSdkGoERROR)
+	}
 	return nil
 }

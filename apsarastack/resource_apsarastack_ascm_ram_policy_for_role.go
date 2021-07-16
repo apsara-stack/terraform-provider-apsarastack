@@ -173,5 +173,8 @@ func resourceApsaraStackAscmRamPolicyForRoleDelete(d *schema.ResourceData, meta 
 		}
 		return nil
 	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "RemoveRAMPolicyFromRole", ApsaraStackSdkGoERROR)
+	}
 	return nil
 }

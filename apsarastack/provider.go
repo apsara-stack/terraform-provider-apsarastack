@@ -1045,6 +1045,9 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 	}
 	response := &ResourceGroup{}
 	err = json.Unmarshal(resp.GetHttpContentBytes(), response)
+	if err != nil {
+		return "", "", err
+	}
 	var deptId int   // Organization ID
 	var resGrpId int //ID of resource set
 	deptId = 0

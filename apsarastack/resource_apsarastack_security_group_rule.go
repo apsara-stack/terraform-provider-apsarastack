@@ -126,14 +126,15 @@ func resourceApsaraStackSecurityGroupRuleCreate(d *schema.ResourceData, meta int
 		}
 	}
 	request, err := buildApsaraStackSGRuleRequest(d, meta)
+	if err != nil {
+		return WrapError(err)
+	}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
-	if err != nil {
-		return WrapError(err)
-	}
+
 	var cidr_ip string
 	if ip, ok := d.GetOk("cidr_ip"); ok {
 		cidr_ip = ip.(string)
@@ -234,14 +235,15 @@ func resourceApsaraStackSecurityGroupRuleUpdate(d *schema.ResourceData, meta int
 	}
 
 	request, err := buildApsaraStackSGRuleRequest(d, meta)
+	if err != nil {
+		return WrapError(err)
+	}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
-	if err != nil {
-		return WrapError(err)
-	}
+
 	direction := d.Get("type").(string)
 
 	if direction == string(DirectionIngress) {
@@ -338,12 +340,11 @@ func buildApsaraStackSGRuleRequest(d *schema.ResourceData, meta interface{}) (*r
 	}
 
 	request, err := client.NewCommonRequest(ruleReq.GetProduct(), ruleReq.GetLocationServiceCode(), client.Config.Protocol, connectivity.ApiVersion20140526)
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
 	if err != nil {
 		return request, WrapError(err)
 	}
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	direction := d.Get("type").(string)
 
