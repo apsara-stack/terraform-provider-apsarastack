@@ -119,7 +119,9 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 		}
 		return resource.RetryableError(err)
 	})
-
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "DescribeDnsDomain")
+	}
 	//id := strconv.Itoa(dnsresp.ID)
 	//d.SetId(id)
 	d.SetId(check.ZoneList[0].DomainName + COLON_SEPARATED + fmt.Sprint(check.ZoneList[0].DomainID))
@@ -256,5 +258,8 @@ func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}
 		}
 		return nil
 	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "DeleteGlobalZone", ApsaraStackSdkGoERROR)
+	}
 	return nil
 }

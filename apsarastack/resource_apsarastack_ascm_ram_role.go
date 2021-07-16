@@ -117,6 +117,9 @@ func resourceApsaraStackAscmRamRoleCreate(d *schema.ResourceData, meta interface
 		}
 		return resource.RetryableError(err)
 	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "DescribeAscmRamRole", ApsaraStackSdkGoERROR)
+	}
 	d.SetId(name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
 	return resourceApsaraStackAscmRamRoleUpdate(d, meta)
 
@@ -204,5 +207,8 @@ func resourceApsaraStackAscmRamRoleDelete(d *schema.ResourceData, meta interface
 		}
 		return nil
 	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "RemoveRole", ApsaraStackSdkGoERROR)
+	}
 	return nil
 }

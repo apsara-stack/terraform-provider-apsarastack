@@ -336,9 +336,9 @@ func dataSourceApsaraStackOssBucketsRead(d *schema.ResourceData, meta interface{
 		//	requestInfo = ossClient
 		//	return ossClient.ListBuckets(options...)
 		//})
-		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_oss_bucket", "CreateBucket", ApsaraStackOssGoSdk)
-		}
+		//if err != nil {
+		//	return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_oss_bucket", "CreateBucket", ApsaraStackOssGoSdk)
+		//}
 		if debugOn() {
 			addDebug("ListBuckets", raw, requestInfo, map[string]interface{}{"options": options})
 		}

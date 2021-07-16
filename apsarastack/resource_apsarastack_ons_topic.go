@@ -204,5 +204,8 @@ func resourceApsaraStackOnsTopicDelete(d *schema.ResourceData, meta interface{})
 		}
 		return nil
 	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_ons_topic", "ConsoleTopicDelete", ApsaraStackSdkGoERROR)
+	}
 	return nil
 }
