@@ -20,7 +20,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/elasticsearch"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
 	r_kvstore "github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
@@ -48,7 +47,7 @@ func dataSourceApsaraStackZones() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					string(ResourceTypeInstance),
 					string(ResourceTypeRds),
-					string(ResourceTypePolarDB),
+					//string(ResourceTypePolarDB),
 					string(ResourceTypeRkv),
 					string(ResourceTypeVSwitch),
 					string(ResourceTypeDisk),
@@ -244,54 +243,70 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 			rdsZones[r.ZoneId] = r.RegionId
 		}
 	}
-	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypePolarDB)) {
-		request := polardb.CreateDescribeRegionsRequest()
-		request.RegionId = client.RegionId
-		raw, err := client.WithPolarDBClient(func(polarDBClient *polardb.Client) (interface{}, error) {
-			return polarDBClient.DescribeRegions(request)
-		})
-		if err != nil {
-			return WrapError(fmt.Errorf("[ERROR] DescribeRegions got an error: %#v", err))
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		regions, _ := raw.(*polardb.DescribeRegionsResponse)
-		if len(regions.Regions.Region) <= 0 {
-			return WrapError(fmt.Errorf("[ERROR] There is no available region for PolarDB."))
-		}
-		for _, r := range regions.Regions.Region {
-			for _, zone := range r.Zones.Zone {
-				if multi && strings.Contains(zone.ZoneId, MULTI_IZ_SYMBOL) && r.RegionId == string(client.Region) {
-					zoneIds = append(zoneIds, zone.ZoneId)
-					continue
-				}
-				polarDBZones[zone.ZoneId] = r.RegionId
-			}
-		}
-	}
+	//if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypePolarDB)) {
+	//	request := polardb.CreateDescribeRegionsRequest()
+	//	request.RegionId = client.RegionId
+	//	request.Headers = map[string]string{"RegionId": client.RegionId}
+	//	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//	request.Domain=client.Domain
+	//	raw, err := client.WithPolarDBClient(func(polarDBClient *polardb.Client) (interface{}, error) {
+	//		return polarDBClient.DescribeRegions(request)
+	//	})
+	//	if err != nil {
+	//		return WrapError(fmt.Errorf("[ERROR] DescribeRegions got an error: %#v", err))
+	//	}
+	//	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	//	regions, _ := raw.(*polardb.DescribeRegionsResponse)
+	//	if len(regions.Regions.Region) <= 0 {
+	//		return WrapError(fmt.Errorf("[ERROR] There is no available region for PolarDB."))
+	//	}
+	//	for _, r := range regions.Regions.Region {
+	//		for _, zone := range r.Zones.Zone {
+	//			if multi && strings.Contains(zone.ZoneId, MULTI_IZ_SYMBOL) && r.RegionId == string(client.Region) {
+	//				zoneIds = append(zoneIds, zone.ZoneId)
+	//				continue
+	//			}
+	//			polarDBZones[zone.ZoneId] = r.RegionId
+	//		}
+	//	}
+	//}
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeRkv)) {
-		request := r_kvstore.CreateDescribeAvailableResourceRequest()
+		request := r_kvstore.CreateDescribeZonesRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		request.InstanceChargeType = instanceChargeType
+		//request.InstanceChargeType = instanceChargeType
 		raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
-			return rkvClient.DescribeAvailableResource(request)
+			return rkvClient.DescribeZones(request)
 		})
 		if err != nil {
 			return WrapError(fmt.Errorf("[ERROR] DescribeAvailableResource got an error: %#v", err))
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		zones, _ := raw.(*r_kvstore.DescribeAvailableResourceResponse)
-		if len(zones.AvailableZones.AvailableZone) <= 0 {
+		//zones, _ := raw.(*r_kvstore.DescribeZonesResponse)
+		zones, _ := raw.(*r_kvstore.DescribeZonesResponse)
+		if len(zones.Zones.KVStoreZone) <= 0 {
 			return WrapError(fmt.Errorf("[ERROR] There is no available zones for KVStore"))
 		}
-		for _, zone := range zones.AvailableZones.AvailableZone {
+		for _, zone := range zones.Zones.KVStoreZone {
 			if multi && strings.Contains(zone.ZoneId, MULTI_IZ_SYMBOL) {
 				zoneIds = append(zoneIds, zone.ZoneId)
 				continue
 			}
-			rkvZones[zone.ZoneId] = zone.RegionId
+			rkvZones[zone.ZoneId] = zone.ZoneId
+
 		}
+		//if len(zones.RegionIds.KVStoreRegion) <= 0 {
+		//	return WrapError(fmt.Errorf("[ERROR] There is no available zones for KVStore"))
+		//}
+		//for _, zone := range zones.RegionIds.KVStoreRegion {
+		//	if multi && strings.Contains(zone.ZoneIds, MULTI_IZ_SYMBOL) {
+		//		zoneIds = append(zoneIds, zone.ZoneIds)
+		//		continue
+		//	}
+		//	rkvZones[zone.ZoneIds] = zone.ZoneIds
+		//
+		//}
 	}
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeMongoDB)) {
 		request := dds.CreateDescribeRegionsRequest()
@@ -438,7 +453,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	// Retrieving available zones for SLB
 	slaveZones := make(map[string][]string)
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeSlb)) {
-		request := slb.CreateDescribeAvailableResourceRequest()
+		request := slb.CreateDescribeZonesRequest()
 		request.RegionId = client.RegionId
 		if strings.ToLower(client.Config.Protocol) == "https" {
 			request.Scheme = "https"
@@ -447,27 +462,28 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		if ipVersion, ok := d.GetOk("available_slb_address_ip_version"); ok {
-			request.AddressIPVersion = ipVersion.(string)
-		}
-		if addressType, ok := d.GetOk("available_slb_address_type"); ok {
-			request.AddressType = addressType.(string)
-		}
+		//if ipVersion, ok := d.GetOk("available_slb_address_ip_version"); ok {
+		//	request.AddressIPVersion = ipVersion.(string)
+		//}
+		//if addressType, ok := d.GetOk("available_slb_address_type"); ok {
+		//	request.AddressType = addressType.(string)
+		//}
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
-			return slbClient.DescribeAvailableResource(request)
+			return slbClient.DescribeZones(request)
 		})
 		if err != nil {
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_zones", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		response, _ := raw.(*slb.DescribeAvailableResourceResponse)
-		for _, resource := range response.AvailableResources.AvailableResource {
-			slaveIds := slaveZones[resource.MasterZoneId]
-			slaveIds = append(slaveIds, resource.SlaveZoneId)
+		//response, _ := raw.(*slb.DescribeRegionsResponse)
+		response, _ := raw.(*slb.DescribeZonesResponse)
+		for _, resource := range response.Zones.Zone {
+			slaveIds := slaveZones[resource.ZoneId]
+			slaveIds = append(slaveIds, resource.ZoneId)
 			if len(slaveIds) > 0 {
 				sort.Strings(slaveIds)
 			}
-			slaveZones[resource.MasterZoneId] = slaveIds
+			slaveZones[resource.ZoneId] = slaveIds
 		}
 	}
 
