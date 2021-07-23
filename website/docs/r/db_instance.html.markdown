@@ -45,7 +45,6 @@ resource "apsarastack_db_instance" "default" {
   storage_type     = "local_ssd"
   instance_name        = "${var.name}"
   vswitch_id           = "${apsarastack_vswitch.default.id}"
-  encryption=true
   encryption_key="f23ed1c9-b91f-......"
   tde_status=false
   enable_ssl=false
@@ -75,7 +74,6 @@ resource "apsarastack_db_instance" "default1" {
   instance_type   = "rds.mysql.t1.small"
   instance_storage = "10"
   vswitch_id          = "${apsarastack_vswitch.default.id}"
-  encryption=true
   storage_type     = "local_ssd"
   encryption_key="f23ed1c9-b91f-......"
   zone_id_slave1="${data.apsarastack_zones.default.zones.0.id}"
@@ -111,8 +109,7 @@ The following arguments are supported:
 * `storage_type` - (Required) The type of storage media that is used for the instance.
 * `instance_name` - (Optional) The name of DB instance. It a string of 2 to 256 characters.
 * `zone_id` - (ForceNew) The Zone to launch the DB instance.
-* `encryption` - (Optional, ForceNew) To enable/disble encryption. Default `false`. 
-* `encryption_key` - (Optional) Add encryptionkey to the DBInstance. Must set `encryption` to true.
+* `encryption_key` - (Optional) Add encryptionkey to the DBInstance.
 * `zone_id_slave1` - (Optional) The zone ID of the secondary instance.
 * `zone_id_slave` - (Optional) The zone ID of the secondary instance.
 * `tde_status` - (Optional) Enables the Transparent Data Encryption (TDE) function for an ApsaraDB for RDS instance.
