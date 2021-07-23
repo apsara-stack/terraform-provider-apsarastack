@@ -33,7 +33,7 @@ The following arguments are supported:
 
 * `available_instance_type` - (Optional) Filter the results by a specific instance type.
 * `available_resource_creation` - (Optional) Filter the results by a specific resource type.
-Valid values: `Instance`, `Disk`, `VSwitch`, `Rds`, `KVStore`, `FunctionCompute`, `Elasticsearch`, `Slb`.
+Valid values: `Instance`, `Disk`, `VSwitch`, `Rds`, `KVStore`, `Slb`.
 * `available_disk_category` - (Optional) Filter the results by a specific disk category. Can be either `cloud`, `cloud_efficiency`, `cloud_ssd`, `ephemeral_ssd`.
 * `multi` - (Optional, type: bool) Indicate whether the zones can be used in a multi AZ configuration. Default to `false`. Multi AZ is usually used to launch RDS instances.
 * `instance_charge_type` - (Optional) Filter the results by a specific ECS instance charge type. Valid values: `PrePaid` and `PostPaid`. Default to `PostPaid`.
