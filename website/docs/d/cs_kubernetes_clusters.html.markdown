@@ -33,6 +33,7 @@ The following arguments are supported:
 * `name_regex` - (Optional) A regex string to filter results by cluster name.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 * `enabled_details` - (Optional) Boolean, false by default, only `id` and `name` are exported. Set to true if more details are needed, e.g., `master_disk_category`, `slb_internet_enabled`, `connections`. See full list in attributes.
+* `kube_config` - (Optional) Boolean, Set to true to obtain kubeconfig for a cluster and add clusterId in `ids`.
 
 ## Attributes Reference
 

@@ -80,6 +80,9 @@ func dataSourceApsaraStackInstanceTypeFamiliesRead(d *schema.ResourceData, meta 
 	}
 
 	zones, err := ecsService.DescribeZones(d)
+	if err != nil {
+		return WrapErrorf(err, "DescribeZones", "apsarastack_instance_type_families", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
 	families := make(map[string]map[string]string)
 	for _, zone := range zones {
 		for _, infos := range zone.AvailableResources.ResourcesInfo {
