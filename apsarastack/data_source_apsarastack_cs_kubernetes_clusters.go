@@ -2,16 +2,19 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/denverdino/aliyungo/cs"
-	"strings"
-
+	"github.com/go-yaml/yaml"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"io/ioutil"
+	"log"
 	"regexp"
+	"strings"
 )
 
 func dataSourceApsaraStackCSKubernetesClusters() *schema.Resource {
@@ -52,6 +55,10 @@ func dataSourceApsaraStackCSKubernetesClusters() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+			"kube_config": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			"clusters": {
 				Type:     schema.TypeList,
@@ -309,6 +316,7 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 	} else {
 		request.Scheme = "http"
 	}
+
 	request.ServiceCode = "cs"
 	request.ApiName = "DescribeClusters"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -330,11 +338,12 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 		if err != nil {
 			return WrapError(err)
 		}
-		if Clusterresponse[0].Name != "" || len(Clusterresponse) < 1 {
+		if len(Clusterresponse) < 1 {
 			break
 		}
 
 	}
+
 	var r *regexp.Regexp
 	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
 		r = regexp.MustCompile(nameRegex.(string))
@@ -375,9 +384,121 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 	if err := d.Set("clusters", s); err != nil {
 		return WrapError(err)
 	}
+	idsMap := make(map[string]string)
+	if v, ok := d.GetOk("ids"); ok {
+		for _, vv := range v.([]interface{}) {
+			if vv == nil {
+				continue
+			}
+			idsMap[vv.(string)] = vv.(string)
+		}
+	}
+	log.Printf("Entering kubeconfig %v 52", idsMap)
+	if file, ok := d.GetOk("kube_config"); ok && file.(string) != "" {
+		log.Printf("Entered kubeconfig")
+
+		for _, k := range idsMap {
+			log.Printf("IDS %v", idsMap)
+			request.Method = "POST"
+			request.Product = "Cs"
+			request.Version = "2015-12-15"
+
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				request.Scheme = "https"
+			} else {
+				request.Scheme = "http"
+			}
+			request.ServiceCode = "cs"
+			request.ApiName = "DescribeClusterUserKubeconfig"
+			request.Headers = map[string]string{"RegionId": client.RegionId, "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			request.RegionId = client.RegionId
+			log.Printf("ClusterIds: %v k202", k)
+			request.QueryParams = map[string]string{
+				"AccessKeyId":      client.AccessKey,
+				"AccessKeySecret":  client.SecretKey,
+				"Product":          "Cs",
+				"RegionId":         client.RegionId,
+				"Action":           "DescribeClusters",
+				"Version":          cs.CSAPIVersion,
+				"Department":       client.Department,
+				"ResourceGroup":    client.ResourceGroup,
+				"PrivateIpAddress": "false",
+				"ClusterId":        k,
+			}
+			log.Printf("request body %v", request)
+			raw, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
+				return csClient.ProcessCommonRequest(request)
+			})
+			if err != nil {
+				return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cs_kubernetes_clusters", request.GetActionName(), ApsaraStackSdkGoERROR)
+			}
+			resp, _ := raw.(*responses.CommonResponse)
+			var conf KubeConfig
+			var kubeconf Config
+			err = json.Unmarshal(resp.GetHttpContentBytes(), &conf)
+			if err != nil {
+				return WrapError(err)
+			}
+			err = yaml.Unmarshal([]byte(conf.Config), &kubeconf)
+			if err != nil {
+				log.Fatalf("cannot unmarshal data: %v", err)
+			}
+
+			yamls, err := yaml.Marshal(kubeconf)
+			err = ioutil.WriteFile(file.(string), yamls, 0777)
+			//// handle this error
+			if err != nil {
+				// print it out
+				fmt.Println(err)
+			}
+
+			log.Printf("kubeconfig check %v ", conf.Config)
+
+		}
+
+	}
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
 
 	return nil
+}
+
+type KubeConfig struct {
+	ServerRole      string `json:"serverRole"`
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AsapiSuccess    bool   `json:"asapiSuccess"`
+	AsapiRequestID  string `json:"asapiRequestId"`
+	Domain          string `json:"domain"`
+	API             string `json:"api"`
+	Config          string `json:"config"`
+}
+
+type Config struct {
+	APIVersion string `yaml:"apiVersion"`
+	Clusters   []struct {
+		Cluster struct {
+			CertificateAuthorityData string `yaml:"certificate-authority-data"`
+			Server                   string `yaml:"server"`
+		} `yaml:"cluster"`
+		Name string `yaml:"name"`
+	} `yaml:"clusters"`
+	Contexts []struct {
+		Context struct {
+			Cluster string `yaml:"cluster"`
+			User    string `yaml:"user"`
+		} `yaml:"context"`
+		Name string `yaml:"name"`
+	} `yaml:"contexts"`
+	CurrentContext string `yaml:"current-context"`
+	Kind           string `yaml:"kind"`
+	Preferences    struct {
+	} `yaml:"preferences"`
+	Users []struct {
+		Name string `yaml:"name"`
+		User struct {
+			ClientCertificateData string `yaml:"client-certificate-data"`
+			ClientKeyData         string `yaml:"client-key-data"`
+		} `yaml:"user"`
+	} `yaml:"users"`
 }
