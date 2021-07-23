@@ -196,6 +196,9 @@ func resourceApsarastackAscmAccessKeyDelete(d *schema.ResourceData, meta interfa
 		}
 		return nil
 	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ram_access_key", "RamDeleteAccessKey", ApsaraStackSdkGoERROR)
+	}
 	return nil
 
 }

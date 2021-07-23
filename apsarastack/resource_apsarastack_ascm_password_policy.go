@@ -208,5 +208,8 @@ func resourceApsaraStackAscmPasswordPolicyDelete(d *schema.ResourceData, meta in
 		}
 		return nil
 	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "ResetPasswordPolicy", ApsaraStackSdkGoERROR)
+	}
 	return nil
 }

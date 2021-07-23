@@ -193,20 +193,23 @@ func testAccCheckCommonBandwidthPackageAttachmentDestroy(s *terraform.State) err
 		}
 
 		parts, err := ParseResourceId(rs.Primary.ID, 2)
-		if len(parts) != 2 {
-			return WrapError(Error("invalid resource id"))
-		}
-		_, err = VpcService.DescribeCommonBandwidthPackageAttachment(rs.Primary.ID)
 		if err != nil {
 			if NotFoundError(err) {
 				continue
 			}
 			return WrapError(err)
 		}
+		if len(parts) != 2 {
+			return WrapError(Error("invalid resource id"))
+		}
+		_, err = VpcService.DescribeCommonBandwidthPackageAttachment(rs.Primary.ID)
+		if err != nil {
+			return WrapErrorf(err, "DescribeCommonBandwidthPackageAttachment")
+		}
+
 	}
 	return nil
 }
-
 func testAccCommonBandwidthPackageAttachmentConfigBasic(rand int) string {
 	return fmt.Sprintf(`
     variable "name"{

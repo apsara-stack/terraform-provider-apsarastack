@@ -202,7 +202,9 @@ func dataSourceApsaraStackSlbsRead(d *schema.ResourceData, meta interface{}) err
 		}
 		log.Printf("sss %s", raw)
 		err = json.Unmarshal(response.GetHttpContentBytes(), response)
-
+		if err != nil {
+			return WrapError(err)
+		}
 		allLoadBalancers = append(allLoadBalancers, response.LoadBalancers.LoadBalancer...)
 
 		if len(response.LoadBalancers.LoadBalancer) < PageSizeLarge {

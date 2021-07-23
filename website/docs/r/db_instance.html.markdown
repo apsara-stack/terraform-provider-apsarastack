@@ -42,10 +42,9 @@ resource "apsarastack_db_instance" "default" {
   engine_version       = "5.6"
   instance_type        = "rds.mysql.s2.large"
   instance_storage     = "30"
+  storage_type     = "local_ssd"
   instance_name        = "${var.name}"
   vswitch_id           = "${apsarastack_vswitch.default.id}"
-  monitoring_period    = "60"
-  encryption=true
   encryption_key="f23ed1c9-b91f-......"
   tde_status=false
   enable_ssl=false
@@ -72,10 +71,10 @@ resource "apsarastack_vswitch" "default" {
 resource "apsarastack_db_instance" "default1" {
   engine              = "MySQL"
   engine_version      = "5.6"
-  db_instance_class   = "rds.mysql.t1.small"
-  db_instance_storage = "10"
+  instance_type   = "rds.mysql.t1.small"
+  instance_storage = "10"
   vswitch_id          = "${apsarastack_vswitch.default.id}"
-  encryption=true
+  storage_type     = "local_ssd"
   encryption_key="f23ed1c9-b91f-......"
   zone_id_slave1="${data.apsarastack_zones.default.zones.0.id}"
   zone_id="${data.apsarastack_zones.default.zones.0.id}"
@@ -86,16 +85,10 @@ resource "apsarastack_db_instance" "default1" {
 resource "apsarastack_db_instance" "default2" {
   engine              = "MySQL"
   engine_version      = "5.6"
-  db_instance_class   = "rds.mysql.t1.small"
-  db_instance_storage = "10"
-  parameters {
-    name  = "innodb_large_prefix"
-    value = "ON"
-  }
-  parameters {
-    name  = "connect_timeout"
-    value = "50"
-  }
+  instance_type   = "rds.mysql.t1.small"
+  storage_type     = "local_ssd"
+  instance_storage = "10"
+  
 }
 ```
 
@@ -113,11 +106,10 @@ The following arguments are supported:
     - [20,2000] for SQL Server 2012 basic single node edition
     Increase progressively at a rate of 5 GB. For details, see [Instance type table](https://www.alibabacloud.com/help/doc-detail/26312.htm).
     Note: There is extra 5 GB storage for SQL Server Instance and it is not in specified `instance_storage`.
-
+* `storage_type` - (Required) The type of storage media that is used for the instance.
 * `instance_name` - (Optional) The name of DB instance. It a string of 2 to 256 characters.
 * `zone_id` - (ForceNew) The Zone to launch the DB instance.
-* `encryption` - (Optional, ForceNew) To enable/disble encryption. Default `false`. 
-* `encryption_key` - (Optional) Add encryptionkey to the DBInstance. Must set `encryption` to true.
+* `encryption_key` - (Optional) Add encryptionkey to the DBInstance.
 * `zone_id_slave1` - (Optional) The zone ID of the secondary instance.
 * `zone_id_slave` - (Optional) The zone ID of the secondary instance.
 * `tde_status` - (Optional) Enables the Transparent Data Encryption (TDE) function for an ApsaraDB for RDS instance.
@@ -126,15 +118,6 @@ If it is a multi-zone and `vswitch_id` is specified, the vswitch must in the one
 The multiple zone ID can be retrieved by setting `multi` to "true" in the data source `apsarastack_zones`.
 * `vswitch_id` - (ForceNew) The virtual switch ID to launch DB instances in one VPC.
 * `security_ips` - (Optional) List of IP addresses allowed to access all databases of an instance. The list contains up to 1,000 IP addresses, separated by commas. Supported formats include 0.0.0.0/0, 10.23.12.24 (IP), and 10.23.12.24/24 (Classless Inter-Domain Routing (CIDR) mode. /24 represents the length of the prefix in an IP address. The range of the prefix length is [1,32]).
-* `security_ip_mode` - (Optional)  Valid values are `normal`, `safety`, Default to `normal`. support `safety` switch to high security access mode 
-* `parameters` - (Optional) Set of parameters needs to be set after DB instance was launched. Available parameters can refer to the latest docs [View database parameter templates](https://www.alibabacloud.com/help/doc-detail/26284.htm) .
-* `force_restart` - (Optional) Set it to true to make some parameter efficient when modifying them. Default to false.
-* `tags` - (Optional) A mapping of tags to assign to the resource.
-    - Key: It can be up to 64 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It cannot be a null string.
-    - Value: It can be up to 128 characters in length. It cannot begin with "aliyun", "acs:", "http://", or "https://". It can be a null string.
-
-   
-* `maintain_time` - (Optional) Maintainable time period format of the instance: HH:MMZ-HH:MMZ (UTC time)
 
 -> **NOTE:** Because of data backup and migration, change DB instance type and storage would cost 15~20 minutes. Please make full preparation before changing them.
 
