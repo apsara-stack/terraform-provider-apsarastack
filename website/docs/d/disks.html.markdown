@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_disks"
 sidebar_current: "docs-apsarastack-datasource-disks"
 description: |-
-    Provides a list of disks to the user.
+Provides a list of disks to the user.
 ---
 
 # apsarastack\_disks
@@ -61,6 +61,7 @@ The following attributes are exported in addition to the arguments listed above:
   * `image_id` - ID of the image from which the disk is created. It is null unless the disk is created using an image.
   * `snapshot_id` - Snapshot used to create the disk. It is null if no snapshot is used to create the disk.
   * `instance_id` - ID of the related instance. It is `null` unless the `status` is `In_use`.
+  * `kms_key_id` - The ID of the KMS key corresponding to the data disk.
   * `creation_time` - Disk creation time.
   * `attached_time` - Disk attachment time.
   * `detached_time` - Disk detachment time.
