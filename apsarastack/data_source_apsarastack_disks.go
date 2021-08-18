@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"log"
 	"regexp"
 	"strings"
 
@@ -125,6 +126,10 @@ func dataSourceApsaraStackDisks() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
 						"expiration_time": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -158,7 +163,7 @@ func dataSourceApsaraStackDisksRead(d *schema.ResourceData, meta interface{}) er
 	if v, ok := d.GetOk("category"); ok && v.(string) != "" {
 		request.Category = v.(string)
 	}
-
+	log.Printf("Disktype25 %v", request.DiskType)
 	if v, ok := d.GetOk("instance_id"); ok && v.(string) != "" {
 		request.InstanceId = v.(string)
 	}
@@ -186,7 +191,7 @@ func dataSourceApsaraStackDisksRead(d *schema.ResourceData, meta interface{}) er
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*ecs.DescribeDisksResponse)
-
+		log.Printf("ecsDescribeDisk25 %v", response)
 		if response == nil || len(response.Disks.Disk) < 1 {
 			break
 		}
@@ -207,6 +212,19 @@ func dataSourceApsaraStackDisksRead(d *schema.ResourceData, meta interface{}) er
 	var filteredDisksTemp []ecs.Disk
 
 	nameRegex, ok := d.GetOk("name_regex")
+
+	if request.DiskType == "system" || request.DiskType == "data" {
+		log.Printf("entered ")
+		for _, disk := range allDisks {
+
+			if disk.Type == request.DiskType {
+				filteredDisksTemp = append(filteredDisksTemp, disk)
+			}
+
+		}
+		log.Printf("filtereddisks %v", filteredDisksTemp)
+		allDisks = filteredDisksTemp
+	}
 	if ok && nameRegex.(string) != "" {
 		var r *regexp.Regexp
 		if nameRegex != "" {
@@ -216,7 +234,6 @@ func dataSourceApsaraStackDisksRead(d *schema.ResourceData, meta interface{}) er
 			if r != nil && !r.MatchString(disk.DiskName) {
 				continue
 			}
-
 			filteredDisksTemp = append(filteredDisksTemp, disk)
 		}
 	} else {
@@ -248,6 +265,7 @@ func disksDescriptionAttributes(d *schema.ResourceData, disks []ecs.Disk, meta i
 			"attached_time":     disk.AttachedTime,
 			"detached_time":     disk.DetachedTime,
 			"expiration_time":   disk.ExpiredTime,
+			"kms_key_id":        disk.KMSKeyId,
 			"tags":              ecsService.tagsToMap(disk.Tags.Tag),
 		}
 
@@ -256,6 +274,9 @@ func disksDescriptionAttributes(d *schema.ResourceData, disks []ecs.Disk, meta i
 	}
 
 	d.SetId(dataResourceIdHash(ids))
+	if err := d.Set("ids", ids); err != nil {
+		return WrapError(err)
+	}
 	if err := d.Set("disks", s); err != nil {
 		return WrapError(err)
 	}

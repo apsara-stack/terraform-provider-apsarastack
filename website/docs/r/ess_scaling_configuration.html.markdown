@@ -90,9 +90,8 @@ The following arguments are supported:
 * `image_id` - (Optional) ID of an image file, indicating the image resource selected when an instance is enabled.
 * `image_name` - (Optional, ) Name of an image file, indicating the image resource selected when an instance is enabled.
 * `instance_type` - (Optional) Resource type of an ECS instance.
-* `instance_types` - (Optional,) Resource types of an ECS instance.
-* `instance_name` - (Optional) Name of an ECS instance. Default to "ESS-Instance". It is valid from version 1.7.1.
-* `io_optimized` - (Deprecated) It has been deprecated on instance resource. All the launched apsarastack instances will be I/O optimized.
+* `instance_types` - (Optional) Resource types of an ECS instance.
+* `instance_name` - (Optional) Name of an ECS instance. Default to "ESS-Instance".
 * `is_outdated` - (Optional) Whether to use outdated instance type. Default to false.
 * `security_group_id` - (Optional) ID of the security group used to create new instance. It is conflict with `security_group_ids`.
 * `security_group_ids` - (Optional) List IDs of the security group used to create new instances. It is conflict with `security_group_id`.
@@ -113,7 +112,6 @@ The following arguments are supported:
 * `role_name` - (Optional) Instance RAM role name. The name is provided and maintained by RAM. You can use `apsarastack_ram_role` to create a new one.
 * `force_delete` - (Optional) The last scaling configuration will be deleted forcibly with deleting its scaling group. Default to false.
 * `data_disk` - (Optional) DataDisk mappings to attach to ecs instance. See [Block datadisk](#block-datadisk) below for details.
-* `instance_ids` - (Deprecated) It has been deprecated from version 1.6.0. New resource `apsarastack_ess_attachment` replaces it.
 * `tags` - (Optional) A mapping of tags to assign to the resource. It will be applied for ECS instances finally.
     - Key: It can be up to 64 characters in length. It cannot begin with "aliyun", "http://", or "https://". It cannot be a null string.
     - Value: It can be up to 128 characters in length. It cannot begin with "aliyun", "http://", or "https://" It can be a null string.

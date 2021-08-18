@@ -9,12 +9,13 @@ import (
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/go-yaml/yaml"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"io/ioutil"
 	"log"
-	"regexp"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"regexp"
 )
 
 func dataSourceApsaraStackCSKubernetesClusters() *schema.Resource {
@@ -48,6 +49,10 @@ func dataSourceApsaraStackCSKubernetesClusters() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"kube_config": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			// Computed values
 			"names": {
 				Type:     schema.TypeList,
@@ -55,10 +60,6 @@ func dataSourceApsaraStackCSKubernetesClusters() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-			},
-			"kube_config": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"clusters": {
 				Type:     schema.TypeList,
@@ -322,32 +323,57 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "Cs", "RegionId": client.RegionId, "Action": "DescribeClusters", "Version": cs.CSAPIVersion, "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
+	Cresponse := []Cluster{}
 	Clusterresponse := []Cluster{}
 
-	for {
-		raw, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
-			return csClient.ProcessCommonRequest(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cs_kubernetes_clusters", request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		resp, _ := raw.(*responses.CommonResponse)
-		request.TransToAcsRequest()
-
-		err = json.Unmarshal(resp.GetHttpContentBytes(), &Clusterresponse)
-		if err != nil {
-			return WrapError(err)
-		}
-		if len(Clusterresponse) < 1 {
-			break
-		}
-
+	raw, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
+		return csClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cs_kubernetes_clusters", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	resp, _ := raw.(*responses.CommonResponse)
+	request.TransToAcsRequest()
+	//log.Printf("clusterResponse1 %v",resp)
+	//log.Printf("clusterResponse2 %v",resp.GetHttpContentBytes())
+	err = json.Unmarshal(resp.GetHttpContentBytes(), &Clusterresponse)
+	if err != nil {
+		return WrapError(err)
+	}
+	if len(Clusterresponse) < 1 {
+		return WrapErrorf(err, "Response is nil")
 	}
 
 	var r *regexp.Regexp
 	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
 		r = regexp.MustCompile(nameRegex.(string))
 	}
+	//cids:=d.Get("ids").([]interface{})
+	//var clusterids []string
+	//for _,k:=range cids{
+	//	cid:=fmt.Sprint(k)
+	//	clusterids=append(clusterids,cid)
+	//}
+	var clusterids map[string]string
+	if v, ok := d.GetOk("ids"); ok {
+		clusterids = make(map[string]string)
+		for _, vv := range v.([]interface{}) {
+			clusterids[vv.(string)] = vv.(string)
+		}
+	}
+
+	log.Printf("Entering kubeconfig %v 52", clusterids)
+	for _, cresp := range Clusterresponse {
+		if clusterids != nil && clusterids[cresp.ClusterID] == "" {
+			continue
+		}
+		if r != nil && !r.MatchString(cresp.Name) {
+			continue
+		}
+		Cresponse = append(Cresponse, cresp)
+	}
+	Clusterresponse = Cresponse
+	log.Printf("Clusterresponse idfiltered %v", Clusterresponse)
 	var ids []string
 	var names []string
 	var s []map[string]interface{}
@@ -381,24 +407,21 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 		s = append(s, mapping)
 	}
 	d.SetId(dataResourceIdHash(ids))
+	if err := d.Set("ids", ids); err != nil {
+		return WrapError(err)
+	}
+	if err := d.Set("names", names); err != nil {
+		return WrapError(err)
+	}
 	if err := d.Set("clusters", s); err != nil {
 		return WrapError(err)
 	}
-	idsMap := make(map[string]string)
-	if v, ok := d.GetOk("ids"); ok {
-		for _, vv := range v.([]interface{}) {
-			if vv == nil {
-				continue
-			}
-			idsMap[vv.(string)] = vv.(string)
-		}
-	}
-	log.Printf("Entering kubeconfig %v 52", idsMap)
+
 	if file, ok := d.GetOk("kube_config"); ok && file.(string) != "" {
 		log.Printf("Entered kubeconfig")
 
-		for _, k := range idsMap {
-			log.Printf("IDS %v", idsMap)
+		for i, k := range clusterids {
+			log.Printf("IDS %v", clusterids)
 			request.Method = "POST"
 			request.Product = "Cs"
 			request.Version = "2015-12-15"
@@ -433,6 +456,7 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 				return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_cs_kubernetes_clusters", request.GetActionName(), ApsaraStackSdkGoERROR)
 			}
 			resp, _ := raw.(*responses.CommonResponse)
+			//request.TransToAcsRequest()
 			var conf KubeConfig
 			var kubeconf Config
 			err = json.Unmarshal(resp.GetHttpContentBytes(), &conf)
@@ -443,9 +467,9 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 			if err != nil {
 				log.Fatalf("cannot unmarshal data: %v", err)
 			}
-
 			yamls, err := yaml.Marshal(kubeconf)
-			err = ioutil.WriteFile(file.(string), yamls, 0777)
+			filename := fmt.Sprint(file, i, ".yaml")
+			err = ioutil.WriteFile(filename, yamls, 0777)
 			//// handle this error
 			if err != nil {
 				// print it out
@@ -453,10 +477,10 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 			}
 
 			log.Printf("kubeconfig check %v ", conf.Config)
-
 		}
 
 	}
+
 	if output, ok := d.GetOk("output_file"); ok && output.(string) != "" {
 		writeToFile(output.(string), s)
 	}
