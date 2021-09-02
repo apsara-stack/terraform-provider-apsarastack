@@ -283,6 +283,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
 			"apsarastack_ess_scaling_rule":                    resourceApsaraStackEssScalingRule(),
 			"apsarastack_ess_attachment":                      resourceApsarastackEssAttachment(),
+			"apsarastack_ess_alarm":                           resourceApsaraStackEssAlarm(),
 			"apsarastack_router_interface":                    resourceApsaraStackRouterInterface(),
 			"apsarastack_router_interface_connection":         resourceApsaraStackRouterInterfaceConnection(),
 			"apsarastack_ess_scheduled_task":                  resourceApsaraStackEssScheduledTask(),
