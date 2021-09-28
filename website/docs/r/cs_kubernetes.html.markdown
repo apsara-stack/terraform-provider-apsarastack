@@ -116,6 +116,8 @@ The following arguments are supported:
 * `proxy_mode` - Proxy mode is option of kube-proxy. options: iptables|ipvs. default: ipvs.
 * `user_data` - (Optional) Windows instances support batch and PowerShell scripts. If your script file is larger than 1 KB, we recommend that you upload the script to Object Storage Service (OSS) and pull it through the internal endpoint of your OSS bucket.
 * `instances`- (Optional) A list of instances that can be attached as worker nodes in the same Vpc.
+* `os_type`- (Optional)  The operating system of the nodes that run pods, its valid value is either Linux or Windows. Default to Linux.
+* `platform` - (Optional) The architecture of the nodes that run pods. Default to CentOS.
 * `runtime`-  (Optional) The platform on which the clusters are going to run.
     * `name`- (Optional) Name of the runtime platform
     * `version`- (Optional) Version of the runtime platform
