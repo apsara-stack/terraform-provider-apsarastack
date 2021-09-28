@@ -288,7 +288,10 @@ func resourceApsaraStackInstanceCreate(d *schema.ResourceData, meta interface{})
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*ecs.RunInstancesResponse)
-		d.SetId(response.InstanceIdSets.InstanceIdSet[0])
+		//d.SetId(response.InstanceIdSets.InstanceIdSet)
+		for _, k := range response.InstanceIdSets.InstanceIdSet {
+			d.SetId(k)
+		}
 		return nil
 	})
 	if err != nil {
