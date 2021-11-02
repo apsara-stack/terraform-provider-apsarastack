@@ -319,12 +319,12 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 	}
 
 	request.ServiceCode = "cs"
-	request.ApiName = "DescribeClusters"
+	request.ApiName = "DescribeClustersV1"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "Cs", "RegionId": client.RegionId, "Action": "DescribeClusters", "Version": cs.CSAPIVersion, "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "Cs", "RegionId": client.RegionId, "Action": "DescribeClustersV1", "Version": cs.CSAPIVersion, "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
-	Cresponse := []Cluster{}
-	Clusterresponse := []Cluster{}
+	Cresponse := ClustersV1{}
+	Clusterresponse := ClustersV1{}
 
 	raw, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
 		return csClient.ProcessCommonRequest(request)
@@ -334,15 +334,16 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 	}
 	resp, _ := raw.(*responses.CommonResponse)
 	request.TransToAcsRequest()
-	//log.Printf("clusterResponse1 %v",resp)
-	//log.Printf("clusterResponse2 %v",resp.GetHttpContentBytes())
+	log.Printf("clusterResponse1 %v", resp)
+	log.Printf("clusterResponse2 %v", resp.GetHttpContentBytes())
 	err = json.Unmarshal(resp.GetHttpContentBytes(), &Clusterresponse)
 	if err != nil {
 		return WrapError(err)
 	}
-	if len(Clusterresponse) < 1 {
-		return WrapErrorf(err, "Response is nil")
-	}
+	//var nullc ClustersV1
+	//if Clusterresponsenullc{
+	//	return WrapErrorf(err,"Response is nil")
+	//}
 
 	var r *regexp.Regexp
 	if nameRegex, ok := d.GetOk("name_regex"); ok && nameRegex.(string) != "" {
@@ -363,42 +364,42 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 	}
 
 	log.Printf("Entering kubeconfig %v 52", clusterids)
-	for _, cresp := range Clusterresponse {
+	for _, cresp := range Clusterresponse.Clusters {
 		if clusterids != nil && clusterids[cresp.ClusterID] == "" {
 			continue
 		}
 		if r != nil && !r.MatchString(cresp.Name) {
 			continue
 		}
-		Cresponse = append(Cresponse, cresp)
+		Cresponse.Clusters = append(Cresponse.Clusters, cresp)
 	}
 	Clusterresponse = Cresponse
 	log.Printf("Clusterresponse idfiltered %v", Clusterresponse)
 	var ids []string
 	var names []string
 	var s []map[string]interface{}
-	for _, kc := range Clusterresponse {
+	for _, kc := range Clusterresponse.Clusters {
 		if r != nil && !r.MatchString(kc.Name) {
 			continue
 		}
 		mapping := map[string]interface{}{
-			"id":                          kc.ClusterID,
-			"name":                        kc.Name,
-			"vpc_id":                      kc.VpcID,
-			"security_group_id":           kc.SecurityGroupID,
-			"availability_zone":           kc.ZoneID,
-			"state":                       kc.State,
-			"master_instance_types":       []string{kc.Parameters.MasterInstanceType},
-			"nat_gateway_id":              kc.Parameters.NatGatewayID,
-			"vswitch_ids":                 []string{kc.Parameters.VSwitchID},
-			"master_disk_category":        kc.Parameters.MasterSystemDiskCategory,
-			"cluster_network_type":        kc.Parameters.Network,
-			"pod_cidr":                    kc.SubnetCidr,
-			"worker_data_disk_size":       kc.Parameters.WorkerDataDiskSize,
-			"worker_disk_category":        kc.Parameters.WorkerDataDiskCategory,
-			"worker_instance_types":       []string{kc.Parameters.WorkerInstanceType},
-			"worker_instance_charge_type": kc.Parameters.WorkerInstanceChargeType,
-			"node_cidr_mask":              kc.Parameters.NodeCIDRMask,
+			"id":                kc.ClusterID,
+			"name":              kc.Name,
+			"vpc_id":            kc.VpcID,
+			"security_group_id": kc.SecurityGroupID,
+			"availability_zone": kc.ZoneID,
+			"state":             kc.State,
+			//"master_instance_types":       []string{kc.Parameters.MasterInstanceType},
+			//"nat_gateway_id":              kc.Parameters.NatGatewayID,
+			"vswitch_ids": []string{kc.VswitchID},
+			//"master_disk_category":        kc.MasterSystemDiskCategory,
+			"cluster_network_type": kc.NetworkMode,
+			"pod_cidr":             kc.SubnetCidr,
+			//"worker_data_disk_size":       kc.Parameters.WorkerDataDiskSize,
+			//"worker_disk_category":        kc.Parameters.WorkerDataDiskCategory,
+			//"worker_instance_types":       []string{kc.Parameters.WorkerInstanceType},
+			//"worker_instance_charge_type": kc.Parameters.WorkerInstanceChargeType,
+			//"node_cidr_mask":              kc.MetaData.Capabilities.NodeCIDRMask,
 		}
 
 		ids = append(ids, string(kc.ClusterID))
@@ -441,7 +442,7 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 				"AccessKeySecret":  client.SecretKey,
 				"Product":          "Cs",
 				"RegionId":         client.RegionId,
-				"Action":           "DescribeClusters",
+				"Action":           "DescribeClustersV1",
 				"Version":          cs.CSAPIVersion,
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
