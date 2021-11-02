@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 	"strings"
 	"time"
 
@@ -43,13 +44,28 @@ func resourceApsaraStackSnapshotPolicy() *schema.Resource {
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"disk_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"enable_automated_snapshot_policy": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
 		},
 	}
 }
 
 func resourceApsaraStackSnapshotPolicyCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-
+	var err error
+	autopolicy := d.Get("enable_automated_snapshot_policy").(bool)
+	disks := convertListToJsonString(d.Get("disk_ids").(*schema.Set).List())
+	if autopolicy == true && disks == "" {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_snapshot_policy", "AddDiskIds for EnableAutomatedSnapshotPolicy")
+	}
 	request := ecs.CreateCreateAutoSnapshotPolicyRequest()
 	request.RegionId = client.RegionId
 	if strings.ToLower(client.Config.Protocol) == "https" {
@@ -78,7 +94,21 @@ func resourceApsaraStackSnapshotPolicyCreate(d *schema.ResourceData, meta interf
 	if err := ecsService.WaitForSnapshotPolicy(d.Id(), SnapshotPolicyNormal, DefaultTimeout); err != nil {
 		return WrapError(err)
 	}
-
+	if d.Get("enable_automated_snapshot_policy").(bool) {
+		req := ecs.CreateApplyAutoSnapshotPolicyRequest()
+		req.Headers = map[string]string{"RegionId": client.RegionId}
+		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		req.Domain = client.Domain
+		req.DiskIds = convertListToJsonString(d.Get("disk_ids").(*schema.Set).List())
+		req.AutoSnapshotPolicyId = d.Id()
+		raw, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ApplyAutoSnapshotPolicy(req)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_disk", req.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		addDebug(request.GetActionName(), raw, req.RpcRequest, req)
+	}
 	return resourceApsaraStackSnapshotPolicyRead(d, meta)
 }
 
@@ -93,7 +123,6 @@ func resourceApsaraStackSnapshotPolicyRead(d *schema.ResourceData, meta interfac
 		}
 		return WrapError(err)
 	}
-
 	d.Set("name", object.AutoSnapshotPolicyName)
 	weekdays, err := convertJsonStringToList(object.RepeatWeekdays)
 	if err != nil {
@@ -101,6 +130,7 @@ func resourceApsaraStackSnapshotPolicyRead(d *schema.ResourceData, meta interfac
 	}
 	d.Set("repeat_weekdays", weekdays)
 	d.Set("retention_days", object.RetentionDays)
+	d.Set("auto_snapshot_policy_id", object.AutoSnapshotPolicyId)
 	timePoints, err := convertJsonStringToList(object.TimePoints)
 	if err != nil {
 		return WrapError(err)
@@ -135,6 +165,7 @@ func resourceApsaraStackSnapshotPolicyUpdate(d *schema.ResourceData, meta interf
 	if d.HasChange("time_points") {
 		request.TimePoints = convertListToJsonString(d.Get("time_points").(*schema.Set).List())
 	}
+
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ModifyAutoSnapshotPolicyEx(request)
 	})
@@ -147,9 +178,9 @@ func resourceApsaraStackSnapshotPolicyUpdate(d *schema.ResourceData, meta interf
 
 func resourceApsaraStackSnapshotPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	ecsService := EcsService{client}
-
-	request := ecs.CreateDeleteAutoSnapshotPolicyRequest()
+	//ecsService := EcsService{client}
+	log.Printf("autosnapshotpolicy25 %v", d.Id())
+	request := ecs.CreateCancelAutoSnapshotPolicyRequest()
 	request.RegionId = client.RegionId
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
@@ -158,15 +189,20 @@ func resourceApsaraStackSnapshotPolicyDelete(d *schema.ResourceData, meta interf
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	request.AutoSnapshotPolicyId = d.Id()
+	request.DiskIds = convertListToJsonString(d.Get("disk_ids").(*schema.Set).List())
 	err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-			return ecsClient.DeleteAutoSnapshotPolicy(request)
+			return ecsClient.CancelAutoSnapshotPolicy(request)
 		})
 		if err != nil {
 			if IsExpectedErrors(err, SnapshotPolicyInvalidOperations) {
 				return resource.RetryableError(err)
 			}
+			return resource.NonRetryableError(err)
+		}
+		resp := raw.(*ecs.CancelAutoSnapshotPolicyResponse)
+		if resp.GetHttpStatus() != 200 {
+
 			return resource.NonRetryableError(err)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
@@ -176,5 +212,6 @@ func resourceApsaraStackSnapshotPolicyDelete(d *schema.ResourceData, meta interf
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 
-	return WrapError(ecsService.WaitForSnapshotPolicy(d.Id(), Deleted, DefaultTimeout))
+	return nil
+	//return WrapError(ecsService.WaitForSnapshotPolicy(d.Id(), Deleted, DefaultTimeout))
 }
