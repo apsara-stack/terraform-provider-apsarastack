@@ -1450,14 +1450,19 @@ func (s *EcsService) DescribeSnapshot(id string) (*ecs.Snapshot, error) {
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response := raw.(*ecs.DescribeSnapshotsResponse)
+	var found bool
 	for _, k := range response.Snapshots.Snapshot {
 		if k.SnapshotId == id {
+			found = true
 			return &k, nil
 		}
 	}
-	if response.Snapshots.Snapshot[0].SnapshotId != id {
+	if len(response.Snapshots.Snapshot) == 0 || !found {
 		return snapshot, WrapErrorf(Error(GetNotFoundMessage("Snapshot", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 	}
+	//if response.Snapshots.Snapshot[0].SnapshotId != id {
+	//	return snapshot, WrapErrorf(Error(GetNotFoundMessage("Snapshot", id)), NotFoundMsg, ProviderERROR, response.RequestId)
+	//}
 	return &response.Snapshots.Snapshot[0], nil
 }
 
@@ -1489,7 +1494,6 @@ func (s *EcsService) DescribeSnapshotPolicy(id string) (*ecs.AutoSnapshotPolicy,
 
 	return &response.AutoSnapshotPolicies.AutoSnapshotPolicy[0], nil
 }
-
 func (s *EcsService) DescribeReservedInstance(id string) (reservedInstance ecs.ReservedInstance, err error) {
 	request := ecs.CreateDescribeReservedInstancesRequest()
 	var balance = &[]string{id}

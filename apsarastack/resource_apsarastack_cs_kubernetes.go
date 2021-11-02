@@ -114,16 +114,45 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 					string(DiskCloudEfficiency), string(DiskCloudSSD)}, false),
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 			},
-			"worker_data_disk": {
-				Type:     schema.TypeBool,
+			"worker_data_disks": {
+				Type:     schema.TypeList,
 				Optional: true,
-				Default:  false,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"size": {
+							Type:     schema.TypeInt,
+							Default:  "flannel",
+							Optional: true,
+						},
+						"encrypted": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+						"auto_snapshot_policy_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"performance_level": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"category": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+					},
+				},
 			},
 			"exclude_autoscaler_nodes": {
 				Type:     schema.TypeBool,
 				Default:  false,
 				Optional: true,
 			},
+			//"worker_data_disk": {
+			//	Type:     schema.TypeBool,
+			//	Default:  false,
+			//	Optional: true,
+			//},
 			// global configurations
 			// Terway network
 			"pod_vswitch_ids": {
@@ -135,6 +164,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				},
 				MaxItems:         10,
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
+				ConflictsWith:    []string{"pod_cidr"},
 			},
 			// Flannel network
 			"pod_cidr": {
@@ -234,6 +264,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 			"cpu_policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
+				Default:      "none",
 				ValidateFunc: validation.StringInSlice([]string{"none", "static"}, false),
 			},
 			"proxy_mode": {
@@ -325,6 +356,17 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Computed: true,
 			},
 			"security_group_id": {
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"is_enterprise_security_group"},
+			},
+			"master_system_disk_performance_level": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"worker_system_disk_performance_level": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -335,6 +377,12 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Computed:      true,
 				ConflictsWith: []string{"security_group_id"},
 			},
+			"cloud_monitor_flags": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
 			"nat_gateway_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -541,23 +589,22 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				},
 				ForceNew: true,
 			},
+			"nodepool_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
 
 func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interface{}) error {
+	log.Printf("check meta %v", meta)
 	client := meta.(*connectivity.ApsaraStackClient)
 	csService := CsService{client}
 	invoker := NewInvoker()
 	var requestInfo *cs.Client
 	var raw interface{}
-	//if vpcId == "" {
-	//	vsw, err := vpcService.DescribeVSwitch(vswitchID)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	vpcId = vsw.VpcId
-	//}
+
 	timeout := d.Get("timeout_mins").(int)
 	Name := d.Get("name").(string)
 	OsType := d.Get("os_type").(string)
@@ -569,9 +616,16 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	wsysdiskcat := d.Get("worker_disk_category").(string)
 	delete_pro := d.Get("delete_protection").(bool)
 	KubernetesVersion := d.Get("version").(string)
-	workerdata := d.Get("worker_data_disk").(bool)
+	//workerdata := d.Get("worker_data_disk").(bool)
 	addons := make([]cs.Addon, 0)
-	var req string
+	type WorkerData struct {
+		Size                 int
+		Encrypted            bool
+		AutoSnapshotPolicyId string
+		PerformanceLevel     string
+		Category             string
+	}
+	var req, workerdisks string
 	var pod, attachinst int
 	if v, ok := d.GetOk("addons"); ok {
 		all, ok := v.([]interface{})
@@ -591,6 +645,21 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 			}
 		}
 	}
+	if v, ok := d.GetOk("worker_data_disks"); ok {
+		all, ok := v.([]interface{})
+		if ok {
+			for i, a := range all {
+				disk, _ := a.(map[string]interface{})
+				if i == 0 {
+					workerdisks = fmt.Sprintf("{\"size\" : \"%d\",\"encrypted\": \"%t\",\"performance_level\": \"%s\",\"auto_snapshot_policy_id\": \"%s\",\"category\": \"%s\"}", disk["size"].(int), disk["encrypted"].(bool), disk["performance_level"].(string), disk["auto_snapshot_policy_id"].(string), disk["category"].(string))
+				} else {
+					workerdisks = fmt.Sprintf("%s,{\"size\" : \"%d\",\"encrypted\": \"%t\",\"performance_level\": \"%s\",\"auto_snapshot_policy_id\": \"%s\",\"category\": \"%s\"}", req, disk["size"].(int), disk["encrypted"].(bool), disk["performance_level"].(string), disk["auto_snapshot_policy_id"].(string), disk["category"].(string))
+				}
+				log.Printf("checking workerdatadisks %v", workerdisks)
+
+			}
+		}
+	}
 	udata := d.Get("user_data").(string)
 	log.Printf("checking addons %v", addons)
 	log.Printf("check req final %s", req)
@@ -603,12 +672,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		}
 	}
 	log.Printf("checking runtime %v", runtime)
-	var wdatadisksize int
-	var wdatadiskcat string
-	if workerdata == true {
-		wdatadisksize = d.Get("worker_data_disk_size").(int)
-		wdatadiskcat = d.Get("worker_data_disk_category").(string)
-	}
 	proxy_mode := d.Get("proxy_mode").(string)
 	VpcId := d.Get("vpc_id").(string)
 	//ImageId := d.Get("image_id").(string)
@@ -633,6 +696,20 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	scdir := d.Get("service_cidr").(string)
 	pcidr := d.Get("pod_cidr").(string)
 	NumOfNodes := int64(d.Get("num_of_nodes").(int))
+	MasterSystemDiskPerformanceLevel := d.Get("master_system_disk_performance_level").(string)
+	WorkerSystemDiskPerformanceLevel := d.Get("worker_system_disk_performance_level").(string)
+	CloudMonitorFlags := d.Get("cloud_monitor_flags").(bool)
+	var secgroup string
+	var SecurityGroup bool
+	if _, ok := d.GetOk("is_enterprise_security_group"); ok {
+		secgroup = "is_enterprise_security_group"
+		SecurityGroup = d.Get("is_enterprise_security_group").(bool)
+
+	} else if _, ok := d.GetOk("security_group_id"); ok {
+		secgroup = "security_group_id"
+		SecurityGroup = d.Get("security_group_id").(bool)
+	}
+
 	request := requests.NewCommonRequest()
 	if client.Config.Insecure {
 		request.SetHTTPSInsecure(client.Config.Insecure)
@@ -665,8 +742,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		} else {
 			winst = fmt.Sprintf("%s\",\"%s", winst, k)
 		}
-		//log.Printf("instances %d %v",i,k)
-		//minst = fmt.Sprintf("%s\",\"%s", minst, k)
+
 	}
 	log.Printf("new worker inst %v ", winst)
 	insrsas := d.Get("master_instance_types").([]interface{})
@@ -698,12 +774,12 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 			}
 		}
 	}
-	fmt.Printf("pod request %d", pod)
+	log.Printf("pod request %d", pod)
 	clustertype := d.Get("cluster_type").(string)
 	if pod == 1 {
 		if v, ok := d.GetOk("pod_vswitch_ids"); ok {
 			podids = expandStringList(v.(*schema.Set).List())
-			fmt.Print("checking pod vsw ids: ", podids)
+			log.Print("checking pod vsw ids: ", podids)
 			for i, k := range podids {
 				if i != 0 {
 					podid = fmt.Sprintf("%s\",\"%s", podid, k)
@@ -721,22 +797,22 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	log.Printf("winsts %v minsts %v", winst, minst)
 	if attachinst == 1 {
 		request.QueryParams = map[string]string{
-			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
-			"Product":         "Cs",
-			"Department":      client.Department,
-			"ResourceGroup":   client.ResourceGroup,
-			"Action":          "CreateCluster",
-			//"AccountInfo":      "123456",
+			"RegionId":         client.RegionId,
+			"AccessKeySecret":  client.SecretKey,
+			"Product":          "Cs",
+			"Department":       client.Department,
+			"ResourceGroup":    client.ResourceGroup,
+			"Action":           "CreateCluster",
+			"AccountInfo":      "123456",
 			"Version":          "2015-12-15",
 			"SignatureVersion": "1.0",
 			"ProductName":      "cs",
-			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\"}",
+			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\"}",
 				"Product", "Cs",
-				"OsType", OsType,
-				"Platform", Platform,
+				"os_type", OsType,
+				"platform", Platform,
 				"cluster_type", clustertype,
-				"RegionId", client.RegionId,
+				"region_id", client.RegionId,
 				"timeout_mins", timeout,
 				"disable_rollback", true,
 				"kubernetes_version", KubernetesVersion,
@@ -762,30 +838,35 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"instances", inst,
 				"format_disk", formatDisk,
 				"keep_instance_name", retainIname,
-				"user-data", udata,
+				"user_data", udata,
 				"runtime", runtime,
 				"node_port_range", nodeportrange,
 				"cpu_policy", cpuPolicy,
+				"worker_data_disks", workerdisks,
+				secgroup, SecurityGroup,
+				"cloud_monitor_flags", CloudMonitorFlags,
+				"master_system_disk_performance_level", MasterSystemDiskPerformanceLevel,
+				"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
 			),
 		}
 	} else {
 		request.QueryParams = map[string]string{
-			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
-			"Product":         "Cs",
-			"Department":      client.Department,
-			"ResourceGroup":   client.ResourceGroup,
-			"Action":          "CreateCluster",
-			//"AccountInfo":      "123456",
+			"RegionId":         client.RegionId,
+			"AccessKeySecret":  client.SecretKey,
+			"Product":          "Cs",
+			"Department":       client.Department,
+			"ResourceGroup":    client.ResourceGroup,
+			"Action":           "CreateCluster",
+			"AccountInfo":      "123456",
 			"Version":          "2015-12-15",
 			"SignatureVersion": "1.0",
 			"ProductName":      "cs",
-			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":%d,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\"}",
+			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"]}",
 				"Product", "Cs",
-				"OsType", OsType,
-				"Platform", Platform,
+				"os_type", OsType,
+				"platform", Platform,
 				"cluster_type", clustertype,
-				"RegionId", client.RegionId,
+				"region_id", client.RegionId,
 				"timeout_mins", timeout,
 				"disable_rollback", true,
 				"kubernetes_version", KubernetesVersion,
@@ -805,19 +886,22 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"master_system_disk_category", msysdiskcat,
 				"master_system_disk_size", msysdisksize,
 				"worker_system_disk_category", wsysdiskcat,
-				"worker_data_disk", workerdata,
-				"worker_data_disk_category", wdatadiskcat,
 				"worker_system_disk_size", wsysdisksize,
 				"deletion_protection", delete_pro,
-				"worker_data_disk_size", wdatadisksize,
 				"node_cidr_mask", nodecidr,
 				"vpcid", VpcId,
 				"addons", req,
 				"proxy_mode", proxy_mode,
-				"user-data", udata,
+				"user_data", udata,
 				"runtime", runtime,
 				"node_port_range", nodeportrange,
 				"cpu_policy", cpuPolicy,
+				secgroup, SecurityGroup,
+				"cloud_monitor_flags", CloudMonitorFlags,
+				"master_system_disk_performance_level", MasterSystemDiskPerformanceLevel,
+				"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
+				"worker_data_disks", workerdisks,
+				"pod_vswitch_ids", podid,
 			),
 		}
 	}
@@ -863,15 +947,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	}
 	clusterresponse := ClusterCommonResponse{}
 	cluster, _ := raw.(*responses.CommonResponse)
-	//headers := cluster.GetHttpHeaders()
-	//log.Printf("headers check %v",headers)
-	//if headers["X-Acs-Response-Success"][0] == "false" {
-	//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-	//	} else {
-	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", cluster.GetHttpContentString())
-	//	}
-	//}
 	if cluster.IsSuccess() == false {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", cluster.GetHttpContentString())
 	}
@@ -881,10 +956,11 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	}
 	d.SetId(clusterresponse.ClusterID)
 
-	stateConf := BuildStateConf([]string{"initial", ""}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 15*time.Minute, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
+	stateConf := BuildStateConf([]string{"initial", " "}, []string{"running"}, d.Timeout(schema.TimeoutCreate), 15*time.Minute, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
+
 	return resourceApsaraStackCSKubernetesUpdate(d, meta)
 }
 
@@ -906,27 +982,15 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 	d.Partial(true)
 	var raw interface{}
 	invoker := NewInvoker()
-	var timeout int
-	if d.HasChange("timeout_mins") {
-		timeout = d.Get("timeout_mins").(int)
-	}
-	var LoginPassword string
-	if password := d.Get("password").(string); password == "" {
-		if v := d.Get("kms_encrypted_password").(string); v != "" {
-			kmsService := KmsService{client}
-			decryptResp, err := kmsService.Decrypt(v, d.Get("kms_encryption_context").(map[string]interface{}))
-			if err != nil {
-				return WrapError(err)
-			}
-			password = decryptResp.Plaintext
-		}
-		LoginPassword = password
-	} else {
-		LoginPassword = password
-	}
-	WorkerInstanceType := d.Get("worker_instance_type").(string)
-	NumOfNodes := int64(d.Get("num_of_nodes").(int))
 
+	nodepool, err := csService.DescribeClusterNodePools(d.Id())
+	if err != nil {
+		return WrapError(err)
+	}
+	var nodepoolid string
+	for _, k := range nodepool.Nodepools {
+		nodepoolid = k.NodepoolInfo.NodepoolID
+	}
 	if d.HasChange("num_of_nodes") && !d.IsNewResource() {
 		password := d.Get("password").(string)
 		if password == "" {
@@ -953,9 +1017,7 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 		if newValue < oldValue {
 			return WrapErrorf(fmt.Errorf("num_of_nodes can not be less than before"), "scaleOutFailed %d:%d", newValue, oldValue)
 		}
-		if d.HasChange("worker_data_disk") {
 
-		}
 		request := requests.NewCommonRequest()
 		if client.Config.Insecure {
 			request.SetHTTPSInsecure(client.Config.Insecure)
@@ -966,19 +1028,16 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 			"Product":          "CS",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
-			"Action":           "ScaleOutCluster",
+			"Action":           "ScaleClusterNodePool",
 			"AccountInfo":      "123456",
 			"Version":          "2015-12-15",
 			"SignatureVersion": "1.0",
 			"ProductName":      "cs",
+			"NodepoolId":       nodepoolid,
 			"ClusterId":        d.Id(),
-			"X-acs-body": fmt.Sprintf("{\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d}",
+			"X-acs-body": fmt.Sprintf("{\"%s\":%d}",
+
 				"count", int64(newValue)-int64(oldValue),
-				"timeout_mins", timeout,
-				"disable_rollback", true,
-				"worker_instance_types", WorkerInstanceType,
-				"login_Password", LoginPassword,
-				"num_of_nodes", NumOfNodes,
 			),
 		}
 		request.Method = "POST"        // Set request method
@@ -990,9 +1049,9 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 		} else {
 			request.Scheme = "http"
 		} // Set request scheme. Default: http
-		request.ApiName = "ScaleOutCluster"
+		request.ApiName = "ScaleClusterNodePool"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		var err error
+		//var err error
 		err = nil
 		if err = invoker.Run(func() error {
 			raw, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -1035,7 +1094,8 @@ func resourceApsaraStackCSKubernetesRead(d *schema.ResourceData, meta interface{
 		}
 		return WrapError(err)
 	}
-
+	nodepoolid := d.Get("nodepool_id").(string)
+	clusternode, err := csService.DescribeClusterNodes(d.Id(), nodepoolid)
 	d.Set("name", object.Name)
 	d.Set("id", object.ClusterId)
 	d.Set("state", object.State)
@@ -1045,7 +1105,28 @@ func resourceApsaraStackCSKubernetesRead(d *schema.ResourceData, meta interface{
 	d.Set("version", object.CurrentVersion)
 	d.Set("delete_protection", object.DeletionProtection)
 	d.Set("version", object.InitVersion)
-	//d.Set("vswitch_id", object.VSwitchIds)
+	var smaster, sworker []map[string]interface{}
+	//var MasterNodes, WorkerNodes map[string]interface{}
+	for _, k := range clusternode.Nodes {
+		if k.InstanceRole == "Master" {
+			MasterNodes := map[string]interface{}{
+				"id":         k.InstanceID,
+				"name":       k.InstanceName,
+				"private_ip": fmt.Sprintf("%s", k.IPAddress),
+			}
+			smaster = append(smaster, MasterNodes)
+		} else {
+			WorkerNodes := map[string]interface{}{
+				"id":         k.InstanceID,
+				"name":       k.InstanceName,
+				"private_ip": fmt.Sprintf("%s", k.IPAddress),
+			}
+			sworker = append(sworker, WorkerNodes)
+		}
+	}
+
+	d.Set("master_nodes", smaster)
+	d.Set("worker_nodes", sworker)
 
 	return nil
 }
@@ -1107,7 +1188,7 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "DeleteCluster", ApsaraStackLogGoSdkERROR)
 	}
 
-	stateConf := BuildStateConf([]string{"running", "deleting", "initial"}, []string{}, d.Timeout(schema.TimeoutDelete), 30*time.Second, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"delete_failed"}))
+	stateConf := BuildStateConf([]string{"running", "deleting", "initial"}, []string{}, d.Timeout(schema.TimeoutDelete), 10*time.Minute, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"delete_failed"}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}

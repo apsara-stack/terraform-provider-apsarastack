@@ -30,8 +30,6 @@ The following arguments are supported:
 
 * `description` - (Optional) The description of the key as viewed in Apsarastack console.
 * `key_usage` - (Optional, ForceNew) Specifies the usage of CMK. Currently, default to 'ENCRYPT/DECRYPT', indicating that CMK is used for encryption and decryption.
-* `deletion_window_in_days` - (Optional) Field 'deletion_window_in_days' has been deprecated from provider version 1.85.0. New field 'pending_window_in_days' instead.
-* `is_enabled` - (Optional) Field 'is_enabled' has been deprecated from provider version 1.85.0. New field 'key_state' instead.
 * `automatic_rotation` - (Optional) Specifies whether to enable automatic key rotation. Default:"Disabled".
 * `key_spec`   - (Optional, ForceNew) The type of the CMK.
 * `key_state` - (Optional) The status of CMK. Defaults to Enabled.
