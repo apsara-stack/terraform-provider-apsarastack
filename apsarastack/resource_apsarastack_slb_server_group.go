@@ -56,7 +56,7 @@ func resourceApsaraStackSlbServerGroup() *schema.Resource {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Default:      100,
-							ValidateFunc: validation.IntBetween(1, 100),
+							ValidateFunc: validation.IntBetween(0, 100),
 						},
 						"type": {
 							Type:         schema.TypeString,
