@@ -21,7 +21,7 @@ terraform {
   required_providers {
     apsarastack = {
       source = "apsara-stack/apsarastack"
-      version = "1.0.8"
+      version = "1.0.9"
     }
   }
 }
