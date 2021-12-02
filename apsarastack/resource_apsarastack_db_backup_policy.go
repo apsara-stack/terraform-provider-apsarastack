@@ -217,6 +217,7 @@ func resourceApsaraStackDBBackupPolicyUpdate(d *schema.ResourceData, meta interf
 func resourceApsaraStackDBBackupPolicyDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	rdsService := RdsService{client}
+
 	request := rds.CreateModifyBackupPolicyRequest()
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
@@ -230,7 +231,7 @@ func resourceApsaraStackDBBackupPolicyDelete(d *schema.ResourceData, meta interf
 	request.PreferredBackupPeriod = "Tuesday,Thursday,Saturday"
 	request.BackupRetentionPeriod = "7"
 	request.PreferredBackupTime = "02:00Z-03:00Z"
-	request.EnableBackupLog = "1"
+	request.BackupLog = "Enable"
 	instance, err := rdsService.DescribeDBInstance(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
