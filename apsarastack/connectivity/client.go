@@ -111,7 +111,7 @@ type ApiVersion string
 
 // The main version number that is being run at the moment.
 
-var ProviderVersion = "1.0.9"
+var ProviderVersion = "1.0.10"
 var TerraformVersion = strings.TrimSuffix(schema.Provider{}.TerraformVersion, "-dev")
 var goSdkMutex = sync.RWMutex{} // The Go SDK is not thread-safe
 
