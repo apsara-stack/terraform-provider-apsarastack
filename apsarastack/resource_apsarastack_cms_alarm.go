@@ -204,6 +204,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ContactGroups = strings.Join(expandStringList(d.Get("contact_groups").([]interface{})), ",")
+	request.Webhook = d.Get("webhook").(string)
 	if v, ok := d.GetOk("escalations_critical"); ok && len(v.([]interface{})) != 0 {
 		for _, val := range v.([]interface{}) {
 			val := val.(map[string]interface{})
@@ -318,6 +319,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 		"SilenceTime":                             fmt.Sprint(request.SilenceTime),
 		"SignatureVersion":                        "1.0",
 		"Period":                                  request.Period,
+		"Webhook":                                 request.Webhook,
 	}
 
 	raw, err := client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {
@@ -428,6 +430,7 @@ func resourceApsaraStackCmsAlarmRead(d *schema.ResourceData, meta interface{}) e
 		oper = Equal
 	}
 	d.Set("operator", oper)
+	d.Set("webhook", alarm.Webhook)
 	d.Set("threshold", alarm.Escalations.Critical.Threshold)
 	if alarm.Escalations.Critical.Times != "" {
 		if count, err := strconv.Atoi(alarm.Escalations.Critical.Times); err != nil {
