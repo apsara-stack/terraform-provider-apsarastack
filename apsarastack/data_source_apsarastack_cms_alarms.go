@@ -272,6 +272,7 @@ func dataSourceApsarastackCmsAlarmsRead(d *schema.ResourceData, meta interface{}
 			"enable_state":       data.EnableState,
 			"escalations":        []map[string]interface{}{mapping},
 			"rule_name":          data.RuleName,
+			"webhook":            data.Webhook,
 		}
 
 		ids = append(ids, data.RuleID)
