@@ -58,6 +58,8 @@ var hookDo = func(fn func(req *http.Request) (*http.Response, error)) func(req *
 
 // Client the type Client
 type Client struct {
+	SourceIp        string
+	SecureTransport string
 	isInsecure     bool
 	regionId       string
 	config         *Config
