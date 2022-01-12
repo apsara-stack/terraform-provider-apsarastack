@@ -96,6 +96,36 @@ func Provider() terraform.ResourceProvider {
 				Description:  descriptions["protocol"],
 				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
 			},
+			"client_read_timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("CLIENT_READ_TIMEOUT", 60000),
+				Description: descriptions["client_read_timeout"],
+			},
+			"client_connect_timeout": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("CLIENT_CONNECT_TIMEOUT", 60000),
+				Description: descriptions["client_connect_timeout"],
+			},
+			"source_ip": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_SOURCE_IP", os.Getenv("ALICLOUD_SOURCE_IP")),
+				Description: descriptions["source_ip"],
+			},
+			"security_transport": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_SECURITY_TRANSPORT", os.Getenv("ALICLOUD_SECURITY_TRANSPORT")),
+				//Deprecated:  "It has been deprecated from version 1.136.0 and using new field secure_transport instead.",
+			},
+			"secure_transport": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_SECURE_TRANSPORT", os.Getenv("ALICLOUD_SECURE_TRANSPORT")),
+				Description: descriptions["secure_transport"],
+			},
 			"configuration_source": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -224,6 +254,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_roles":                           dataSourceApsaraStackAscmRoles(),
 			"apsarastack_ascm_ram_policies":                    dataSourceApsaraStackAscmRamPolicies(),
 			"apsarastack_ascm_ram_policies_for_user":           dataSourceApsaraStackAscmRamPoliciesForUser(),
+			"apsarastack_edas_deploy_groups":                   dataSourceApsaraStackEdasDeployGroups(),
+			"apsarastack_edas_clusters":                        dataSourceApsaraStackEdasClusters(),
+			"apsarastack_edas_applications":                    dataSourceApsaraStackEdasApplications(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -310,6 +343,14 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_dns_group":                           resourceApsaraStackDnsGroup(),
 			"apsarastack_dns_domain":                          resourceApsaraStackDnsDomain(),
 			"apsarastack_dns_domain_attachment":               resourceApsaraStackDnsDomainAttachment(),
+			"apsarastack_edas_cluster":                        resourceApsaraStackEdasCluster(),
+			"apsarastack_edas_application":                    resourceApsaraStackEdasApplication(),
+			"apsarastack_edas_instance_cluster_attachment":    resourceApsaraStackEdasInstanceClusterAttachment(),
+			"apsarastack_edas_k8s_cluster":                    resourceApsaraStackEdasK8sCluster(),
+			"apsarastack_edas_k8s_application":                resourceApsaraStackEdasK8sApplication(),
+			"apsarastack_edas_application_scale":              resourceApsaraStackEdasInstanceApplicationAttachment(),
+			"apsarastack_edas_deploy_group":                   resourceApsaraStackEdasDeployGroup(),
+			"apsarastack_application_deployment":              resourceApsaraStackEdasApplicationPackageAttachment(),
 			"apsarastack_kvstore_instance":                    resourceApsaraStackKVStoreInstance(),
 			"apsarastack_kvstore_backup_policy":               resourceApsaraStackKVStoreBackupPolicy(),
 			"apsarastack_kvstore_account":                     resourceApsaraStackKVstoreAccount(),
@@ -371,11 +412,15 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		SkipRegionValidation: d.Get("skip_region_validation").(bool),
 		ConfigurationSource:  d.Get("configuration_source").(string),
 		Protocol:             d.Get("protocol").(string),
+		ClientReadTimeout:    d.Get("client_read_timeout").(int),
+		ClientConnectTimeout: d.Get("client_connect_timeout").(int),
 		Insecure:             d.Get("insecure").(bool),
 		Proxy:                d.Get("proxy").(string),
 		Department:           d.Get("department").(string),
 		ResourceGroup:        d.Get("resource_group").(string),
 		ResourceSetName:      d.Get("resource_group_set_name").(string),
+		SourceIp:             strings.TrimSpace(d.Get("source_ip").(string)),
+		SecureTransport:      strings.TrimSpace(d.Get("secure_transport").(string)),
 	}
 	token := getProviderConfig(d.Get("security_token").(string), "sts_token")
 	config.SecurityToken = strings.TrimSpace(token)
@@ -440,6 +485,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.CsEndpoint = domain
 		config.CmsEndpoint = domain
 
+		config.EdasEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)

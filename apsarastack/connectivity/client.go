@@ -2,6 +2,7 @@ package connectivity
 
 import (
 	"encoding/json"
+	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -14,6 +15,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr_ee"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/edas"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/elasticsearch"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/gpdb"
@@ -52,44 +54,54 @@ import (
 )
 
 type ApsaraStackClient struct {
-	Region            Region
-	RegionId          string
-	Domain            string
-	AccessKey         string
-	SecretKey         string
-	Department        string
-	ResourceGroup     string
-	Config            *Config
-	accountId         string
-	ecsconn           *ecs.Client
-	accountIdMutex    sync.RWMutex
-	vpcconn           *vpc.Client
-	slbconn           *slb.Client
-	csconn            *cs.Client
-	polarDBconn       *polardb.Client
-	cdnconn           *cdn.CdnClient
-	cdnconn_new       *cdn_new.Client
-	kmsconn           *kms.Client
-	bssopenapiconn    *bssopenapi.Client
-	rdsconn           *rds.Client
-	ramconn           *ram.Client
-	essconn           *ess.Client
-	gpdbconn          *gpdb.Client
-	elasticsearchconn *elasticsearch.Client
-	hbaseconn         *hbase.Client
-	adbconn           *adb.Client
-	ossconn           *oss.Client
-	rkvconn           *r_kvstore.Client
-	fcconn            *fc.Client
-	ddsconn           *dds.Client
-	onsconn           *ons.Client
-	logconn           *sls.Client
-	logpopconn        *slsPop.Client
-	dnsconn           *alidns.Client
-	creeconn          *cr_ee.Client
-	crconn            *cr.Client
-	cmsconn           *cms.Client
-	maxcomputeconn    *maxcompute.Client
+	SourceIp                     string
+	SecureTransport              string
+	Region                       Region
+	RegionId                     string
+	Domain                       string
+	AccessKey                    string
+	SecretKey                    string
+	Department                   string
+	ResourceGroup                string
+	Config                       *Config
+	teaSdkConfig                 rpc.Config
+	accountId                    string
+	roleId                       int
+	ecsconn                      *ecs.Client
+	accountIdMutex               sync.RWMutex
+	roleIdMutex                  sync.RWMutex
+	vpcconn                      *vpc.Client
+	slbconn                      *slb.Client
+	csconn                       *cs.Client
+	polarDBconn                  *polardb.Client
+	cdnconn                      *cdn.CdnClient
+	cdnconn_new                  *cdn_new.Client
+	kmsconn                      *kms.Client
+	bssopenapiconn               *bssopenapi.Client
+	rdsconn                      *rds.Client
+	ramconn                      *ram.Client
+	essconn                      *ess.Client
+	gpdbconn                     *gpdb.Client
+	elasticsearchconn            *elasticsearch.Client
+	hbaseconn                    *hbase.Client
+	adbconn                      *adb.Client
+	ossconn                      *oss.Client
+	rkvconn                      *r_kvstore.Client
+	fcconn                       *fc.Client
+	ddsconn                      *dds.Client
+	onsconn                      *ons.Client
+	logconn                      *sls.Client
+	logpopconn                   *slsPop.Client
+	dnsconn                      *alidns.Client
+	edasconn                     *edas.Client
+	creeconn                     *cr_ee.Client
+	crconn                       *cr.Client
+	cmsconn                      *cms.Client
+	maxcomputeconn               *maxcompute.Client
+	//otsconn                      *ots.Client
+	OtsInstanceName              string
+	//tablestoreconnByInstanceName map[string]*tablestore.TableStoreClient
+	//dhconn                       datahub.DataHubApi
 }
 
 const (
@@ -1097,6 +1109,33 @@ func (client *ApsaraStackClient) WithLogPopClient(do func(*slsPop.Client) (inter
 	}
 
 	return do(client.logpopconn)
+}
+
+func (client *ApsaraStackClient) WithEdasClient(do func(*edas.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the edas client if necessary
+	if client.edasconn == nil {
+		endpoint := client.Config.EdasEndpoint
+		if endpoint == "" {
+			endpoint = loadEndpoint(client.Config.RegionId, EDASCode)
+		}
+		if endpoint != "" {
+			endpoints.AddEndpointMapping(client.Config.RegionId, string(EDASCode), endpoint)
+		}
+		edasconn, err := edas.NewClientWithOptions(client.Config.RegionId, client.getSdkConfig().WithTimeout(time.Duration(60)*time.Second), client.Config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the ALIKAFKA client: %#v", err)
+		}
+		edasconn.SetReadTimeout(time.Duration(client.Config.ClientReadTimeout) * time.Millisecond)
+		edasconn.SetConnectTimeout(time.Duration(client.Config.ClientConnectTimeout) * time.Millisecond)
+		edasconn.SourceIp = client.Config.SourceIp
+		edasconn.SecureTransport = client.Config.SecureTransport
+		edasconn.AppendUserAgent(Terraform, TerraformVersion)
+		edasconn.AppendUserAgent(Provider, ProviderVersion)
+		edasconn.AppendUserAgent(Module, client.Config.ConfigurationSource)
+		client.edasconn = edasconn
+	}
+
+	return do(client.edasconn)
 }
 
 func (client *ApsaraStackClient) WithCrEEClient(do func(*cr_ee.Client) (interface{}, error)) (interface{}, error) {
