@@ -30,6 +30,10 @@ type Config struct {
 	OtsInstanceName          string
 	AccountId                string
 	Protocol                 string
+	ClientReadTimeout        int
+	ClientConnectTimeout     int
+	SourceIp                 string
+	SecureTransport          string
 	ResourceSetName          string
 	RamRoleArn               string
 	RamRoleSessionName       string
@@ -79,7 +83,7 @@ type Config struct {
 	AdbEndpoint           string
 	MaxComputeEndpoint    string
 
-	edasEndpoint            string
+	EdasEndpoint            string
 	SkipRegionValidation    bool
 	ConfigurationSource     string
 	CbnEndpoint             string
