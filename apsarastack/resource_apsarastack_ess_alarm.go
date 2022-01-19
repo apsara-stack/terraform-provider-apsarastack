@@ -1,16 +1,16 @@
 package apsarastack
 
 import (
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"log"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
@@ -113,53 +113,46 @@ func resourceApsaraStackEssAlarm() *schema.Resource {
 }
 
 func resourceApsaraStackEssAlarmCreate(d *schema.ResourceData, meta interface{}) error {
-
+	client := meta.(*connectivity.ApsaraStackClient)
 	request, err := buildApsaraStackEssAlarmArgs(d)
 	if err != nil {
 		return WrapError(err)
 	}
+	log.Printf("checking built request %v", request)
 
-	client := meta.(*connectivity.ApsaraStackClient)
 	request.RegionId = client.RegionId
-	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.Domain = client.Domain
+	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "Ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
-	var raw interface{}
-	if err = resource.Retry(5*time.Minute, func() *resource.RetryError {
-		raw, err = client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
-			return essClient.CreateAlarm(request)
-		})
-		if err != nil {
-			if IsExpectedErrors(err, []string{Throttling}) {
-				return resource.RetryableError(err)
-			}
-			return resource.NonRetryableError(err)
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		return nil
-	}); err != nil {
+	log.Printf("checking again built request %v", request)
+
+	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
+		return essClient.CreateAlarm(request)
+	})
+	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ess_alarm", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
+	addDebug(request.GetActionName(), raw, request)
 	response, _ := raw.(*ess.CreateAlarmResponse)
+	log.Printf("checking response %v", response)
+	if response == nil {
+		return WrapErrorf(err, "Null response found", "apsarastack_ess_alarm", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
 	d.SetId(response.AlarmTaskId)
 	// enable or disable alarm
 	enable := d.Get("enable")
 	if !enable.(bool) {
-		disableAlarmRequest := ess.CreateDisableAlarmRequest()
-		disableAlarmRequest.RegionId = client.RegionId
-		disableAlarmRequest.AlarmTaskId = response.AlarmTaskId
-		raw, err = client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
-			return essClient.DisableAlarm(disableAlarmRequest)
-		})
+
+		err := enableordisableAlarm(false, d.Id(), meta)
+
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), disableAlarmRequest.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		addDebug(disableAlarmRequest.GetActionName(), raw, disableAlarmRequest.RpcRequest, disableAlarmRequest)
 	}
 	return resourceApsaraStackEssAlarmRead(d, meta)
 }
@@ -170,10 +163,7 @@ func resourceApsaraStackEssAlarmRead(d *schema.ResourceData, meta interface{}) e
 
 	object, err := essService.DescribeEssAlarm(d.Id())
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
+
 		return WrapError(err)
 	}
 
@@ -294,27 +284,10 @@ func resourceApsaraStackEssAlarmUpdate(d *schema.ResourceData, meta interface{})
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
 	if d.HasChange("enable") {
-		enable := d.Get("enable")
-		if enable.(bool) {
-			enableAlarmRequest := ess.CreateEnableAlarmRequest()
-			enableAlarmRequest.AlarmTaskId = d.Id()
-			raw, err = client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
-				return essClient.EnableAlarm(enableAlarmRequest)
-			})
-			if err != nil {
-				return WrapErrorf(err, DefaultErrorMsg, d.Id(), enableAlarmRequest.GetActionName(), ApsaraStackSdkGoERROR)
-			}
-			addDebug(enableAlarmRequest.GetActionName(), raw)
-		} else {
-			disableAlarmRequest := ess.CreateDisableAlarmRequest()
-			disableAlarmRequest.AlarmTaskId = d.Id()
-			raw, err = client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
-				return essClient.DisableAlarm(disableAlarmRequest)
-			})
-			if err != nil {
-				return WrapErrorf(err, DefaultErrorMsg, d.Id(), disableAlarmRequest.GetActionName(), ApsaraStackSdkGoERROR)
-			}
-			addDebug(disableAlarmRequest.GetActionName(), raw)
+		enable := d.Get("enable").(bool)
+		err := enableordisableAlarm(enable, d.Id(), meta)
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		d.SetPartial("enable")
 	}
@@ -424,4 +397,48 @@ func buildApsaraStackEssAlarmArgs(d *schema.ResourceData) (*ess.CreateAlarmReque
 	}
 
 	return request, nil
+}
+
+func enableordisableAlarm(check bool, id string, meta interface{}) error {
+	client := meta.(*connectivity.ApsaraStackClient)
+	var apiaction string
+	if check {
+		apiaction = "EnableAlarm"
+	} else {
+		apiaction = "DisableAlarm"
+	}
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "Ess"
+	request.Version = "2014-08-28"
+	request.Scheme = "http"
+	request.ServiceCode = "ess"
+	request.ApiName = apiaction
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.RegionId = client.RegionId
+	request.Domain = client.Domain
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "Ess",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Action":          apiaction,
+		"Version":         "2014-08-28",
+		"ProductName":     "ess",
+		"RegionId":        client.RegionId,
+		"AlarmTaskId":     id,
+	}
+	raw, err := client.WithEcsClient(func(ess *ecs.Client) (interface{}, error) {
+		return ess.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	response := raw.(*responses.CommonResponse)
+	if !response.IsSuccess() {
+		return WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	addDebug(request.GetActionName(), raw, request)
+	return nil
 }

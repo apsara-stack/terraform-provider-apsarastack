@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 	"time"
@@ -19,52 +20,29 @@ type EssService struct {
 func (s *EssService) DescribeEssAlarm(id string) (alarm ess.Alarm, err error) {
 	request := ess.CreateDescribeAlarmsRequest()
 	request.RegionId = s.client.RegionId
+	request.Domain = s.client.Domain
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "Ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.AlarmTaskId = id
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
-	request.MetricType = "system"
-	Alarms, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
+
+	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DescribeAlarms(request)
 	})
 	if err != nil {
 		return alarm, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	addDebug(request.GetActionName(), Alarms, request.RpcRequest, request)
-	AlarmsResponse, _ := Alarms.(*ess.DescribeAlarmsResponse)
+	addDebug(request.GetActionName(), raw, request)
+	AlarmsResponse, _ := raw.(*ess.DescribeAlarmsResponse)
+	log.Printf("checking describe response: %v", AlarmsResponse)
 	systemAlarms := AlarmsResponse.AlarmList.Alarm
 
 	if len(systemAlarms) > 0 {
 		return systemAlarms[0], nil
-	}
-
-	AlarmsRequest := ess.CreateDescribeAlarmsRequest()
-	AlarmsRequest.RegionId = s.client.RegionId
-	AlarmsRequest.Headers = map[string]string{"RegionId": s.client.RegionId}
-	AlarmsRequest.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "ess", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	if strings.ToLower(s.client.Config.Protocol) == "https" {
-		AlarmsRequest.Scheme = "https"
-	} else {
-		AlarmsRequest.Scheme = "http"
-	}
-	AlarmsRequest.AlarmTaskId = id
-	AlarmsRequest.MetricType = "custom"
-	raw, err := s.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
-		return essClient.DescribeAlarms(AlarmsRequest)
-	})
-	if err != nil {
-		return alarm, WrapErrorf(err, DefaultErrorMsg, id, AlarmsRequest.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-	addDebug(AlarmsRequest.GetActionName(), raw, AlarmsRequest.RpcRequest, AlarmsRequest)
-	response, _ := raw.(*ess.DescribeAlarmsResponse)
-	customAlarms := response.AlarmList.Alarm
-
-	if len(customAlarms) > 0 {
-		return customAlarms[0], nil
 	}
 	return alarm, WrapErrorf(Error(GetNotFoundMessage("EssAlarm", id)), NotFoundMsg, ProviderERROR)
 }

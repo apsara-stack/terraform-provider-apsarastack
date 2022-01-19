@@ -112,7 +112,11 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		}
 		return resource.RetryableError(err)
 	})
-	d.SetId(check.Data[0].ResourceGroupName + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
+	for _, x := range check.Data {
+		d.SetId(x.ResourceGroupName + COLON_SEPARATED + fmt.Sprint(x.ID))
+		break
+	}
+	//d.SetId(check.Data[0].ResourceGroupName + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
 
 	return resourceApsaraStackAscmResourceGroupUpdate(d, meta)
 
@@ -124,23 +128,26 @@ func resourceApsaraStackAscmResourceGroupUpdate(d *schema.ResourceData, meta int
 	name := d.Get("name").(string)
 	attributeUpdate := false
 	check, err := ascmService.DescribeAscmResourceGroup(d.Id())
-	did := strings.Split(d.Id(), COLON_SEPARATED)
-
+	//did := strings.Split(d.Id(), COLON_SEPARATED)
+	var id string
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsResourceGroupExist", ApsaraStackSdkGoERROR)
 	}
-
-	if d.HasChange("name") {
-		if v, ok := d.GetOk("name"); ok {
-			name = v.(string)
+	for _, data := range check.Data {
+		if d.HasChange("name") {
+			if v, ok := d.GetOk("name"); ok {
+				name = v.(string)
+			}
+			data.ResourceGroupName = name
+			attributeUpdate = true
+		} else {
+			if v, ok := d.GetOk("name"); ok {
+				name = v.(string)
+			}
+			data.ResourceGroupName = name
 		}
-		check.Data[0].ResourceGroupName = name
-		attributeUpdate = true
-	} else {
-		if v, ok := d.GetOk("name"); ok {
-			name = v.(string)
-		}
-		check.Data[0].ResourceGroupName = name
+		id = string(data.ID)
+		break
 	}
 
 	request := requests.NewCommonRequest()
@@ -153,7 +160,7 @@ func resourceApsaraStackAscmResourceGroupUpdate(d *schema.ResourceData, meta int
 		"Action":            "UpdateResourceGroup",
 		"Version":           "2019-05-10",
 		"resourceGroupName": name,
-		"id":                did[1],
+		"id":                id,
 	}
 	request.Method = "POST"
 	request.Product = "ascm"
@@ -182,7 +189,7 @@ func resourceApsaraStackAscmResourceGroupUpdate(d *schema.ResourceData, meta int
 		addDebug(request.GetActionName(), raw, request)
 
 	}
-	d.SetId(name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
+	//d.SetId(name + COLON_SEPARATED + fmt.Sprint(check.Data[0].ID))
 
 	return resourceApsaraStackAscmResourceGroupRead(d, meta)
 
@@ -218,12 +225,20 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 	ascmService := AscmService{client}
 	var requestInfo *ecs.Client
 	check, err := ascmService.DescribeAscmResourceGroup(d.Id())
-	did := strings.Split(d.Id(), COLON_SEPARATED)
 
+	//did := strings.Split(d.Id(), COLON_SEPARATED)
+	//
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsResourceGroupExist", ApsaraStackSdkGoERROR)
 	}
-	addDebug("IsResourceGroupExist", check, requestInfo, map[string]string{"resourceGroupName": did[0]})
+	var id string
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsResourceGroupExist", ApsaraStackSdkGoERROR)
+	}
+	for _, data := range check.Data {
+		id = string(data.ID)
+	}
+	addDebug("IsResourceGroupExist", check, requestInfo, map[string]string{"resourceGroupName": id})
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 
 		request := requests.NewCommonRequest()
@@ -237,7 +252,7 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 			"Action":            "RemoveResourceGroup",
 			"Version":           "2019-05-10",
 			"ProductName":       "ascm",
-			"resourceGroupName": did[0],
+			"resourceGroupName": id,
 		}
 
 		request.Method = "POST"
