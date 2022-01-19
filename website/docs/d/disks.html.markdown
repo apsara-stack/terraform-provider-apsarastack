@@ -67,4 +67,7 @@ The following attributes are exported in addition to the arguments listed above:
   * `detached_time` - Disk detachment time.
   * `expiration_time` - Disk expiration time.
   * `tags` - A map of tags assigned to the disk.
+  * `auto_snapshot_policy_id` - The ID of the automatic snapshot policy that is applied to the cloud disk.
+  * `enable_auto_snapshot` - Specifies whether the automatic snapshot policy feature is enabled for the cloud disk.
+  * `enable_automated_snapshot_policy` - Specifies whether an automatic snapshot policy is applied to the cloud disk.
  
