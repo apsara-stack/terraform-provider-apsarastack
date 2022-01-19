@@ -998,12 +998,7 @@ func resourceApsaraStackOssBucketLoggingCreate(client *connectivity.ApsaraStackC
 					"OpenApiAction":    "PutBucketLogging",
 					"ProductName":      "oss",
 					"Content":          fmt.Sprint("<BucketLoggingStatus><LoggingEnabled><TargetBucket>", logging["target_bucket"], "</TargetBucket><TargetPrefix>", logging["target_prefix"], "</TargetPrefix></LoggingEnabled></BucketLoggingStatus>"),
-					//"Content": oss-accesslog/",
-					"Params": fmt.Sprintf("{\"%s\":\"%s\"}", "BucketName", d.Id()),
-					//"Params": "{\"BucketName\":\"source-sample-bucket\"}",
-
-					//"Params":           fmt.Sprintf("{\"%s\":%s,\"%s\":%s,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}", "Department", client.Department, "ResourceGroup", client.ResourceGroup, "RegionId", client.RegionId, "asVersion", "enterprise", "asArchitechture", "x86", "haApsaraStack", "true", "Language", "en", "BucketName", bucketName, "StorageClass", storageClass, "x-oss-acl", acl, "SSEAlgorithm", sse_algo), //,"x-one-console-endpoint","http://oss-cn-neimeng-env30-d01-a.intra.env30.shuguang.com"),
-
+					"Params":           fmt.Sprintf("{\"%s\":\"%s\"}", "BucketName", d.Id()),
 				}
 				logrequest.Method = "POST"        // Set request method
 				logrequest.Product = "OneRouter"  // Specify product

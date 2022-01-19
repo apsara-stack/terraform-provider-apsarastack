@@ -609,24 +609,23 @@ type SpecificField struct {
 	RequestID interface{} `json:"requestId"`
 	HTTPOk    bool        `json:"httpOk"`
 }
-
 type InstanceFamily struct {
-	AsapiSuccess   bool   `json:"asapiSuccess"`
-	Code           int    `json:"code"`
-	AsapiRequestID string `json:"asapiRequestId"`
-	Data           []struct {
-		GmtModified string `json:"gmtModified"`
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AsapiSuccess    bool   `json:"asapiSuccess"`
+	Code            int    `json:"code"`
+	Data            []struct {
 		Creator     string `json:"creator"`
+		GmtModified int64  `json:"gmtModified"`
 		SeriesName  string `json:"seriesName"`
 		Modifier    string `json:"modifier"`
-		PageSize    int    `json:"pageSize"`
 		OrderBy     struct {
 			ID string `json:"id"`
 		} `json:"orderBy"`
-		GmtCreate       string `json:"gmtCreate"`
+		PageSize        int    `json:"pageSize"`
+		GmtCreate       int64  `json:"gmtCreate"`
 		SeriesID        string `json:"seriesId"`
-		PageOrder       string `json:"pageOrder"`
 		Deleted         bool   `json:"deleted"`
+		PageOrder       string `json:"pageOrder"`
 		IsDeleted       string `json:"isDeleted"`
 		PageSort        string `json:"pageSort"`
 		PageStart       int    `json:"pageStart"`
