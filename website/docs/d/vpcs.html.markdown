@@ -55,4 +55,7 @@ The following attributes are exported in addition to the arguments listed above:
   * `description` - Description of the VPC
   * `is_default` - Whether the VPC is the default VPC in the region.
   * `creation_time` - Time of creation.
+  * `secondary_cidr_blocks` - The secondary IPv4 CIDR block of the VPC.
+
+
  

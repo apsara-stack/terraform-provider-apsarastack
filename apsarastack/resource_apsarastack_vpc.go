@@ -34,7 +34,11 @@ func resourceApsaraStackVpc() *schema.Resource {
 				ForceNew:     true,
 				ValidateFunc: validateCIDRNetworkAddress,
 			},
-
+			"secondary_cidr_block": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validateCIDRNetworkAddress,
+			},
 			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -60,7 +64,6 @@ func resourceApsaraStackVpc() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
 			"route_table_id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -81,8 +84,6 @@ func resourceApsaraStackVpcCreate(d *schema.ResourceData, meta interface{}) erro
 		request.Scheme = "http"
 	}
 	request.RegionId = string(client.Region)
-	//request.Headers = map[string]string{"RegionId": client.RegionId}
-	//request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 		args := *request
@@ -105,13 +106,38 @@ func resourceApsaraStackVpcCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	d.SetId(response.VpcId)
-
+	d.Set("router_id", response.VRouterId)
+	d.Set("route_table_id", response.RouteTableId)
 	stateConf := BuildStateConf([]string{"Pending"}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 3*time.Second, vpcService.VpcStateRefreshFunc(d.Id(), []string{}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
+	if SecondaryCidrBlock, ok := d.GetOk("secondary_cidr_block"); ok {
+		assorequest := vpc.CreateAssociateVpcCidrBlockRequest()
+		assorequest.VpcId = d.Id()
+		assorequest.SecondaryCidrBlock = SecondaryCidrBlock.(string)
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			assorequest.Scheme = "https"
+		} else {
+			assorequest.Scheme = "http"
+		}
+		assorequest.RegionId = string(client.Region)
+		assorequest.Headers = map[string]string{"RegionId": client.RegionId}
+		assorequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.AssociateVpcCidrBlock(assorequest)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_vpc", assorequest.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		assoresponse, _ := raw.(*vpc.AssociateVpcCidrBlockResponse)
+		if !assoresponse.IsSuccess() {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_vpc", assorequest.GetActionName(), ApsaraStackSdkGoERROR)
+		}
 
-	return resourceApsaraStackVpcUpdate(d, meta)
+		return nil
+	}
+	return resourceApsaraStackVpcRead(d, meta)
 }
 
 func resourceApsaraStackVpcRead(d *schema.ResourceData, meta interface{}) error {
@@ -128,6 +154,7 @@ func resourceApsaraStackVpcRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("cidr_block", object.CidrBlock)
+	d.Set("secondary_cidr_block", object.SecondaryCidrBlocks)
 	d.Set("name", object.VpcName)
 	d.Set("description", object.Description)
 	d.Set("router_id", object.VRouterId)
@@ -212,6 +239,32 @@ func resourceApsaraStackVpcUpdate(d *schema.ResourceData, meta interface{}) erro
 	if d.HasChange("description") {
 		request.Description = d.Get("description").(string)
 		attributeUpdate = true
+	}
+	if d.HasChange("secondary_cidr_block") {
+		if SecondaryCidrBlock, ok := d.GetOk("secondary_cidr_block"); ok {
+			assorequest := vpc.CreateAssociateVpcCidrBlockRequest()
+			assorequest.VpcId = d.Id()
+			assorequest.SecondaryCidrBlock = SecondaryCidrBlock.(string)
+			if strings.ToLower(client.Config.Protocol) == "https" {
+				assorequest.Scheme = "https"
+			} else {
+				assorequest.Scheme = "http"
+			}
+			assorequest.RegionId = string(client.Region)
+			assorequest.Headers = map[string]string{"RegionId": client.RegionId}
+			assorequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+				return vpcClient.AssociateVpcCidrBlock(assorequest)
+			})
+			if err != nil {
+				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_vpc", assorequest.GetActionName(), ApsaraStackSdkGoERROR)
+			}
+			assoresponse, _ := raw.(*vpc.AssociateVpcCidrBlockResponse)
+			if !assoresponse.IsSuccess() {
+				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_vpc", assorequest.GetActionName(), ApsaraStackSdkGoERROR)
+			}
+			return nil
+		}
 	}
 
 	if attributeUpdate {
