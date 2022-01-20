@@ -110,6 +110,11 @@ func dataSourceApsaraStackVpcs() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"secondary_cidr_blocks": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
+						},
 					},
 				},
 			},
@@ -264,17 +269,18 @@ func vpcsDecriptionAttributes(d *schema.ResourceData, vpcSetTypes []vpc.Vpc, rou
 	var s []map[string]interface{}
 	for index, vpc := range vpcSetTypes {
 		mapping := map[string]interface{}{
-			"id":             vpc.VpcId,
-			"region_id":      vpc.RegionId,
-			"status":         vpc.Status,
-			"vpc_name":       vpc.VpcName,
-			"vswitch_ids":    vpc.VSwitchIds.VSwitchId,
-			"cidr_block":     vpc.CidrBlock,
-			"vrouter_id":     vpc.VRouterId,
-			"route_table_id": route_tables[index],
-			"description":    vpc.Description,
-			"is_default":     vpc.IsDefault,
-			"creation_time":  vpc.CreationTime,
+			"id":                    vpc.VpcId,
+			"region_id":             vpc.RegionId,
+			"status":                vpc.Status,
+			"vpc_name":              vpc.VpcName,
+			"vswitch_ids":           vpc.VSwitchIds.VSwitchId,
+			"cidr_block":            vpc.CidrBlock,
+			"vrouter_id":            vpc.VRouterId,
+			"route_table_id":        route_tables[index],
+			"description":           vpc.Description,
+			"is_default":            vpc.IsDefault,
+			"creation_time":         vpc.CreationTime,
+			"secondary_cidr_blocks": vpc.SecondaryCidrBlocks.SecondaryCidrBlock,
 		}
 		ids = append(ids, vpc.VpcId)
 		names = append(names, vpc.VpcName)

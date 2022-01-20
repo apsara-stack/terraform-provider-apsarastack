@@ -7,7 +7,6 @@ import (
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -192,15 +191,14 @@ func dataSourceApsaraStackSlbsRead(d *schema.ResourceData, meta interface{}) err
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DescribeLoadBalancers(request)
 		})
-		//if err != nil{
-		//	return WrapError(err)
-		//}
+		if err != nil {
+			return WrapError(err)
+		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*slb.DescribeLoadBalancersResponse)
 		if len(response.LoadBalancers.LoadBalancer) < 1 {
 			break
 		}
-		log.Printf("sss %s", raw)
 		err = json.Unmarshal(response.GetHttpContentBytes(), response)
 		if err != nil {
 			return WrapError(err)
