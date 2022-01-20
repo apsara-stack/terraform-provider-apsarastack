@@ -51,3 +51,5 @@ The following attributes are exported:
 
 * `id` - The ID of the disk.
 * `status` - The disk status.
+* `auto_snapshot_policy_id` - The ID of the automatic snapshot policy that is applied to the cloud disk.
+* `enable_automated_snapshot_policy` - Specifies whether an automatic snapshot policy is applied to the cloud disk.
