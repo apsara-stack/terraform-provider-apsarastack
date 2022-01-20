@@ -54,52 +54,52 @@ import (
 )
 
 type ApsaraStackClient struct {
-	SourceIp                     string
-	SecureTransport              string
-	Region                       Region
-	RegionId                     string
-	Domain                       string
-	AccessKey                    string
-	SecretKey                    string
-	Department                   string
-	ResourceGroup                string
-	Config                       *Config
-	teaSdkConfig                 rpc.Config
-	accountId                    string
-	roleId                       int
-	ecsconn                      *ecs.Client
-	accountIdMutex               sync.RWMutex
-	roleIdMutex                  sync.RWMutex
-	vpcconn                      *vpc.Client
-	slbconn                      *slb.Client
-	csconn                       *cs.Client
-	polarDBconn                  *polardb.Client
-	cdnconn                      *cdn.CdnClient
-	cdnconn_new                  *cdn_new.Client
-	kmsconn                      *kms.Client
-	bssopenapiconn               *bssopenapi.Client
-	rdsconn                      *rds.Client
-	ramconn                      *ram.Client
-	essconn                      *ess.Client
-	gpdbconn                     *gpdb.Client
-	elasticsearchconn            *elasticsearch.Client
-	hbaseconn                    *hbase.Client
-	adbconn                      *adb.Client
-	ossconn                      *oss.Client
-	rkvconn                      *r_kvstore.Client
-	fcconn                       *fc.Client
-	ddsconn                      *dds.Client
-	onsconn                      *ons.Client
-	logconn                      *sls.Client
-	logpopconn                   *slsPop.Client
-	dnsconn                      *alidns.Client
-	edasconn                     *edas.Client
-	creeconn                     *cr_ee.Client
-	crconn                       *cr.Client
-	cmsconn                      *cms.Client
-	maxcomputeconn               *maxcompute.Client
+	SourceIp          string
+	SecureTransport   string
+	Region            Region
+	RegionId          string
+	Domain            string
+	AccessKey         string
+	SecretKey         string
+	Department        string
+	ResourceGroup     string
+	Config            *Config
+	teaSdkConfig      rpc.Config
+	accountId         string
+	roleId            int
+	ecsconn           *ecs.Client
+	accountIdMutex    sync.RWMutex
+	roleIdMutex       sync.RWMutex
+	vpcconn           *vpc.Client
+	slbconn           *slb.Client
+	csconn            *cs.Client
+	polarDBconn       *polardb.Client
+	cdnconn           *cdn.CdnClient
+	cdnconn_new       *cdn_new.Client
+	kmsconn           *kms.Client
+	bssopenapiconn    *bssopenapi.Client
+	rdsconn           *rds.Client
+	ramconn           *ram.Client
+	essconn           *ess.Client
+	gpdbconn          *gpdb.Client
+	elasticsearchconn *elasticsearch.Client
+	hbaseconn         *hbase.Client
+	adbconn           *adb.Client
+	ossconn           *oss.Client
+	rkvconn           *r_kvstore.Client
+	fcconn            *fc.Client
+	ddsconn           *dds.Client
+	onsconn           *ons.Client
+	logconn           *sls.Client
+	logpopconn        *slsPop.Client
+	dnsconn           *alidns.Client
+	edasconn          *edas.Client
+	creeconn          *cr_ee.Client
+	crconn            *cr.Client
+	cmsconn           *cms.Client
+	maxcomputeconn    *maxcompute.Client
 	//otsconn                      *ots.Client
-	OtsInstanceName              string
+	OtsInstanceName string
 	//tablestoreconnByInstanceName map[string]*tablestore.TableStoreClient
 	//dhconn                       datahub.DataHubApi
 }
@@ -123,7 +123,7 @@ type ApiVersion string
 
 // The main version number that is being run at the moment.
 
-var ProviderVersion = "1.0.10"
+var ProviderVersion = "1.0.11"
 var TerraformVersion = strings.TrimSuffix(schema.Provider{}.TerraformVersion, "-dev")
 var goSdkMutex = sync.RWMutex{} // The Go SDK is not thread-safe
 

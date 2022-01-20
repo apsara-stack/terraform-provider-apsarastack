@@ -48,7 +48,7 @@ Using the provider
   required_providers {
     apsarastack = {
       source = "apsara-stack/apsarastack"
-      version = "1.0.10"
+      version = "1.0.11"
     }
   }
 }
