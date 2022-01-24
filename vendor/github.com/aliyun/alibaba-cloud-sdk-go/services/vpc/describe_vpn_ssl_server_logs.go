@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeVpnSslServerLogs invokes the vpc.DescribeVpnSslServerLogs API synchronously
-// api document: https://help.aliyun.com/api/vpc/describevpnsslserverlogs.html
 func (client *Client) DescribeVpnSslServerLogs(request *DescribeVpnSslServerLogsRequest) (response *DescribeVpnSslServerLogsResponse, err error) {
 	response = CreateDescribeVpnSslServerLogsResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeVpnSslServerLogs(request *DescribeVpnSslServerLogs
 }
 
 // DescribeVpnSslServerLogsWithChan invokes the vpc.DescribeVpnSslServerLogs API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevpnsslserverlogs.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVpnSslServerLogsWithChan(request *DescribeVpnSslServerLogsRequest) (<-chan *DescribeVpnSslServerLogsResponse, <-chan error) {
 	responseChan := make(chan *DescribeVpnSslServerLogsResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeVpnSslServerLogsWithChan(request *DescribeVpnSslSe
 }
 
 // DescribeVpnSslServerLogsWithCallback invokes the vpc.DescribeVpnSslServerLogs API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevpnsslserverlogs.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVpnSslServerLogsWithCallback(request *DescribeVpnSslServerLogsRequest, callback func(response *DescribeVpnSslServerLogsResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -92,11 +87,11 @@ type DescribeVpnSslServerLogsRequest struct {
 // DescribeVpnSslServerLogsResponse is the response struct for api DescribeVpnSslServerLogs
 type DescribeVpnSslServerLogsResponse struct {
 	*responses.BaseResponse
+	PageSize    int    `json:"PageSize" xml:"PageSize"`
+	PageNumber  int    `json:"PageNumber" xml:"PageNumber"`
 	RequestId   string `json:"RequestId" xml:"RequestId"`
 	Count       int    `json:"Count" xml:"Count"`
 	IsCompleted bool   `json:"IsCompleted" xml:"IsCompleted"`
-	PageNumber  int    `json:"PageNumber" xml:"PageNumber"`
-	PageSize    int    `json:"PageSize" xml:"PageSize"`
 	Data        Data   `json:"Data" xml:"Data"`
 }
 

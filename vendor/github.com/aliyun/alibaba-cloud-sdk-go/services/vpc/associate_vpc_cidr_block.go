@@ -21,7 +21,6 @@ import (
 )
 
 // AssociateVpcCidrBlock invokes the vpc.AssociateVpcCidrBlock API synchronously
-// api document: https://help.aliyun.com/api/vpc/associatevpccidrblock.html
 func (client *Client) AssociateVpcCidrBlock(request *AssociateVpcCidrBlockRequest) (response *AssociateVpcCidrBlockResponse, err error) {
 	response = CreateAssociateVpcCidrBlockResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) AssociateVpcCidrBlock(request *AssociateVpcCidrBlockReques
 }
 
 // AssociateVpcCidrBlockWithChan invokes the vpc.AssociateVpcCidrBlock API asynchronously
-// api document: https://help.aliyun.com/api/vpc/associatevpccidrblock.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) AssociateVpcCidrBlockWithChan(request *AssociateVpcCidrBlockRequest) (<-chan *AssociateVpcCidrBlockResponse, <-chan error) {
 	responseChan := make(chan *AssociateVpcCidrBlockResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) AssociateVpcCidrBlockWithChan(request *AssociateVpcCidrBlo
 }
 
 // AssociateVpcCidrBlockWithCallback invokes the vpc.AssociateVpcCidrBlock API asynchronously
-// api document: https://help.aliyun.com/api/vpc/associatevpccidrblock.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) AssociateVpcCidrBlockWithCallback(request *AssociateVpcCidrBlockRequest, callback func(response *AssociateVpcCidrBlockResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -78,6 +73,8 @@ type AssociateVpcCidrBlockRequest struct {
 	*requests.RpcRequest
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	IPv6CidrType         string           `position:"Query" name:"IPv6CidrType"`
+	Ipv6Isp              string           `position:"Query" name:"Ipv6Isp"`
+	IpVersion            string           `position:"Query" name:"IpVersion"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
 	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`

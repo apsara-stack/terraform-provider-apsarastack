@@ -78,7 +78,7 @@ func (b *BssopenapiService) GetInstanceTypePrice(productCode, productType string
 	return priceList, nil
 }
 
-func (b *BssopenapiService) getSubscriptionData(request *bssopenapi.GetSubscriptionPriceRequest) (*bssopenapi.Data, error) {
+func (b *BssopenapiService) getSubscriptionData(request *bssopenapi.GetSubscriptionPriceRequest) (*bssopenapi.DataInGetSubscriptionPrice, error) {
 	request.OrderType = "NewOrder"
 	request.SubscriptionType = "Subscription"
 	request.RegionId = b.client.RegionId
@@ -103,7 +103,7 @@ func (b *BssopenapiService) getSubscriptionData(request *bssopenapi.GetSubscript
 	return &response.Data, nil
 }
 
-func (b *BssopenapiService) getPayAsYouGoData(request *bssopenapi.GetPayAsYouGoPriceRequest) (*bssopenapi.Data, error) {
+func (b *BssopenapiService) getPayAsYouGoData(request *bssopenapi.GetPayAsYouGoPriceRequest) (*bssopenapi.DataInGetPayAsYouGoPrice, error) {
 	request.SubscriptionType = "PayAsYouGo"
 	request.RegionId = b.client.RegionId
 	raw, err := b.client.WithBssopenapiClient(func(client *bssopenapi.Client) (interface{}, error) {

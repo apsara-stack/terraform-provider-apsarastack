@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeErrorLogRecords invokes the dds.DescribeErrorLogRecords API synchronously
-// api document: https://help.aliyun.com/api/dds/describeerrorlogrecords.html
 func (client *Client) DescribeErrorLogRecords(request *DescribeErrorLogRecordsRequest) (response *DescribeErrorLogRecordsResponse, err error) {
 	response = CreateDescribeErrorLogRecordsResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeErrorLogRecords(request *DescribeErrorLogRecordsRe
 }
 
 // DescribeErrorLogRecordsWithChan invokes the dds.DescribeErrorLogRecords API asynchronously
-// api document: https://help.aliyun.com/api/dds/describeerrorlogrecords.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeErrorLogRecordsWithChan(request *DescribeErrorLogRecordsRequest) (<-chan *DescribeErrorLogRecordsResponse, <-chan error) {
 	responseChan := make(chan *DescribeErrorLogRecordsResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeErrorLogRecordsWithChan(request *DescribeErrorLogR
 }
 
 // DescribeErrorLogRecordsWithCallback invokes the dds.DescribeErrorLogRecords API asynchronously
-// api document: https://help.aliyun.com/api/dds/describeerrorlogrecords.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeErrorLogRecordsWithCallback(request *DescribeErrorLogRecordsRequest, callback func(response *DescribeErrorLogRecordsResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -95,11 +90,11 @@ type DescribeErrorLogRecordsRequest struct {
 // DescribeErrorLogRecordsResponse is the response struct for api DescribeErrorLogRecords
 type DescribeErrorLogRecordsResponse struct {
 	*responses.BaseResponse
-	RequestId        string                         `json:"RequestId" xml:"RequestId"`
-	Engine           string                         `json:"Engine" xml:"Engine"`
 	TotalRecordCount int                            `json:"TotalRecordCount" xml:"TotalRecordCount"`
-	PageNumber       int                            `json:"PageNumber" xml:"PageNumber"`
 	PageRecordCount  int                            `json:"PageRecordCount" xml:"PageRecordCount"`
+	RequestId        string                         `json:"RequestId" xml:"RequestId"`
+	PageNumber       int                            `json:"PageNumber" xml:"PageNumber"`
+	Engine           string                         `json:"Engine" xml:"Engine"`
 	Items            ItemsInDescribeErrorLogRecords `json:"Items" xml:"Items"`
 }
 
@@ -108,7 +103,7 @@ func CreateDescribeErrorLogRecordsRequest() (request *DescribeErrorLogRecordsReq
 	request = &DescribeErrorLogRecordsRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeErrorLogRecords", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeErrorLogRecords", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

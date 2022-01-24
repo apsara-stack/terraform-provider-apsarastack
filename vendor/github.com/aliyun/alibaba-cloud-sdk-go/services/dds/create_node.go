@@ -21,7 +21,6 @@ import (
 )
 
 // CreateNode invokes the dds.CreateNode API synchronously
-// api document: https://help.aliyun.com/api/dds/createnode.html
 func (client *Client) CreateNode(request *CreateNodeRequest) (response *CreateNodeResponse, err error) {
 	response = CreateCreateNodeResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateNode(request *CreateNodeRequest) (response *CreateNo
 }
 
 // CreateNodeWithChan invokes the dds.CreateNode API asynchronously
-// api document: https://help.aliyun.com/api/dds/createnode.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateNodeWithChan(request *CreateNodeRequest) (<-chan *CreateNodeResponse, <-chan error) {
 	responseChan := make(chan *CreateNodeResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateNodeWithChan(request *CreateNodeRequest) (<-chan *Cr
 }
 
 // CreateNodeWithCallback invokes the dds.CreateNode API asynchronously
-// api document: https://help.aliyun.com/api/dds/createnode.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateNodeWithCallback(request *CreateNodeRequest, callback func(response *CreateNodeResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -79,9 +74,12 @@ type CreateNodeRequest struct {
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	NodeType             string           `position:"Query" name:"NodeType"`
 	ClientToken          string           `position:"Query" name:"ClientToken"`
+	ReadonlyReplicas     requests.Integer `position:"Query" name:"ReadonlyReplicas"`
+	CouponNo             string           `position:"Query" name:"CouponNo"`
 	NodeClass            string           `position:"Query" name:"NodeClass"`
 	SecurityToken        string           `position:"Query" name:"SecurityToken"`
 	DBInstanceId         string           `position:"Query" name:"DBInstanceId"`
+	BusinessInfo         string           `position:"Query" name:"BusinessInfo"`
 	AutoPay              requests.Boolean `position:"Query" name:"AutoPay"`
 	FromApp              string           `position:"Query" name:"FromApp"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
@@ -94,8 +92,8 @@ type CreateNodeRequest struct {
 type CreateNodeResponse struct {
 	*responses.BaseResponse
 	RequestId string `json:"RequestId" xml:"RequestId"`
-	OrderId   string `json:"OrderId" xml:"OrderId"`
 	NodeId    string `json:"NodeId" xml:"NodeId"`
+	OrderId   string `json:"OrderId" xml:"OrderId"`
 }
 
 // CreateCreateNodeRequest creates a request to invoke CreateNode API
@@ -103,7 +101,7 @@ func CreateCreateNodeRequest() (request *CreateNodeRequest) {
 	request = &CreateNodeRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "CreateNode", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "CreateNode", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

@@ -459,43 +459,34 @@ func resourceApsaraStackCmsAlarmRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	escalationsWarn := make([]map[string]interface{}, 1)
-	if alarm.Escalations.Warn.Times != "" {
-		if count, err := strconv.Atoi(alarm.Escalations.Warn.Times); err != nil {
-			return WrapError(err)
-		} else {
-			mappingWarn := map[string]interface{}{
-				"statistics":          alarm.Escalations.Warn.Statistics,
-				"comparison_operator": convertOperator(alarm.Escalations.Warn.ComparisonOperator),
-				"threshold":           alarm.Escalations.Warn.Threshold,
-				"times":               count,
-			}
-			escalationsWarn[0] = mappingWarn
-			d.Set("escalations_warn", escalationsWarn)
+	if alarm.Escalations.Warn.Times != 0 {
+		count := alarm.Escalations.Warn.Times
+		mappingWarn := map[string]interface{}{
+			"statistics":          alarm.Escalations.Warn.Statistics,
+			"comparison_operator": convertOperator(alarm.Escalations.Warn.ComparisonOperator),
+			"threshold":           alarm.Escalations.Warn.Threshold,
+			"times":               count,
 		}
+		escalationsWarn[0] = mappingWarn
+		d.Set("escalations_warn", escalationsWarn)
+
 	}
 
 	escalationsInfo := make([]map[string]interface{}, 1)
-	if alarm.Escalations.Info.Times != "" {
-		if count, err := strconv.Atoi(alarm.Escalations.Info.Times); err != nil {
-			return WrapError(err)
-		} else {
-			mappingInfo := map[string]interface{}{
-				"statistics":          alarm.Escalations.Info.Statistics,
-				"comparison_operator": convertOperator(alarm.Escalations.Info.ComparisonOperator),
-				"threshold":           alarm.Escalations.Info.Threshold,
-				"times":               count,
-			}
-			escalationsInfo[0] = mappingInfo
-			d.Set("escalations_info", escalationsInfo)
+	if alarm.Escalations.Info.Times != 0 {
+		count := alarm.Escalations.Info.Times
+		mappingInfo := map[string]interface{}{
+			"statistics":          alarm.Escalations.Info.Statistics,
+			"comparison_operator": convertOperator(alarm.Escalations.Info.ComparisonOperator),
+			"threshold":           alarm.Escalations.Info.Threshold,
+			"times":               count,
 		}
+		escalationsInfo[0] = mappingInfo
+		d.Set("escalations_info", escalationsInfo)
 	}
 
 	d.Set("effective_interval", alarm.EffectiveInterval)
-	if silence, err := strconv.Atoi(alarm.SilenceTime); err != nil {
-		return fmt.Errorf("Atoi SilenceTime got an error: %#v.", err)
-	} else {
-		d.Set("silence_time", silence)
-	}
+	d.Set("silence_time", alarm.SilenceTime)
 	d.Set("status", alarm.AlertState)
 	d.Set("enabled", alarm.EnableState)
 	d.Set("contact_groups", strings.Split(alarm.ContactGroups, ","))

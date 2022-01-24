@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeVpcs invokes the vpc.DescribeVpcs API synchronously
-// api document: https://help.aliyun.com/api/vpc/describevpcs.html
 func (client *Client) DescribeVpcs(request *DescribeVpcsRequest) (response *DescribeVpcsResponse, err error) {
 	response = CreateDescribeVpcsResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeVpcs(request *DescribeVpcsRequest) (response *Desc
 }
 
 // DescribeVpcsWithChan invokes the vpc.DescribeVpcs API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevpcs.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVpcsWithChan(request *DescribeVpcsRequest) (<-chan *DescribeVpcsResponse, <-chan error) {
 	responseChan := make(chan *DescribeVpcsResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeVpcsWithChan(request *DescribeVpcsRequest) (<-chan
 }
 
 // DescribeVpcsWithCallback invokes the vpc.DescribeVpcs API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevpcs.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVpcsWithCallback(request *DescribeVpcsRequest, callback func(response *DescribeVpcsResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -82,8 +77,8 @@ type DescribeVpcsRequest struct {
 	VpcName              string             `position:"Query" name:"VpcName"`
 	ResourceGroupId      string             `position:"Query" name:"ResourceGroupId"`
 	PageSize             requests.Integer   `position:"Query" name:"PageSize"`
-	Tag                  *[]DescribeVpcsTag `position:"Query" name:"Tag"  type:"Repeated"`
 	IsDefault            requests.Boolean   `position:"Query" name:"IsDefault"`
+	Tag                  *[]DescribeVpcsTag `position:"Query" name:"Tag"  type:"Repeated"`
 	DryRun               requests.Boolean   `position:"Query" name:"DryRun"`
 	DhcpOptionsSetId     string             `position:"Query" name:"DhcpOptionsSetId"`
 	ResourceOwnerAccount string             `position:"Query" name:"ResourceOwnerAccount"`
@@ -102,10 +97,10 @@ type DescribeVpcsTag struct {
 // DescribeVpcsResponse is the response struct for api DescribeVpcs
 type DescribeVpcsResponse struct {
 	*responses.BaseResponse
-	RequestId  string `json:"RequestId" xml:"RequestId"`
-	TotalCount int    `json:"TotalCount" xml:"TotalCount"`
-	PageNumber int    `json:"PageNumber" xml:"PageNumber"`
 	PageSize   int    `json:"PageSize" xml:"PageSize"`
+	RequestId  string `json:"RequestId" xml:"RequestId"`
+	PageNumber int    `json:"PageNumber" xml:"PageNumber"`
+	TotalCount int    `json:"TotalCount" xml:"TotalCount"`
 	Vpcs       Vpcs   `json:"Vpcs" xml:"Vpcs"`
 }
 

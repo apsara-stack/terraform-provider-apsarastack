@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeVSwitches invokes the vpc.DescribeVSwitches API synchronously
-// api document: https://help.aliyun.com/api/vpc/describevswitches.html
 func (client *Client) DescribeVSwitches(request *DescribeVSwitchesRequest) (response *DescribeVSwitchesResponse, err error) {
 	response = CreateDescribeVSwitchesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeVSwitches(request *DescribeVSwitchesRequest) (resp
 }
 
 // DescribeVSwitchesWithChan invokes the vpc.DescribeVSwitches API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevswitches.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVSwitchesWithChan(request *DescribeVSwitchesRequest) (<-chan *DescribeVSwitchesResponse, <-chan error) {
 	responseChan := make(chan *DescribeVSwitchesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeVSwitchesWithChan(request *DescribeVSwitchesReques
 }
 
 // DescribeVSwitchesWithCallback invokes the vpc.DescribeVSwitches API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevswitches.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVSwitchesWithCallback(request *DescribeVSwitchesRequest, callback func(response *DescribeVSwitchesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -80,8 +75,8 @@ type DescribeVSwitchesRequest struct {
 	PageNumber           requests.Integer        `position:"Query" name:"PageNumber"`
 	ResourceGroupId      string                  `position:"Query" name:"ResourceGroupId"`
 	PageSize             requests.Integer        `position:"Query" name:"PageSize"`
-	Tag                  *[]DescribeVSwitchesTag `position:"Query" name:"Tag"  type:"Repeated"`
 	IsDefault            requests.Boolean        `position:"Query" name:"IsDefault"`
+	Tag                  *[]DescribeVSwitchesTag `position:"Query" name:"Tag"  type:"Repeated"`
 	RouteTableId         string                  `position:"Query" name:"RouteTableId"`
 	DryRun               requests.Boolean        `position:"Query" name:"DryRun"`
 	ResourceOwnerAccount string                  `position:"Query" name:"ResourceOwnerAccount"`
@@ -103,10 +98,10 @@ type DescribeVSwitchesTag struct {
 // DescribeVSwitchesResponse is the response struct for api DescribeVSwitches
 type DescribeVSwitchesResponse struct {
 	*responses.BaseResponse
-	RequestId  string    `json:"RequestId" xml:"RequestId"`
-	TotalCount int       `json:"TotalCount" xml:"TotalCount"`
-	PageNumber int       `json:"PageNumber" xml:"PageNumber"`
 	PageSize   int       `json:"PageSize" xml:"PageSize"`
+	RequestId  string    `json:"RequestId" xml:"RequestId"`
+	PageNumber int       `json:"PageNumber" xml:"PageNumber"`
+	TotalCount int       `json:"TotalCount" xml:"TotalCount"`
 	VSwitches  VSwitches `json:"VSwitches" xml:"VSwitches"`
 }
 

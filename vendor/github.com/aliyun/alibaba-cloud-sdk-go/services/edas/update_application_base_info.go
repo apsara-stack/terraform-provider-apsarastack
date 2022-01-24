@@ -75,7 +75,6 @@ type UpdateApplicationBaseInfoRequest struct {
 	AppName string `position:"Query" name:"AppName"`
 	AppId   string `position:"Query" name:"AppId"`
 	Desc    string `position:"Query" name:"Desc"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // UpdateApplicationBaseInfoResponse is the response struct for api UpdateApplicationBaseInfo
@@ -92,8 +91,7 @@ func CreateUpdateApplicationBaseInfoRequest() (request *UpdateApplicationBaseInf
 	request = &UpdateApplicationBaseInfoRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	//request.InitWithApiInfo("Edas", "2017-08-01", "UpdateApplicationBaseInfo", "/pop/v5/app/update_app_info", "Edas", "openAPI")
-	request.InitWithApiInfo("Edas", "2017-08-01", "UpdateApplicationBaseInfo", "/roa/pop/v5/app/update_app_info", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "UpdateApplicationBaseInfo", "/pop/v5/app/update_app_info", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

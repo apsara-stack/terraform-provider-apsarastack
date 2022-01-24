@@ -17,46 +17,53 @@ package rds
 
 // DBInstance is a nested struct in rds response
 type DBInstance struct {
-	Category                     string                                     `json:"Category" xml:"Category"`
+	Engine                       string                                     `json:"Engine" xml:"Engine"`
+	VpcName                      string                                     `json:"VpcName" xml:"VpcName"`
+	VpcCloudInstanceId           string                                     `json:"VpcCloudInstanceId" xml:"VpcCloudInstanceId"`
+	DBInstanceNetType            string                                     `json:"DBInstanceNetType" xml:"DBInstanceNetType"`
+	DBInstanceClass              string                                     `json:"DBInstanceClass" xml:"DBInstanceClass"`
+	InstanceNetworkType          string                                     `json:"InstanceNetworkType" xml:"InstanceNetworkType"`
+	DBInstanceType               string                                     `json:"DBInstanceType" xml:"DBInstanceType"`
+	SwitchWeight                 int                                        `json:"SwitchWeight" xml:"SwitchWeight"`
+	DBInstanceId                 string                                     `json:"DBInstanceId" xml:"DBInstanceId"`
+	VpcId                        string                                     `json:"VpcId" xml:"VpcId"`
+	DBInstanceStorageType        string                                     `json:"DBInstanceStorageType" xml:"DBInstanceStorageType"`
+	DedicatedHostZoneIdForMaster string                                     `json:"DedicatedHostZoneIdForMaster" xml:"DedicatedHostZoneIdForMaster"`
+	DedicatedHostIdForLog        string                                     `json:"DedicatedHostIdForLog" xml:"DedicatedHostIdForLog"`
+	TipsLevel                    int                                        `json:"TipsLevel" xml:"TipsLevel"`
+	EngineVersion                string                                     `json:"EngineVersion" xml:"EngineVersion"`
+	PayType                      string                                     `json:"PayType" xml:"PayType"`
+	Tips                         string                                     `json:"Tips" xml:"Tips"`
+	DedicatedHostZoneIdForSlave  string                                     `json:"DedicatedHostZoneIdForSlave" xml:"DedicatedHostZoneIdForSlave"`
+	TempDBInstanceId             string                                     `json:"TempDBInstanceId" xml:"TempDBInstanceId"`
+	ZoneId                       string                                     `json:"ZoneId" xml:"ZoneId"`
+	DedicatedHostZoneIdForLog    string                                     `json:"DedicatedHostZoneIdForLog" xml:"DedicatedHostZoneIdForLog"`
+	DedicatedHostNameForSlave    string                                     `json:"DedicatedHostNameForSlave" xml:"DedicatedHostNameForSlave"`
+	ConnectionMode               string                                     `json:"ConnectionMode" xml:"ConnectionMode"`
+	LockMode                     string                                     `json:"LockMode" xml:"LockMode"`
+	DedicatedHostIdForSlave      string                                     `json:"DedicatedHostIdForSlave" xml:"DedicatedHostIdForSlave"`
 	LockReason                   string                                     `json:"LockReason" xml:"LockReason"`
+	Category                     string                                     `json:"Category" xml:"Category"`
 	InsId                        int                                        `json:"InsId" xml:"InsId"`
 	GuardDBInstanceId            string                                     `json:"GuardDBInstanceId" xml:"GuardDBInstanceId"`
 	DBInstanceDescription        string                                     `json:"DBInstanceDescription" xml:"DBInstanceDescription"`
-	Engine                       string                                     `json:"Engine" xml:"Engine"`
 	CreateTime                   string                                     `json:"CreateTime" xml:"CreateTime"`
-	DBInstanceNetType            string                                     `json:"DBInstanceNetType" xml:"DBInstanceNetType"`
-	DBInstanceClass              string                                     `json:"DBInstanceClass" xml:"DBInstanceClass"`
-	VpcCloudInstanceId           string                                     `json:"VpcCloudInstanceId" xml:"VpcCloudInstanceId"`
+	GeneralGroupName             string                                     `json:"GeneralGroupName" xml:"GeneralGroupName"`
 	DestroyTime                  string                                     `json:"DestroyTime" xml:"DestroyTime"`
 	DedicatedHostIdForMaster     string                                     `json:"DedicatedHostIdForMaster" xml:"DedicatedHostIdForMaster"`
 	DedicatedHostNameForLog      string                                     `json:"DedicatedHostNameForLog" xml:"DedicatedHostNameForLog"`
 	RegionId                     string                                     `json:"RegionId" xml:"RegionId"`
-	InstanceNetworkType          string                                     `json:"InstanceNetworkType" xml:"InstanceNetworkType"`
 	ResourceGroupId              string                                     `json:"ResourceGroupId" xml:"ResourceGroupId"`
-	DBInstanceType               string                                     `json:"DBInstanceType" xml:"DBInstanceType"`
 	ExpireTime                   string                                     `json:"ExpireTime" xml:"ExpireTime"`
-	DBInstanceId                 string                                     `json:"DBInstanceId" xml:"DBInstanceId"`
-	VpcId                        string                                     `json:"VpcId" xml:"VpcId"`
-	DBInstanceStorageType        string                                     `json:"DBInstanceStorageType" xml:"DBInstanceStorageType"`
 	MutriORsignle                bool                                       `json:"MutriORsignle" xml:"MutriORsignle"`
-	DedicatedHostZoneIdForMaster string                                     `json:"DedicatedHostZoneIdForMaster" xml:"DedicatedHostZoneIdForMaster"`
 	DedicatedHostGroupId         string                                     `json:"DedicatedHostGroupId" xml:"DedicatedHostGroupId"`
-	DedicatedHostIdForLog        string                                     `json:"DedicatedHostIdForLog" xml:"DedicatedHostIdForLog"`
-	EngineVersion                string                                     `json:"EngineVersion" xml:"EngineVersion"`
-	PayType                      string                                     `json:"PayType" xml:"PayType"`
+	DedicatedHostGroupName       string                                     `json:"DedicatedHostGroupName" xml:"DedicatedHostGroupName"`
 	VSwitchId                    string                                     `json:"VSwitchId" xml:"VSwitchId"`
 	MasterInstanceId             string                                     `json:"MasterInstanceId" xml:"MasterInstanceId"`
-	DedicatedHostZoneIdForSlave  string                                     `json:"DedicatedHostZoneIdForSlave" xml:"DedicatedHostZoneIdForSlave"`
-	TempDBInstanceId             string                                     `json:"TempDBInstanceId" xml:"TempDBInstanceId"`
 	DBInstanceStatus             string                                     `json:"DBInstanceStatus" xml:"DBInstanceStatus"`
-	ZoneId                       string                                     `json:"ZoneId" xml:"ZoneId"`
 	ReplicateId                  string                                     `json:"ReplicateId" xml:"ReplicateId"`
-	DedicatedHostNameForSlave    string                                     `json:"DedicatedHostNameForSlave" xml:"DedicatedHostNameForSlave"`
-	DedicatedHostZoneIdForLog    string                                     `json:"DedicatedHostZoneIdForLog" xml:"DedicatedHostZoneIdForLog"`
-	ConnectionMode               string                                     `json:"ConnectionMode" xml:"ConnectionMode"`
+	ConnectionString             string                                     `json:"ConnectionString" xml:"ConnectionString"`
 	DedicatedHostNameForMaster   string                                     `json:"DedicatedHostNameForMaster" xml:"DedicatedHostNameForMaster"`
 	AutoUpgradeMinorVersion      string                                     `json:"AutoUpgradeMinorVersion" xml:"AutoUpgradeMinorVersion"`
-	LockMode                     string                                     `json:"LockMode" xml:"LockMode"`
-	DedicatedHostIdForSlave      string                                     `json:"DedicatedHostIdForSlave" xml:"DedicatedHostIdForSlave"`
 	ReadOnlyDBInstanceIds        ReadOnlyDBInstanceIdsInDescribeDBInstances `json:"ReadOnlyDBInstanceIds" xml:"ReadOnlyDBInstanceIds"`
 }

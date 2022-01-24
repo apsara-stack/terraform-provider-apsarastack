@@ -21,7 +21,6 @@ import (
 )
 
 // ModifyBackupPolicy invokes the rds.ModifyBackupPolicy API synchronously
-// api document: https://help.aliyun.com/api/rds/modifybackuppolicy.html
 func (client *Client) ModifyBackupPolicy(request *ModifyBackupPolicyRequest) (response *ModifyBackupPolicyResponse, err error) {
 	response = CreateModifyBackupPolicyResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ModifyBackupPolicy(request *ModifyBackupPolicyRequest) (re
 }
 
 // ModifyBackupPolicyWithChan invokes the rds.ModifyBackupPolicy API asynchronously
-// api document: https://help.aliyun.com/api/rds/modifybackuppolicy.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyBackupPolicyWithChan(request *ModifyBackupPolicyRequest) (<-chan *ModifyBackupPolicyResponse, <-chan error) {
 	responseChan := make(chan *ModifyBackupPolicyResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ModifyBackupPolicyWithChan(request *ModifyBackupPolicyRequ
 }
 
 // ModifyBackupPolicyWithCallback invokes the rds.ModifyBackupPolicy API asynchronously
-// api document: https://help.aliyun.com/api/rds/modifybackuppolicy.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyBackupPolicyWithCallback(request *ModifyBackupPolicyRequest, callback func(response *ModifyBackupPolicyResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -79,7 +74,7 @@ type ModifyBackupPolicyRequest struct {
 	ResourceOwnerId               requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	LocalLogRetentionHours        string           `position:"Query" name:"LocalLogRetentionHours"`
 	LogBackupFrequency            string           `position:"Query" name:"LogBackupFrequency"`
-	ArchiveBackupKeepCount        string           `position:"Query" name:"ArchiveBackupKeepCount"`
+	ArchiveBackupKeepCount        requests.Integer `position:"Query" name:"ArchiveBackupKeepCount"`
 	BackupLog                     string           `position:"Query" name:"BackupLog"`
 	BackupInterval                string           `position:"Query" name:"BackupInterval"`
 	DuplicationContent            string           `position:"Query" name:"DuplicationContent"`
@@ -99,6 +94,7 @@ type ModifyBackupPolicyRequest struct {
 	Duplication                   string           `position:"Query" name:"Duplication"`
 	PreferredBackupTime           string           `position:"Query" name:"PreferredBackupTime"`
 	BackupRetentionPeriod         string           `position:"Query" name:"BackupRetentionPeriod"`
+	BackupMethod                  string           `position:"Query" name:"BackupMethod"`
 	DuplicationLocation           string           `position:"Query" name:"DuplicationLocation"`
 	ArchiveBackupRetentionPeriod  string           `position:"Query" name:"ArchiveBackupRetentionPeriod"`
 	Category                      string           `position:"Query" name:"Category"`

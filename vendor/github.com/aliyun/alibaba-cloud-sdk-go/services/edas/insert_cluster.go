@@ -72,13 +72,11 @@ func (client *Client) InsertClusterWithCallback(request *InsertClusterRequest, c
 type InsertClusterRequest struct {
 	*requests.RoaRequest
 	ClusterType     requests.Integer `position:"Query" name:"ClusterType"`
-	//ClusterType     string           `position:"Query" name:"ClusterType"`
 	IaasProvider    string           `position:"Query" name:"IaasProvider"`
-	RegionId string           `position:"Query" name:"RegionId"`
+	LogicalRegionId string           `position:"Query" name:"LogicalRegionId"`
 	ClusterName     string           `position:"Query" name:"ClusterName"`
 	VpcId           string           `position:"Query" name:"VpcId"`
 	NetworkMode     requests.Integer `position:"Query" name:"NetworkMode"`
-	//NetworkMode     string           `position:"Query" name:"NetworkMode"`
 	OversoldFactor  requests.Integer `position:"Query" name:"OversoldFactor"`
 }
 
@@ -96,8 +94,7 @@ func CreateInsertClusterRequest() (request *InsertClusterRequest) {
 	request = &InsertClusterRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "InsertCluster", "/roa/pop/v5/resource/cluster", "Edas", "openAPI")
-	//request.InitWithApiInfo("Edas", "2017-08-01", "InsertCluster", "", "", "")
+	request.InitWithApiInfo("Edas", "2017-08-01", "InsertCluster", "/pop/v5/resource/cluster", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

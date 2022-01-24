@@ -17,29 +17,32 @@ package rds
 
 // Backup is a nested struct in rds response
 type Backup struct {
-	MetaStatus                string `json:"MetaStatus" xml:"MetaStatus"`
-	HostInstanceID            string `json:"HostInstanceID" xml:"HostInstanceID"`
-	CopyOnlyBackup            string `json:"CopyOnlyBackup" xml:"CopyOnlyBackup"`
-	BackupMode                string `json:"BackupMode" xml:"BackupMode"`
-	IsAvail                   int    `json:"IsAvail" xml:"IsAvail"`
-	BackupDBNames             string `json:"BackupDBNames" xml:"BackupDBNames"`
-	StorageClass              string `json:"StorageClass" xml:"StorageClass"`
-	BackupSize                int64  `json:"BackupSize" xml:"BackupSize"`
-	BackupStartTime           string `json:"BackupStartTime" xml:"BackupStartTime"`
-	ConsistentTime            int64  `json:"ConsistentTime" xml:"ConsistentTime"`
-	DBInstanceId              string `json:"DBInstanceId" xml:"DBInstanceId"`
-	BackupScale               string `json:"BackupScale" xml:"BackupScale"`
-	BackupDownloadURL         string `json:"BackupDownloadURL" xml:"BackupDownloadURL"`
-	SlaveStatus               string `json:"SlaveStatus" xml:"SlaveStatus"`
-	BackupExtractionStatus    string `json:"BackupExtractionStatus" xml:"BackupExtractionStatus"`
-	BackupIntranetDownloadURL string `json:"BackupIntranetDownloadURL" xml:"BackupIntranetDownloadURL"`
-	BackupEndTime             string `json:"BackupEndTime" xml:"BackupEndTime"`
-	BackupMethod              string `json:"BackupMethod" xml:"BackupMethod"`
-	BackupType                string `json:"BackupType" xml:"BackupType"`
-	TotalBackupSize           int64  `json:"TotalBackupSize" xml:"TotalBackupSize"`
-	BackupInitiator           string `json:"BackupInitiator" xml:"BackupInitiator"`
-	BackupStatus              string `json:"BackupStatus" xml:"BackupStatus"`
-	StoreStatus               string `json:"StoreStatus" xml:"StoreStatus"`
-	BackupId                  string `json:"BackupId" xml:"BackupId"`
-	BackupLocation            string `json:"BackupLocation" xml:"BackupLocation"`
+	MetaStatus                string                 `json:"MetaStatus" xml:"MetaStatus"`
+	CopyOnlyBackup            string                 `json:"CopyOnlyBackup" xml:"CopyOnlyBackup"`
+	HostInstanceID            string                 `json:"HostInstanceID" xml:"HostInstanceID"`
+	BackupMode                string                 `json:"BackupMode" xml:"BackupMode"`
+	IsAvail                   int                    `json:"IsAvail" xml:"IsAvail"`
+	BackupDBNames             string                 `json:"BackupDBNames" xml:"BackupDBNames"`
+	StorageClass              string                 `json:"StorageClass" xml:"StorageClass"`
+	Encryption                string                 `json:"Encryption" xml:"Encryption"`
+	BackupSize                int64                  `json:"BackupSize" xml:"BackupSize"`
+	BackupStartTime           string                 `json:"BackupStartTime" xml:"BackupStartTime"`
+	Checksum                  string                 `json:"Checksum" xml:"Checksum"`
+	ConsistentTime            int64                  `json:"ConsistentTime" xml:"ConsistentTime"`
+	DBInstanceId              string                 `json:"DBInstanceId" xml:"DBInstanceId"`
+	BackupScale               string                 `json:"BackupScale" xml:"BackupScale"`
+	BackupDownloadURL         string                 `json:"BackupDownloadURL" xml:"BackupDownloadURL"`
+	SlaveStatus               string                 `json:"SlaveStatus" xml:"SlaveStatus"`
+	BackupExtractionStatus    string                 `json:"BackupExtractionStatus" xml:"BackupExtractionStatus"`
+	BackupIntranetDownloadURL string                 `json:"BackupIntranetDownloadURL" xml:"BackupIntranetDownloadURL"`
+	BackupEndTime             string                 `json:"BackupEndTime" xml:"BackupEndTime"`
+	BackupMethod              string                 `json:"BackupMethod" xml:"BackupMethod"`
+	BackupType                string                 `json:"BackupType" xml:"BackupType"`
+	TotalBackupSize           int64                  `json:"TotalBackupSize" xml:"TotalBackupSize"`
+	BackupInitiator           string                 `json:"BackupInitiator" xml:"BackupInitiator"`
+	BackupStatus              string                 `json:"BackupStatus" xml:"BackupStatus"`
+	StoreStatus               string                 `json:"StoreStatus" xml:"StoreStatus"`
+	BackupId                  string                 `json:"BackupId" xml:"BackupId"`
+	BackupLocation            string                 `json:"BackupLocation" xml:"BackupLocation"`
+	BackupDownloadLinkByDB    BackupDownloadLinkByDB `json:"BackupDownloadLinkByDB" xml:"BackupDownloadLinkByDB"`
 }

@@ -21,7 +21,6 @@ import (
 )
 
 // CreateCustomerGateway invokes the vpc.CreateCustomerGateway API synchronously
-// api document: https://help.aliyun.com/api/vpc/createcustomergateway.html
 func (client *Client) CreateCustomerGateway(request *CreateCustomerGatewayRequest) (response *CreateCustomerGatewayResponse, err error) {
 	response = CreateCreateCustomerGatewayResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateCustomerGateway(request *CreateCustomerGatewayReques
 }
 
 // CreateCustomerGatewayWithChan invokes the vpc.CreateCustomerGateway API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createcustomergateway.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateCustomerGatewayWithChan(request *CreateCustomerGatewayRequest) (<-chan *CreateCustomerGatewayResponse, <-chan error) {
 	responseChan := make(chan *CreateCustomerGatewayResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateCustomerGatewayWithChan(request *CreateCustomerGatew
 }
 
 // CreateCustomerGatewayWithCallback invokes the vpc.CreateCustomerGateway API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createcustomergateway.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateCustomerGatewayWithCallback(request *CreateCustomerGatewayRequest, callback func(response *CreateCustomerGatewayResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -77,6 +72,7 @@ func (client *Client) CreateCustomerGatewayWithCallback(request *CreateCustomerG
 type CreateCustomerGatewayRequest struct {
 	*requests.RpcRequest
 	IpAddress            string           `position:"Query" name:"IpAddress"`
+	AuthKey              string           `position:"Query" name:"AuthKey"`
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	ClientToken          string           `position:"Query" name:"ClientToken"`
 	Description          string           `position:"Query" name:"Description"`
@@ -91,11 +87,11 @@ type CreateCustomerGatewayRequest struct {
 type CreateCustomerGatewayResponse struct {
 	*responses.BaseResponse
 	RequestId         string `json:"RequestId" xml:"RequestId"`
-	CustomerGatewayId string `json:"CustomerGatewayId" xml:"CustomerGatewayId"`
 	IpAddress         string `json:"IpAddress" xml:"IpAddress"`
-	Name              string `json:"Name" xml:"Name"`
 	Description       string `json:"Description" xml:"Description"`
+	CustomerGatewayId string `json:"CustomerGatewayId" xml:"CustomerGatewayId"`
 	CreateTime        int64  `json:"CreateTime" xml:"CreateTime"`
+	Name              string `json:"Name" xml:"Name"`
 }
 
 // CreateCreateCustomerGatewayRequest creates a request to invoke CreateCustomerGateway API

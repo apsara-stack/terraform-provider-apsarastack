@@ -21,7 +21,6 @@ import (
 )
 
 // CreateDBInstance invokes the dds.CreateDBInstance API synchronously
-// api document: https://help.aliyun.com/api/dds/createdbinstance.html
 func (client *Client) CreateDBInstance(request *CreateDBInstanceRequest) (response *CreateDBInstanceResponse, err error) {
 	response = CreateCreateDBInstanceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateDBInstance(request *CreateDBInstanceRequest) (respon
 }
 
 // CreateDBInstanceWithChan invokes the dds.CreateDBInstance API asynchronously
-// api document: https://help.aliyun.com/api/dds/createdbinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateDBInstanceWithChan(request *CreateDBInstanceRequest) (<-chan *CreateDBInstanceResponse, <-chan error) {
 	responseChan := make(chan *CreateDBInstanceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateDBInstanceWithChan(request *CreateDBInstanceRequest)
 }
 
 // CreateDBInstanceWithCallback invokes the dds.CreateDBInstance API asynchronously
-// api document: https://help.aliyun.com/api/dds/createdbinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateDBInstanceWithCallback(request *CreateDBInstanceRequest, callback func(response *CreateDBInstanceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -103,6 +98,7 @@ type CreateDBInstanceRequest struct {
 	ResourceOwnerAccount  string           `position:"Query" name:"ResourceOwnerAccount"`
 	SrcDBInstanceId       string           `position:"Query" name:"SrcDBInstanceId"`
 	OwnerAccount          string           `position:"Query" name:"OwnerAccount"`
+	ClusterId             string           `position:"Query" name:"ClusterId"`
 	AccountPassword       string           `position:"Query" name:"AccountPassword"`
 	VpcId                 string           `position:"Query" name:"VpcId"`
 	ChargeType            string           `position:"Query" name:"ChargeType"`
@@ -112,8 +108,8 @@ type CreateDBInstanceRequest struct {
 type CreateDBInstanceResponse struct {
 	*responses.BaseResponse
 	RequestId    string `json:"RequestId" xml:"RequestId"`
-	OrderId      string `json:"OrderId" xml:"OrderId"`
 	DBInstanceId string `json:"DBInstanceId" xml:"DBInstanceId"`
+	OrderId      string `json:"OrderId" xml:"OrderId"`
 }
 
 // CreateCreateDBInstanceRequest creates a request to invoke CreateDBInstance API
@@ -121,7 +117,7 @@ func CreateCreateDBInstanceRequest() (request *CreateDBInstanceRequest) {
 	request = &CreateDBInstanceRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "CreateDBInstance", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "CreateDBInstance", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

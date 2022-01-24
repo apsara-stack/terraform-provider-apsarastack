@@ -72,7 +72,6 @@ func (client *Client) GetApplicationWithCallback(request *GetApplicationRequest,
 type GetApplicationRequest struct {
 	*requests.RoaRequest
 	AppId string `position:"Query" name:"AppId"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // GetApplicationResponse is the response struct for api GetApplication
@@ -90,8 +89,7 @@ func CreateGetApplicationRequest() (request *GetApplicationRequest) {
 	request = &GetApplicationRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	//request.InitWithApiInfo("Edas", "2017-08-01", "GetApplication", "/pop/v5/app/app_info", "Edas", "openAPI")
-	request.InitWithApiInfo("Edas", "2017-08-01", "GetApplication", "/roa/pop/v5/app/app_info", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "GetApplication", "/pop/v5/app/app_info", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

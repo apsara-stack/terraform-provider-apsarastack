@@ -210,6 +210,7 @@ type Client struct {
 	SourceIp             *string
 	SecureTransport      *string
 	Credential           credential.Credential
+	Headers              map[string]*string
 }
 
 /**
@@ -349,23 +350,22 @@ func (client *Client) DoRequest(action *string, protocol *string, method *string
 			if !tea.BoolValue(util.IsUnset(client.SecureTransport)) {
 				request_.Query["SecureTransport"] = client.SecureTransport
 			}
-
-			// endpoint is setted in product client
-			request_.Headers = map[string]*string{
-				"x-acs-version": version,
-				"x-acs-action":  action,
-				"host":          client.Endpoint,
-				"user-agent":    client.GetUserAgent(),
-			}
-			product, ok := body["Product"]
-			if ok {
-				request_.Headers["x-ascm-product-name"] = tea.String(product.(string))
-				delete(body, "Product")
-			}
-			organizationId, ok := body["OrganizationId"]
-			if ok {
-				request_.Headers["x-acs-organizationId"] = tea.String(organizationId.(string))
-				delete(body, "OrganizationId")
+			headers, _err := client.GetHeaders()
+			if tea.BoolValue(util.IsUnset(headers)) {
+				// endpoint is setted in product client
+				request_.Headers = map[string]*string{
+					"host":          client.Endpoint,
+					"x-acs-version": version,
+					"x-acs-action":  action,
+					"user-agent":    client.GetUserAgent(),
+				}
+			} else {
+				request_.Headers = tea.Merge(map[string]*string{
+					"host":          client.Endpoint,
+					"x-acs-version": version,
+					"x-acs-action":  action,
+					"user-agent":    client.GetUserAgent(),
+				}, headers)
 			}
 			if !tea.BoolValue(util.IsUnset(body)) {
 				tmp := util.AnyifyMapValue(rpcutil.Query(body))
@@ -409,19 +409,21 @@ func (client *Client) DoRequest(action *string, protocol *string, method *string
 			if _err != nil {
 				return _result, _err
 			}
-
 			res := util.AssertAsMap(obj)
+			res["_headers"] = response_.Headers
 			if tea.BoolValue(util.Is4xx(response_.StatusCode)) || tea.BoolValue(util.Is5xx(response_.StatusCode)) {
 				_err = tea.NewSDKError(map[string]interface{}{
 					"code":       tea.ToString(DefaultAny(res["Code"], res["code"])),
 					"statusCode": tea.IntValue(response_.StatusCode),
 					"message":    "code: " + tea.ToString(tea.IntValue(response_.StatusCode)) + ", " + tea.ToString(DefaultAny(res["Message"], res["message"])) + " request id: " + tea.ToString(DefaultAny(res["RequestId"], res["requestId"])),
 					"data":       res,
+					"_headers":   response_.Headers,
 				})
 				return _result, _err
 			}
 
 			_result = res
+			_result["_headers"] = response_.Headers
 			return _result, _err
 		}()
 		if !tea.BoolValue(tea.Retryable(_err)) {
@@ -510,6 +512,25 @@ func (client *Client) CheckConfig(config *Config) (_err error) {
 	}
 
 	return _err
+}
+
+/**
+ * set RPC header for debug
+ * @param headers headers for debug, this header can be used only once.
+ */
+func (client *Client) SetHeaders(headers map[string]*string) (_err error) {
+	client.Headers = headers
+	return _err
+}
+
+/**
+ * get RPC header for debug
+ */
+func (client *Client) GetHeaders() (_result map[string]*string, _err error) {
+	headers := client.Headers
+	client.Headers = nil
+	_result = headers
+	return _result, _err
 }
 
 /**

@@ -21,7 +21,6 @@ import (
 )
 
 // UpdateNetworkAclEntries invokes the vpc.UpdateNetworkAclEntries API synchronously
-// api document: https://help.aliyun.com/api/vpc/updatenetworkaclentries.html
 func (client *Client) UpdateNetworkAclEntries(request *UpdateNetworkAclEntriesRequest) (response *UpdateNetworkAclEntriesResponse, err error) {
 	response = CreateUpdateNetworkAclEntriesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) UpdateNetworkAclEntries(request *UpdateNetworkAclEntriesRe
 }
 
 // UpdateNetworkAclEntriesWithChan invokes the vpc.UpdateNetworkAclEntries API asynchronously
-// api document: https://help.aliyun.com/api/vpc/updatenetworkaclentries.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) UpdateNetworkAclEntriesWithChan(request *UpdateNetworkAclEntriesRequest) (<-chan *UpdateNetworkAclEntriesResponse, <-chan error) {
 	responseChan := make(chan *UpdateNetworkAclEntriesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) UpdateNetworkAclEntriesWithChan(request *UpdateNetworkAclE
 }
 
 // UpdateNetworkAclEntriesWithCallback invokes the vpc.UpdateNetworkAclEntries API asynchronously
-// api document: https://help.aliyun.com/api/vpc/updatenetworkaclentries.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) UpdateNetworkAclEntriesWithCallback(request *UpdateNetworkAclEntriesRequest, callback func(response *UpdateNetworkAclEntriesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -89,26 +84,26 @@ type UpdateNetworkAclEntriesRequest struct {
 
 // UpdateNetworkAclEntriesEgressAclEntries is a repeated param struct in UpdateNetworkAclEntriesRequest
 type UpdateNetworkAclEntriesEgressAclEntries struct {
-	NetworkAclEntryName string `name:"NetworkAclEntryName"`
 	NetworkAclEntryId   string `name:"NetworkAclEntryId"`
+	EntryType           string `name:"EntryType"`
+	NetworkAclEntryName string `name:"NetworkAclEntryName"`
 	Policy              string `name:"Policy"`
+	Description         string `name:"Description"`
 	Protocol            string `name:"Protocol"`
 	DestinationCidrIp   string `name:"DestinationCidrIp"`
 	Port                string `name:"Port"`
-	EntryType           string `name:"EntryType"`
-	Description         string `name:"Description"`
 }
 
 // UpdateNetworkAclEntriesIngressAclEntries is a repeated param struct in UpdateNetworkAclEntriesRequest
 type UpdateNetworkAclEntriesIngressAclEntries struct {
-	NetworkAclEntryName string `name:"NetworkAclEntryName"`
 	NetworkAclEntryId   string `name:"NetworkAclEntryId"`
-	Policy              string `name:"Policy"`
-	Protocol            string `name:"Protocol"`
-	SourceCidrIp        string `name:"SourceCidrIp"`
-	Port                string `name:"Port"`
 	EntryType           string `name:"EntryType"`
+	NetworkAclEntryName string `name:"NetworkAclEntryName"`
+	Policy              string `name:"Policy"`
+	SourceCidrIp        string `name:"SourceCidrIp"`
 	Description         string `name:"Description"`
+	Protocol            string `name:"Protocol"`
+	Port                string `name:"Port"`
 }
 
 // UpdateNetworkAclEntriesResponse is the response struct for api UpdateNetworkAclEntries

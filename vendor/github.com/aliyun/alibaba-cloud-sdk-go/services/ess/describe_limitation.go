@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeLimitation invokes the ess.DescribeLimitation API synchronously
-// api document: https://help.aliyun.com/api/ess/describelimitation.html
 func (client *Client) DescribeLimitation(request *DescribeLimitationRequest) (response *DescribeLimitationResponse, err error) {
 	response = CreateDescribeLimitationResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeLimitation(request *DescribeLimitationRequest) (re
 }
 
 // DescribeLimitationWithChan invokes the ess.DescribeLimitation API asynchronously
-// api document: https://help.aliyun.com/api/ess/describelimitation.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeLimitationWithChan(request *DescribeLimitationRequest) (<-chan *DescribeLimitationResponse, <-chan error) {
 	responseChan := make(chan *DescribeLimitationResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeLimitationWithChan(request *DescribeLimitationRequ
 }
 
 // DescribeLimitationWithCallback invokes the ess.DescribeLimitation API asynchronously
-// api document: https://help.aliyun.com/api/ess/describelimitation.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeLimitationWithCallback(request *DescribeLimitationRequest, callback func(response *DescribeLimitationResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -83,18 +78,20 @@ type DescribeLimitationRequest struct {
 // DescribeLimitationResponse is the response struct for api DescribeLimitation
 type DescribeLimitationResponse struct {
 	*responses.BaseResponse
-	MaxNumberOfScalingGroups              int `json:"MaxNumberOfScalingGroups" xml:"MaxNumberOfScalingGroups"`
-	MaxNumberOfScalingConfigurations      int `json:"MaxNumberOfScalingConfigurations" xml:"MaxNumberOfScalingConfigurations"`
-	MaxNumberOfScalingRules               int `json:"MaxNumberOfScalingRules" xml:"MaxNumberOfScalingRules"`
-	MaxNumberOfScheduledTasks             int `json:"MaxNumberOfScheduledTasks" xml:"MaxNumberOfScheduledTasks"`
-	MaxNumberOfScalingInstances           int `json:"MaxNumberOfScalingInstances" xml:"MaxNumberOfScalingInstances"`
-	MaxNumberOfDBInstances                int `json:"MaxNumberOfDBInstances" xml:"MaxNumberOfDBInstances"`
-	MaxNumberOfLoadBalancers              int `json:"MaxNumberOfLoadBalancers" xml:"MaxNumberOfLoadBalancers"`
-	MaxNumberOfMinSize                    int `json:"MaxNumberOfMinSize" xml:"MaxNumberOfMinSize"`
-	MaxNumberOfMaxSize                    int `json:"MaxNumberOfMaxSize" xml:"MaxNumberOfMaxSize"`
-	MaxNumberOfVServerGroups              int `json:"MaxNumberOfVServerGroups" xml:"MaxNumberOfVServerGroups"`
-	MaxNumberOfLifecycleHooks             int `json:"MaxNumberOfLifecycleHooks" xml:"MaxNumberOfLifecycleHooks"`
-	MaxNumberOfNotificationConfigurations int `json:"MaxNumberOfNotificationConfigurations" xml:"MaxNumberOfNotificationConfigurations"`
+	MaxNumberOfScheduledTasks             int    `json:"MaxNumberOfScheduledTasks" xml:"MaxNumberOfScheduledTasks"`
+	MaxNumberOfLoadBalancers              int    `json:"MaxNumberOfLoadBalancers" xml:"MaxNumberOfLoadBalancers"`
+	MaxNumberOfMaxSize                    int    `json:"MaxNumberOfMaxSize" xml:"MaxNumberOfMaxSize"`
+	MaxNumberOfAlbServerGroup             int    `json:"MaxNumberOfAlbServerGroup" xml:"MaxNumberOfAlbServerGroup"`
+	MaxNumberOfDBInstances                int    `json:"MaxNumberOfDBInstances" xml:"MaxNumberOfDBInstances"`
+	MaxNumberOfScalingConfigurations      int    `json:"MaxNumberOfScalingConfigurations" xml:"MaxNumberOfScalingConfigurations"`
+	MaxNumberOfMinSize                    int    `json:"MaxNumberOfMinSize" xml:"MaxNumberOfMinSize"`
+	MaxNumberOfLifecycleHooks             int    `json:"MaxNumberOfLifecycleHooks" xml:"MaxNumberOfLifecycleHooks"`
+	MaxNumberOfScalingInstances           int    `json:"MaxNumberOfScalingInstances" xml:"MaxNumberOfScalingInstances"`
+	MaxNumberOfScalingGroups              int    `json:"MaxNumberOfScalingGroups" xml:"MaxNumberOfScalingGroups"`
+	RequestId                             string `json:"RequestId" xml:"RequestId"`
+	MaxNumberOfNotificationConfigurations int    `json:"MaxNumberOfNotificationConfigurations" xml:"MaxNumberOfNotificationConfigurations"`
+	MaxNumberOfVServerGroups              int    `json:"MaxNumberOfVServerGroups" xml:"MaxNumberOfVServerGroups"`
+	MaxNumberOfScalingRules               int    `json:"MaxNumberOfScalingRules" xml:"MaxNumberOfScalingRules"`
 }
 
 // CreateDescribeLimitationRequest creates a request to invoke DescribeLimitation API
@@ -103,6 +100,7 @@ func CreateDescribeLimitationRequest() (request *DescribeLimitationRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "DescribeLimitation", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

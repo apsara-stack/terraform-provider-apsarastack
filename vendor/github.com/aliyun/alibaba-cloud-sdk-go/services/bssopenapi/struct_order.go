@@ -25,19 +25,20 @@ type Order struct {
 	Operator          string `json:"Operator" xml:"Operator"`
 	SubOrderId        string `json:"SubOrderId" xml:"SubOrderId"`
 	AfterTaxAmount    string `json:"AfterTaxAmount" xml:"AfterTaxAmount"`
-	OrderId           string `json:"OrderId" xml:"OrderId"`
 	OriginalConfig    string `json:"OriginalConfig" xml:"OriginalConfig"`
+	OrderId           string `json:"OrderId" xml:"OrderId"`
 	PretaxGrossAmount string `json:"PretaxGrossAmount" xml:"PretaxGrossAmount"`
 	SubscriptionType  string `json:"SubscriptionType" xml:"SubscriptionType"`
 	Tax               string `json:"Tax" xml:"Tax"`
 	UsageStartTime    string `json:"UsageStartTime" xml:"UsageStartTime"`
+	CommodityCode     string `json:"CommodityCode" xml:"CommodityCode"`
 	PretaxAmount      string `json:"PretaxAmount" xml:"PretaxAmount"`
-	PaymentCurrency   string `json:"PaymentCurrency" xml:"PaymentCurrency"`
 	OrderSubType      string `json:"OrderSubType" xml:"OrderSubType"`
+	PaymentCurrency   string `json:"PaymentCurrency" xml:"PaymentCurrency"`
 	ProductType       string `json:"ProductType" xml:"ProductType"`
 	Currency          string `json:"Currency" xml:"Currency"`
-	ProductCode       string `json:"ProductCode" xml:"ProductCode"`
 	InstanceIDs       string `json:"InstanceIDs" xml:"InstanceIDs"`
+	ProductCode       string `json:"ProductCode" xml:"ProductCode"`
 	OrderType         string `json:"OrderType" xml:"OrderType"`
 	Quantity          string `json:"Quantity" xml:"Quantity"`
 	PretaxAmountLocal string `json:"PretaxAmountLocal" xml:"PretaxAmountLocal"`

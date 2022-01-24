@@ -21,7 +21,6 @@ import (
 )
 
 // CreateRouterInterface invokes the vpc.CreateRouterInterface API synchronously
-// api document: https://help.aliyun.com/api/vpc/createrouterinterface.html
 func (client *Client) CreateRouterInterface(request *CreateRouterInterfaceRequest) (response *CreateRouterInterfaceResponse, err error) {
 	response = CreateCreateRouterInterfaceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateRouterInterface(request *CreateRouterInterfaceReques
 }
 
 // CreateRouterInterfaceWithChan invokes the vpc.CreateRouterInterface API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createrouterinterface.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateRouterInterfaceWithChan(request *CreateRouterInterfaceRequest) (<-chan *CreateRouterInterfaceResponse, <-chan error) {
 	responseChan := make(chan *CreateRouterInterfaceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateRouterInterfaceWithChan(request *CreateRouterInterfa
 }
 
 // CreateRouterInterfaceWithCallback invokes the vpc.CreateRouterInterface API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createrouterinterface.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateRouterInterfaceWithCallback(request *CreateRouterInterfaceRequest, callback func(response *CreateRouterInterfaceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -106,8 +101,8 @@ type CreateRouterInterfaceRequest struct {
 type CreateRouterInterfaceResponse struct {
 	*responses.BaseResponse
 	RequestId         string `json:"RequestId" xml:"RequestId"`
-	RouterInterfaceId string `json:"RouterInterfaceId" xml:"RouterInterfaceId"`
 	OrderId           int64  `json:"OrderId" xml:"OrderId"`
+	RouterInterfaceId string `json:"RouterInterfaceId" xml:"RouterInterfaceId"`
 }
 
 // CreateCreateRouterInterfaceRequest creates a request to invoke CreateRouterInterface API

@@ -71,7 +71,6 @@ func (client *Client) ListComponentsWithCallback(request *ListComponentsRequest,
 // ListComponentsRequest is the request struct for api ListComponents
 type ListComponentsRequest struct {
 	*requests.RoaRequest
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // ListComponentsResponse is the response struct for api ListComponents
@@ -87,7 +86,7 @@ func CreateListComponentsRequest() (request *ListComponentsRequest) {
 	request = &ListComponentsRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "ListComponents", "/roa/pop/v5/resource/components", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "ListComponents", "/pop/v5/resource/components", "edas", "openAPI")
 	request.Method = requests.GET
 	return
 }

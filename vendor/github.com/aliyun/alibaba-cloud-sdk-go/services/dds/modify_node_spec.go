@@ -21,7 +21,6 @@ import (
 )
 
 // ModifyNodeSpec invokes the dds.ModifyNodeSpec API synchronously
-// api document: https://help.aliyun.com/api/dds/modifynodespec.html
 func (client *Client) ModifyNodeSpec(request *ModifyNodeSpecRequest) (response *ModifyNodeSpecResponse, err error) {
 	response = CreateModifyNodeSpecResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ModifyNodeSpec(request *ModifyNodeSpecRequest) (response *
 }
 
 // ModifyNodeSpecWithChan invokes the dds.ModifyNodeSpec API asynchronously
-// api document: https://help.aliyun.com/api/dds/modifynodespec.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyNodeSpecWithChan(request *ModifyNodeSpecRequest) (<-chan *ModifyNodeSpecResponse, <-chan error) {
 	responseChan := make(chan *ModifyNodeSpecResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ModifyNodeSpecWithChan(request *ModifyNodeSpecRequest) (<-
 }
 
 // ModifyNodeSpecWithCallback invokes the dds.ModifyNodeSpec API asynchronously
-// api document: https://help.aliyun.com/api/dds/modifynodespec.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyNodeSpecWithCallback(request *ModifyNodeSpecRequest, callback func(response *ModifyNodeSpecResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -78,11 +73,15 @@ type ModifyNodeSpecRequest struct {
 	*requests.RpcRequest
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	ClientToken          string           `position:"Query" name:"ClientToken"`
+	ReadonlyReplicas     requests.Integer `position:"Query" name:"ReadonlyReplicas"`
+	CouponNo             string           `position:"Query" name:"CouponNo"`
 	NodeClass            string           `position:"Query" name:"NodeClass"`
 	SecurityToken        string           `position:"Query" name:"SecurityToken"`
 	EffectiveTime        string           `position:"Query" name:"EffectiveTime"`
 	DBInstanceId         string           `position:"Query" name:"DBInstanceId"`
+	SwitchTime           string           `position:"Query" name:"SwitchTime"`
 	NodeId               string           `position:"Query" name:"NodeId"`
+	BusinessInfo         string           `position:"Query" name:"BusinessInfo"`
 	AutoPay              requests.Boolean `position:"Query" name:"AutoPay"`
 	FromApp              string           `position:"Query" name:"FromApp"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
@@ -104,7 +103,7 @@ func CreateModifyNodeSpecRequest() (request *ModifyNodeSpecRequest) {
 	request = &ModifyNodeSpecRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "ModifyNodeSpec", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "ModifyNodeSpec", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

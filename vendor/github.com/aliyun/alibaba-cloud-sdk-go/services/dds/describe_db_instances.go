@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeDBInstances invokes the dds.DescribeDBInstances API synchronously
-// api document: https://help.aliyun.com/api/dds/describedbinstances.html
 func (client *Client) DescribeDBInstances(request *DescribeDBInstancesRequest) (response *DescribeDBInstancesResponse, err error) {
 	response = CreateDescribeDBInstancesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeDBInstances(request *DescribeDBInstancesRequest) (
 }
 
 // DescribeDBInstancesWithChan invokes the dds.DescribeDBInstances API asynchronously
-// api document: https://help.aliyun.com/api/dds/describedbinstances.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeDBInstancesWithChan(request *DescribeDBInstancesRequest) (<-chan *DescribeDBInstancesResponse, <-chan error) {
 	responseChan := make(chan *DescribeDBInstancesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeDBInstancesWithChan(request *DescribeDBInstancesRe
 }
 
 // DescribeDBInstancesWithCallback invokes the dds.DescribeDBInstances API asynchronously
-// api document: https://help.aliyun.com/api/dds/describedbinstances.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeDBInstancesWithCallback(request *DescribeDBInstancesRequest, callback func(response *DescribeDBInstancesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -112,10 +107,10 @@ type DescribeDBInstancesTag struct {
 // DescribeDBInstancesResponse is the response struct for api DescribeDBInstances
 type DescribeDBInstancesResponse struct {
 	*responses.BaseResponse
-	RequestId   string                           `json:"RequestId" xml:"RequestId"`
-	PageNumber  int                              `json:"PageNumber" xml:"PageNumber"`
-	PageSize    int                              `json:"PageSize" xml:"PageSize"`
 	TotalCount  int                              `json:"TotalCount" xml:"TotalCount"`
+	RequestId   string                           `json:"RequestId" xml:"RequestId"`
+	PageSize    int                              `json:"PageSize" xml:"PageSize"`
+	PageNumber  int                              `json:"PageNumber" xml:"PageNumber"`
 	DBInstances DBInstancesInDescribeDBInstances `json:"DBInstances" xml:"DBInstances"`
 }
 
@@ -124,7 +119,7 @@ func CreateDescribeDBInstancesRequest() (request *DescribeDBInstancesRequest) {
 	request = &DescribeDBInstancesRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeDBInstances", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeDBInstances", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

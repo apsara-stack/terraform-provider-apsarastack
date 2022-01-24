@@ -21,7 +21,6 @@ import (
 )
 
 // UpdateWhiteIps invokes the elasticsearch.UpdateWhiteIps API synchronously
-// api document: https://help.aliyun.com/api/elasticsearch/updatewhiteips.html
 func (client *Client) UpdateWhiteIps(request *UpdateWhiteIpsRequest) (response *UpdateWhiteIpsResponse, err error) {
 	response = CreateUpdateWhiteIpsResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) UpdateWhiteIps(request *UpdateWhiteIpsRequest) (response *
 }
 
 // UpdateWhiteIpsWithChan invokes the elasticsearch.UpdateWhiteIps API asynchronously
-// api document: https://help.aliyun.com/api/elasticsearch/updatewhiteips.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) UpdateWhiteIpsWithChan(request *UpdateWhiteIpsRequest) (<-chan *UpdateWhiteIpsResponse, <-chan error) {
 	responseChan := make(chan *UpdateWhiteIpsResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) UpdateWhiteIpsWithChan(request *UpdateWhiteIpsRequest) (<-
 }
 
 // UpdateWhiteIpsWithCallback invokes the elasticsearch.UpdateWhiteIps API asynchronously
-// api document: https://help.aliyun.com/api/elasticsearch/updatewhiteips.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) UpdateWhiteIpsWithCallback(request *UpdateWhiteIpsRequest, callback func(response *UpdateWhiteIpsResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,6 +71,7 @@ func (client *Client) UpdateWhiteIpsWithCallback(request *UpdateWhiteIpsRequest,
 // UpdateWhiteIpsRequest is the request struct for api UpdateWhiteIps
 type UpdateWhiteIpsRequest struct {
 	*requests.RoaRequest
+	ModifyMode  string `position:"Query" name:"modifyMode"`
 	InstanceId  string `position:"Path" name:"InstanceId"`
 	ClientToken string `position:"Query" name:"clientToken"`
 }

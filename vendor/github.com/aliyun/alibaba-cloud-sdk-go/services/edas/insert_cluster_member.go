@@ -74,7 +74,6 @@ type InsertClusterMemberRequest struct {
 	Password    string `position:"Query" name:"password"`
 	InstanceIds string `position:"Query" name:"instanceIds"`
 	ClusterId   string `position:"Query" name:"clusterId"`
-	RegionId    string  `position:"Query" name:"RegionId"`
 }
 
 // InsertClusterMemberResponse is the response struct for api InsertClusterMember
@@ -91,7 +90,7 @@ func CreateInsertClusterMemberRequest() (request *InsertClusterMemberRequest) {
 	request = &InsertClusterMemberRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "InsertClusterMember", "/roa/pop/v5/resource/cluster_member", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "InsertClusterMember", "/pop/v5/resource/cluster_member", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

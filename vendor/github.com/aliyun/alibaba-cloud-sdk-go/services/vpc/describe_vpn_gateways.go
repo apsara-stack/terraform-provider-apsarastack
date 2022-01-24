@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeVpnGateways invokes the vpc.DescribeVpnGateways API synchronously
-// api document: https://help.aliyun.com/api/vpc/describevpngateways.html
 func (client *Client) DescribeVpnGateways(request *DescribeVpnGatewaysRequest) (response *DescribeVpnGatewaysResponse, err error) {
 	response = CreateDescribeVpnGatewaysResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeVpnGateways(request *DescribeVpnGatewaysRequest) (
 }
 
 // DescribeVpnGatewaysWithChan invokes the vpc.DescribeVpnGateways API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevpngateways.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVpnGatewaysWithChan(request *DescribeVpnGatewaysRequest) (<-chan *DescribeVpnGatewaysResponse, <-chan error) {
 	responseChan := make(chan *DescribeVpnGatewaysResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeVpnGatewaysWithChan(request *DescribeVpnGatewaysRe
 }
 
 // DescribeVpnGatewaysWithCallback invokes the vpc.DescribeVpnGateways API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevpngateways.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVpnGatewaysWithCallback(request *DescribeVpnGatewaysRequest, callback func(response *DescribeVpnGatewaysResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -99,10 +94,10 @@ type DescribeVpnGatewaysTag struct {
 // DescribeVpnGatewaysResponse is the response struct for api DescribeVpnGateways
 type DescribeVpnGatewaysResponse struct {
 	*responses.BaseResponse
-	RequestId   string      `json:"RequestId" xml:"RequestId"`
-	TotalCount  int         `json:"TotalCount" xml:"TotalCount"`
-	PageNumber  int         `json:"PageNumber" xml:"PageNumber"`
 	PageSize    int         `json:"PageSize" xml:"PageSize"`
+	RequestId   string      `json:"RequestId" xml:"RequestId"`
+	PageNumber  int         `json:"PageNumber" xml:"PageNumber"`
+	TotalCount  int         `json:"TotalCount" xml:"TotalCount"`
 	VpnGateways VpnGateways `json:"VpnGateways" xml:"VpnGateways"`
 }
 

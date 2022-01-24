@@ -21,7 +21,6 @@ import (
 )
 
 // ModifyDBInstanceSSL invokes the rds.ModifyDBInstanceSSL API synchronously
-// api document: https://help.aliyun.com/api/rds/modifydbinstancessl.html
 func (client *Client) ModifyDBInstanceSSL(request *ModifyDBInstanceSSLRequest) (response *ModifyDBInstanceSSLResponse, err error) {
 	response = CreateModifyDBInstanceSSLResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ModifyDBInstanceSSL(request *ModifyDBInstanceSSLRequest) (
 }
 
 // ModifyDBInstanceSSLWithChan invokes the rds.ModifyDBInstanceSSL API asynchronously
-// api document: https://help.aliyun.com/api/rds/modifydbinstancessl.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyDBInstanceSSLWithChan(request *ModifyDBInstanceSSLRequest) (<-chan *ModifyDBInstanceSSLResponse, <-chan error) {
 	responseChan := make(chan *ModifyDBInstanceSSLResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ModifyDBInstanceSSLWithChan(request *ModifyDBInstanceSSLRe
 }
 
 // ModifyDBInstanceSSLWithCallback invokes the rds.ModifyDBInstanceSSL API asynchronously
-// api document: https://help.aliyun.com/api/rds/modifydbinstancessl.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyDBInstanceSSLWithCallback(request *ModifyDBInstanceSSLRequest, callback func(response *ModifyDBInstanceSSLResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,13 +71,22 @@ func (client *Client) ModifyDBInstanceSSLWithCallback(request *ModifyDBInstanceS
 // ModifyDBInstanceSSLRequest is the request struct for api ModifyDBInstanceSSL
 type ModifyDBInstanceSSLRequest struct {
 	*requests.RpcRequest
-	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
-	ConnectionString     string           `position:"Query" name:"ConnectionString"`
-	DBInstanceId         string           `position:"Query" name:"DBInstanceId"`
-	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
-	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
-	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
-	SSLEnabled           requests.Integer `position:"Query" name:"SSLEnabled"`
+	ResourceOwnerId          requests.Integer `position:"Query" name:"ResourceOwnerId"`
+	ConnectionString         string           `position:"Query" name:"ConnectionString"`
+	ServerKey                string           `position:"Query" name:"ServerKey"`
+	ClientCrlEnabled         requests.Integer `position:"Query" name:"ClientCrlEnabled"`
+	ACL                      string           `position:"Query" name:"ACL"`
+	ClientCertRevocationList string           `position:"Query" name:"ClientCertRevocationList"`
+	ServerCert               string           `position:"Query" name:"ServerCert"`
+	DBInstanceId             string           `position:"Query" name:"DBInstanceId"`
+	ClientCAEnabled          requests.Integer `position:"Query" name:"ClientCAEnabled"`
+	ClientCACert             string           `position:"Query" name:"ClientCACert"`
+	ReplicationACL           string           `position:"Query" name:"ReplicationACL"`
+	ResourceOwnerAccount     string           `position:"Query" name:"ResourceOwnerAccount"`
+	CAType                   string           `position:"Query" name:"CAType"`
+	OwnerAccount             string           `position:"Query" name:"OwnerAccount"`
+	OwnerId                  requests.Integer `position:"Query" name:"OwnerId"`
+	SSLEnabled               requests.Integer `position:"Query" name:"SSLEnabled"`
 }
 
 // ModifyDBInstanceSSLResponse is the response struct for api ModifyDBInstanceSSL

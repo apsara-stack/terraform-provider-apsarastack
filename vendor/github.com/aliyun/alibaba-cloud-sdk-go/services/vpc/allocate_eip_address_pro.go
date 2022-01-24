@@ -21,7 +21,6 @@ import (
 )
 
 // AllocateEipAddressPro invokes the vpc.AllocateEipAddressPro API synchronously
-// api document: https://help.aliyun.com/api/vpc/allocateeipaddresspro.html
 func (client *Client) AllocateEipAddressPro(request *AllocateEipAddressProRequest) (response *AllocateEipAddressProResponse, err error) {
 	response = CreateAllocateEipAddressProResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) AllocateEipAddressPro(request *AllocateEipAddressProReques
 }
 
 // AllocateEipAddressProWithChan invokes the vpc.AllocateEipAddressPro API asynchronously
-// api document: https://help.aliyun.com/api/vpc/allocateeipaddresspro.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) AllocateEipAddressProWithChan(request *AllocateEipAddressProRequest) (<-chan *AllocateEipAddressProResponse, <-chan error) {
 	responseChan := make(chan *AllocateEipAddressProResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) AllocateEipAddressProWithChan(request *AllocateEipAddressP
 }
 
 // AllocateEipAddressProWithCallback invokes the vpc.AllocateEipAddressPro API asynchronously
-// api document: https://help.aliyun.com/api/vpc/allocateeipaddresspro.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) AllocateEipAddressProWithCallback(request *AllocateEipAddressProRequest, callback func(response *AllocateEipAddressProResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,32 +71,33 @@ func (client *Client) AllocateEipAddressProWithCallback(request *AllocateEipAddr
 // AllocateEipAddressProRequest is the request struct for api AllocateEipAddressPro
 type AllocateEipAddressProRequest struct {
 	*requests.RpcRequest
-	IpAddress            string           `position:"Query" name:"IpAddress"`
-	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
-	ClientToken          string           `position:"Query" name:"ClientToken"`
-	ISP                  string           `position:"Query" name:"ISP"`
-	ResourceGroupId      string           `position:"Query" name:"ResourceGroupId"`
-	Netmode              string           `position:"Query" name:"Netmode"`
-	InstanceChargeType   string           `position:"Query" name:"InstanceChargeType"`
-	Period               requests.Integer `position:"Query" name:"Period"`
-	AutoPay              requests.Boolean `position:"Query" name:"AutoPay"`
-	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
-	Bandwidth            string           `position:"Query" name:"Bandwidth"`
-	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
-	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
-	InstanceId           string           `position:"Query" name:"InstanceId"`
-	InternetChargeType   string           `position:"Query" name:"InternetChargeType"`
-	PricingCycle         string           `position:"Query" name:"PricingCycle"`
+	IpAddress               string           `position:"Query" name:"IpAddress"`
+	ResourceOwnerId         requests.Integer `position:"Query" name:"ResourceOwnerId"`
+	ClientToken             string           `position:"Query" name:"ClientToken"`
+	ISP                     string           `position:"Query" name:"ISP"`
+	ResourceGroupId         string           `position:"Query" name:"ResourceGroupId"`
+	Netmode                 string           `position:"Query" name:"Netmode"`
+	InstanceChargeType      string           `position:"Query" name:"InstanceChargeType"`
+	Period                  requests.Integer `position:"Query" name:"Period"`
+	AutoPay                 requests.Boolean `position:"Query" name:"AutoPay"`
+	ResourceOwnerAccount    string           `position:"Query" name:"ResourceOwnerAccount"`
+	Bandwidth               string           `position:"Query" name:"Bandwidth"`
+	OwnerAccount            string           `position:"Query" name:"OwnerAccount"`
+	OwnerId                 requests.Integer `position:"Query" name:"OwnerId"`
+	InstanceId              string           `position:"Query" name:"InstanceId"`
+	InternetChargeType      string           `position:"Query" name:"InternetChargeType"`
+	SecurityProtectionTypes *[]string        `position:"Query" name:"SecurityProtectionTypes"  type:"Repeated"`
+	PricingCycle            string           `position:"Query" name:"PricingCycle"`
 }
 
 // AllocateEipAddressProResponse is the response struct for api AllocateEipAddressPro
 type AllocateEipAddressProResponse struct {
 	*responses.BaseResponse
 	RequestId       string `json:"RequestId" xml:"RequestId"`
-	AllocationId    string `json:"AllocationId" xml:"AllocationId"`
-	EipAddress      string `json:"EipAddress" xml:"EipAddress"`
 	OrderId         int64  `json:"OrderId" xml:"OrderId"`
 	ResourceGroupId string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	EipAddress      string `json:"EipAddress" xml:"EipAddress"`
+	AllocationId    string `json:"AllocationId" xml:"AllocationId"`
 }
 
 // CreateAllocateEipAddressProRequest creates a request to invoke AllocateEipAddressPro API

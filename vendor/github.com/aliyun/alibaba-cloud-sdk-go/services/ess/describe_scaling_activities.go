@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeScalingActivities invokes the ess.DescribeScalingActivities API synchronously
-// api document: https://help.aliyun.com/api/ess/describescalingactivities.html
 func (client *Client) DescribeScalingActivities(request *DescribeScalingActivitiesRequest) (response *DescribeScalingActivitiesResponse, err error) {
 	response = CreateDescribeScalingActivitiesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeScalingActivities(request *DescribeScalingActiviti
 }
 
 // DescribeScalingActivitiesWithChan invokes the ess.DescribeScalingActivities API asynchronously
-// api document: https://help.aliyun.com/api/ess/describescalingactivities.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeScalingActivitiesWithChan(request *DescribeScalingActivitiesRequest) (<-chan *DescribeScalingActivitiesResponse, <-chan error) {
 	responseChan := make(chan *DescribeScalingActivitiesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeScalingActivitiesWithChan(request *DescribeScaling
 }
 
 // DescribeScalingActivitiesWithCallback invokes the ess.DescribeScalingActivities API asynchronously
-// api document: https://help.aliyun.com/api/ess/describescalingactivities.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeScalingActivitiesWithCallback(request *DescribeScalingActivitiesRequest, callback func(response *DescribeScalingActivitiesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,43 +71,24 @@ func (client *Client) DescribeScalingActivitiesWithCallback(request *DescribeSca
 // DescribeScalingActivitiesRequest is the request struct for api DescribeScalingActivities
 type DescribeScalingActivitiesRequest struct {
 	*requests.RpcRequest
-	ScalingActivityId9   string           `position:"Query" name:"ScalingActivityId.9"`
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
-	ScalingActivityId5   string           `position:"Query" name:"ScalingActivityId.5"`
-	ScalingActivityId6   string           `position:"Query" name:"ScalingActivityId.6"`
 	ScalingGroupId       string           `position:"Query" name:"ScalingGroupId"`
-	ScalingActivityId7   string           `position:"Query" name:"ScalingActivityId.7"`
-	ScalingActivityId8   string           `position:"Query" name:"ScalingActivityId.8"`
-	ScalingActivityId1   string           `position:"Query" name:"ScalingActivityId.1"`
-	ScalingActivityId2   string           `position:"Query" name:"ScalingActivityId.2"`
-	ScalingActivityId3   string           `position:"Query" name:"ScalingActivityId.3"`
-	ScalingActivityId4   string           `position:"Query" name:"ScalingActivityId.4"`
 	PageNumber           requests.Integer `position:"Query" name:"PageNumber"`
 	StatusCode           string           `position:"Query" name:"StatusCode"`
 	PageSize             requests.Integer `position:"Query" name:"PageSize"`
-	ScalingActivityId11  string           `position:"Query" name:"ScalingActivityId.11"`
-	ScalingActivityId10  string           `position:"Query" name:"ScalingActivityId.10"`
-	ScalingActivityId13  string           `position:"Query" name:"ScalingActivityId.13"`
-	ScalingActivityId12  string           `position:"Query" name:"ScalingActivityId.12"`
-	ScalingActivityId15  string           `position:"Query" name:"ScalingActivityId.15"`
-	ScalingActivityId14  string           `position:"Query" name:"ScalingActivityId.14"`
-	ScalingActivityId17  string           `position:"Query" name:"ScalingActivityId.17"`
-	ScalingActivityId16  string           `position:"Query" name:"ScalingActivityId.16"`
-	ScalingActivityId19  string           `position:"Query" name:"ScalingActivityId.19"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
-	ScalingActivityId18  string           `position:"Query" name:"ScalingActivityId.18"`
 	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
 	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
-	ScalingActivityId20  string           `position:"Query" name:"ScalingActivityId.20"`
+	ScalingActivityId    *[]string        `position:"Query" name:"ScalingActivityId"  type:"Repeated"`
 }
 
 // DescribeScalingActivitiesResponse is the response struct for api DescribeScalingActivities
 type DescribeScalingActivitiesResponse struct {
 	*responses.BaseResponse
-	TotalCount        int               `json:"TotalCount" xml:"TotalCount"`
+	RequestId         string            `json:"RequestId" xml:"RequestId"`
 	PageNumber        int               `json:"PageNumber" xml:"PageNumber"`
 	PageSize          int               `json:"PageSize" xml:"PageSize"`
-	RequestId         string            `json:"RequestId" xml:"RequestId"`
+	TotalCount        int               `json:"TotalCount" xml:"TotalCount"`
 	ScalingActivities ScalingActivities `json:"ScalingActivities" xml:"ScalingActivities"`
 }
 
@@ -122,6 +98,7 @@ func CreateDescribeScalingActivitiesRequest() (request *DescribeScalingActivitie
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "DescribeScalingActivities", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

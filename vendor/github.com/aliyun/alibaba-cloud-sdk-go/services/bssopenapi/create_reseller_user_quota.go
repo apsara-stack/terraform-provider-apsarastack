@@ -21,7 +21,6 @@ import (
 )
 
 // CreateResellerUserQuota invokes the bssopenapi.CreateResellerUserQuota API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/createreselleruserquota.html
 func (client *Client) CreateResellerUserQuota(request *CreateResellerUserQuotaRequest) (response *CreateResellerUserQuotaResponse, err error) {
 	response = CreateCreateResellerUserQuotaResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateResellerUserQuota(request *CreateResellerUserQuotaRe
 }
 
 // CreateResellerUserQuotaWithChan invokes the bssopenapi.CreateResellerUserQuota API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/createreselleruserquota.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateResellerUserQuotaWithChan(request *CreateResellerUserQuotaRequest) (<-chan *CreateResellerUserQuotaResponse, <-chan error) {
 	responseChan := make(chan *CreateResellerUserQuotaResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateResellerUserQuotaWithChan(request *CreateResellerUse
 }
 
 // CreateResellerUserQuotaWithCallback invokes the bssopenapi.CreateResellerUserQuota API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/createreselleruserquota.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateResellerUserQuotaWithCallback(request *CreateResellerUserQuotaRequest, callback func(response *CreateResellerUserQuotaResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -85,11 +80,11 @@ type CreateResellerUserQuotaRequest struct {
 // CreateResellerUserQuotaResponse is the response struct for api CreateResellerUserQuota
 type CreateResellerUserQuotaResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
 	Code      string `json:"Code" xml:"Code"`
 	Message   string `json:"Message" xml:"Message"`
-	Success   bool   `json:"Success" xml:"Success"`
 	Data      bool   `json:"Data" xml:"Data"`
+	RequestId string `json:"RequestId" xml:"RequestId"`
+	Success   bool   `json:"Success" xml:"Success"`
 }
 
 // CreateCreateResellerUserQuotaRequest creates a request to invoke CreateResellerUserQuota API

@@ -21,7 +21,6 @@ import (
 )
 
 // RenewResourcePackage invokes the bssopenapi.RenewResourcePackage API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/renewresourcepackage.html
 func (client *Client) RenewResourcePackage(request *RenewResourcePackageRequest) (response *RenewResourcePackageResponse, err error) {
 	response = CreateRenewResourcePackageResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) RenewResourcePackage(request *RenewResourcePackageRequest)
 }
 
 // RenewResourcePackageWithChan invokes the bssopenapi.RenewResourcePackage API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/renewresourcepackage.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) RenewResourcePackageWithChan(request *RenewResourcePackageRequest) (<-chan *RenewResourcePackageResponse, <-chan error) {
 	responseChan := make(chan *RenewResourcePackageResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) RenewResourcePackageWithChan(request *RenewResourcePackage
 }
 
 // RenewResourcePackageWithCallback invokes the bssopenapi.RenewResourcePackage API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/renewresourcepackage.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) RenewResourcePackageWithCallback(request *RenewResourcePackageRequest, callback func(response *RenewResourcePackageResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -86,11 +81,11 @@ type RenewResourcePackageRequest struct {
 // RenewResourcePackageResponse is the response struct for api RenewResourcePackage
 type RenewResourcePackageResponse struct {
 	*responses.BaseResponse
-	RequestId string                     `json:"RequestId" xml:"RequestId"`
-	OrderId   int64                      `json:"OrderId" xml:"OrderId"`
-	Success   bool                       `json:"Success" xml:"Success"`
 	Code      string                     `json:"Code" xml:"Code"`
 	Message   string                     `json:"Message" xml:"Message"`
+	RequestId string                     `json:"RequestId" xml:"RequestId"`
+	Success   bool                       `json:"Success" xml:"Success"`
+	OrderId   int64                      `json:"OrderId" xml:"OrderId"`
 	Data      DataInRenewResourcePackage `json:"Data" xml:"Data"`
 }
 

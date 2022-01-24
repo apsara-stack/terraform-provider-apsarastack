@@ -57,7 +57,7 @@ resource "apsarastack_slb" "default" {
   vswitch_id = "${apsarastack_vswitch.default.id}"
 }
 
-resource "apsarastackapsarastack_slb_server_group" "default" {
+resource "apsarastack_slb_server_group" "default" {
   load_balancer_id = "${apsarastack_slb.default.id}"
   name = "test"
 }
@@ -69,6 +69,7 @@ resource "apsarastack_slb_listener" "default" {
   frontend_port = "22"
   protocol = "tcp"
   bandwidth = "10"
+  health_check="off"
   health_check_type = "tcp"
 }
 
