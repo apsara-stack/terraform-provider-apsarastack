@@ -21,7 +21,6 @@ import (
 )
 
 // CreateNatGateway invokes the vpc.CreateNatGateway API synchronously
-// api document: https://help.aliyun.com/api/vpc/createnatgateway.html
 func (client *Client) CreateNatGateway(request *CreateNatGatewayRequest) (response *CreateNatGatewayResponse, err error) {
 	response = CreateCreateNatGatewayResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateNatGateway(request *CreateNatGatewayRequest) (respon
 }
 
 // CreateNatGatewayWithChan invokes the vpc.CreateNatGateway API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createnatgateway.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateNatGatewayWithChan(request *CreateNatGatewayRequest) (<-chan *CreateNatGatewayResponse, <-chan error) {
 	responseChan := make(chan *CreateNatGatewayResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateNatGatewayWithChan(request *CreateNatGatewayRequest)
 }
 
 // CreateNatGatewayWithCallback invokes the vpc.CreateNatGateway API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createnatgateway.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateNatGatewayWithCallback(request *CreateNatGatewayRequest, callback func(response *CreateNatGatewayResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,23 +71,28 @@ func (client *Client) CreateNatGatewayWithCallback(request *CreateNatGatewayRequ
 // CreateNatGatewayRequest is the request struct for api CreateNatGateway
 type CreateNatGatewayRequest struct {
 	*requests.RpcRequest
-	ResourceOwnerId      requests.Integer                    `position:"Query" name:"ResourceOwnerId"`
-	ClientToken          string                              `position:"Query" name:"ClientToken"`
-	Description          string                              `position:"Query" name:"Description"`
-	Spec                 string                              `position:"Query" name:"Spec"`
-	Duration             string                              `position:"Query" name:"Duration"`
-	NatType              string                              `position:"Query" name:"NatType"`
-	BandwidthPackage     *[]CreateNatGatewayBandwidthPackage `position:"Query" name:"BandwidthPackage"  type:"Repeated"`
-	InstanceChargeType   string                              `position:"Query" name:"InstanceChargeType"`
-	AutoPay              requests.Boolean                    `position:"Query" name:"AutoPay"`
-	ResourceOwnerAccount string                              `position:"Query" name:"ResourceOwnerAccount"`
-	OwnerAccount         string                              `position:"Query" name:"OwnerAccount"`
-	OwnerId              requests.Integer                    `position:"Query" name:"OwnerId"`
-	VSwitchId            string                              `position:"Query" name:"VSwitchId"`
-	InternetChargeType   string                              `position:"Query" name:"InternetChargeType"`
-	VpcId                string                              `position:"Query" name:"VpcId"`
-	Name                 string                              `position:"Query" name:"Name"`
-	PricingCycle         string                              `position:"Query" name:"PricingCycle"`
+	ResourceOwnerId           requests.Integer                    `position:"Query" name:"ResourceOwnerId"`
+	ClientToken               string                              `position:"Query" name:"ClientToken"`
+	SecurityProtectionEnabled requests.Boolean                    `position:"Query" name:"SecurityProtectionEnabled"`
+	Description               string                              `position:"Query" name:"Description"`
+	NetworkType               string                              `position:"Query" name:"NetworkType"`
+	Spec                      string                              `position:"Query" name:"Spec"`
+	Duration                  string                              `position:"Query" name:"Duration"`
+	IcmpReplyEnabled          requests.Boolean                    `position:"Query" name:"IcmpReplyEnabled"`
+	NatType                   string                              `position:"Query" name:"NatType"`
+	InstanceChargeType        string                              `position:"Query" name:"InstanceChargeType"`
+	BandwidthPackage          *[]CreateNatGatewayBandwidthPackage `position:"Query" name:"BandwidthPackage"  type:"Repeated"`
+	AutoPay                   requests.Boolean                    `position:"Query" name:"AutoPay"`
+	ResourceOwnerAccount      string                              `position:"Query" name:"ResourceOwnerAccount"`
+	OwnerAccount              string                              `position:"Query" name:"OwnerAccount"`
+	PrivateLinkMode           string                              `position:"Query" name:"PrivateLinkMode"`
+	OwnerId                   requests.Integer                    `position:"Query" name:"OwnerId"`
+	VSwitchId                 string                              `position:"Query" name:"VSwitchId"`
+	InternetChargeType        string                              `position:"Query" name:"InternetChargeType"`
+	VpcId                     string                              `position:"Query" name:"VpcId"`
+	Name                      string                              `position:"Query" name:"Name"`
+	PrivateLinkEnabled        requests.Boolean                    `position:"Query" name:"PrivateLinkEnabled"`
+	PricingCycle              string                              `position:"Query" name:"PricingCycle"`
 }
 
 // CreateNatGatewayBandwidthPackage is a repeated param struct in CreateNatGatewayRequest
@@ -107,11 +107,12 @@ type CreateNatGatewayBandwidthPackage struct {
 // CreateNatGatewayResponse is the response struct for api CreateNatGateway
 type CreateNatGatewayResponse struct {
 	*responses.BaseResponse
-	RequestId           string                                `json:"RequestId" xml:"RequestId"`
 	NatGatewayId        string                                `json:"NatGatewayId" xml:"NatGatewayId"`
+	RequestId           string                                `json:"RequestId" xml:"RequestId"`
 	ForwardTableIds     ForwardTableIdsInCreateNatGateway     `json:"ForwardTableIds" xml:"ForwardTableIds"`
 	SnatTableIds        SnatTableIdsInCreateNatGateway        `json:"SnatTableIds" xml:"SnatTableIds"`
 	BandwidthPackageIds BandwidthPackageIdsInCreateNatGateway `json:"BandwidthPackageIds" xml:"BandwidthPackageIds"`
+	FullNatTableIds     FullNatTableIdsInCreateNatGateway     `json:"FullNatTableIds" xml:"FullNatTableIds"`
 }
 
 // CreateCreateNatGatewayRequest creates a request to invoke CreateNatGateway API

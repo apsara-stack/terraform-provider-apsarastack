@@ -71,21 +71,22 @@ func (client *Client) UpdateK8sSecretWithCallback(request *UpdateK8sSecretReques
 // UpdateK8sSecretRequest is the request struct for api UpdateK8sSecret
 type UpdateK8sSecretRequest struct {
 	*requests.RoaRequest
-	Data         string `position:"Body" name:"Data"`
-	Name         string `position:"Body" name:"Name"`
-	Namespace    string `position:"Body" name:"Namespace"`
-	ClusterId    string `position:"Body" name:"ClusterId"`
-	CertId       string `position:"Body" name:"CertId"`
-	Type         string `position:"Body" name:"Type"`
-	CertRegionId string `position:"Body" name:"CertRegionId"`
+	Base64Encoded requests.Boolean `position:"Body" name:"Base64Encoded"`
+	Data          string           `position:"Body" name:"Data"`
+	Name          string           `position:"Body" name:"Name"`
+	Namespace     string           `position:"Body" name:"Namespace"`
+	ClusterId     string           `position:"Body" name:"ClusterId"`
+	CertId        string           `position:"Body" name:"CertId"`
+	Type          string           `position:"Body" name:"Type"`
+	CertRegionId  string           `position:"Body" name:"CertRegionId"`
 }
 
 // UpdateK8sSecretResponse is the response struct for api UpdateK8sSecret
 type UpdateK8sSecretResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
 	Code      int    `json:"Code" xml:"Code"`
 	Message   string `json:"Message" xml:"Message"`
+	RequestId string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateUpdateK8sSecretRequest creates a request to invoke UpdateK8sSecret API
@@ -93,7 +94,7 @@ func CreateUpdateK8sSecretRequest() (request *UpdateK8sSecretRequest) {
 	request = &UpdateK8sSecretRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "UpdateK8sSecret", "/pop/v5/k8s/acs/k8s_secret", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "UpdateK8sSecret", "/pop/v5/k8s/acs/k8s_secret", "edas", "openAPI")
 	request.Method = requests.PUT
 	return
 }

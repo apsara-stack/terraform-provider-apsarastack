@@ -325,7 +325,7 @@ func resourceApsaraStackNatGatewayDelete(d *schema.ResourceData, meta interface{
 
 func deleteBandwidthPackages(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	packRequest := vpc.CreateDescribeBandwidthPackagesRequest()
+	packRequest := vpc.CreateDescribeCommonBandwidthPackagesRequest()
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		packRequest.Scheme = "https"
 	} else {
@@ -334,20 +334,20 @@ func deleteBandwidthPackages(d *schema.ResourceData, meta interface{}) error {
 	packRequest.RegionId = string(client.Region)
 	packRequest.Headers = map[string]string{"RegionId": client.RegionId}
 	packRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	packRequest.NatGatewayId = d.Id()
+	packRequest.BandwidthPackageId = d.Get("bandwidth_package_ids").(string)
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
-			return vpcClient.DescribeBandwidthPackages(packRequest)
+			return vpcClient.DescribeCommonBandwidthPackages(packRequest)
 		})
 		if err != nil {
 			return resource.NonRetryableError(err)
 		}
 		addDebug(packRequest.GetActionName(), raw, packRequest.RpcRequest, packRequest)
-		response, _ := raw.(*vpc.DescribeBandwidthPackagesResponse)
+		response, _ := raw.(*vpc.DescribeCommonBandwidthPackagesResponse)
 		retry := false
-		if len(response.BandwidthPackages.BandwidthPackage) > 0 {
-			for _, pack := range response.BandwidthPackages.BandwidthPackage {
-				request := vpc.CreateDeleteBandwidthPackageRequest()
+		if len(response.CommonBandwidthPackages.CommonBandwidthPackage) > 0 {
+			for _, pack := range response.CommonBandwidthPackages.CommonBandwidthPackage {
+				request := vpc.CreateDeleteCommonBandwidthPackageRequest()
 				request.RegionId = string(client.Region)
 				if strings.ToLower(client.Config.Protocol) == "https" {
 					request.Scheme = "https"
@@ -358,7 +358,7 @@ func deleteBandwidthPackages(d *schema.ResourceData, meta interface{}) error {
 				request.Headers = map[string]string{"RegionId": client.RegionId}
 				request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 				raw, e := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
-					return vpcClient.DeleteBandwidthPackage(request)
+					return vpcClient.DeleteCommonBandwidthPackage(request)
 				})
 				if e != nil {
 					if IsExpectedErrors(e, []string{"Invalid.RegionId"}) {
@@ -394,27 +394,27 @@ func flattenBandWidthPackages(bandWidthPackageIds []string, meta interface{}, d 
 			return result, WrapError(err)
 		}
 		ipAddress := flattenPackPublicIp(bandWidthPackage.PublicIpAddresses.PublicIpAddresse)
-		ipCont, ipContErr := strconv.Atoi(bandWidthPackage.IpCount)
+		//ipCont, ipContErr := strconv.Atoi(bandWidthPackage.IpCount)
 		bandWidth, bandWidthErr := strconv.Atoi(bandWidthPackage.Bandwidth)
-		if ipContErr != nil {
-			return result, WrapError(ipContErr)
-		}
+		//if ipContErr != nil {
+		//	return result, WrapError(ipContErr)
+		//}
 		if bandWidthErr != nil {
 			return result, WrapError(bandWidthErr)
 		}
 		l := map[string]interface{}{
-			"ip_count":            ipCont,
-			"bandwidth":           bandWidth,
-			"zone":                bandWidthPackage.ZoneId,
+			//"ip_count":            ipCont,
+			"bandwidth": bandWidth,
+			//"zone":                bandWidthPackage.ZoneId,
 			"public_ip_addresses": ipAddress,
 		}
 		result = append(result, l)
 	}
 	return result, nil
 }
-func getPackage(packageId string, meta interface{}, d *schema.ResourceData) (pack vpc.BandwidthPackage, err error) {
+func getPackage(packageId string, meta interface{}, d *schema.ResourceData) (pack vpc.CommonBandwidthPackage, err error) {
 	client := meta.(*connectivity.ApsaraStackClient)
-	request := vpc.CreateDescribeBandwidthPackagesRequest()
+	request := vpc.CreateDescribeCommonBandwidthPackagesRequest()
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -424,23 +424,23 @@ func getPackage(packageId string, meta interface{}, d *schema.ResourceData) (pac
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	request.NatGatewayId = d.Id()
+	//request.NatGatewayId = d.Id()
 	request.BandwidthPackageId = packageId
 
 	invoker := NewInvoker()
 	err = invoker.Run(func() error {
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
-			return vpcClient.DescribeBandwidthPackages(request)
+			return vpcClient.DescribeCommonBandwidthPackages(request)
 		})
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		packages, _ := raw.(*vpc.DescribeBandwidthPackagesResponse)
-		if len(packages.BandwidthPackages.BandwidthPackage) < 1 || packages.BandwidthPackages.BandwidthPackage[0].BandwidthPackageId != packageId {
+		packages, _ := raw.(*vpc.DescribeCommonBandwidthPackagesResponse)
+		if len(packages.CommonBandwidthPackages.CommonBandwidthPackage) < 1 || packages.CommonBandwidthPackages.CommonBandwidthPackage[0].BandwidthPackageId != packageId {
 			return WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		pack = packages.BandwidthPackages.BandwidthPackage[0]
+		pack = packages.CommonBandwidthPackages.CommonBandwidthPackage[0]
 		return nil
 	})
 	return

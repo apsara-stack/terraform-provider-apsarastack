@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeVSwitchAttributes invokes the vpc.DescribeVSwitchAttributes API synchronously
-// api document: https://help.aliyun.com/api/vpc/describevswitchattributes.html
 func (client *Client) DescribeVSwitchAttributes(request *DescribeVSwitchAttributesRequest) (response *DescribeVSwitchAttributesResponse, err error) {
 	response = CreateDescribeVSwitchAttributesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeVSwitchAttributes(request *DescribeVSwitchAttribut
 }
 
 // DescribeVSwitchAttributesWithChan invokes the vpc.DescribeVSwitchAttributes API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevswitchattributes.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVSwitchAttributesWithChan(request *DescribeVSwitchAttributesRequest) (<-chan *DescribeVSwitchAttributesResponse, <-chan error) {
 	responseChan := make(chan *DescribeVSwitchAttributesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeVSwitchAttributesWithChan(request *DescribeVSwitch
 }
 
 // DescribeVSwitchAttributesWithCallback invokes the vpc.DescribeVSwitchAttributes API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describevswitchattributes.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeVSwitchAttributesWithCallback(request *DescribeVSwitchAttributesRequest, callback func(response *DescribeVSwitchAttributesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -87,21 +82,21 @@ type DescribeVSwitchAttributesRequest struct {
 // DescribeVSwitchAttributesResponse is the response struct for api DescribeVSwitchAttributes
 type DescribeVSwitchAttributesResponse struct {
 	*responses.BaseResponse
-	RequestId               string                                    `json:"RequestId" xml:"RequestId"`
-	VSwitchId               string                                    `json:"VSwitchId" xml:"VSwitchId"`
 	VpcId                   string                                    `json:"VpcId" xml:"VpcId"`
 	Status                  string                                    `json:"Status" xml:"Status"`
-	CidrBlock               string                                    `json:"CidrBlock" xml:"CidrBlock"`
-	Ipv6CidrBlock           string                                    `json:"Ipv6CidrBlock" xml:"Ipv6CidrBlock"`
-	ZoneId                  string                                    `json:"ZoneId" xml:"ZoneId"`
-	AvailableIpAddressCount int64                                     `json:"AvailableIpAddressCount" xml:"AvailableIpAddressCount"`
-	Description             string                                    `json:"Description" xml:"Description"`
-	VSwitchName             string                                    `json:"VSwitchName" xml:"VSwitchName"`
 	CreationTime            string                                    `json:"CreationTime" xml:"CreationTime"`
 	IsDefault               bool                                      `json:"IsDefault" xml:"IsDefault"`
-	ResourceGroupId         string                                    `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	AvailableIpAddressCount int64                                     `json:"AvailableIpAddressCount" xml:"AvailableIpAddressCount"`
 	NetworkAclId            string                                    `json:"NetworkAclId" xml:"NetworkAclId"`
 	OwnerId                 int64                                     `json:"OwnerId" xml:"OwnerId"`
+	VSwitchId               string                                    `json:"VSwitchId" xml:"VSwitchId"`
+	RequestId               string                                    `json:"RequestId" xml:"RequestId"`
+	CidrBlock               string                                    `json:"CidrBlock" xml:"CidrBlock"`
+	Description             string                                    `json:"Description" xml:"Description"`
+	ResourceGroupId         string                                    `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	ZoneId                  string                                    `json:"ZoneId" xml:"ZoneId"`
+	Ipv6CidrBlock           string                                    `json:"Ipv6CidrBlock" xml:"Ipv6CidrBlock"`
+	VSwitchName             string                                    `json:"VSwitchName" xml:"VSwitchName"`
 	ShareType               string                                    `json:"ShareType" xml:"ShareType"`
 	RouteTable              RouteTable                                `json:"RouteTable" xml:"RouteTable"`
 	CloudResources          CloudResourcesInDescribeVSwitchAttributes `json:"CloudResources" xml:"CloudResources"`

@@ -21,7 +21,6 @@ import (
 )
 
 // ModifyVpcAttribute invokes the vpc.ModifyVpcAttribute API synchronously
-// api document: https://help.aliyun.com/api/vpc/modifyvpcattribute.html
 func (client *Client) ModifyVpcAttribute(request *ModifyVpcAttributeRequest) (response *ModifyVpcAttributeResponse, err error) {
 	response = CreateModifyVpcAttributeResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ModifyVpcAttribute(request *ModifyVpcAttributeRequest) (re
 }
 
 // ModifyVpcAttributeWithChan invokes the vpc.ModifyVpcAttribute API asynchronously
-// api document: https://help.aliyun.com/api/vpc/modifyvpcattribute.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyVpcAttributeWithChan(request *ModifyVpcAttributeRequest) (<-chan *ModifyVpcAttributeResponse, <-chan error) {
 	responseChan := make(chan *ModifyVpcAttributeResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ModifyVpcAttributeWithChan(request *ModifyVpcAttributeRequ
 }
 
 // ModifyVpcAttributeWithCallback invokes the vpc.ModifyVpcAttribute API asynchronously
-// api document: https://help.aliyun.com/api/vpc/modifyvpcattribute.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyVpcAttributeWithCallback(request *ModifyVpcAttributeRequest, callback func(response *ModifyVpcAttributeResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -80,6 +75,7 @@ type ModifyVpcAttributeRequest struct {
 	EnableIPv6           requests.Boolean `position:"Query" name:"EnableIPv6"`
 	Description          string           `position:"Query" name:"Description"`
 	VpcName              string           `position:"Query" name:"VpcName"`
+	Ipv6Isp              string           `position:"Query" name:"Ipv6Isp"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
 	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`

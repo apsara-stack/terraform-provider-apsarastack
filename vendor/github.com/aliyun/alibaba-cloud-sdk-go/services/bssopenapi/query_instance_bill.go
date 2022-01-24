@@ -21,7 +21,6 @@ import (
 )
 
 // QueryInstanceBill invokes the bssopenapi.QueryInstanceBill API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/queryinstancebill.html
 func (client *Client) QueryInstanceBill(request *QueryInstanceBillRequest) (response *QueryInstanceBillResponse, err error) {
 	response = CreateQueryInstanceBillResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) QueryInstanceBill(request *QueryInstanceBillRequest) (resp
 }
 
 // QueryInstanceBillWithChan invokes the bssopenapi.QueryInstanceBill API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/queryinstancebill.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) QueryInstanceBillWithChan(request *QueryInstanceBillRequest) (<-chan *QueryInstanceBillResponse, <-chan error) {
 	responseChan := make(chan *QueryInstanceBillResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) QueryInstanceBillWithChan(request *QueryInstanceBillReques
 }
 
 // QueryInstanceBillWithCallback invokes the bssopenapi.QueryInstanceBill API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/queryinstancebill.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) QueryInstanceBillWithCallback(request *QueryInstanceBillRequest, callback func(response *QueryInstanceBillResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -93,11 +88,11 @@ type QueryInstanceBillRequest struct {
 // QueryInstanceBillResponse is the response struct for api QueryInstanceBill
 type QueryInstanceBillResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Success   bool   `json:"Success" xml:"Success"`
-	Code      string `json:"Code" xml:"Code"`
-	Message   string `json:"Message" xml:"Message"`
-	Data      Data   `json:"Data" xml:"Data"`
+	Code      string                  `json:"Code" xml:"Code"`
+	Message   string                  `json:"Message" xml:"Message"`
+	RequestId string                  `json:"RequestId" xml:"RequestId"`
+	Success   bool                    `json:"Success" xml:"Success"`
+	Data      DataInQueryInstanceBill `json:"Data" xml:"Data"`
 }
 
 // CreateQueryInstanceBillRequest creates a request to invoke QueryInstanceBill API

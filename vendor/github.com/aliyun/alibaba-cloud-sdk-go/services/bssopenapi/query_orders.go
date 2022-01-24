@@ -21,7 +21,6 @@ import (
 )
 
 // QueryOrders invokes the bssopenapi.QueryOrders API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/queryorders.html
 func (client *Client) QueryOrders(request *QueryOrdersRequest) (response *QueryOrdersResponse, err error) {
 	response = CreateQueryOrdersResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) QueryOrders(request *QueryOrdersRequest) (response *QueryO
 }
 
 // QueryOrdersWithChan invokes the bssopenapi.QueryOrders API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/queryorders.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) QueryOrdersWithChan(request *QueryOrdersRequest) (<-chan *QueryOrdersResponse, <-chan error) {
 	responseChan := make(chan *QueryOrdersResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) QueryOrdersWithChan(request *QueryOrdersRequest) (<-chan *
 }
 
 // QueryOrdersWithCallback invokes the bssopenapi.QueryOrders API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/queryorders.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) QueryOrdersWithCallback(request *QueryOrdersRequest, callback func(response *QueryOrdersResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -91,11 +86,11 @@ type QueryOrdersRequest struct {
 // QueryOrdersResponse is the response struct for api QueryOrders
 type QueryOrdersResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Success   bool   `json:"Success" xml:"Success"`
-	Code      string `json:"Code" xml:"Code"`
-	Message   string `json:"Message" xml:"Message"`
-	Data      Data   `json:"Data" xml:"Data"`
+	Code      string            `json:"Code" xml:"Code"`
+	Message   string            `json:"Message" xml:"Message"`
+	RequestId string            `json:"RequestId" xml:"RequestId"`
+	Success   bool              `json:"Success" xml:"Success"`
+	Data      DataInQueryOrders `json:"Data" xml:"Data"`
 }
 
 // CreateQueryOrdersRequest creates a request to invoke QueryOrders API

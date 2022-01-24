@@ -72,7 +72,6 @@ func (client *Client) GetChangeOrderInfoWithCallback(request *GetChangeOrderInfo
 type GetChangeOrderInfoRequest struct {
 	*requests.RoaRequest
 	ChangeOrderId string `position:"Query" name:"ChangeOrderId"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // GetChangeOrderInfoResponse is the response struct for api GetChangeOrderInfo
@@ -89,7 +88,7 @@ func CreateGetChangeOrderInfoRequest() (request *GetChangeOrderInfoRequest) {
 	request = &GetChangeOrderInfoRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "GetChangeOrderInfo", "/roa/pop/v5/changeorder/change_order_info", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "GetChangeOrderInfo", "/pop/v5/changeorder/change_order_info", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

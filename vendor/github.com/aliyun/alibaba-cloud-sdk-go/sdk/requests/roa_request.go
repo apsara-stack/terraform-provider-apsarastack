@@ -62,10 +62,6 @@ func (request *RoaRequest) buildPath() string {
 func (request *RoaRequest) buildQueries() string {
 	// replace path params with value
 	path := request.buildPath()
-	pos := strings.Index(path, "roa")
-	path = path[(pos+3):]
-	//fmt.Println(path[(pos+3):])
-	//path = "/pop/v5/resource/cluster"
 	queryParams := request.QueryParams
 	// sort QueryParams by key
 	var queryKeys []string
@@ -107,17 +103,11 @@ func (request *RoaRequest) buildQueryString() string {
 
 func (request *RoaRequest) BuildUrl() string {
 	// for network trans, need url encoded
-	var url string
 	scheme := strings.ToLower(request.Scheme)
 	domain := request.Domain
 	port := request.Port
 	path := request.buildPath()
-	if port == "" && path == "" {
-		url = fmt.Sprintf("%s://%s", scheme, domain)
-	} else {
-		//url = fmt.Sprintf("%s://%s:%s%s", scheme, domain, port, path)
-		url = fmt.Sprintf("%s://%s%s%s", scheme, domain, port, path)
-	}
+	url := fmt.Sprintf("%s://%s:%s%s", scheme, domain, port, path)
 	querystring := request.buildQueryString()
 	if len(querystring) > 0 {
 		url = fmt.Sprintf("%s?%s", url, querystring)
@@ -138,7 +128,7 @@ func (request *RoaRequest) InitWithApiInfo(product, version, action, uriPattern,
 	request.locationServiceCode = serviceCode
 	request.locationEndpointType = endpointType
 	request.product = product
-	request.version = version
+	//request.version = version
 	request.actionName = action
 }
 

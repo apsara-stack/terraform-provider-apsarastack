@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeBgpGroups invokes the vpc.DescribeBgpGroups API synchronously
-// api document: https://help.aliyun.com/api/vpc/describebgpgroups.html
 func (client *Client) DescribeBgpGroups(request *DescribeBgpGroupsRequest) (response *DescribeBgpGroupsResponse, err error) {
 	response = CreateDescribeBgpGroupsResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeBgpGroups(request *DescribeBgpGroupsRequest) (resp
 }
 
 // DescribeBgpGroupsWithChan invokes the vpc.DescribeBgpGroups API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describebgpgroups.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeBgpGroupsWithChan(request *DescribeBgpGroupsRequest) (<-chan *DescribeBgpGroupsResponse, <-chan error) {
 	responseChan := make(chan *DescribeBgpGroupsResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeBgpGroupsWithChan(request *DescribeBgpGroupsReques
 }
 
 // DescribeBgpGroupsWithCallback invokes the vpc.DescribeBgpGroups API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describebgpgroups.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeBgpGroupsWithCallback(request *DescribeBgpGroupsRequest, callback func(response *DescribeBgpGroupsResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -90,10 +85,10 @@ type DescribeBgpGroupsRequest struct {
 // DescribeBgpGroupsResponse is the response struct for api DescribeBgpGroups
 type DescribeBgpGroupsResponse struct {
 	*responses.BaseResponse
-	RequestId  string    `json:"RequestId" xml:"RequestId"`
-	TotalCount int       `json:"TotalCount" xml:"TotalCount"`
-	PageNumber int       `json:"PageNumber" xml:"PageNumber"`
 	PageSize   int       `json:"PageSize" xml:"PageSize"`
+	RequestId  string    `json:"RequestId" xml:"RequestId"`
+	PageNumber int       `json:"PageNumber" xml:"PageNumber"`
+	TotalCount int       `json:"TotalCount" xml:"TotalCount"`
 	BgpGroups  BgpGroups `json:"BgpGroups" xml:"BgpGroups"`
 }
 

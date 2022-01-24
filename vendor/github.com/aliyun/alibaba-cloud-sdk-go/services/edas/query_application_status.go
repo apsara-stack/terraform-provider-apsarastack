@@ -72,7 +72,6 @@ func (client *Client) QueryApplicationStatusWithCallback(request *QueryApplicati
 type QueryApplicationStatusRequest struct {
 	*requests.RoaRequest
 	AppId string `position:"Query" name:"AppId"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // QueryApplicationStatusResponse is the response struct for api QueryApplicationStatus
@@ -89,8 +88,7 @@ func CreateQueryApplicationStatusRequest() (request *QueryApplicationStatusReque
 	request = &QueryApplicationStatusRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	//request.InitWithApiInfo("Edas", "2017-08-01", "QueryApplicationStatus", "/pop/v5/app/app_status", "Edas", "openAPI")
-	request.InitWithApiInfo("Edas", "2017-08-01", "QueryApplicationStatus", "/roa/pop/v5/app/app_status", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "QueryApplicationStatus", "/pop/v5/app/app_status", "edas", "openAPI")
 	request.Method = requests.GET
 	return
 }

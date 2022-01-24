@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeSslVpnServers invokes the vpc.DescribeSslVpnServers API synchronously
-// api document: https://help.aliyun.com/api/vpc/describesslvpnservers.html
 func (client *Client) DescribeSslVpnServers(request *DescribeSslVpnServersRequest) (response *DescribeSslVpnServersResponse, err error) {
 	response = CreateDescribeSslVpnServersResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeSslVpnServers(request *DescribeSslVpnServersReques
 }
 
 // DescribeSslVpnServersWithChan invokes the vpc.DescribeSslVpnServers API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describesslvpnservers.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeSslVpnServersWithChan(request *DescribeSslVpnServersRequest) (<-chan *DescribeSslVpnServersResponse, <-chan error) {
 	responseChan := make(chan *DescribeSslVpnServersResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeSslVpnServersWithChan(request *DescribeSslVpnServe
 }
 
 // DescribeSslVpnServersWithCallback invokes the vpc.DescribeSslVpnServers API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describesslvpnservers.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeSslVpnServersWithCallback(request *DescribeSslVpnServersRequest, callback func(response *DescribeSslVpnServersResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -90,10 +85,10 @@ type DescribeSslVpnServersRequest struct {
 // DescribeSslVpnServersResponse is the response struct for api DescribeSslVpnServers
 type DescribeSslVpnServersResponse struct {
 	*responses.BaseResponse
-	RequestId     string        `json:"RequestId" xml:"RequestId"`
-	TotalCount    int           `json:"TotalCount" xml:"TotalCount"`
-	PageNumber    int           `json:"PageNumber" xml:"PageNumber"`
 	PageSize      int           `json:"PageSize" xml:"PageSize"`
+	RequestId     string        `json:"RequestId" xml:"RequestId"`
+	PageNumber    int           `json:"PageNumber" xml:"PageNumber"`
+	TotalCount    int           `json:"TotalCount" xml:"TotalCount"`
 	SslVpnServers SslVpnServers `json:"SslVpnServers" xml:"SslVpnServers"`
 }
 

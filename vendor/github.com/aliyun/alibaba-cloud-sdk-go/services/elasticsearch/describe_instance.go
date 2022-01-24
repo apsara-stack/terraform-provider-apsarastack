@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeInstance invokes the elasticsearch.DescribeInstance API synchronously
-// api document: https://help.aliyun.com/api/elasticsearch/describeinstance.html
 func (client *Client) DescribeInstance(request *DescribeInstanceRequest) (response *DescribeInstanceResponse, err error) {
 	response = CreateDescribeInstanceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeInstance(request *DescribeInstanceRequest) (respon
 }
 
 // DescribeInstanceWithChan invokes the elasticsearch.DescribeInstance API asynchronously
-// api document: https://help.aliyun.com/api/elasticsearch/describeinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeInstanceWithChan(request *DescribeInstanceRequest) (<-chan *DescribeInstanceResponse, <-chan error) {
 	responseChan := make(chan *DescribeInstanceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeInstanceWithChan(request *DescribeInstanceRequest)
 }
 
 // DescribeInstanceWithCallback invokes the elasticsearch.DescribeInstance API asynchronously
-// api document: https://help.aliyun.com/api/elasticsearch/describeinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeInstanceWithCallback(request *DescribeInstanceRequest, callback func(response *DescribeInstanceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -82,8 +77,8 @@ type DescribeInstanceRequest struct {
 // DescribeInstanceResponse is the response struct for api DescribeInstance
 type DescribeInstanceResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Result    Result `json:"Result" xml:"Result"`
+	RequestId string                   `json:"RequestId" xml:"RequestId"`
+	Result    ResultInDescribeInstance `json:"Result" xml:"Result"`
 }
 
 // CreateDescribeInstanceRequest creates a request to invoke DescribeInstance API

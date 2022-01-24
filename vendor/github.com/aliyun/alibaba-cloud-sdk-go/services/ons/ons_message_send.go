@@ -82,8 +82,8 @@ type OnsMessageSendRequest struct {
 type OnsMessageSendResponse struct {
 	*responses.BaseResponse
 	RequestId string `json:"RequestId" xml:"RequestId"`
-	HelpUrl   string `json:"HelpUrl" xml:"HelpUrl"`
 	Data      string `json:"Data" xml:"Data"`
+	HelpUrl   string `json:"HelpUrl" xml:"HelpUrl"`
 }
 
 // CreateOnsMessageSendRequest creates a request to invoke OnsMessageSend API
@@ -91,7 +91,7 @@ func CreateOnsMessageSendRequest() (request *OnsMessageSendRequest) {
 	request = &OnsMessageSendRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Ons", "2019-02-14", "OnsMessageSend", "", "")
+	request.InitWithApiInfo("Ons", "2019-02-14", "OnsMessageSend", "ons", "openAPI")
 	request.Method = requests.POST
 	return
 }

@@ -72,7 +72,6 @@ func (client *Client) DeleteApplicationWithCallback(request *DeleteApplicationRe
 type DeleteApplicationRequest struct {
 	*requests.RoaRequest
 	AppId string `position:"Query" name:"AppId"`
-	RegionId string `position:"Query" name:"RegionId"`
 }
 
 // DeleteApplicationResponse is the response struct for api DeleteApplication
@@ -89,8 +88,7 @@ func CreateDeleteApplicationRequest() (request *DeleteApplicationRequest) {
 	request = &DeleteApplicationRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	//request.InitWithApiInfo("Edas", "2017-08-01", "DeleteApplication", "/pop/v5/changeorder/co_delete_app", "Edas", "openAPI")
-	request.InitWithApiInfo("Edas", "2017-08-01", "DeleteApplication", "/roa/pop/v5/changeorder/co_delete_app", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "DeleteApplication", "/pop/v5/changeorder/co_delete_app", "edas", "openAPI")
 	request.Method = requests.DELETE
 	return
 }

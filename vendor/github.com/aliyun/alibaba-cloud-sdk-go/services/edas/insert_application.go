@@ -88,7 +88,7 @@ type InsertApplicationRequest struct {
 	ApplicationName string           `position:"Query" name:"ApplicationName"`
 	Jdk             string           `position:"Query" name:"Jdk"`
 	Mem             requests.Integer `position:"Query" name:"Mem"`
-	RegionId string           `position:"Query" name:"RegionId"`
+	LogicalRegionId string           `position:"Query" name:"LogicalRegionId"`
 	EnableUrlCheck  requests.Boolean `position:"Query" name:"EnableUrlCheck"`
 	PackageType     string           `position:"Query" name:"PackageType"`
 	Hooks           string           `position:"Query" name:"Hooks"`
@@ -108,8 +108,7 @@ func CreateInsertApplicationRequest() (request *InsertApplicationRequest) {
 	request = &InsertApplicationRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	//request.InitWithApiInfo("Edas", "2017-08-01", "InsertApplication", "/pop/v5/changeorder/co_create_app", "Edas", "openAPI")
-	request.InitWithApiInfo("Edas", "2017-08-01", "InsertApplication", "/roa/pop/v5/changeorder/co_create_app", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "InsertApplication", "/pop/v5/changeorder/co_create_app", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

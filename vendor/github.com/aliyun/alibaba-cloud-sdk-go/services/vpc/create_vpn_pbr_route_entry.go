@@ -21,7 +21,6 @@ import (
 )
 
 // CreateVpnPbrRouteEntry invokes the vpc.CreateVpnPbrRouteEntry API synchronously
-// api document: https://help.aliyun.com/api/vpc/createvpnpbrrouteentry.html
 func (client *Client) CreateVpnPbrRouteEntry(request *CreateVpnPbrRouteEntryRequest) (response *CreateVpnPbrRouteEntryResponse, err error) {
 	response = CreateCreateVpnPbrRouteEntryResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateVpnPbrRouteEntry(request *CreateVpnPbrRouteEntryRequ
 }
 
 // CreateVpnPbrRouteEntryWithChan invokes the vpc.CreateVpnPbrRouteEntry API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createvpnpbrrouteentry.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateVpnPbrRouteEntryWithChan(request *CreateVpnPbrRouteEntryRequest) (<-chan *CreateVpnPbrRouteEntryResponse, <-chan error) {
 	responseChan := make(chan *CreateVpnPbrRouteEntryResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateVpnPbrRouteEntryWithChan(request *CreateVpnPbrRouteE
 }
 
 // CreateVpnPbrRouteEntryWithCallback invokes the vpc.CreateVpnPbrRouteEntry API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createvpnpbrrouteentry.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateVpnPbrRouteEntryWithCallback(request *CreateVpnPbrRouteEntryRequest, callback func(response *CreateVpnPbrRouteEntryResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -94,16 +89,16 @@ type CreateVpnPbrRouteEntryRequest struct {
 // CreateVpnPbrRouteEntryResponse is the response struct for api CreateVpnPbrRouteEntry
 type CreateVpnPbrRouteEntryResponse struct {
 	*responses.BaseResponse
-	RequestId     string `json:"RequestId" xml:"RequestId"`
-	VpnInstanceId string `json:"VpnInstanceId" xml:"VpnInstanceId"`
-	RouteSource   string `json:"RouteSource" xml:"RouteSource"`
-	RouteDest     string `json:"RouteDest" xml:"RouteDest"`
 	NextHop       string `json:"NextHop" xml:"NextHop"`
 	Weight        int    `json:"Weight" xml:"Weight"`
-	OverlayMode   string `json:"OverlayMode" xml:"OverlayMode"`
+	RouteDest     string `json:"RouteDest" xml:"RouteDest"`
+	RequestId     string `json:"RequestId" xml:"RequestId"`
 	Description   string `json:"Description" xml:"Description"`
 	State         string `json:"State" xml:"State"`
 	CreateTime    int64  `json:"CreateTime" xml:"CreateTime"`
+	OverlayMode   string `json:"OverlayMode" xml:"OverlayMode"`
+	RouteSource   string `json:"RouteSource" xml:"RouteSource"`
+	VpnInstanceId string `json:"VpnInstanceId" xml:"VpnInstanceId"`
 }
 
 // CreateCreateVpnPbrRouteEntryRequest creates a request to invoke CreateVpnPbrRouteEntry API

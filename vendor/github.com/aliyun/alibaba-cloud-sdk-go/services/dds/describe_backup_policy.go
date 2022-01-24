@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeBackupPolicy invokes the dds.DescribeBackupPolicy API synchronously
-// api document: https://help.aliyun.com/api/dds/describebackuppolicy.html
 func (client *Client) DescribeBackupPolicy(request *DescribeBackupPolicyRequest) (response *DescribeBackupPolicyResponse, err error) {
 	response = CreateDescribeBackupPolicyResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeBackupPolicy(request *DescribeBackupPolicyRequest)
 }
 
 // DescribeBackupPolicyWithChan invokes the dds.DescribeBackupPolicy API asynchronously
-// api document: https://help.aliyun.com/api/dds/describebackuppolicy.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeBackupPolicyWithChan(request *DescribeBackupPolicyRequest) (<-chan *DescribeBackupPolicyResponse, <-chan error) {
 	responseChan := make(chan *DescribeBackupPolicyResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeBackupPolicyWithChan(request *DescribeBackupPolicy
 }
 
 // DescribeBackupPolicyWithCallback invokes the dds.DescribeBackupPolicy API asynchronously
-// api document: https://help.aliyun.com/api/dds/describebackuppolicy.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeBackupPolicyWithCallback(request *DescribeBackupPolicyRequest, callback func(response *DescribeBackupPolicyResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -87,11 +82,13 @@ type DescribeBackupPolicyRequest struct {
 // DescribeBackupPolicyResponse is the response struct for api DescribeBackupPolicy
 type DescribeBackupPolicyResponse struct {
 	*responses.BaseResponse
-	RequestId               string `json:"RequestId" xml:"RequestId"`
-	BackupRetentionPeriod   string `json:"BackupRetentionPeriod" xml:"BackupRetentionPeriod"`
-	PreferredBackupTime     string `json:"PreferredBackupTime" xml:"PreferredBackupTime"`
-	PreferredBackupPeriod   string `json:"PreferredBackupPeriod" xml:"PreferredBackupPeriod"`
-	PreferredNextBackupTime string `json:"PreferredNextBackupTime" xml:"PreferredNextBackupTime"`
+	PreferredBackupPeriod    string `json:"PreferredBackupPeriod" xml:"PreferredBackupPeriod"`
+	RequestId                string `json:"RequestId" xml:"RequestId"`
+	PreferredBackupTime      string `json:"PreferredBackupTime" xml:"PreferredBackupTime"`
+	BackupRetentionPeriod    string `json:"BackupRetentionPeriod" xml:"BackupRetentionPeriod"`
+	PreferredNextBackupTime  string `json:"PreferredNextBackupTime" xml:"PreferredNextBackupTime"`
+	EnableBackupLog          int    `json:"EnableBackupLog" xml:"EnableBackupLog"`
+	LogBackupRetentionPeriod int    `json:"LogBackupRetentionPeriod" xml:"LogBackupRetentionPeriod"`
 }
 
 // CreateDescribeBackupPolicyRequest creates a request to invoke DescribeBackupPolicy API
@@ -99,7 +96,7 @@ func CreateDescribeBackupPolicyRequest() (request *DescribeBackupPolicyRequest) 
 	request = &DescribeBackupPolicyRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeBackupPolicy", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeBackupPolicy", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

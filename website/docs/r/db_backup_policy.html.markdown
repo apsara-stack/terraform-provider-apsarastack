@@ -47,6 +47,7 @@ resource "apsarastack_db_instance" "instance" {
   instance_storage = "10"
   vswitch_id       = "${apsarastack_vswitch.default.id}"
   instance_name    = "${var.name}"
+  storage_type="local_ssd"
 }
 
 resource "apsarastack_db_backup_policy" "policy" {

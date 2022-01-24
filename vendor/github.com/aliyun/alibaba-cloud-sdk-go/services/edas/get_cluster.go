@@ -71,8 +71,7 @@ func (client *Client) GetClusterWithCallback(request *GetClusterRequest, callbac
 // GetClusterRequest is the request struct for api GetCluster
 type GetClusterRequest struct {
 	*requests.RoaRequest
-	ClusterId string            `position:"Query" name:"ClusterId"`
-	RegionId string             `position:"Query" name:"RegionId"`
+	ClusterId string `position:"Query" name:"ClusterId"`
 }
 
 // GetClusterResponse is the response struct for api GetCluster
@@ -89,8 +88,7 @@ func CreateGetClusterRequest() (request *GetClusterRequest) {
 	request = &GetClusterRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	//request.InitWithApiInfo("Edas", "2017-08-01", "GetCluster", "/pop/v5/resource/cluster", "Edas", "openAPI")
-	request.InitWithApiInfo("Edas", "2017-08-01", "GetCluster", "/roa/pop/v5/resource/cluster", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "GetCluster", "/pop/v5/resource/cluster", "edas", "openAPI")
 	request.Method = requests.GET
 	return
 }

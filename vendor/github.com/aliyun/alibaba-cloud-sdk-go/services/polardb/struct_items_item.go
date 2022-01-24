@@ -17,19 +17,18 @@ package polardb
 
 // ItemsItem is a nested struct in polardb response
 type ItemsItem struct {
-	Id              int    `json:"Id" xml:"Id"`
-	InsName         string `json:"InsName" xml:"InsName"`
-	DbType          string `json:"DbType" xml:"DbType"`
-	StartTime       string `json:"StartTime" xml:"StartTime"`
-	SwitchTime      string `json:"SwitchTime" xml:"SwitchTime"`
-	Deadline        string `json:"Deadline" xml:"Deadline"`
 	Status          int    `json:"Status" xml:"Status"`
-	CreatedTime     string `json:"CreatedTime" xml:"CreatedTime"`
-	ModifiedTime    string `json:"ModifiedTime" xml:"ModifiedTime"`
-	ResultInfo      string `json:"ResultInfo" xml:"ResultInfo"`
 	PrepareInterval string `json:"PrepareInterval" xml:"PrepareInterval"`
-	TaskParams      string `json:"TaskParams" xml:"TaskParams"`
+	Deadline        string `json:"Deadline" xml:"Deadline"`
+	DBType          string `json:"DBType" xml:"DBType"`
 	TaskType        string `json:"TaskType" xml:"TaskType"`
-	DbVersion       string `json:"DbVersion" xml:"DbVersion"`
+	StartTime       string `json:"StartTime" xml:"StartTime"`
+	DBVersion       string `json:"DBVersion" xml:"DBVersion"`
+	ModifiedTime    string `json:"ModifiedTime" xml:"ModifiedTime"`
+	DBClusterId     string `json:"DBClusterId" xml:"DBClusterId"`
 	Region          string `json:"Region" xml:"Region"`
+	ResultInfo      string `json:"ResultInfo" xml:"ResultInfo"`
+	CreatedTime     string `json:"CreatedTime" xml:"CreatedTime"`
+	Id              int    `json:"Id" xml:"Id"`
+	SwitchTime      string `json:"SwitchTime" xml:"SwitchTime"`
 }

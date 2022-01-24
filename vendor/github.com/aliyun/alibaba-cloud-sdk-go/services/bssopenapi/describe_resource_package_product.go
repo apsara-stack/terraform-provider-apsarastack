@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeResourcePackageProduct invokes the bssopenapi.DescribeResourcePackageProduct API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/describeresourcepackageproduct.html
 func (client *Client) DescribeResourcePackageProduct(request *DescribeResourcePackageProductRequest) (response *DescribeResourcePackageProductResponse, err error) {
 	response = CreateDescribeResourcePackageProductResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeResourcePackageProduct(request *DescribeResourcePa
 }
 
 // DescribeResourcePackageProductWithChan invokes the bssopenapi.DescribeResourcePackageProduct API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/describeresourcepackageproduct.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeResourcePackageProductWithChan(request *DescribeResourcePackageProductRequest) (<-chan *DescribeResourcePackageProductResponse, <-chan error) {
 	responseChan := make(chan *DescribeResourcePackageProductResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeResourcePackageProductWithChan(request *DescribeRe
 }
 
 // DescribeResourcePackageProductWithCallback invokes the bssopenapi.DescribeResourcePackageProduct API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/describeresourcepackageproduct.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeResourcePackageProductWithCallback(request *DescribeResourcePackageProductRequest, callback func(response *DescribeResourcePackageProductResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -82,12 +77,12 @@ type DescribeResourcePackageProductRequest struct {
 // DescribeResourcePackageProductResponse is the response struct for api DescribeResourcePackageProduct
 type DescribeResourcePackageProductResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	OrderId   int64  `json:"OrderId" xml:"OrderId"`
-	Success   bool   `json:"Success" xml:"Success"`
-	Code      string `json:"Code" xml:"Code"`
-	Message   string `json:"Message" xml:"Message"`
-	Data      Data   `json:"Data" xml:"Data"`
+	Code      string                               `json:"Code" xml:"Code"`
+	Message   string                               `json:"Message" xml:"Message"`
+	RequestId string                               `json:"RequestId" xml:"RequestId"`
+	Success   bool                                 `json:"Success" xml:"Success"`
+	OrderId   int64                                `json:"OrderId" xml:"OrderId"`
+	Data      DataInDescribeResourcePackageProduct `json:"Data" xml:"Data"`
 }
 
 // CreateDescribeResourcePackageProductRequest creates a request to invoke DescribeResourcePackageProduct API

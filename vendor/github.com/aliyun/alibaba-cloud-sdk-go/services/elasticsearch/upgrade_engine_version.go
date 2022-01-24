@@ -21,7 +21,6 @@ import (
 )
 
 // UpgradeEngineVersion invokes the elasticsearch.UpgradeEngineVersion API synchronously
-// api document: https://help.aliyun.com/api/elasticsearch/upgradeengineversion.html
 func (client *Client) UpgradeEngineVersion(request *UpgradeEngineVersionRequest) (response *UpgradeEngineVersionResponse, err error) {
 	response = CreateUpgradeEngineVersionResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) UpgradeEngineVersion(request *UpgradeEngineVersionRequest)
 }
 
 // UpgradeEngineVersionWithChan invokes the elasticsearch.UpgradeEngineVersion API asynchronously
-// api document: https://help.aliyun.com/api/elasticsearch/upgradeengineversion.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) UpgradeEngineVersionWithChan(request *UpgradeEngineVersionRequest) (<-chan *UpgradeEngineVersionResponse, <-chan error) {
 	responseChan := make(chan *UpgradeEngineVersionResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) UpgradeEngineVersionWithChan(request *UpgradeEngineVersion
 }
 
 // UpgradeEngineVersionWithCallback invokes the elasticsearch.UpgradeEngineVersion API asynchronously
-// api document: https://help.aliyun.com/api/elasticsearch/upgradeengineversion.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) UpgradeEngineVersionWithCallback(request *UpgradeEngineVersionRequest, callback func(response *UpgradeEngineVersionResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -79,6 +74,8 @@ type UpgradeEngineVersionRequest struct {
 	InstanceId  string           `position:"Path" name:"InstanceId"`
 	DryRun      requests.Boolean `position:"Query" name:"dryRun"`
 	ClientToken string           `position:"Query" name:"clientToken"`
+	Type        string           `position:"Body" name:"type"`
+	Version     string           `position:"Body" name:"version"`
 }
 
 // UpgradeEngineVersionResponse is the response struct for api UpgradeEngineVersion

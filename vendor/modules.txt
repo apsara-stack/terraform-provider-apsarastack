@@ -8,7 +8,19 @@ cloud.google.com/go/internal/version
 cloud.google.com/go/storage
 # github.com/agext/levenshtein v1.2.2
 github.com/agext/levenshtein
-# github.com/aliyun/alibaba-cloud-sdk-go v1.61.577
+# github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68
+github.com/alibabacloud-go/debug/debug
+# github.com/alibabacloud-go/tea v1.1.17
+github.com/alibabacloud-go/tea/tea
+github.com/alibabacloud-go/tea/utils
+# github.com/alibabacloud-go/tea-rpc v1.3.3
+## explicit
+github.com/alibabacloud-go/tea-rpc/client
+# github.com/alibabacloud-go/tea-rpc-utils v1.1.2
+github.com/alibabacloud-go/tea-rpc-utils/service
+# github.com/alibabacloud-go/tea-utils v1.3.5
+github.com/alibabacloud-go/tea-utils/service
+# github.com/aliyun/alibaba-cloud-sdk-go v1.61.1453
 ## explicit
 github.com/aliyun/alibaba-cloud-sdk-go/sdk
 github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth
@@ -29,6 +41,7 @@ github.com/aliyun/alibaba-cloud-sdk-go/services/cr
 github.com/aliyun/alibaba-cloud-sdk-go/services/cr_ee
 github.com/aliyun/alibaba-cloud-sdk-go/services/dds
 github.com/aliyun/alibaba-cloud-sdk-go/services/ecs
+github.com/aliyun/alibaba-cloud-sdk-go/services/edas
 github.com/aliyun/alibaba-cloud-sdk-go/services/elasticsearch
 github.com/aliyun/alibaba-cloud-sdk-go/services/ess
 github.com/aliyun/alibaba-cloud-sdk-go/services/gpdb
@@ -52,6 +65,11 @@ github.com/aliyun/aliyun-log-go-sdk
 # github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
 ## explicit
 github.com/aliyun/aliyun-oss-go-sdk/oss
+# github.com/aliyun/credentials-go v1.1.2
+github.com/aliyun/credentials-go/credentials
+github.com/aliyun/credentials-go/credentials/request
+github.com/aliyun/credentials-go/credentials/response
+github.com/aliyun/credentials-go/credentials/utils
 # github.com/aliyun/fc-go-sdk v0.0.0-20200619091938-0882be48e49f
 ## explicit
 github.com/aliyun/fc-go-sdk
@@ -373,7 +391,9 @@ golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
+golang.org/x/net/internal/socks
 golang.org/x/net/internal/timeseries
+golang.org/x/net/proxy
 golang.org/x/net/publicsuffix
 golang.org/x/net/trace
 # golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
@@ -382,8 +402,9 @@ golang.org/x/oauth2/google
 golang.org/x/oauth2/internal
 golang.org/x/oauth2/jws
 golang.org/x/oauth2/jwt
-# golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd
+# golang.org/x/sys v0.0.0-20200509044756-6aff5f38e54f
 golang.org/x/sys/cpu
+golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.2
 golang.org/x/text/secure/bidirule
@@ -497,8 +518,7 @@ google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
 google.golang.org/protobuf/types/known/timestamppb
-# gopkg.in/ini.v1 v1.62.0
-## explicit
+# gopkg.in/ini.v1 v1.66.2
 gopkg.in/ini.v1
 # gopkg.in/natefinch/lumberjack.v2 v2.0.0
 gopkg.in/natefinch/lumberjack.v2

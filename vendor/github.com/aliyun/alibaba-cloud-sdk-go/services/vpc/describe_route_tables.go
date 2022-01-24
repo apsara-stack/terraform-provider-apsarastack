@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeRouteTables invokes the vpc.DescribeRouteTables API synchronously
-// api document: https://help.aliyun.com/api/vpc/describeroutetables.html
 func (client *Client) DescribeRouteTables(request *DescribeRouteTablesRequest) (response *DescribeRouteTablesResponse, err error) {
 	response = CreateDescribeRouteTablesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeRouteTables(request *DescribeRouteTablesRequest) (
 }
 
 // DescribeRouteTablesWithChan invokes the vpc.DescribeRouteTables API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeroutetables.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeRouteTablesWithChan(request *DescribeRouteTablesRequest) (<-chan *DescribeRouteTablesResponse, <-chan error) {
 	responseChan := make(chan *DescribeRouteTablesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeRouteTablesWithChan(request *DescribeRouteTablesRe
 }
 
 // DescribeRouteTablesWithCallback invokes the vpc.DescribeRouteTables API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeroutetables.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeRouteTablesWithCallback(request *DescribeRouteTablesRequest, callback func(response *DescribeRouteTablesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -94,11 +89,11 @@ type DescribeRouteTablesRequest struct {
 // DescribeRouteTablesResponse is the response struct for api DescribeRouteTables
 type DescribeRouteTablesResponse struct {
 	*responses.BaseResponse
-	RequestId   string      `json:"RequestId" xml:"RequestId"`
-	TotalCount  int         `json:"TotalCount" xml:"TotalCount"`
-	PageNumber  int         `json:"PageNumber" xml:"PageNumber"`
-	PageSize    int         `json:"PageSize" xml:"PageSize"`
-	RouteTables RouteTables `json:"RouteTables" xml:"RouteTables"`
+	PageSize    int                              `json:"PageSize" xml:"PageSize"`
+	RequestId   string                           `json:"RequestId" xml:"RequestId"`
+	PageNumber  int                              `json:"PageNumber" xml:"PageNumber"`
+	TotalCount  int                              `json:"TotalCount" xml:"TotalCount"`
+	RouteTables RouteTablesInDescribeRouteTables `json:"RouteTables" xml:"RouteTables"`
 }
 
 // CreateDescribeRouteTablesRequest creates a request to invoke DescribeRouteTables API

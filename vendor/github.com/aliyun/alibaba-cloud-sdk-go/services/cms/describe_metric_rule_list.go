@@ -73,24 +73,24 @@ type DescribeMetricRuleListRequest struct {
 	*requests.RpcRequest
 	EnableState requests.Boolean `position:"Query" name:"EnableState"`
 	RuleName    string           `position:"Query" name:"RuleName"`
-	PageSize    string           `position:"Query" name:"PageSize"`
+	PageSize    requests.Integer `position:"Query" name:"PageSize"`
 	MetricName  string           `position:"Query" name:"MetricName"`
 	GroupId     string           `position:"Query" name:"GroupId"`
 	RuleIds     string           `position:"Query" name:"RuleIds"`
 	Namespace   string           `position:"Query" name:"Namespace"`
 	AlertState  string           `position:"Query" name:"AlertState"`
-	Page        string           `position:"Query" name:"Page"`
+	Page        requests.Integer `position:"Query" name:"Page"`
 	Dimensions  string           `position:"Query" name:"Dimensions"`
 }
 
 // DescribeMetricRuleListResponse is the response struct for api DescribeMetricRuleList
 type DescribeMetricRuleListResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Success   bool   `json:"Success" xml:"Success"`
 	Code      int    `json:"Code" xml:"Code"`
 	Message   string `json:"Message" xml:"Message"`
+	RequestId string `json:"RequestId" xml:"RequestId"`
 	Total     string `json:"Total" xml:"Total"`
+	Success   bool   `json:"Success" xml:"Success"`
 	Alarms    Alarms `json:"Alarms" xml:"Alarms"`
 }
 

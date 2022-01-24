@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeCustomerGateway invokes the vpc.DescribeCustomerGateway API synchronously
-// api document: https://help.aliyun.com/api/vpc/describecustomergateway.html
 func (client *Client) DescribeCustomerGateway(request *DescribeCustomerGatewayRequest) (response *DescribeCustomerGatewayResponse, err error) {
 	response = CreateDescribeCustomerGatewayResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeCustomerGateway(request *DescribeCustomerGatewayRe
 }
 
 // DescribeCustomerGatewayWithChan invokes the vpc.DescribeCustomerGateway API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describecustomergateway.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeCustomerGatewayWithChan(request *DescribeCustomerGatewayRequest) (<-chan *DescribeCustomerGatewayResponse, <-chan error) {
 	responseChan := make(chan *DescribeCustomerGatewayResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeCustomerGatewayWithChan(request *DescribeCustomerG
 }
 
 // DescribeCustomerGatewayWithCallback invokes the vpc.DescribeCustomerGateway API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describecustomergateway.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeCustomerGatewayWithCallback(request *DescribeCustomerGatewayRequest, callback func(response *DescribeCustomerGatewayResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -86,13 +81,14 @@ type DescribeCustomerGatewayRequest struct {
 // DescribeCustomerGatewayResponse is the response struct for api DescribeCustomerGateway
 type DescribeCustomerGatewayResponse struct {
 	*responses.BaseResponse
+	Asn               int64  `json:"Asn" xml:"Asn"`
 	RequestId         string `json:"RequestId" xml:"RequestId"`
-	CustomerGatewayId string `json:"CustomerGatewayId" xml:"CustomerGatewayId"`
 	IpAddress         string `json:"IpAddress" xml:"IpAddress"`
-	Name              string `json:"Name" xml:"Name"`
 	Description       string `json:"Description" xml:"Description"`
+	CustomerGatewayId string `json:"CustomerGatewayId" xml:"CustomerGatewayId"`
 	CreateTime        int64  `json:"CreateTime" xml:"CreateTime"`
-	Asn               int    `json:"Asn" xml:"Asn"`
+	Name              string `json:"Name" xml:"Name"`
+	AuthKey           string `json:"AuthKey" xml:"AuthKey"`
 }
 
 // CreateDescribeCustomerGatewayRequest creates a request to invoke DescribeCustomerGateway API

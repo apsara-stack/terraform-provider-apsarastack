@@ -21,7 +21,6 @@ import (
 )
 
 // CreateScalingGroup invokes the ess.CreateScalingGroup API synchronously
-// api document: https://help.aliyun.com/api/ess/createscalinggroup.html
 func (client *Client) CreateScalingGroup(request *CreateScalingGroupRequest) (response *CreateScalingGroupResponse, err error) {
 	response = CreateCreateScalingGroupResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateScalingGroup(request *CreateScalingGroupRequest) (re
 }
 
 // CreateScalingGroupWithChan invokes the ess.CreateScalingGroup API asynchronously
-// api document: https://help.aliyun.com/api/ess/createscalinggroup.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateScalingGroupWithChan(request *CreateScalingGroupRequest) (<-chan *CreateScalingGroupResponse, <-chan error) {
 	responseChan := make(chan *CreateScalingGroupResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateScalingGroupWithChan(request *CreateScalingGroupRequ
 }
 
 // CreateScalingGroupWithCallback invokes the ess.CreateScalingGroup API asynchronously
-// api document: https://help.aliyun.com/api/ess/createscalinggroup.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateScalingGroupWithCallback(request *CreateScalingGroupRequest, callback func(response *CreateScalingGroupResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,41 +71,60 @@ func (client *Client) CreateScalingGroupWithCallback(request *CreateScalingGroup
 // CreateScalingGroupRequest is the request struct for api CreateScalingGroup
 type CreateScalingGroupRequest struct {
 	*requests.RpcRequest
-	VSwitchIds                          *[]string                          `position:"Query" name:"VSwitchIds"  type:"Repeated"`
-	SpotInstanceRemedy                  requests.Boolean                   `position:"Query" name:"SpotInstanceRemedy"`
-	Tag                                 *[]CreateScalingGroupTag           `position:"Query" name:"Tag"  type:"Repeated"`
-	DefaultCooldown                     requests.Integer                   `position:"Query" name:"DefaultCooldown"`
-	MultiAZPolicy                       string                             `position:"Query" name:"MultiAZPolicy"`
-	DBInstanceIds                       string                             `position:"Query" name:"DBInstanceIds"`
-	LaunchTemplateId                    string                             `position:"Query" name:"LaunchTemplateId"`
-	DesiredCapacity                     requests.Integer                   `position:"Query" name:"DesiredCapacity"`
-	MinSize                             requests.Integer                   `position:"Query" name:"MinSize"`
-	OwnerId                             requests.Integer                   `position:"Query" name:"OwnerId"`
-	VSwitchId                           string                             `position:"Query" name:"VSwitchId"`
-	InstanceId                          string                             `position:"Query" name:"InstanceId"`
-	MaxSize                             requests.Integer                   `position:"Query" name:"MaxSize"`
-	LifecycleHook                       *[]CreateScalingGroupLifecycleHook `position:"Query" name:"LifecycleHook"  type:"Repeated"`
-	LoadBalancerIds                     string                             `position:"Query" name:"LoadBalancerIds"`
-	ClientToken                         string                             `position:"Query" name:"ClientToken"`
-	OnDemandBaseCapacity                requests.Integer                   `position:"Query" name:"OnDemandBaseCapacity"`
-	OnDemandPercentageAboveBaseCapacity requests.Integer                   `position:"Query" name:"OnDemandPercentageAboveBaseCapacity"`
-	RemovalPolicy1                      string                             `position:"Query" name:"RemovalPolicy.1"`
-	RemovalPolicy2                      string                             `position:"Query" name:"RemovalPolicy.2"`
-	HealthCheckType                     string                             `position:"Query" name:"HealthCheckType"`
-	ResourceOwnerAccount                string                             `position:"Query" name:"ResourceOwnerAccount"`
-	ScalingGroupName                    string                             `position:"Query" name:"ScalingGroupName"`
-	OwnerAccount                        string                             `position:"Query" name:"OwnerAccount"`
-	SpotInstancePools                   requests.Integer                   `position:"Query" name:"SpotInstancePools"`
-	GroupDeletionProtection             requests.Boolean                   `position:"Query" name:"GroupDeletionProtection"`
-	LaunchTemplateVersion               string                             `position:"Query" name:"LaunchTemplateVersion"`
-	ScalingPolicy                       string                             `position:"Query" name:"ScalingPolicy"`
-	VServerGroup                        *[]CreateScalingGroupVServerGroup  `position:"Query" name:"VServerGroup"  type:"Repeated"`
+	VSwitchIds                          *[]string                                   `position:"Query" name:"VSwitchIds"  type:"Repeated"`
+	SpotInstanceRemedy                  requests.Boolean                            `position:"Query" name:"SpotInstanceRemedy"`
+	ScaleOutAmountCheck                 requests.Boolean                            `position:"Query" name:"ScaleOutAmountCheck"`
+	GroupType                           string                                      `position:"Query" name:"GroupType"`
+	Tag                                 *[]CreateScalingGroupTag                    `position:"Query" name:"Tag"  type:"Repeated"`
+	DefaultCooldown                     requests.Integer                            `position:"Query" name:"DefaultCooldown"`
+	ContainerGroupId                    string                                      `position:"Query" name:"ContainerGroupId"`
+	MultiAZPolicy                       string                                      `position:"Query" name:"MultiAZPolicy"`
+	DBInstanceIds                       string                                      `position:"Query" name:"DBInstanceIds"`
+	LaunchTemplateId                    string                                      `position:"Query" name:"LaunchTemplateId"`
+	DesiredCapacity                     requests.Integer                            `position:"Query" name:"DesiredCapacity"`
+	LaunchTemplateOverride              *[]CreateScalingGroupLaunchTemplateOverride `position:"Query" name:"LaunchTemplateOverride"  type:"Repeated"`
+	CompensateWithOnDemand              requests.Boolean                            `position:"Query" name:"CompensateWithOnDemand"`
+	MinSize                             requests.Integer                            `position:"Query" name:"MinSize"`
+	OwnerId                             requests.Integer                            `position:"Query" name:"OwnerId"`
+	AlbServerGroup                      *[]CreateScalingGroupAlbServerGroup         `position:"Query" name:"AlbServerGroup"  type:"Repeated"`
+	VSwitchId                           string                                      `position:"Query" name:"VSwitchId"`
+	InstanceId                          string                                      `position:"Query" name:"InstanceId"`
+	MaxSize                             requests.Integer                            `position:"Query" name:"MaxSize"`
+	LifecycleHook                       *[]CreateScalingGroupLifecycleHook          `position:"Query" name:"LifecycleHook"  type:"Repeated"`
+	LoadBalancerIds                     string                                      `position:"Query" name:"LoadBalancerIds"`
+	ClientToken                         string                                      `position:"Query" name:"ClientToken"`
+	OnDemandBaseCapacity                requests.Integer                            `position:"Query" name:"OnDemandBaseCapacity"`
+	OnDemandPercentageAboveBaseCapacity requests.Integer                            `position:"Query" name:"OnDemandPercentageAboveBaseCapacity"`
+	RemovalPolicy1                      string                                      `position:"Query" name:"RemovalPolicy.1"`
+	RemovalPolicy2                      string                                      `position:"Query" name:"RemovalPolicy.2"`
+	HealthCheckType                     string                                      `position:"Query" name:"HealthCheckType"`
+	ResourceOwnerAccount                string                                      `position:"Query" name:"ResourceOwnerAccount"`
+	ScalingGroupName                    string                                      `position:"Query" name:"ScalingGroupName"`
+	OwnerAccount                        string                                      `position:"Query" name:"OwnerAccount"`
+	SpotInstancePools                   requests.Integer                            `position:"Query" name:"SpotInstancePools"`
+	GroupDeletionProtection             requests.Boolean                            `position:"Query" name:"GroupDeletionProtection"`
+	LaunchTemplateVersion               string                                      `position:"Query" name:"LaunchTemplateVersion"`
+	ScalingPolicy                       string                                      `position:"Query" name:"ScalingPolicy"`
+	VServerGroup                        *[]CreateScalingGroupVServerGroup           `position:"Query" name:"VServerGroup"  type:"Repeated"`
 }
 
 // CreateScalingGroupTag is a repeated param struct in CreateScalingGroupRequest
 type CreateScalingGroupTag struct {
 	Value string `name:"Value"`
 	Key   string `name:"Key"`
+}
+
+// CreateScalingGroupLaunchTemplateOverride is a repeated param struct in CreateScalingGroupRequest
+type CreateScalingGroupLaunchTemplateOverride struct {
+	WeightedCapacity string `name:"WeightedCapacity"`
+	InstanceType     string `name:"InstanceType"`
+}
+
+// CreateScalingGroupAlbServerGroup is a repeated param struct in CreateScalingGroupRequest
+type CreateScalingGroupAlbServerGroup struct {
+	AlbServerGroupId string `name:"AlbServerGroupId"`
+	Port             string `name:"Port"`
+	Weight           string `name:"Weight"`
 }
 
 // CreateScalingGroupLifecycleHook is a repeated param struct in CreateScalingGroupRequest
@@ -125,12 +139,12 @@ type CreateScalingGroupLifecycleHook struct {
 
 // CreateScalingGroupVServerGroup is a repeated param struct in CreateScalingGroupRequest
 type CreateScalingGroupVServerGroup struct {
-	LoadBalancerId        string                                     `name:"LoadBalancerId"`
-	VServerGroupAttribute *[]CreateScalingGroupVServerGroupAttribute `name:"VServerGroupAttribute" type:"Repeated"`
+	LoadBalancerId        string                                                 `name:"LoadBalancerId"`
+	VServerGroupAttribute *[]CreateScalingGroupVServerGroupVServerGroupAttribute `name:"VServerGroupAttribute" type:"Repeated"`
 }
 
-// CreateScalingGroupVServerGroupAttribute is a repeated param struct in CreateScalingGroupRequest
-type CreateScalingGroupVServerGroupAttribute struct {
+// CreateScalingGroupVServerGroupVServerGroupAttribute is a repeated param struct in CreateScalingGroupRequest
+type CreateScalingGroupVServerGroupVServerGroupAttribute struct {
 	VServerGroupId string `name:"VServerGroupId"`
 	Port           string `name:"Port"`
 	Weight         string `name:"Weight"`
@@ -139,8 +153,8 @@ type CreateScalingGroupVServerGroupAttribute struct {
 // CreateScalingGroupResponse is the response struct for api CreateScalingGroup
 type CreateScalingGroupResponse struct {
 	*responses.BaseResponse
-	ScalingGroupId string `json:"ScalingGroupId" xml:"ScalingGroupId"`
 	RequestId      string `json:"RequestId" xml:"RequestId"`
+	ScalingGroupId string `json:"ScalingGroupId" xml:"ScalingGroupId"`
 }
 
 // CreateCreateScalingGroupRequest creates a request to invoke CreateScalingGroup API
@@ -149,6 +163,7 @@ func CreateCreateScalingGroupRequest() (request *CreateScalingGroupRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "CreateScalingGroup", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

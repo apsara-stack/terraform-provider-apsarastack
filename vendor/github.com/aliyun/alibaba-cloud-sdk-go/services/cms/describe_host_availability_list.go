@@ -75,6 +75,7 @@ type DescribeHostAvailabilityListRequest struct {
 	TaskName   string           `position:"Query" name:"TaskName"`
 	PageNumber requests.Integer `position:"Query" name:"PageNumber"`
 	PageSize   requests.Integer `position:"Query" name:"PageSize"`
+	Ids        string           `position:"Query" name:"Ids"`
 	Id         requests.Integer `position:"Query" name:"Id"`
 }
 
@@ -83,9 +84,9 @@ type DescribeHostAvailabilityListResponse struct {
 	*responses.BaseResponse
 	Code      string   `json:"Code" xml:"Code"`
 	Message   string   `json:"Message" xml:"Message"`
-	Success   bool     `json:"Success" xml:"Success"`
 	RequestId string   `json:"RequestId" xml:"RequestId"`
 	Total     int      `json:"Total" xml:"Total"`
+	Success   bool     `json:"Success" xml:"Success"`
 	TaskList  TaskList `json:"TaskList" xml:"TaskList"`
 }
 

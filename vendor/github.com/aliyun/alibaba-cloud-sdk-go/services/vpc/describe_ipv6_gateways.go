@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeIpv6Gateways invokes the vpc.DescribeIpv6Gateways API synchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6gateways.html
 func (client *Client) DescribeIpv6Gateways(request *DescribeIpv6GatewaysRequest) (response *DescribeIpv6GatewaysResponse, err error) {
 	response = CreateDescribeIpv6GatewaysResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeIpv6Gateways(request *DescribeIpv6GatewaysRequest)
 }
 
 // DescribeIpv6GatewaysWithChan invokes the vpc.DescribeIpv6Gateways API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6gateways.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeIpv6GatewaysWithChan(request *DescribeIpv6GatewaysRequest) (<-chan *DescribeIpv6GatewaysResponse, <-chan error) {
 	responseChan := make(chan *DescribeIpv6GatewaysResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeIpv6GatewaysWithChan(request *DescribeIpv6Gateways
 }
 
 // DescribeIpv6GatewaysWithCallback invokes the vpc.DescribeIpv6Gateways API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6gateways.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeIpv6GatewaysWithCallback(request *DescribeIpv6GatewaysRequest, callback func(response *DescribeIpv6GatewaysResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -90,10 +85,10 @@ type DescribeIpv6GatewaysRequest struct {
 // DescribeIpv6GatewaysResponse is the response struct for api DescribeIpv6Gateways
 type DescribeIpv6GatewaysResponse struct {
 	*responses.BaseResponse
-	RequestId    string       `json:"RequestId" xml:"RequestId"`
-	TotalCount   int          `json:"TotalCount" xml:"TotalCount"`
-	PageNumber   int          `json:"PageNumber" xml:"PageNumber"`
 	PageSize     int          `json:"PageSize" xml:"PageSize"`
+	RequestId    string       `json:"RequestId" xml:"RequestId"`
+	PageNumber   int          `json:"PageNumber" xml:"PageNumber"`
+	TotalCount   int          `json:"TotalCount" xml:"TotalCount"`
 	Ipv6Gateways Ipv6Gateways `json:"Ipv6Gateways" xml:"Ipv6Gateways"`
 }
 

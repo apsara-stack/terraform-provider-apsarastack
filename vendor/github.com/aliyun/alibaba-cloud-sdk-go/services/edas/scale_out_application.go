@@ -74,7 +74,6 @@ type ScaleOutApplicationRequest struct {
 	EcuInfo     string `position:"Query" name:"EcuInfo"`
 	DeployGroup string `position:"Query" name:"DeployGroup"`
 	AppId       string `position:"Query" name:"AppId"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // ScaleOutApplicationResponse is the response struct for api ScaleOutApplication
@@ -91,7 +90,7 @@ func CreateScaleOutApplicationRequest() (request *ScaleOutApplicationRequest) {
 	request = &ScaleOutApplicationRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "ScaleOutApplication", "/roa/pop/v5/changeorder/co_scale_out", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "ScaleOutApplication", "/pop/v5/changeorder/co_scale_out", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

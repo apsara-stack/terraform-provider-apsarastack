@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeScalingInstances invokes the ess.DescribeScalingInstances API synchronously
-// api document: https://help.aliyun.com/api/ess/describescalinginstances.html
 func (client *Client) DescribeScalingInstances(request *DescribeScalingInstancesRequest) (response *DescribeScalingInstancesResponse, err error) {
 	response = CreateDescribeScalingInstancesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeScalingInstances(request *DescribeScalingInstances
 }
 
 // DescribeScalingInstancesWithChan invokes the ess.DescribeScalingInstances API asynchronously
-// api document: https://help.aliyun.com/api/ess/describescalinginstances.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeScalingInstancesWithChan(request *DescribeScalingInstancesRequest) (<-chan *DescribeScalingInstancesResponse, <-chan error) {
 	responseChan := make(chan *DescribeScalingInstancesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeScalingInstancesWithChan(request *DescribeScalingI
 }
 
 // DescribeScalingInstancesWithCallback invokes the ess.DescribeScalingInstances API asynchronously
-// api document: https://help.aliyun.com/api/ess/describescalinginstances.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeScalingInstancesWithCallback(request *DescribeScalingInstancesRequest, callback func(response *DescribeScalingInstancesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -77,45 +72,28 @@ func (client *Client) DescribeScalingInstancesWithCallback(request *DescribeScal
 type DescribeScalingInstancesRequest struct {
 	*requests.RpcRequest
 	ResourceOwnerId        requests.Integer `position:"Query" name:"ResourceOwnerId"`
-	CreationType           string           `position:"Query" name:"CreationType"`
-	InstanceId1            string           `position:"Query" name:"InstanceId.1"`
-	InstanceId3            string           `position:"Query" name:"InstanceId.3"`
-	InstanceId2            string           `position:"Query" name:"InstanceId.2"`
-	InstanceId5            string           `position:"Query" name:"InstanceId.5"`
-	InstanceId4            string           `position:"Query" name:"InstanceId.4"`
-	InstanceId7            string           `position:"Query" name:"InstanceId.7"`
-	InstanceId6            string           `position:"Query" name:"InstanceId.6"`
-	InstanceId9            string           `position:"Query" name:"InstanceId.9"`
-	InstanceId8            string           `position:"Query" name:"InstanceId.8"`
-	OwnerId                requests.Integer `position:"Query" name:"OwnerId"`
-	ScalingConfigurationId string           `position:"Query" name:"ScalingConfigurationId"`
-	HealthStatus           string           `position:"Query" name:"HealthStatus"`
-	InstanceId10           string           `position:"Query" name:"InstanceId.10"`
-	InstanceId12           string           `position:"Query" name:"InstanceId.12"`
-	InstanceId11           string           `position:"Query" name:"InstanceId.11"`
 	ScalingGroupId         string           `position:"Query" name:"ScalingGroupId"`
 	LifecycleState         string           `position:"Query" name:"LifecycleState"`
+	CreationType           string           `position:"Query" name:"CreationType"`
 	PageNumber             requests.Integer `position:"Query" name:"PageNumber"`
 	PageSize               requests.Integer `position:"Query" name:"PageSize"`
-	InstanceId20           string           `position:"Query" name:"InstanceId.20"`
 	ResourceOwnerAccount   string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerAccount           string           `position:"Query" name:"OwnerAccount"`
-	InstanceId18           string           `position:"Query" name:"InstanceId.18"`
-	InstanceId17           string           `position:"Query" name:"InstanceId.17"`
-	InstanceId19           string           `position:"Query" name:"InstanceId.19"`
-	InstanceId14           string           `position:"Query" name:"InstanceId.14"`
-	InstanceId13           string           `position:"Query" name:"InstanceId.13"`
-	InstanceId16           string           `position:"Query" name:"InstanceId.16"`
-	InstanceId15           string           `position:"Query" name:"InstanceId.15"`
+	OwnerId                requests.Integer `position:"Query" name:"OwnerId"`
+	ScalingActivityId      string           `position:"Query" name:"ScalingActivityId"`
+	ScalingConfigurationId string           `position:"Query" name:"ScalingConfigurationId"`
+	InstanceId             *[]string        `position:"Query" name:"InstanceId"  type:"Repeated"`
+	HealthStatus           string           `position:"Query" name:"HealthStatus"`
 }
 
 // DescribeScalingInstancesResponse is the response struct for api DescribeScalingInstances
 type DescribeScalingInstancesResponse struct {
 	*responses.BaseResponse
-	TotalCount       int              `json:"TotalCount" xml:"TotalCount"`
-	PageNumber       int              `json:"PageNumber" xml:"PageNumber"`
-	PageSize         int              `json:"PageSize" xml:"PageSize"`
 	RequestId        string           `json:"RequestId" xml:"RequestId"`
+	PageSize         int              `json:"PageSize" xml:"PageSize"`
+	PageNumber       int              `json:"PageNumber" xml:"PageNumber"`
+	TotalSpotCount   int              `json:"TotalSpotCount" xml:"TotalSpotCount"`
+	TotalCount       int              `json:"TotalCount" xml:"TotalCount"`
 	ScalingInstances ScalingInstances `json:"ScalingInstances" xml:"ScalingInstances"`
 }
 
@@ -125,6 +103,7 @@ func CreateDescribeScalingInstancesRequest() (request *DescribeScalingInstancesR
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "DescribeScalingInstances", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 
