@@ -16,6 +16,5 @@ require (
 	//github.com/hashicorp/terraform v0.13.2 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.15.0
 	github.com/jmespath/go-jmespath v0.4.0
-	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 )
