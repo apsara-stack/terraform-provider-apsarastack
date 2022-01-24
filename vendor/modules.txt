@@ -288,7 +288,6 @@ github.com/hashicorp/yamux
 ## explicit
 github.com/jmespath/go-jmespath
 # github.com/json-iterator/go v1.1.10
-## explicit
 github.com/json-iterator/go
 # github.com/mattn/go-colorable v0.1.1
 github.com/mattn/go-colorable
