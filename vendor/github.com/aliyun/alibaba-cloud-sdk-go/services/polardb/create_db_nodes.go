@@ -73,10 +73,13 @@ type CreateDBNodesRequest struct {
 	*requests.RpcRequest
 	ResourceOwnerId      requests.Integer       `position:"Query" name:"ResourceOwnerId"`
 	ClientToken          string                 `position:"Query" name:"ClientToken"`
+	EndpointBindList     string                 `position:"Query" name:"EndpointBindList"`
+	PlannedEndTime       string                 `position:"Query" name:"PlannedEndTime"`
 	ResourceOwnerAccount string                 `position:"Query" name:"ResourceOwnerAccount"`
 	DBClusterId          string                 `position:"Query" name:"DBClusterId"`
 	OwnerAccount         string                 `position:"Query" name:"OwnerAccount"`
 	OwnerId              requests.Integer       `position:"Query" name:"OwnerId"`
+	PlannedStartTime     string                 `position:"Query" name:"PlannedStartTime"`
 	DBNode               *[]CreateDBNodesDBNode `position:"Query" name:"DBNode"  type:"Repeated"`
 }
 
@@ -89,10 +92,10 @@ type CreateDBNodesDBNode struct {
 // CreateDBNodesResponse is the response struct for api CreateDBNodes
 type CreateDBNodesResponse struct {
 	*responses.BaseResponse
-	RequestId   string    `json:"RequestId" xml:"RequestId"`
-	DBClusterId string    `json:"DBClusterId" xml:"DBClusterId"`
-	OrderId     string    `json:"OrderId" xml:"OrderId"`
-	DBNodeIds   DBNodeIds `json:"DBNodeIds" xml:"DBNodeIds"`
+	RequestId   string                   `json:"RequestId" xml:"RequestId"`
+	DBClusterId string                   `json:"DBClusterId" xml:"DBClusterId"`
+	OrderId     string                   `json:"OrderId" xml:"OrderId"`
+	DBNodeIds   DBNodeIdsInCreateDBNodes `json:"DBNodeIds" xml:"DBNodeIds"`
 }
 
 // CreateCreateDBNodesRequest creates a request to invoke CreateDBNodes API

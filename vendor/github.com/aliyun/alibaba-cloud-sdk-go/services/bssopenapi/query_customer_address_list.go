@@ -21,7 +21,6 @@ import (
 )
 
 // QueryCustomerAddressList invokes the bssopenapi.QueryCustomerAddressList API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/querycustomeraddresslist.html
 func (client *Client) QueryCustomerAddressList(request *QueryCustomerAddressListRequest) (response *QueryCustomerAddressListResponse, err error) {
 	response = CreateQueryCustomerAddressListResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) QueryCustomerAddressList(request *QueryCustomerAddressList
 }
 
 // QueryCustomerAddressListWithChan invokes the bssopenapi.QueryCustomerAddressList API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/querycustomeraddresslist.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) QueryCustomerAddressListWithChan(request *QueryCustomerAddressListRequest) (<-chan *QueryCustomerAddressListResponse, <-chan error) {
 	responseChan := make(chan *QueryCustomerAddressListResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) QueryCustomerAddressListWithChan(request *QueryCustomerAdd
 }
 
 // QueryCustomerAddressListWithCallback invokes the bssopenapi.QueryCustomerAddressList API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/querycustomeraddresslist.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) QueryCustomerAddressListWithCallback(request *QueryCustomerAddressListRequest, callback func(response *QueryCustomerAddressListResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -82,11 +77,11 @@ type QueryCustomerAddressListRequest struct {
 // QueryCustomerAddressListResponse is the response struct for api QueryCustomerAddressList
 type QueryCustomerAddressListResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Success   bool   `json:"Success" xml:"Success"`
-	Code      string `json:"Code" xml:"Code"`
-	Message   string `json:"Message" xml:"Message"`
-	Data      Data   `json:"Data" xml:"Data"`
+	Code      string                         `json:"Code" xml:"Code"`
+	Message   string                         `json:"Message" xml:"Message"`
+	RequestId string                         `json:"RequestId" xml:"RequestId"`
+	Success   bool                           `json:"Success" xml:"Success"`
+	Data      DataInQueryCustomerAddressList `json:"Data" xml:"Data"`
 }
 
 // CreateQueryCustomerAddressListRequest creates a request to invoke QueryCustomerAddressList API

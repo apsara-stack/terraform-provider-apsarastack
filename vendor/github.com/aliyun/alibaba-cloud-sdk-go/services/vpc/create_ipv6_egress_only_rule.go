@@ -21,7 +21,6 @@ import (
 )
 
 // CreateIpv6EgressOnlyRule invokes the vpc.CreateIpv6EgressOnlyRule API synchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6egressonlyrule.html
 func (client *Client) CreateIpv6EgressOnlyRule(request *CreateIpv6EgressOnlyRuleRequest) (response *CreateIpv6EgressOnlyRuleResponse, err error) {
 	response = CreateCreateIpv6EgressOnlyRuleResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateIpv6EgressOnlyRule(request *CreateIpv6EgressOnlyRule
 }
 
 // CreateIpv6EgressOnlyRuleWithChan invokes the vpc.CreateIpv6EgressOnlyRule API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6egressonlyrule.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateIpv6EgressOnlyRuleWithChan(request *CreateIpv6EgressOnlyRuleRequest) (<-chan *CreateIpv6EgressOnlyRuleResponse, <-chan error) {
 	responseChan := make(chan *CreateIpv6EgressOnlyRuleResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateIpv6EgressOnlyRuleWithChan(request *CreateIpv6Egress
 }
 
 // CreateIpv6EgressOnlyRuleWithCallback invokes the vpc.CreateIpv6EgressOnlyRule API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6egressonlyrule.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateIpv6EgressOnlyRuleWithCallback(request *CreateIpv6EgressOnlyRuleRequest, callback func(response *CreateIpv6EgressOnlyRuleResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -91,8 +86,8 @@ type CreateIpv6EgressOnlyRuleRequest struct {
 // CreateIpv6EgressOnlyRuleResponse is the response struct for api CreateIpv6EgressOnlyRule
 type CreateIpv6EgressOnlyRuleResponse struct {
 	*responses.BaseResponse
-	RequestId        string `json:"RequestId" xml:"RequestId"`
 	Ipv6EgressRuleId string `json:"Ipv6EgressRuleId" xml:"Ipv6EgressRuleId"`
+	RequestId        string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateCreateIpv6EgressOnlyRuleRequest creates a request to invoke CreateIpv6EgressOnlyRule API

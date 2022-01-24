@@ -72,7 +72,6 @@ func (client *Client) ListDeployGroupWithCallback(request *ListDeployGroupReques
 type ListDeployGroupRequest struct {
 	*requests.RoaRequest
 	AppId string `position:"Query" name:"AppId"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // ListDeployGroupResponse is the response struct for api ListDeployGroup
@@ -89,7 +88,7 @@ func CreateListDeployGroupRequest() (request *ListDeployGroupRequest) {
 	request = &ListDeployGroupRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "ListDeployGroup", "/roa/pop/v5/app/deploy_group_list", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "ListDeployGroup", "/pop/v5/app/deploy_group_list", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

@@ -21,7 +21,6 @@ import (
 )
 
 // ModifyScalingGroup invokes the ess.ModifyScalingGroup API synchronously
-// api document: https://help.aliyun.com/api/ess/modifyscalinggroup.html
 func (client *Client) ModifyScalingGroup(request *ModifyScalingGroupRequest) (response *ModifyScalingGroupResponse, err error) {
 	response = CreateModifyScalingGroupResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ModifyScalingGroup(request *ModifyScalingGroupRequest) (re
 }
 
 // ModifyScalingGroupWithChan invokes the ess.ModifyScalingGroup API asynchronously
-// api document: https://help.aliyun.com/api/ess/modifyscalinggroup.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyScalingGroupWithChan(request *ModifyScalingGroupRequest) (<-chan *ModifyScalingGroupResponse, <-chan error) {
 	responseChan := make(chan *ModifyScalingGroupResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ModifyScalingGroupWithChan(request *ModifyScalingGroupRequ
 }
 
 // ModifyScalingGroupWithCallback invokes the ess.ModifyScalingGroup API asynchronously
-// api document: https://help.aliyun.com/api/ess/modifyscalinggroup.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyScalingGroupWithCallback(request *ModifyScalingGroupRequest, callback func(response *ModifyScalingGroupResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,28 +71,38 @@ func (client *Client) ModifyScalingGroupWithCallback(request *ModifyScalingGroup
 // ModifyScalingGroupRequest is the request struct for api ModifyScalingGroup
 type ModifyScalingGroupRequest struct {
 	*requests.RpcRequest
-	ResourceOwnerId                     requests.Integer `position:"Query" name:"ResourceOwnerId"`
-	ScalingGroupId                      string           `position:"Query" name:"ScalingGroupId"`
-	VSwitchIds                          *[]string        `position:"Query" name:"VSwitchIds"  type:"Repeated"`
-	ActiveScalingConfigurationId        string           `position:"Query" name:"ActiveScalingConfigurationId"`
-	OnDemandBaseCapacity                requests.Integer `position:"Query" name:"OnDemandBaseCapacity"`
-	OnDemandPercentageAboveBaseCapacity requests.Integer `position:"Query" name:"OnDemandPercentageAboveBaseCapacity"`
-	SpotInstanceRemedy                  requests.Boolean `position:"Query" name:"SpotInstanceRemedy"`
-	DefaultCooldown                     requests.Integer `position:"Query" name:"DefaultCooldown"`
-	RemovalPolicy1                      string           `position:"Query" name:"RemovalPolicy.1"`
-	RemovalPolicy2                      string           `position:"Query" name:"RemovalPolicy.2"`
-	HealthCheckType                     string           `position:"Query" name:"HealthCheckType"`
-	LaunchTemplateId                    string           `position:"Query" name:"LaunchTemplateId"`
-	DesiredCapacity                     requests.Integer `position:"Query" name:"DesiredCapacity"`
-	ResourceOwnerAccount                string           `position:"Query" name:"ResourceOwnerAccount"`
-	ScalingGroupName                    string           `position:"Query" name:"ScalingGroupName"`
-	OwnerAccount                        string           `position:"Query" name:"OwnerAccount"`
-	SpotInstancePools                   requests.Integer `position:"Query" name:"SpotInstancePools"`
-	MinSize                             requests.Integer `position:"Query" name:"MinSize"`
-	GroupDeletionProtection             requests.Boolean `position:"Query" name:"GroupDeletionProtection"`
-	OwnerId                             requests.Integer `position:"Query" name:"OwnerId"`
-	LaunchTemplateVersion               string           `position:"Query" name:"LaunchTemplateVersion"`
-	MaxSize                             requests.Integer `position:"Query" name:"MaxSize"`
+	ResourceOwnerId                     requests.Integer                            `position:"Query" name:"ResourceOwnerId"`
+	ScalingGroupId                      string                                      `position:"Query" name:"ScalingGroupId"`
+	VSwitchIds                          *[]string                                   `position:"Query" name:"VSwitchIds"  type:"Repeated"`
+	ActiveScalingConfigurationId        string                                      `position:"Query" name:"ActiveScalingConfigurationId"`
+	OnDemandBaseCapacity                requests.Integer                            `position:"Query" name:"OnDemandBaseCapacity"`
+	OnDemandPercentageAboveBaseCapacity requests.Integer                            `position:"Query" name:"OnDemandPercentageAboveBaseCapacity"`
+	SpotInstanceRemedy                  requests.Boolean                            `position:"Query" name:"SpotInstanceRemedy"`
+	ScaleOutAmountCheck                 requests.Boolean                            `position:"Query" name:"ScaleOutAmountCheck"`
+	DefaultCooldown                     requests.Integer                            `position:"Query" name:"DefaultCooldown"`
+	RemovalPolicy1                      string                                      `position:"Query" name:"RemovalPolicy.1"`
+	RemovalPolicy2                      string                                      `position:"Query" name:"RemovalPolicy.2"`
+	MultiAZPolicy                       string                                      `position:"Query" name:"MultiAZPolicy"`
+	HealthCheckType                     string                                      `position:"Query" name:"HealthCheckType"`
+	LaunchTemplateId                    string                                      `position:"Query" name:"LaunchTemplateId"`
+	DesiredCapacity                     requests.Integer                            `position:"Query" name:"DesiredCapacity"`
+	ResourceOwnerAccount                string                                      `position:"Query" name:"ResourceOwnerAccount"`
+	ScalingGroupName                    string                                      `position:"Query" name:"ScalingGroupName"`
+	LaunchTemplateOverride              *[]ModifyScalingGroupLaunchTemplateOverride `position:"Query" name:"LaunchTemplateOverride"  type:"Repeated"`
+	OwnerAccount                        string                                      `position:"Query" name:"OwnerAccount"`
+	CompensateWithOnDemand              requests.Boolean                            `position:"Query" name:"CompensateWithOnDemand"`
+	SpotInstancePools                   requests.Integer                            `position:"Query" name:"SpotInstancePools"`
+	MinSize                             requests.Integer                            `position:"Query" name:"MinSize"`
+	GroupDeletionProtection             requests.Boolean                            `position:"Query" name:"GroupDeletionProtection"`
+	OwnerId                             requests.Integer                            `position:"Query" name:"OwnerId"`
+	LaunchTemplateVersion               string                                      `position:"Query" name:"LaunchTemplateVersion"`
+	MaxSize                             requests.Integer                            `position:"Query" name:"MaxSize"`
+}
+
+// ModifyScalingGroupLaunchTemplateOverride is a repeated param struct in ModifyScalingGroupRequest
+type ModifyScalingGroupLaunchTemplateOverride struct {
+	WeightedCapacity string `name:"WeightedCapacity"`
+	InstanceType     string `name:"InstanceType"`
 }
 
 // ModifyScalingGroupResponse is the response struct for api ModifyScalingGroup
@@ -112,6 +117,7 @@ func CreateModifyScalingGroupRequest() (request *ModifyScalingGroupRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "ModifyScalingGroup", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

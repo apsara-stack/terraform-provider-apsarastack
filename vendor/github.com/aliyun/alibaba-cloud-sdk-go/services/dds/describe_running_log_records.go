@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeRunningLogRecords invokes the dds.DescribeRunningLogRecords API synchronously
-// api document: https://help.aliyun.com/api/dds/describerunninglogrecords.html
 func (client *Client) DescribeRunningLogRecords(request *DescribeRunningLogRecordsRequest) (response *DescribeRunningLogRecordsResponse, err error) {
 	response = CreateDescribeRunningLogRecordsResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeRunningLogRecords(request *DescribeRunningLogRecor
 }
 
 // DescribeRunningLogRecordsWithChan invokes the dds.DescribeRunningLogRecords API asynchronously
-// api document: https://help.aliyun.com/api/dds/describerunninglogrecords.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeRunningLogRecordsWithChan(request *DescribeRunningLogRecordsRequest) (<-chan *DescribeRunningLogRecordsResponse, <-chan error) {
 	responseChan := make(chan *DescribeRunningLogRecordsResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeRunningLogRecordsWithChan(request *DescribeRunning
 }
 
 // DescribeRunningLogRecordsWithCallback invokes the dds.DescribeRunningLogRecords API asynchronously
-// api document: https://help.aliyun.com/api/dds/describerunninglogrecords.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeRunningLogRecordsWithCallback(request *DescribeRunningLogRecordsRequest, callback func(response *DescribeRunningLogRecordsResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -77,6 +72,7 @@ func (client *Client) DescribeRunningLogRecordsWithCallback(request *DescribeRun
 type DescribeRunningLogRecordsRequest struct {
 	*requests.RpcRequest
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
+	RoleId               string           `position:"Query" name:"RoleId"`
 	StartTime            string           `position:"Query" name:"StartTime"`
 	PageNumber           requests.Integer `position:"Query" name:"PageNumber"`
 	ResourceGroupId      string           `position:"Query" name:"ResourceGroupId"`
@@ -96,11 +92,11 @@ type DescribeRunningLogRecordsRequest struct {
 // DescribeRunningLogRecordsResponse is the response struct for api DescribeRunningLogRecords
 type DescribeRunningLogRecordsResponse struct {
 	*responses.BaseResponse
-	RequestId        string                           `json:"RequestId" xml:"RequestId"`
-	Engine           string                           `json:"Engine" xml:"Engine"`
 	TotalRecordCount int                              `json:"TotalRecordCount" xml:"TotalRecordCount"`
-	PageNumber       int                              `json:"PageNumber" xml:"PageNumber"`
 	PageRecordCount  int                              `json:"PageRecordCount" xml:"PageRecordCount"`
+	RequestId        string                           `json:"RequestId" xml:"RequestId"`
+	PageNumber       int                              `json:"PageNumber" xml:"PageNumber"`
+	Engine           string                           `json:"Engine" xml:"Engine"`
 	Items            ItemsInDescribeRunningLogRecords `json:"Items" xml:"Items"`
 }
 
@@ -109,7 +105,7 @@ func CreateDescribeRunningLogRecordsRequest() (request *DescribeRunningLogRecord
 	request = &DescribeRunningLogRecordsRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeRunningLogRecords", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeRunningLogRecords", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

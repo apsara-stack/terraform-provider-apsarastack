@@ -227,10 +227,10 @@ func attachVserverGroups(d *schema.ResourceData, client *connectivity.ApsaraStac
 		vserverGroupListMap := buildEssVserverGroupListMap(attachMap)
 		attachScalingGroupVserverGroups := make([]ess.AttachVServerGroupsVServerGroup, 0)
 		for k, v := range vserverGroupListMap {
-			vserverAttributes := make([]ess.AttachVServerGroupsVServerGroupAttribute, 0)
+			vserverAttributes := make([]ess.AttachVServerGroupsVServerGroupVServerGroupAttribute, 0)
 			for _, e := range v {
 				attrs := strings.Split(e, "_")
-				vserverAttribute := ess.AttachVServerGroupsVServerGroupAttribute{
+				vserverAttribute := ess.AttachVServerGroupsVServerGroupVServerGroupAttribute{
 					VServerGroupId: attrs[1],
 					Port:           attrs[2],
 					Weight:         attrs[3],
@@ -271,10 +271,10 @@ func detachVserverGroups(d *schema.ResourceData, client *connectivity.ApsaraStac
 		vserverGroupListMap := buildEssVserverGroupListMap(detachMap)
 		detachScalingGroupVserverGroups := make([]ess.DetachVServerGroupsVServerGroup, 0)
 		for k, v := range vserverGroupListMap {
-			vserverAttributes := make([]ess.DetachVServerGroupsVServerGroupAttribute, 0)
+			vserverAttributes := make([]ess.DetachVServerGroupsVServerGroupVServerGroupAttribute, 0)
 			for _, e := range v {
 				attrs := strings.Split(e, "_")
-				vserverAttribute := ess.DetachVServerGroupsVServerGroupAttribute{
+				vserverAttribute := ess.DetachVServerGroupsVServerGroupVServerGroupAttribute{
 					VServerGroupId: attrs[1],
 					Port:           attrs[2],
 				}

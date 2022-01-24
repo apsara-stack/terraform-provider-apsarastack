@@ -21,7 +21,6 @@ import (
 )
 
 // CreateReadOnlyDBInstance invokes the rds.CreateReadOnlyDBInstance API synchronously
-// api document: https://help.aliyun.com/api/rds/createreadonlydbinstance.html
 func (client *Client) CreateReadOnlyDBInstance(request *CreateReadOnlyDBInstanceRequest) (response *CreateReadOnlyDBInstanceResponse, err error) {
 	response = CreateCreateReadOnlyDBInstanceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateReadOnlyDBInstance(request *CreateReadOnlyDBInstance
 }
 
 // CreateReadOnlyDBInstanceWithChan invokes the rds.CreateReadOnlyDBInstance API asynchronously
-// api document: https://help.aliyun.com/api/rds/createreadonlydbinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateReadOnlyDBInstanceWithChan(request *CreateReadOnlyDBInstanceRequest) (<-chan *CreateReadOnlyDBInstanceResponse, <-chan error) {
 	responseChan := make(chan *CreateReadOnlyDBInstanceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateReadOnlyDBInstanceWithChan(request *CreateReadOnlyDB
 }
 
 // CreateReadOnlyDBInstanceWithCallback invokes the rds.CreateReadOnlyDBInstance API asynchronously
-// api document: https://help.aliyun.com/api/rds/createreadonlydbinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateReadOnlyDBInstanceWithCallback(request *CreateReadOnlyDBInstanceRequest, callback func(response *CreateReadOnlyDBInstanceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -90,12 +85,15 @@ type CreateReadOnlyDBInstanceRequest struct {
 	DBInstanceStorageType          string           `position:"Query" name:"DBInstanceStorageType"`
 	DedicatedHostGroupId           string           `position:"Query" name:"DedicatedHostGroupId"`
 	TddlBizType                    string           `position:"Query" name:"TddlBizType"`
+	Period                         string           `position:"Query" name:"Period"`
 	ResourceOwnerAccount           string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerAccount                   string           `position:"Query" name:"OwnerAccount"`
 	OwnerId                        requests.Integer `position:"Query" name:"OwnerId"`
+	UsedTime                       string           `position:"Query" name:"UsedTime"`
 	DBInstanceClass                string           `position:"Query" name:"DBInstanceClass"`
 	VSwitchId                      string           `position:"Query" name:"VSwitchId"`
 	PrivateIpAddress               string           `position:"Query" name:"PrivateIpAddress"`
+	AutoRenew                      string           `position:"Query" name:"AutoRenew"`
 	VPCId                          string           `position:"Query" name:"VPCId"`
 	ZoneId                         string           `position:"Query" name:"ZoneId"`
 	Category                       string           `position:"Query" name:"Category"`
@@ -106,11 +104,11 @@ type CreateReadOnlyDBInstanceRequest struct {
 // CreateReadOnlyDBInstanceResponse is the response struct for api CreateReadOnlyDBInstance
 type CreateReadOnlyDBInstanceResponse struct {
 	*responses.BaseResponse
-	RequestId        string `json:"RequestId" xml:"RequestId"`
 	DBInstanceId     string `json:"DBInstanceId" xml:"DBInstanceId"`
-	OrderId          string `json:"OrderId" xml:"OrderId"`
-	ConnectionString string `json:"ConnectionString" xml:"ConnectionString"`
+	RequestId        string `json:"RequestId" xml:"RequestId"`
 	Port             string `json:"Port" xml:"Port"`
+	ConnectionString string `json:"ConnectionString" xml:"ConnectionString"`
+	OrderId          string `json:"OrderId" xml:"OrderId"`
 }
 
 // CreateCreateReadOnlyDBInstanceRequest creates a request to invoke CreateReadOnlyDBInstance API

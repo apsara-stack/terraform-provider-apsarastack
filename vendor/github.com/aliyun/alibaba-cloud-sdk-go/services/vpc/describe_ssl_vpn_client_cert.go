@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeSslVpnClientCert invokes the vpc.DescribeSslVpnClientCert API synchronously
-// api document: https://help.aliyun.com/api/vpc/describesslvpnclientcert.html
 func (client *Client) DescribeSslVpnClientCert(request *DescribeSslVpnClientCertRequest) (response *DescribeSslVpnClientCertResponse, err error) {
 	response = CreateDescribeSslVpnClientCertResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeSslVpnClientCert(request *DescribeSslVpnClientCert
 }
 
 // DescribeSslVpnClientCertWithChan invokes the vpc.DescribeSslVpnClientCert API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describesslvpnclientcert.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeSslVpnClientCertWithChan(request *DescribeSslVpnClientCertRequest) (<-chan *DescribeSslVpnClientCertResponse, <-chan error) {
 	responseChan := make(chan *DescribeSslVpnClientCertResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeSslVpnClientCertWithChan(request *DescribeSslVpnCl
 }
 
 // DescribeSslVpnClientCertWithCallback invokes the vpc.DescribeSslVpnClientCert API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describesslvpnclientcert.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeSslVpnClientCertWithCallback(request *DescribeSslVpnClientCertRequest, callback func(response *DescribeSslVpnClientCertResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -86,18 +81,18 @@ type DescribeSslVpnClientCertRequest struct {
 // DescribeSslVpnClientCertResponse is the response struct for api DescribeSslVpnClientCert
 type DescribeSslVpnClientCertResponse struct {
 	*responses.BaseResponse
-	RequestId          string `json:"RequestId" xml:"RequestId"`
-	RegionId           string `json:"RegionId" xml:"RegionId"`
-	SslVpnClientCertId string `json:"SslVpnClientCertId" xml:"SslVpnClientCertId"`
-	Name               string `json:"Name" xml:"Name"`
-	SslVpnServerId     string `json:"SslVpnServerId" xml:"SslVpnServerId"`
-	CaCert             string `json:"CaCert" xml:"CaCert"`
-	ClientCert         string `json:"ClientCert" xml:"ClientCert"`
-	ClientKey          string `json:"ClientKey" xml:"ClientKey"`
-	ClientConfig       string `json:"ClientConfig" xml:"ClientConfig"`
-	CreateTime         int64  `json:"CreateTime" xml:"CreateTime"`
-	EndTime            int64  `json:"EndTime" xml:"EndTime"`
 	Status             string `json:"Status" xml:"Status"`
+	CreateTime         int64  `json:"CreateTime" xml:"CreateTime"`
+	ClientKey          string `json:"ClientKey" xml:"ClientKey"`
+	RegionId           string `json:"RegionId" xml:"RegionId"`
+	ClientConfig       string `json:"ClientConfig" xml:"ClientConfig"`
+	EndTime            int64  `json:"EndTime" xml:"EndTime"`
+	RequestId          string `json:"RequestId" xml:"RequestId"`
+	ClientCert         string `json:"ClientCert" xml:"ClientCert"`
+	CaCert             string `json:"CaCert" xml:"CaCert"`
+	SslVpnClientCertId string `json:"SslVpnClientCertId" xml:"SslVpnClientCertId"`
+	SslVpnServerId     string `json:"SslVpnServerId" xml:"SslVpnServerId"`
+	Name               string `json:"Name" xml:"Name"`
 }
 
 // CreateDescribeSslVpnClientCertRequest creates a request to invoke DescribeSslVpnClientCert API

@@ -21,7 +21,6 @@ import (
 )
 
 // ListInstance invokes the elasticsearch.ListInstance API synchronously
-// api document: https://help.aliyun.com/api/elasticsearch/listinstance.html
 func (client *Client) ListInstance(request *ListInstanceRequest) (response *ListInstanceResponse, err error) {
 	response = CreateListInstanceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ListInstance(request *ListInstanceRequest) (response *List
 }
 
 // ListInstanceWithChan invokes the elasticsearch.ListInstance API asynchronously
-// api document: https://help.aliyun.com/api/elasticsearch/listinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ListInstanceWithChan(request *ListInstanceRequest) (<-chan *ListInstanceResponse, <-chan error) {
 	responseChan := make(chan *ListInstanceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ListInstanceWithChan(request *ListInstanceRequest) (<-chan
 }
 
 // ListInstanceWithCallback invokes the elasticsearch.ListInstance API asynchronously
-// api document: https://help.aliyun.com/api/elasticsearch/listinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ListInstanceWithCallback(request *ListInstanceRequest, callback func(response *ListInstanceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -78,7 +73,6 @@ type ListInstanceRequest struct {
 	*requests.RoaRequest
 	Description      string           `position:"Query" name:"description"`
 	InstanceCategory string           `position:"Query" name:"instanceCategory"`
-	OwnerId          string           `position:"Query" name:"ownerId"`
 	Tags             string           `position:"Query" name:"tags"`
 	ResourceGroupId  string           `position:"Query" name:"resourceGroupId"`
 	InstanceId       string           `position:"Query" name:"instanceId"`

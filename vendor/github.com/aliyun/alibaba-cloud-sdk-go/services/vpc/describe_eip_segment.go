@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeEipSegment invokes the vpc.DescribeEipSegment API synchronously
-// api document: https://help.aliyun.com/api/vpc/describeeipsegment.html
 func (client *Client) DescribeEipSegment(request *DescribeEipSegmentRequest) (response *DescribeEipSegmentResponse, err error) {
 	response = CreateDescribeEipSegmentResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeEipSegment(request *DescribeEipSegmentRequest) (re
 }
 
 // DescribeEipSegmentWithChan invokes the vpc.DescribeEipSegment API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeeipsegment.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeEipSegmentWithChan(request *DescribeEipSegmentRequest) (<-chan *DescribeEipSegmentResponse, <-chan error) {
 	responseChan := make(chan *DescribeEipSegmentResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeEipSegmentWithChan(request *DescribeEipSegmentRequ
 }
 
 // DescribeEipSegmentWithCallback invokes the vpc.DescribeEipSegment API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeeipsegment.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeEipSegmentWithCallback(request *DescribeEipSegmentRequest, callback func(response *DescribeEipSegmentResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -89,10 +84,10 @@ type DescribeEipSegmentRequest struct {
 // DescribeEipSegmentResponse is the response struct for api DescribeEipSegment
 type DescribeEipSegmentResponse struct {
 	*responses.BaseResponse
-	RequestId   string      `json:"RequestId" xml:"RequestId"`
-	TotalCount  int         `json:"TotalCount" xml:"TotalCount"`
-	PageNumber  int         `json:"PageNumber" xml:"PageNumber"`
 	PageSize    int         `json:"PageSize" xml:"PageSize"`
+	RequestId   string      `json:"RequestId" xml:"RequestId"`
+	PageNumber  int         `json:"PageNumber" xml:"PageNumber"`
+	TotalCount  int         `json:"TotalCount" xml:"TotalCount"`
 	EipSegments EipSegments `json:"EipSegments" xml:"EipSegments"`
 }
 

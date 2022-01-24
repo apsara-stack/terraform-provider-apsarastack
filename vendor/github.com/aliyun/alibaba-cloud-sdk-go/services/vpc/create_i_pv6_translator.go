@@ -21,7 +21,6 @@ import (
 )
 
 // CreateIPv6Translator invokes the vpc.CreateIPv6Translator API synchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6translator.html
 func (client *Client) CreateIPv6Translator(request *CreateIPv6TranslatorRequest) (response *CreateIPv6TranslatorResponse, err error) {
 	response = CreateCreateIPv6TranslatorResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateIPv6Translator(request *CreateIPv6TranslatorRequest)
 }
 
 // CreateIPv6TranslatorWithChan invokes the vpc.CreateIPv6Translator API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6translator.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateIPv6TranslatorWithChan(request *CreateIPv6TranslatorRequest) (<-chan *CreateIPv6TranslatorResponse, <-chan error) {
 	responseChan := make(chan *CreateIPv6TranslatorResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateIPv6TranslatorWithChan(request *CreateIPv6Translator
 }
 
 // CreateIPv6TranslatorWithCallback invokes the vpc.CreateIPv6Translator API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6translator.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateIPv6TranslatorWithCallback(request *CreateIPv6TranslatorRequest, callback func(response *CreateIPv6TranslatorResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -93,10 +88,10 @@ type CreateIPv6TranslatorRequest struct {
 // CreateIPv6TranslatorResponse is the response struct for api CreateIPv6Translator
 type CreateIPv6TranslatorResponse struct {
 	*responses.BaseResponse
-	RequestId        string `json:"RequestId" xml:"RequestId"`
 	Ipv6TranslatorId string `json:"Ipv6TranslatorId" xml:"Ipv6TranslatorId"`
-	Name             string `json:"Name" xml:"Name"`
+	RequestId        string `json:"RequestId" xml:"RequestId"`
 	Spec             string `json:"Spec" xml:"Spec"`
+	Name             string `json:"Name" xml:"Name"`
 	OrderId          int64  `json:"OrderId" xml:"OrderId"`
 }
 

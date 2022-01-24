@@ -119,6 +119,12 @@ type DescribeInstanceResponse struct {
 	ModuleStackVersion   string                 `json:"ModuleStackVersion" xml:"ModuleStackVersion"`
 	AutoRenewal          bool                   `json:"AutoRenewal" xml:"AutoRenewal"`
 	Duration             int                    `json:"Duration" xml:"Duration"`
+	ColdStorageSize      int                    `json:"ColdStorageSize" xml:"ColdStorageSize"`
+	ResourceGroupId      string                 `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	EncryptionType       string                 `json:"EncryptionType" xml:"EncryptionType"`
+	EncryptionKey        string                 `json:"EncryptionKey" xml:"EncryptionKey"`
+	NeedUpgrade          bool                   `json:"NeedUpgrade" xml:"NeedUpgrade"`
+	NeedUpgradeComps     NeedUpgradeComps       `json:"NeedUpgradeComps" xml:"NeedUpgradeComps"`
 	Tags                 TagsInDescribeInstance `json:"Tags" xml:"Tags"`
 }
 

@@ -73,7 +73,6 @@ type DeleteDeployGroupRequest struct {
 	*requests.RoaRequest
 	AppId     string `position:"Query" name:"AppId"`
 	GroupName string `position:"Query" name:"GroupName"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // DeleteDeployGroupResponse is the response struct for api DeleteDeployGroup
@@ -90,7 +89,7 @@ func CreateDeleteDeployGroupRequest() (request *DeleteDeployGroupRequest) {
 	request = &DeleteDeployGroupRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "DeleteDeployGroup", "/roa/pop/v5/deploy_group", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "DeleteDeployGroup", "/pop/v5/deploy_group", "edas", "openAPI")
 	request.Method = requests.DELETE
 	return
 }

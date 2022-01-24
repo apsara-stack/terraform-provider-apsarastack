@@ -21,7 +21,6 @@ import (
 )
 
 // CreateIPv6TranslatorAclList invokes the vpc.CreateIPv6TranslatorAclList API synchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6translatoracllist.html
 func (client *Client) CreateIPv6TranslatorAclList(request *CreateIPv6TranslatorAclListRequest) (response *CreateIPv6TranslatorAclListResponse, err error) {
 	response = CreateCreateIPv6TranslatorAclListResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateIPv6TranslatorAclList(request *CreateIPv6TranslatorA
 }
 
 // CreateIPv6TranslatorAclListWithChan invokes the vpc.CreateIPv6TranslatorAclList API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6translatoracllist.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateIPv6TranslatorAclListWithChan(request *CreateIPv6TranslatorAclListRequest) (<-chan *CreateIPv6TranslatorAclListResponse, <-chan error) {
 	responseChan := make(chan *CreateIPv6TranslatorAclListResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateIPv6TranslatorAclListWithChan(request *CreateIPv6Tra
 }
 
 // CreateIPv6TranslatorAclListWithCallback invokes the vpc.CreateIPv6TranslatorAclList API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6translatoracllist.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateIPv6TranslatorAclListWithCallback(request *CreateIPv6TranslatorAclListRequest, callback func(response *CreateIPv6TranslatorAclListResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -87,8 +82,8 @@ type CreateIPv6TranslatorAclListRequest struct {
 // CreateIPv6TranslatorAclListResponse is the response struct for api CreateIPv6TranslatorAclList
 type CreateIPv6TranslatorAclListResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
 	AclId     string `json:"AclId" xml:"AclId"`
+	RequestId string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateCreateIPv6TranslatorAclListRequest creates a request to invoke CreateIPv6TranslatorAclList API

@@ -35,7 +35,7 @@ func (s *CmsService) BuildCmsAlarmRequest(id string) *requests.CommonRequest {
 	return request
 }
 
-func (s *CmsService) DescribeCmsAlarm(id string) (alarm cms.Alarm, err error) {
+func (s *CmsService) DescribeCmsAlarm(id string) (alarm cms.AlarmInDescribeMetricRuleList, err error) {
 	request := cms.CreateDescribeMetricRuleListRequest()
 	parts, err := ParseResourceId(id, 2)
 	if err != nil {

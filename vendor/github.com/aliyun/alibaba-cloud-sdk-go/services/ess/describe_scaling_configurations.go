@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeScalingConfigurations invokes the ess.DescribeScalingConfigurations API synchronously
-// api document: https://help.aliyun.com/api/ess/describescalingconfigurations.html
 func (client *Client) DescribeScalingConfigurations(request *DescribeScalingConfigurationsRequest) (response *DescribeScalingConfigurationsResponse, err error) {
 	response = CreateDescribeScalingConfigurationsResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeScalingConfigurations(request *DescribeScalingConf
 }
 
 // DescribeScalingConfigurationsWithChan invokes the ess.DescribeScalingConfigurations API asynchronously
-// api document: https://help.aliyun.com/api/ess/describescalingconfigurations.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeScalingConfigurationsWithChan(request *DescribeScalingConfigurationsRequest) (<-chan *DescribeScalingConfigurationsResponse, <-chan error) {
 	responseChan := make(chan *DescribeScalingConfigurationsResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeScalingConfigurationsWithChan(request *DescribeSca
 }
 
 // DescribeScalingConfigurationsWithCallback invokes the ess.DescribeScalingConfigurations API asynchronously
-// api document: https://help.aliyun.com/api/ess/describescalingconfigurations.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeScalingConfigurationsWithCallback(request *DescribeScalingConfigurationsRequest, callback func(response *DescribeScalingConfigurationsResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,42 +71,24 @@ func (client *Client) DescribeScalingConfigurationsWithCallback(request *Describ
 // DescribeScalingConfigurationsRequest is the request struct for api DescribeScalingConfigurations
 type DescribeScalingConfigurationsRequest struct {
 	*requests.RpcRequest
-	ScalingConfigurationId6    string           `position:"Query" name:"ScalingConfigurationId.6"`
-	ScalingConfigurationId7    string           `position:"Query" name:"ScalingConfigurationId.7"`
-	ResourceOwnerId            requests.Integer `position:"Query" name:"ResourceOwnerId"`
-	ScalingConfigurationId4    string           `position:"Query" name:"ScalingConfigurationId.4"`
-	ScalingConfigurationId5    string           `position:"Query" name:"ScalingConfigurationId.5"`
-	ScalingGroupId             string           `position:"Query" name:"ScalingGroupId"`
-	ScalingConfigurationId8    string           `position:"Query" name:"ScalingConfigurationId.8"`
-	ScalingConfigurationId9    string           `position:"Query" name:"ScalingConfigurationId.9"`
-	ScalingConfigurationId10   string           `position:"Query" name:"ScalingConfigurationId.10"`
-	PageNumber                 requests.Integer `position:"Query" name:"PageNumber"`
-	ScalingConfigurationName2  string           `position:"Query" name:"ScalingConfigurationName.2"`
-	ScalingConfigurationName3  string           `position:"Query" name:"ScalingConfigurationName.3"`
-	ScalingConfigurationName1  string           `position:"Query" name:"ScalingConfigurationName.1"`
-	PageSize                   requests.Integer `position:"Query" name:"PageSize"`
-	ScalingConfigurationId2    string           `position:"Query" name:"ScalingConfigurationId.2"`
-	ScalingConfigurationId3    string           `position:"Query" name:"ScalingConfigurationId.3"`
-	ScalingConfigurationId1    string           `position:"Query" name:"ScalingConfigurationId.1"`
-	ResourceOwnerAccount       string           `position:"Query" name:"ResourceOwnerAccount"`
-	OwnerAccount               string           `position:"Query" name:"OwnerAccount"`
-	ScalingConfigurationName6  string           `position:"Query" name:"ScalingConfigurationName.6"`
-	ScalingConfigurationName7  string           `position:"Query" name:"ScalingConfigurationName.7"`
-	ScalingConfigurationName4  string           `position:"Query" name:"ScalingConfigurationName.4"`
-	ScalingConfigurationName5  string           `position:"Query" name:"ScalingConfigurationName.5"`
-	OwnerId                    requests.Integer `position:"Query" name:"OwnerId"`
-	ScalingConfigurationName8  string           `position:"Query" name:"ScalingConfigurationName.8"`
-	ScalingConfigurationName9  string           `position:"Query" name:"ScalingConfigurationName.9"`
-	ScalingConfigurationName10 string           `position:"Query" name:"ScalingConfigurationName.10"`
+	ResourceOwnerId          requests.Integer `position:"Query" name:"ResourceOwnerId"`
+	ScalingGroupId           string           `position:"Query" name:"ScalingGroupId"`
+	PageNumber               requests.Integer `position:"Query" name:"PageNumber"`
+	PageSize                 requests.Integer `position:"Query" name:"PageSize"`
+	ResourceOwnerAccount     string           `position:"Query" name:"ResourceOwnerAccount"`
+	OwnerAccount             string           `position:"Query" name:"OwnerAccount"`
+	OwnerId                  requests.Integer `position:"Query" name:"OwnerId"`
+	ScalingConfigurationName *[]string        `position:"Query" name:"ScalingConfigurationName"  type:"Repeated"`
+	ScalingConfigurationId   *[]string        `position:"Query" name:"ScalingConfigurationId"  type:"Repeated"`
 }
 
 // DescribeScalingConfigurationsResponse is the response struct for api DescribeScalingConfigurations
 type DescribeScalingConfigurationsResponse struct {
 	*responses.BaseResponse
-	TotalCount            int                   `json:"TotalCount" xml:"TotalCount"`
+	RequestId             string                `json:"RequestId" xml:"RequestId"`
 	PageNumber            int                   `json:"PageNumber" xml:"PageNumber"`
 	PageSize              int                   `json:"PageSize" xml:"PageSize"`
-	RequestId             string                `json:"RequestId" xml:"RequestId"`
+	TotalCount            int                   `json:"TotalCount" xml:"TotalCount"`
 	ScalingConfigurations ScalingConfigurations `json:"ScalingConfigurations" xml:"ScalingConfigurations"`
 }
 
@@ -121,6 +98,7 @@ func CreateDescribeScalingConfigurationsRequest() (request *DescribeScalingConfi
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "DescribeScalingConfigurations", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

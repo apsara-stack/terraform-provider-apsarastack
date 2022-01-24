@@ -21,7 +21,6 @@ import (
 )
 
 // ModifyCustomerGatewayAttribute invokes the vpc.ModifyCustomerGatewayAttribute API synchronously
-// api document: https://help.aliyun.com/api/vpc/modifycustomergatewayattribute.html
 func (client *Client) ModifyCustomerGatewayAttribute(request *ModifyCustomerGatewayAttributeRequest) (response *ModifyCustomerGatewayAttributeResponse, err error) {
 	response = CreateModifyCustomerGatewayAttributeResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ModifyCustomerGatewayAttribute(request *ModifyCustomerGate
 }
 
 // ModifyCustomerGatewayAttributeWithChan invokes the vpc.ModifyCustomerGatewayAttribute API asynchronously
-// api document: https://help.aliyun.com/api/vpc/modifycustomergatewayattribute.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyCustomerGatewayAttributeWithChan(request *ModifyCustomerGatewayAttributeRequest) (<-chan *ModifyCustomerGatewayAttributeResponse, <-chan error) {
 	responseChan := make(chan *ModifyCustomerGatewayAttributeResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ModifyCustomerGatewayAttributeWithChan(request *ModifyCust
 }
 
 // ModifyCustomerGatewayAttributeWithCallback invokes the vpc.ModifyCustomerGatewayAttribute API asynchronously
-// api document: https://help.aliyun.com/api/vpc/modifycustomergatewayattribute.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyCustomerGatewayAttributeWithCallback(request *ModifyCustomerGatewayAttributeRequest, callback func(response *ModifyCustomerGatewayAttributeResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,6 +71,7 @@ func (client *Client) ModifyCustomerGatewayAttributeWithCallback(request *Modify
 // ModifyCustomerGatewayAttributeRequest is the request struct for api ModifyCustomerGatewayAttribute
 type ModifyCustomerGatewayAttributeRequest struct {
 	*requests.RpcRequest
+	AuthKey              string           `position:"Query" name:"AuthKey"`
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	ClientToken          string           `position:"Query" name:"ClientToken"`
 	Description          string           `position:"Query" name:"Description"`
@@ -90,11 +86,11 @@ type ModifyCustomerGatewayAttributeRequest struct {
 type ModifyCustomerGatewayAttributeResponse struct {
 	*responses.BaseResponse
 	RequestId         string `json:"RequestId" xml:"RequestId"`
-	CustomerGatewayId string `json:"CustomerGatewayId" xml:"CustomerGatewayId"`
 	IpAddress         string `json:"IpAddress" xml:"IpAddress"`
-	Name              string `json:"Name" xml:"Name"`
 	Description       string `json:"Description" xml:"Description"`
+	CustomerGatewayId string `json:"CustomerGatewayId" xml:"CustomerGatewayId"`
 	CreateTime        int64  `json:"CreateTime" xml:"CreateTime"`
+	Name              string `json:"Name" xml:"Name"`
 }
 
 // CreateModifyCustomerGatewayAttributeRequest creates a request to invoke ModifyCustomerGatewayAttribute API

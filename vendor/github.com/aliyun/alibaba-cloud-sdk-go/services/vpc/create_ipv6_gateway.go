@@ -21,7 +21,6 @@ import (
 )
 
 // CreateIpv6Gateway invokes the vpc.CreateIpv6Gateway API synchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6gateway.html
 func (client *Client) CreateIpv6Gateway(request *CreateIpv6GatewayRequest) (response *CreateIpv6GatewayResponse, err error) {
 	response = CreateCreateIpv6GatewayResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateIpv6Gateway(request *CreateIpv6GatewayRequest) (resp
 }
 
 // CreateIpv6GatewayWithChan invokes the vpc.CreateIpv6Gateway API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6gateway.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateIpv6GatewayWithChan(request *CreateIpv6GatewayRequest) (<-chan *CreateIpv6GatewayResponse, <-chan error) {
 	responseChan := make(chan *CreateIpv6GatewayResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateIpv6GatewayWithChan(request *CreateIpv6GatewayReques
 }
 
 // CreateIpv6GatewayWithCallback invokes the vpc.CreateIpv6Gateway API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createipv6gateway.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateIpv6GatewayWithCallback(request *CreateIpv6GatewayRequest, callback func(response *CreateIpv6GatewayResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -90,8 +85,8 @@ type CreateIpv6GatewayRequest struct {
 // CreateIpv6GatewayResponse is the response struct for api CreateIpv6Gateway
 type CreateIpv6GatewayResponse struct {
 	*responses.BaseResponse
-	RequestId     string `json:"RequestId" xml:"RequestId"`
 	Ipv6GatewayId string `json:"Ipv6GatewayId" xml:"Ipv6GatewayId"`
+	RequestId     string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateCreateIpv6GatewayRequest creates a request to invoke CreateIpv6Gateway API

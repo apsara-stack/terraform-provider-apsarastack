@@ -72,7 +72,6 @@ func (client *Client) ListHistoryDeployVersionWithCallback(request *ListHistoryD
 type ListHistoryDeployVersionRequest struct {
 	*requests.RoaRequest
 	AppId string `position:"Query" name:"AppId"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // ListHistoryDeployVersionResponse is the response struct for api ListHistoryDeployVersion
@@ -89,7 +88,7 @@ func CreateListHistoryDeployVersionRequest() (request *ListHistoryDeployVersionR
 	request = &ListHistoryDeployVersionRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "ListHistoryDeployVersion", "/roa/pop/v5/app/deploy_history_version_list", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "ListHistoryDeployVersion", "/pop/v5/app/deploy_history_version_list", "edas", "openAPI")
 	request.Method = requests.GET
 	return
 }

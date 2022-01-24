@@ -297,7 +297,6 @@ func resourceApsaraStackEssAlarmUpdate(d *schema.ResourceData, meta interface{})
 
 func resourceApsaraStackEssAlarmDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	essService := EssService{client}
 	request := ess.CreateDeleteAlarmRequest()
 	request.AlarmTaskId = d.Id()
 	request.RegionId = client.RegionId
@@ -309,6 +308,7 @@ func resourceApsaraStackEssAlarmDelete(d *schema.ResourceData, meta interface{})
 	} else {
 		request.Scheme = "http"
 	}
+
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteAlarm(request)
 	})
@@ -318,8 +318,14 @@ func resourceApsaraStackEssAlarmDelete(d *schema.ResourceData, meta interface{})
 		}
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
+	response := raw.(*ess.DeleteAlarmResponse)
+	if !response.IsSuccess() {
+		return WrapErrorf(err, "Deletion Failed", response.RequestId)
+	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	return WrapError(essService.WaitForEssAlarm(d.Id(), Deleted, DefaultTimeout))
+
+	return nil
+
 }
 
 func buildApsaraStackEssAlarmArgs(d *schema.ResourceData) (*ess.CreateAlarmRequest, error) {

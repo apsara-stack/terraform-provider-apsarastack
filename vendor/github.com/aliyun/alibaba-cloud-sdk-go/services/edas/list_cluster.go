@@ -73,7 +73,6 @@ type ListClusterRequest struct {
 	*requests.RoaRequest
 	ResourceGroupId string `position:"Query" name:"ResourceGroupId"`
 	LogicalRegionId string `position:"Query" name:"LogicalRegionId"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // ListClusterResponse is the response struct for api ListCluster
@@ -90,7 +89,7 @@ func CreateListClusterRequest() (request *ListClusterRequest) {
 	request = &ListClusterRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "ListCluster", "/roa/pop/v5/resource/cluster_list", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "ListCluster", "/pop/v5/resource/cluster_list", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

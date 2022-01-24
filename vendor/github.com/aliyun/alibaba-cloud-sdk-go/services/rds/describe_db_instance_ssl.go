@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeDBInstanceSSL invokes the rds.DescribeDBInstanceSSL API synchronously
-// api document: https://help.aliyun.com/api/rds/describedbinstancessl.html
 func (client *Client) DescribeDBInstanceSSL(request *DescribeDBInstanceSSLRequest) (response *DescribeDBInstanceSSLResponse, err error) {
 	response = CreateDescribeDBInstanceSSLResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeDBInstanceSSL(request *DescribeDBInstanceSSLReques
 }
 
 // DescribeDBInstanceSSLWithChan invokes the rds.DescribeDBInstanceSSL API asynchronously
-// api document: https://help.aliyun.com/api/rds/describedbinstancessl.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeDBInstanceSSLWithChan(request *DescribeDBInstanceSSLRequest) (<-chan *DescribeDBInstanceSSLResponse, <-chan error) {
 	responseChan := make(chan *DescribeDBInstanceSSLResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeDBInstanceSSLWithChan(request *DescribeDBInstanceS
 }
 
 // DescribeDBInstanceSSLWithCallback invokes the rds.DescribeDBInstanceSSL API asynchronously
-// api document: https://help.aliyun.com/api/rds/describedbinstancessl.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeDBInstanceSSLWithCallback(request *DescribeDBInstanceSSLRequest, callback func(response *DescribeDBInstanceSSLResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -86,11 +81,25 @@ type DescribeDBInstanceSSLRequest struct {
 // DescribeDBInstanceSSLResponse is the response struct for api DescribeDBInstanceSSL
 type DescribeDBInstanceSSLResponse struct {
 	*responses.BaseResponse
-	RequestId           string `json:"RequestId" xml:"RequestId"`
-	ConnectionString    string `json:"ConnectionString" xml:"ConnectionString"`
-	SSLExpireTime       string `json:"SSLExpireTime" xml:"SSLExpireTime"`
-	RequireUpdate       string `json:"RequireUpdate" xml:"RequireUpdate"`
-	RequireUpdateReason string `json:"RequireUpdateReason" xml:"RequireUpdateReason"`
+	RequestId                string `json:"RequestId" xml:"RequestId"`
+	ConnectionString         string `json:"ConnectionString" xml:"ConnectionString"`
+	SSLExpireTime            string `json:"SSLExpireTime" xml:"SSLExpireTime"`
+	SSLEnabled               string `json:"SSLEnabled" xml:"SSLEnabled"`
+	RequireUpdateReason      string `json:"RequireUpdateReason" xml:"RequireUpdateReason"`
+	CAType                   string `json:"CAType" xml:"CAType"`
+	ServerCert               string `json:"ServerCert" xml:"ServerCert"`
+	ServerKey                string `json:"ServerKey" xml:"ServerKey"`
+	SSLCreateTime            string `json:"SSLCreateTime" xml:"SSLCreateTime"`
+	ClientCACert             string `json:"ClientCACert" xml:"ClientCACert"`
+	ClientCACertExpireTime   string `json:"ClientCACertExpireTime" xml:"ClientCACertExpireTime"`
+	ClientCertRevocationList string `json:"ClientCertRevocationList" xml:"ClientCertRevocationList"`
+	ACL                      string `json:"ACL" xml:"ACL"`
+	ReplicationACL           string `json:"ReplicationACL" xml:"ReplicationACL"`
+	ServerCAUrl              string `json:"ServerCAUrl" xml:"ServerCAUrl"`
+	RequireUpdate            string `json:"RequireUpdate" xml:"RequireUpdate"`
+	RequireUpdateItem        string `json:"RequireUpdateItem" xml:"RequireUpdateItem"`
+	LastModifyStatus         string `json:"LastModifyStatus" xml:"LastModifyStatus"`
+	ModifyStatusReason       string `json:"ModifyStatusReason" xml:"ModifyStatusReason"`
 }
 
 // CreateDescribeDBInstanceSSLRequest creates a request to invoke DescribeDBInstanceSSL API

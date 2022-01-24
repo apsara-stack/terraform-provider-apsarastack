@@ -21,7 +21,6 @@ import (
 )
 
 // SwitchDBInstanceHA invokes the dds.SwitchDBInstanceHA API synchronously
-// api document: https://help.aliyun.com/api/dds/switchdbinstanceha.html
 func (client *Client) SwitchDBInstanceHA(request *SwitchDBInstanceHARequest) (response *SwitchDBInstanceHAResponse, err error) {
 	response = CreateSwitchDBInstanceHAResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) SwitchDBInstanceHA(request *SwitchDBInstanceHARequest) (re
 }
 
 // SwitchDBInstanceHAWithChan invokes the dds.SwitchDBInstanceHA API asynchronously
-// api document: https://help.aliyun.com/api/dds/switchdbinstanceha.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) SwitchDBInstanceHAWithChan(request *SwitchDBInstanceHARequest) (<-chan *SwitchDBInstanceHAResponse, <-chan error) {
 	responseChan := make(chan *SwitchDBInstanceHAResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) SwitchDBInstanceHAWithChan(request *SwitchDBInstanceHARequ
 }
 
 // SwitchDBInstanceHAWithCallback invokes the dds.SwitchDBInstanceHA API asynchronously
-// api document: https://help.aliyun.com/api/dds/switchdbinstanceha.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) SwitchDBInstanceHAWithCallback(request *SwitchDBInstanceHARequest, callback func(response *SwitchDBInstanceHAResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -98,7 +93,7 @@ func CreateSwitchDBInstanceHARequest() (request *SwitchDBInstanceHARequest) {
 	request = &SwitchDBInstanceHARequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "SwitchDBInstanceHA", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "SwitchDBInstanceHA", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

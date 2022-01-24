@@ -71,11 +71,13 @@ func (client *Client) DescribeInstancesWithCallback(request *DescribeInstancesRe
 // DescribeInstancesRequest is the request struct for api DescribeInstances
 type DescribeInstancesRequest struct {
 	*requests.RpcRequest
-	ClusterName string                  `position:"Query" name:"ClusterName"`
-	PageNumber  requests.Integer        `position:"Query" name:"PageNumber"`
-	PageSize    requests.Integer        `position:"Query" name:"PageSize"`
-	Tag         *[]DescribeInstancesTag `position:"Query" name:"Tag"  type:"Repeated"`
-	DbType      string                  `position:"Query" name:"DbType"`
+	ClusterName     string                  `position:"Query" name:"ClusterName"`
+	PageNumber      requests.Integer        `position:"Query" name:"PageNumber"`
+	ResourceGroupId string                  `position:"Query" name:"ResourceGroupId"`
+	PageSize        requests.Integer        `position:"Query" name:"PageSize"`
+	Tag             *[]DescribeInstancesTag `position:"Query" name:"Tag"  type:"Repeated"`
+	ClusterId       string                  `position:"Query" name:"ClusterId"`
+	DbType          string                  `position:"Query" name:"DbType"`
 }
 
 // DescribeInstancesTag is a repeated param struct in DescribeInstancesRequest
@@ -87,10 +89,10 @@ type DescribeInstancesTag struct {
 // DescribeInstancesResponse is the response struct for api DescribeInstances
 type DescribeInstancesResponse struct {
 	*responses.BaseResponse
-	RequestId  string                       `json:"RequestId" xml:"RequestId"`
-	TotalCount int64                        `json:"TotalCount" xml:"TotalCount"`
-	PageNumber int                          `json:"PageNumber" xml:"PageNumber"`
 	PageSize   int                          `json:"PageSize" xml:"PageSize"`
+	RequestId  string                       `json:"RequestId" xml:"RequestId"`
+	PageNumber int                          `json:"PageNumber" xml:"PageNumber"`
+	TotalCount int64                        `json:"TotalCount" xml:"TotalCount"`
 	Instances  InstancesInDescribeInstances `json:"Instances" xml:"Instances"`
 }
 

@@ -21,7 +21,6 @@ import (
 )
 
 // ChangeResellerConsumeAmount invokes the bssopenapi.ChangeResellerConsumeAmount API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/changeresellerconsumeamount.html
 func (client *Client) ChangeResellerConsumeAmount(request *ChangeResellerConsumeAmountRequest) (response *ChangeResellerConsumeAmountResponse, err error) {
 	response = CreateChangeResellerConsumeAmountResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ChangeResellerConsumeAmount(request *ChangeResellerConsume
 }
 
 // ChangeResellerConsumeAmountWithChan invokes the bssopenapi.ChangeResellerConsumeAmount API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/changeresellerconsumeamount.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ChangeResellerConsumeAmountWithChan(request *ChangeResellerConsumeAmountRequest) (<-chan *ChangeResellerConsumeAmountResponse, <-chan error) {
 	responseChan := make(chan *ChangeResellerConsumeAmountResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ChangeResellerConsumeAmountWithChan(request *ChangeReselle
 }
 
 // ChangeResellerConsumeAmountWithCallback invokes the bssopenapi.ChangeResellerConsumeAmount API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/changeresellerconsumeamount.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ChangeResellerConsumeAmountWithCallback(request *ChangeResellerConsumeAmountRequest, callback func(response *ChangeResellerConsumeAmountResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -89,11 +84,11 @@ type ChangeResellerConsumeAmountRequest struct {
 // ChangeResellerConsumeAmountResponse is the response struct for api ChangeResellerConsumeAmount
 type ChangeResellerConsumeAmountResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
 	Code      string `json:"Code" xml:"Code"`
 	Message   string `json:"Message" xml:"Message"`
-	Success   bool   `json:"Success" xml:"Success"`
 	Data      string `json:"Data" xml:"Data"`
+	RequestId string `json:"RequestId" xml:"RequestId"`
+	Success   bool   `json:"Success" xml:"Success"`
 }
 
 // CreateChangeResellerConsumeAmountRequest creates a request to invoke ChangeResellerConsumeAmount API
