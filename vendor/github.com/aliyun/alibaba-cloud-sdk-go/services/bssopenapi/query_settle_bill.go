@@ -21,7 +21,6 @@ import (
 )
 
 // QuerySettleBill invokes the bssopenapi.QuerySettleBill API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/querysettlebill.html
 func (client *Client) QuerySettleBill(request *QuerySettleBillRequest) (response *QuerySettleBillResponse, err error) {
 	response = CreateQuerySettleBillResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) QuerySettleBill(request *QuerySettleBillRequest) (response
 }
 
 // QuerySettleBillWithChan invokes the bssopenapi.QuerySettleBill API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/querysettlebill.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) QuerySettleBillWithChan(request *QuerySettleBillRequest) (<-chan *QuerySettleBillResponse, <-chan error) {
 	responseChan := make(chan *QuerySettleBillResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) QuerySettleBillWithChan(request *QuerySettleBillRequest) (
 }
 
 // QuerySettleBillWithCallback invokes the bssopenapi.QuerySettleBill API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/querysettlebill.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) QuerySettleBillWithCallback(request *QuerySettleBillRequest, callback func(response *QuerySettleBillResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -85,6 +80,7 @@ type QuerySettleBillRequest struct {
 	OwnerId                requests.Integer `position:"Query" name:"OwnerId"`
 	BillOwnerId            requests.Integer `position:"Query" name:"BillOwnerId"`
 	ProductType            string           `position:"Query" name:"ProductType"`
+	RecordID               string           `position:"Query" name:"RecordID"`
 	NextToken              string           `position:"Query" name:"NextToken"`
 	MaxResults             requests.Integer `position:"Query" name:"MaxResults"`
 }
@@ -92,11 +88,11 @@ type QuerySettleBillRequest struct {
 // QuerySettleBillResponse is the response struct for api QuerySettleBill
 type QuerySettleBillResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Success   bool   `json:"Success" xml:"Success"`
-	Code      string `json:"Code" xml:"Code"`
-	Message   string `json:"Message" xml:"Message"`
-	Data      Data   `json:"Data" xml:"Data"`
+	Code      string                `json:"Code" xml:"Code"`
+	Message   string                `json:"Message" xml:"Message"`
+	RequestId string                `json:"RequestId" xml:"RequestId"`
+	Success   bool                  `json:"Success" xml:"Success"`
+	Data      DataInQuerySettleBill `json:"Data" xml:"Data"`
 }
 
 // CreateQuerySettleBillRequest creates a request to invoke QuerySettleBill API

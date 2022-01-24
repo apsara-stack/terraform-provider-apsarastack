@@ -158,7 +158,9 @@ func (s *EssService) WaitForEssNotification(id string, status Status, timeout in
 
 func (s *EssService) DescribeEssScalingGroup(id string) (group ess.ScalingGroup, err error) {
 	request := ess.CreateDescribeScalingGroupsRequest()
-	request.ScalingGroupId1 = id
+	var ids []string
+	ids = append(ids, id)
+	request.ScalingGroupId = &ids
 	request.RegionId = s.client.RegionId
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
@@ -187,7 +189,10 @@ func (s *EssService) DescribeEssScalingGroup(id string) (group ess.ScalingGroup,
 
 func (s *EssService) DescribeEssScalingConfiguration(id string) (config ess.ScalingConfiguration, err error) {
 	request := ess.CreateDescribeScalingConfigurationsRequest()
-	request.ScalingConfigurationId1 = id
+	var ids []string
+	ids = append(ids, id)
+	request.ScalingConfigurationId = &ids
+	//request.ScalingConfigurationId1 = id
 	request.RegionId = s.client.RegionId
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
@@ -307,7 +312,10 @@ func (s *EssService) flattenVserverGroupList(vServerGroups []ess.VServerGroup) [
 
 func (s *EssService) DescribeEssScalingRule(id string) (rule ess.ScalingRule, err error) {
 	request := ess.CreateDescribeScalingRulesRequest()
-	request.ScalingRuleId1 = id
+	var ids []string
+	ids = append(ids, id)
+	request.ScalingRuleId = &ids
+	//request.ScalingRuleId1 = id
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -361,7 +369,10 @@ func (s *EssService) WaitForEssScalingRule(id string, status Status, timeout int
 
 func (s *EssService) DescribeEssScheduledTask(id string) (task ess.ScheduledTask, err error) {
 	request := ess.CreateDescribeScheduledTasksRequest()
-	request.ScheduledTaskId1 = id
+	var ids []string
+	ids = append(ids, id)
+	request.ScheduledTaskId = &ids
+	//request.ScheduledTaskId1 = id
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -649,6 +660,7 @@ func (s *EssService) WaitForEssAlarm(id string, status Status, timeout int) erro
 	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
 	for {
 		object, err := s.DescribeEssAlarm(id)
+		log.Printf("object response:%v", object.State)
 		if err != nil {
 			if NotFoundError(err) {
 				if status == Deleted {

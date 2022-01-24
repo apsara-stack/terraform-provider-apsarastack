@@ -21,7 +21,6 @@ import (
 )
 
 // EvaluateResource invokes the dds.EvaluateResource API synchronously
-// api document: https://help.aliyun.com/api/dds/evaluateresource.html
 func (client *Client) EvaluateResource(request *EvaluateResourceRequest) (response *EvaluateResourceResponse, err error) {
 	response = CreateEvaluateResourceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) EvaluateResource(request *EvaluateResourceRequest) (respon
 }
 
 // EvaluateResourceWithChan invokes the dds.EvaluateResource API asynchronously
-// api document: https://help.aliyun.com/api/dds/evaluateresource.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) EvaluateResourceWithChan(request *EvaluateResourceRequest) (<-chan *EvaluateResourceResponse, <-chan error) {
 	responseChan := make(chan *EvaluateResourceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) EvaluateResourceWithChan(request *EvaluateResourceRequest)
 }
 
 // EvaluateResourceWithCallback invokes the dds.EvaluateResource API asynchronously
-// api document: https://help.aliyun.com/api/dds/evaluateresource.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) EvaluateResourceWithCallback(request *EvaluateResourceRequest, callback func(response *EvaluateResourceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -77,8 +72,10 @@ func (client *Client) EvaluateResourceWithCallback(request *EvaluateResourceRequ
 type EvaluateResourceRequest struct {
 	*requests.RpcRequest
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
+	ReadonlyReplicas     string           `position:"Query" name:"ReadonlyReplicas"`
 	EngineVersion        string           `position:"Query" name:"EngineVersion"`
 	ShardsInfo           string           `position:"Query" name:"ShardsInfo"`
+	ReplicationFactor    string           `position:"Query" name:"ReplicationFactor"`
 	SecurityToken        string           `position:"Query" name:"SecurityToken"`
 	Engine               string           `position:"Query" name:"Engine"`
 	DBInstanceId         string           `position:"Query" name:"DBInstanceId"`
@@ -92,10 +89,10 @@ type EvaluateResourceRequest struct {
 // EvaluateResourceResponse is the response struct for api EvaluateResource
 type EvaluateResourceResponse struct {
 	*responses.BaseResponse
+	DBInstanceAvailable string `json:"DBInstanceAvailable" xml:"DBInstanceAvailable"`
+	EngineVersion       string `json:"EngineVersion" xml:"EngineVersion"`
 	RequestId           string `json:"RequestId" xml:"RequestId"`
 	Engine              string `json:"Engine" xml:"Engine"`
-	EngineVersion       string `json:"EngineVersion" xml:"EngineVersion"`
-	DBInstanceAvailable string `json:"DBInstanceAvailable" xml:"DBInstanceAvailable"`
 }
 
 // CreateEvaluateResourceRequest creates a request to invoke EvaluateResource API
@@ -103,7 +100,7 @@ func CreateEvaluateResourceRequest() (request *EvaluateResourceRequest) {
 	request = &EvaluateResourceRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "EvaluateResource", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "EvaluateResource", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

@@ -21,7 +21,6 @@ import (
 )
 
 // CreateDhcpOptionsSet invokes the vpc.CreateDhcpOptionsSet API synchronously
-// api document: https://help.aliyun.com/api/vpc/createdhcpoptionsset.html
 func (client *Client) CreateDhcpOptionsSet(request *CreateDhcpOptionsSetRequest) (response *CreateDhcpOptionsSetResponse, err error) {
 	response = CreateCreateDhcpOptionsSetResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateDhcpOptionsSet(request *CreateDhcpOptionsSetRequest)
 }
 
 // CreateDhcpOptionsSetWithChan invokes the vpc.CreateDhcpOptionsSet API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createdhcpoptionsset.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateDhcpOptionsSetWithChan(request *CreateDhcpOptionsSetRequest) (<-chan *CreateDhcpOptionsSetResponse, <-chan error) {
 	responseChan := make(chan *CreateDhcpOptionsSetResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateDhcpOptionsSetWithChan(request *CreateDhcpOptionsSet
 }
 
 // CreateDhcpOptionsSetWithCallback invokes the vpc.CreateDhcpOptionsSet API asynchronously
-// api document: https://help.aliyun.com/api/vpc/createdhcpoptionsset.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateDhcpOptionsSetWithCallback(request *CreateDhcpOptionsSetRequest, callback func(response *CreateDhcpOptionsSetResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,8 +71,10 @@ func (client *Client) CreateDhcpOptionsSetWithCallback(request *CreateDhcpOption
 // CreateDhcpOptionsSetRequest is the request struct for api CreateDhcpOptionsSet
 type CreateDhcpOptionsSetRequest struct {
 	*requests.RpcRequest
+	BootFileName              string           `position:"Query" name:"BootFileName"`
 	ResourceOwnerId           requests.Integer `position:"Query" name:"ResourceOwnerId"`
 	ClientToken               string           `position:"Query" name:"ClientToken"`
+	TFTPServerName            string           `position:"Query" name:"TFTPServerName"`
 	DomainNameServers         string           `position:"Query" name:"DomainNameServers"`
 	DhcpOptionsSetDescription string           `position:"Query" name:"DhcpOptionsSetDescription"`
 	DryRun                    requests.Boolean `position:"Query" name:"DryRun"`
@@ -91,8 +88,8 @@ type CreateDhcpOptionsSetRequest struct {
 // CreateDhcpOptionsSetResponse is the response struct for api CreateDhcpOptionsSet
 type CreateDhcpOptionsSetResponse struct {
 	*responses.BaseResponse
-	RequestId        string `json:"RequestId" xml:"RequestId"`
 	DhcpOptionsSetId string `json:"DhcpOptionsSetId" xml:"DhcpOptionsSetId"`
+	RequestId        string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateCreateDhcpOptionsSetRequest creates a request to invoke CreateDhcpOptionsSet API

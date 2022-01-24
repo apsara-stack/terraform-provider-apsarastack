@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeIpv6GatewayAttribute invokes the vpc.DescribeIpv6GatewayAttribute API synchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6gatewayattribute.html
 func (client *Client) DescribeIpv6GatewayAttribute(request *DescribeIpv6GatewayAttributeRequest) (response *DescribeIpv6GatewayAttributeResponse, err error) {
 	response = CreateDescribeIpv6GatewayAttributeResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeIpv6GatewayAttribute(request *DescribeIpv6GatewayA
 }
 
 // DescribeIpv6GatewayAttributeWithChan invokes the vpc.DescribeIpv6GatewayAttribute API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6gatewayattribute.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeIpv6GatewayAttributeWithChan(request *DescribeIpv6GatewayAttributeRequest) (<-chan *DescribeIpv6GatewayAttributeResponse, <-chan error) {
 	responseChan := make(chan *DescribeIpv6GatewayAttributeResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeIpv6GatewayAttributeWithChan(request *DescribeIpv6
 }
 
 // DescribeIpv6GatewayAttributeWithCallback invokes the vpc.DescribeIpv6GatewayAttribute API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6gatewayattribute.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeIpv6GatewayAttributeWithCallback(request *DescribeIpv6GatewayAttributeRequest, callback func(response *DescribeIpv6GatewayAttributeResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -86,18 +81,18 @@ type DescribeIpv6GatewayAttributeRequest struct {
 // DescribeIpv6GatewayAttributeResponse is the response struct for api DescribeIpv6GatewayAttribute
 type DescribeIpv6GatewayAttributeResponse struct {
 	*responses.BaseResponse
-	RequestId          string `json:"RequestId" xml:"RequestId"`
-	RegionId           string `json:"RegionId" xml:"RegionId"`
-	Ipv6GatewayId      string `json:"Ipv6GatewayId" xml:"Ipv6GatewayId"`
 	VpcId              string `json:"VpcId" xml:"VpcId"`
 	Status             string `json:"Status" xml:"Status"`
+	CreationTime       string `json:"CreationTime" xml:"CreationTime"`
+	Spec               string `json:"Spec" xml:"Spec"`
+	RegionId           string `json:"RegionId" xml:"RegionId"`
+	InstanceChargeType string `json:"InstanceChargeType" xml:"InstanceChargeType"`
+	RequestId          string `json:"RequestId" xml:"RequestId"`
+	Ipv6GatewayId      string `json:"Ipv6GatewayId" xml:"Ipv6GatewayId"`
+	Description        string `json:"Description" xml:"Description"`
+	ExpiredTime        string `json:"ExpiredTime" xml:"ExpiredTime"`
 	BusinessStatus     string `json:"BusinessStatus" xml:"BusinessStatus"`
 	Name               string `json:"Name" xml:"Name"`
-	Description        string `json:"Description" xml:"Description"`
-	Spec               string `json:"Spec" xml:"Spec"`
-	InstanceChargeType string `json:"InstanceChargeType" xml:"InstanceChargeType"`
-	ExpiredTime        string `json:"ExpiredTime" xml:"ExpiredTime"`
-	CreationTime       string `json:"CreationTime" xml:"CreationTime"`
 }
 
 // CreateDescribeIpv6GatewayAttributeRequest creates a request to invoke DescribeIpv6GatewayAttribute API

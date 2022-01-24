@@ -21,7 +21,6 @@ import (
 )
 
 // GetSubscriptionPrice invokes the bssopenapi.GetSubscriptionPrice API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/getsubscriptionprice.html
 func (client *Client) GetSubscriptionPrice(request *GetSubscriptionPriceRequest) (response *GetSubscriptionPriceResponse, err error) {
 	response = CreateGetSubscriptionPriceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) GetSubscriptionPrice(request *GetSubscriptionPriceRequest)
 }
 
 // GetSubscriptionPriceWithChan invokes the bssopenapi.GetSubscriptionPrice API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/getsubscriptionprice.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) GetSubscriptionPriceWithChan(request *GetSubscriptionPriceRequest) (<-chan *GetSubscriptionPriceResponse, <-chan error) {
 	responseChan := make(chan *GetSubscriptionPriceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) GetSubscriptionPriceWithChan(request *GetSubscriptionPrice
 }
 
 // GetSubscriptionPriceWithCallback invokes the bssopenapi.GetSubscriptionPrice API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/getsubscriptionprice.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) GetSubscriptionPriceWithCallback(request *GetSubscriptionPriceRequest, callback func(response *GetSubscriptionPriceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -100,11 +95,11 @@ type GetSubscriptionPriceModuleList struct {
 // GetSubscriptionPriceResponse is the response struct for api GetSubscriptionPrice
 type GetSubscriptionPriceResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Success   bool   `json:"Success" xml:"Success"`
-	Code      string `json:"Code" xml:"Code"`
-	Message   string `json:"Message" xml:"Message"`
-	Data      Data   `json:"Data" xml:"Data"`
+	Code      string                     `json:"Code" xml:"Code"`
+	Message   string                     `json:"Message" xml:"Message"`
+	RequestId string                     `json:"RequestId" xml:"RequestId"`
+	Success   bool                       `json:"Success" xml:"Success"`
+	Data      DataInGetSubscriptionPrice `json:"Data" xml:"Data"`
 }
 
 // CreateGetSubscriptionPriceRequest creates a request to invoke GetSubscriptionPrice API

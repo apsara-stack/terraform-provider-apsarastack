@@ -21,7 +21,6 @@ import (
 )
 
 // DetachLoadBalancers invokes the ess.DetachLoadBalancers API synchronously
-// api document: https://help.aliyun.com/api/ess/detachloadbalancers.html
 func (client *Client) DetachLoadBalancers(request *DetachLoadBalancersRequest) (response *DetachLoadBalancersResponse, err error) {
 	response = CreateDetachLoadBalancersResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DetachLoadBalancers(request *DetachLoadBalancersRequest) (
 }
 
 // DetachLoadBalancersWithChan invokes the ess.DetachLoadBalancers API asynchronously
-// api document: https://help.aliyun.com/api/ess/detachloadbalancers.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DetachLoadBalancersWithChan(request *DetachLoadBalancersRequest) (<-chan *DetachLoadBalancersResponse, <-chan error) {
 	responseChan := make(chan *DetachLoadBalancersResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DetachLoadBalancersWithChan(request *DetachLoadBalancersRe
 }
 
 // DetachLoadBalancersWithCallback invokes the ess.DetachLoadBalancers API asynchronously
-// api document: https://help.aliyun.com/api/ess/detachloadbalancers.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DetachLoadBalancersWithCallback(request *DetachLoadBalancersRequest, callback func(response *DetachLoadBalancersResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,17 +71,20 @@ func (client *Client) DetachLoadBalancersWithCallback(request *DetachLoadBalance
 // DetachLoadBalancersRequest is the request struct for api DetachLoadBalancers
 type DetachLoadBalancersRequest struct {
 	*requests.RpcRequest
+	ClientToken          string           `position:"Query" name:"ClientToken"`
 	ScalingGroupId       string           `position:"Query" name:"ScalingGroupId"`
 	LoadBalancer         *[]string        `position:"Query" name:"LoadBalancer"  type:"Repeated"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
+	Async                requests.Boolean `position:"Query" name:"Async"`
 	ForceDetach          requests.Boolean `position:"Query" name:"ForceDetach"`
 }
 
 // DetachLoadBalancersResponse is the response struct for api DetachLoadBalancers
 type DetachLoadBalancersResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
+	ScalingActivityId string `json:"ScalingActivityId" xml:"ScalingActivityId"`
+	RequestId         string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateDetachLoadBalancersRequest creates a request to invoke DetachLoadBalancers API
@@ -95,6 +93,7 @@ func CreateDetachLoadBalancersRequest() (request *DetachLoadBalancersRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "DetachLoadBalancers", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

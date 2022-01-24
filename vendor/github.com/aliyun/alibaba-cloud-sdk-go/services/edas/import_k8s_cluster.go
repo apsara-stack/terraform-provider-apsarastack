@@ -75,7 +75,6 @@ type ImportK8sClusterRequest struct {
 	EnableAsm   requests.Boolean `position:"Query" name:"EnableAsm"`
 	NamespaceId string           `position:"Query" name:"NamespaceId"`
 	ClusterId   string           `position:"Query" name:"ClusterId"`
-	RegionId    string  `position:"Query" name:"RegionId"`
 }
 
 // ImportK8sClusterResponse is the response struct for api ImportK8sCluster
@@ -92,7 +91,7 @@ func CreateImportK8sClusterRequest() (request *ImportK8sClusterRequest) {
 	request = &ImportK8sClusterRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "ImportK8sCluster", "/roa/pop/v5/import_k8s_cluster", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "ImportK8sCluster", "/pop/v5/import_k8s_cluster", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

@@ -56,5 +56,12 @@ type DBInstanceAttribute struct {
 	VpcCloudInstanceId        string                          `json:"VpcCloudInstanceId" xml:"VpcCloudInstanceId"`
 	InstanceReleaseProtection bool                            `json:"InstanceReleaseProtection" xml:"InstanceReleaseProtection"`
 	ResourceGroupId           string                          `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	ShardCount                int                             `json:"ShardCount" xml:"ShardCount"`
+	Storage                   string                          `json:"Storage" xml:"Storage"`
+	StorageType               string                          `json:"StorageType" xml:"StorageType"`
+	GlobalInstanceId          string                          `json:"GlobalInstanceId" xml:"GlobalInstanceId"`
+	SecondaryZoneId           string                          `json:"SecondaryZoneId" xml:"SecondaryZoneId"`
+	ZoneType                  string                          `json:"ZoneType" xml:"ZoneType"`
+	BackupLogStartTime        string                          `json:"BackupLogStartTime" xml:"BackupLogStartTime"`
 	Tags                      TagsInDescribeInstanceAttribute `json:"Tags" xml:"Tags"`
 }

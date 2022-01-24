@@ -22,12 +22,13 @@ type Alarm struct {
 	Period             int                        `json:"Period" xml:"Period"`
 	Threshold          float64                    `json:"Threshold" xml:"Threshold"`
 	AlarmTaskId        string                     `json:"AlarmTaskId" xml:"AlarmTaskId"`
+	Effective          string                     `json:"Effective" xml:"Effective"`
 	ComparisonOperator string                     `json:"ComparisonOperator" xml:"ComparisonOperator"`
 	State              string                     `json:"State" xml:"State"`
 	Enable             bool                       `json:"Enable" xml:"Enable"`
 	MetricName         string                     `json:"MetricName" xml:"MetricName"`
-	Statistics         string                     `json:"Statistics" xml:"Statistics"`
 	ScalingGroupId     string                     `json:"ScalingGroupId" xml:"ScalingGroupId"`
+	Statistics         string                     `json:"Statistics" xml:"Statistics"`
 	Description        string                     `json:"Description" xml:"Description"`
 	AlarmTaskName      string                     `json:"AlarmTaskName" xml:"AlarmTaskName"`
 	EvaluationCount    int                        `json:"EvaluationCount" xml:"EvaluationCount"`

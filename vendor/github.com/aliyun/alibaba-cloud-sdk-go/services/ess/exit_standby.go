@@ -21,7 +21,6 @@ import (
 )
 
 // ExitStandby invokes the ess.ExitStandby API synchronously
-// api document: https://help.aliyun.com/api/ess/exitstandby.html
 func (client *Client) ExitStandby(request *ExitStandbyRequest) (response *ExitStandbyResponse, err error) {
 	response = CreateExitStandbyResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ExitStandby(request *ExitStandbyRequest) (response *ExitSt
 }
 
 // ExitStandbyWithChan invokes the ess.ExitStandby API asynchronously
-// api document: https://help.aliyun.com/api/ess/exitstandby.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ExitStandbyWithChan(request *ExitStandbyRequest) (<-chan *ExitStandbyResponse, <-chan error) {
 	responseChan := make(chan *ExitStandbyResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ExitStandbyWithChan(request *ExitStandbyRequest) (<-chan *
 }
 
 // ExitStandbyWithCallback invokes the ess.ExitStandby API asynchronously
-// api document: https://help.aliyun.com/api/ess/exitstandby.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ExitStandbyWithCallback(request *ExitStandbyRequest, callback func(response *ExitStandbyResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,16 +71,19 @@ func (client *Client) ExitStandbyWithCallback(request *ExitStandbyRequest, callb
 // ExitStandbyRequest is the request struct for api ExitStandby
 type ExitStandbyRequest struct {
 	*requests.RpcRequest
-	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
+	ClientToken          string           `position:"Query" name:"ClientToken"`
 	ScalingGroupId       string           `position:"Query" name:"ScalingGroupId"`
+	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
+	Async                requests.Boolean `position:"Query" name:"Async"`
 	InstanceId           *[]string        `position:"Query" name:"InstanceId"  type:"Repeated"`
 }
 
 // ExitStandbyResponse is the response struct for api ExitStandby
 type ExitStandbyResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
+	RequestId         string `json:"RequestId" xml:"RequestId"`
+	ScalingActivityId string `json:"ScalingActivityId" xml:"ScalingActivityId"`
 }
 
 // CreateExitStandbyRequest creates a request to invoke ExitStandby API
@@ -94,6 +92,7 @@ func CreateExitStandbyRequest() (request *ExitStandbyRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "ExitStandby", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

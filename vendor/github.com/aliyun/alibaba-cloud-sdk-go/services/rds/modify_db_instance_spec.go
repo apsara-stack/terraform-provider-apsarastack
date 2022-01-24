@@ -21,7 +21,6 @@ import (
 )
 
 // ModifyDBInstanceSpec invokes the rds.ModifyDBInstanceSpec API synchronously
-// api document: https://help.aliyun.com/api/rds/modifydbinstancespec.html
 func (client *Client) ModifyDBInstanceSpec(request *ModifyDBInstanceSpecRequest) (response *ModifyDBInstanceSpecResponse, err error) {
 	response = CreateModifyDBInstanceSpecResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) ModifyDBInstanceSpec(request *ModifyDBInstanceSpecRequest)
 }
 
 // ModifyDBInstanceSpecWithChan invokes the rds.ModifyDBInstanceSpec API asynchronously
-// api document: https://help.aliyun.com/api/rds/modifydbinstancespec.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyDBInstanceSpecWithChan(request *ModifyDBInstanceSpecRequest) (<-chan *ModifyDBInstanceSpecResponse, <-chan error) {
 	responseChan := make(chan *ModifyDBInstanceSpecResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) ModifyDBInstanceSpecWithChan(request *ModifyDBInstanceSpec
 }
 
 // ModifyDBInstanceSpecWithCallback invokes the rds.ModifyDBInstanceSpec API asynchronously
-// api document: https://help.aliyun.com/api/rds/modifydbinstancespec.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) ModifyDBInstanceSpecWithCallback(request *ModifyDBInstanceSpecRequest, callback func(response *ModifyDBInstanceSpecResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -80,8 +75,10 @@ type ModifyDBInstanceSpecRequest struct {
 	DBInstanceStorage     requests.Integer `position:"Query" name:"DBInstanceStorage"`
 	ClientToken           string           `position:"Query" name:"ClientToken"`
 	EngineVersion         string           `position:"Query" name:"EngineVersion"`
+	ResourceGroupId       string           `position:"Query" name:"ResourceGroupId"`
 	EffectiveTime         string           `position:"Query" name:"EffectiveTime"`
 	DBInstanceId          string           `position:"Query" name:"DBInstanceId"`
+	SwitchTime            string           `position:"Query" name:"SwitchTime"`
 	DBInstanceStorageType string           `position:"Query" name:"DBInstanceStorageType"`
 	SourceBiz             string           `position:"Query" name:"SourceBiz"`
 	DedicatedHostGroupId  string           `position:"Query" name:"DedicatedHostGroupId"`
@@ -89,6 +86,7 @@ type ModifyDBInstanceSpecRequest struct {
 	ResourceOwnerAccount  string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerAccount          string           `position:"Query" name:"OwnerAccount"`
 	OwnerId               requests.Integer `position:"Query" name:"OwnerId"`
+	UsedTime              requests.Integer `position:"Query" name:"UsedTime"`
 	DBInstanceClass       string           `position:"Query" name:"DBInstanceClass"`
 	ZoneId                string           `position:"Query" name:"ZoneId"`
 	PayType               string           `position:"Query" name:"PayType"`
@@ -97,7 +95,9 @@ type ModifyDBInstanceSpecRequest struct {
 // ModifyDBInstanceSpecResponse is the response struct for api ModifyDBInstanceSpec
 type ModifyDBInstanceSpecResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
+	DBInstanceId string `json:"DBInstanceId" xml:"DBInstanceId"`
+	RequestId    string `json:"RequestId" xml:"RequestId"`
+	OrderId      int64  `json:"OrderId" xml:"OrderId"`
 }
 
 // CreateModifyDBInstanceSpecRequest creates a request to invoke ModifyDBInstanceSpec API

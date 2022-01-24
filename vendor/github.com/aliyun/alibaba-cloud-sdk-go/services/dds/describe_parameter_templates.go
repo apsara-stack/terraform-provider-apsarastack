@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeParameterTemplates invokes the dds.DescribeParameterTemplates API synchronously
-// api document: https://help.aliyun.com/api/dds/describeparametertemplates.html
 func (client *Client) DescribeParameterTemplates(request *DescribeParameterTemplatesRequest) (response *DescribeParameterTemplatesResponse, err error) {
 	response = CreateDescribeParameterTemplatesResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeParameterTemplates(request *DescribeParameterTempl
 }
 
 // DescribeParameterTemplatesWithChan invokes the dds.DescribeParameterTemplates API asynchronously
-// api document: https://help.aliyun.com/api/dds/describeparametertemplates.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeParameterTemplatesWithChan(request *DescribeParameterTemplatesRequest) (<-chan *DescribeParameterTemplatesResponse, <-chan error) {
 	responseChan := make(chan *DescribeParameterTemplatesResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeParameterTemplatesWithChan(request *DescribeParame
 }
 
 // DescribeParameterTemplatesWithCallback invokes the dds.DescribeParameterTemplates API asynchronously
-// api document: https://help.aliyun.com/api/dds/describeparametertemplates.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeParameterTemplatesWithCallback(request *DescribeParameterTemplatesRequest, callback func(response *DescribeParameterTemplatesResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -88,10 +83,10 @@ type DescribeParameterTemplatesRequest struct {
 // DescribeParameterTemplatesResponse is the response struct for api DescribeParameterTemplates
 type DescribeParameterTemplatesResponse struct {
 	*responses.BaseResponse
+	ParameterCount string     `json:"ParameterCount" xml:"ParameterCount"`
+	EngineVersion  string     `json:"EngineVersion" xml:"EngineVersion"`
 	RequestId      string     `json:"RequestId" xml:"RequestId"`
 	Engine         string     `json:"Engine" xml:"Engine"`
-	EngineVersion  string     `json:"EngineVersion" xml:"EngineVersion"`
-	ParameterCount string     `json:"ParameterCount" xml:"ParameterCount"`
 	Parameters     Parameters `json:"Parameters" xml:"Parameters"`
 }
 
@@ -100,7 +95,7 @@ func CreateDescribeParameterTemplatesRequest() (request *DescribeParameterTempla
 	request = &DescribeParameterTemplatesRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeParameterTemplates", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeParameterTemplates", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

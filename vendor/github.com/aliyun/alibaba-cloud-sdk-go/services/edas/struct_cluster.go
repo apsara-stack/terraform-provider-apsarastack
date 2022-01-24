@@ -28,7 +28,6 @@ type Cluster struct {
 	OversoldFactor      int    `json:"OversoldFactor" xml:"OversoldFactor"`
 	MemUsed             int    `json:"MemUsed" xml:"MemUsed"`
 	NetworkMode         int    `json:"NetworkMode" xml:"NetworkMode"`
-	//NetworkMode         string    `json:"NetworkMode" xml:"NetworkMode"`
 	ClusterImportStatus int    `json:"ClusterImportStatus" xml:"ClusterImportStatus"`
 	ClusterStatus       int    `json:"ClusterStatus" xml:"ClusterStatus"`
 	RegionId            string `json:"RegionId" xml:"RegionId"`
@@ -38,7 +37,6 @@ type Cluster struct {
 	CpuUsed             int    `json:"CpuUsed" xml:"CpuUsed"`
 	IaasProvider        string `json:"IaasProvider" xml:"IaasProvider"`
 	ClusterType         int    `json:"ClusterType" xml:"ClusterType"`
-	//ClusterType         string    `json:"ClusterType" xml:"ClusterType"`
 	VpcId               string `json:"VpcId" xml:"VpcId"`
 	Cpu                 int    `json:"Cpu" xml:"Cpu"`
 	Description         string `json:"Description" xml:"Description"`

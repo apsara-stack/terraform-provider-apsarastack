@@ -74,7 +74,6 @@ type ScaleInApplicationRequest struct {
 	ForceStatus requests.Boolean `position:"Query" name:"ForceStatus"`
 	AppId       string           `position:"Query" name:"AppId"`
 	EccInfo     string           `position:"Query" name:"EccInfo"`
-	RegionId    string  `position:"Query" name:"RegionId"`
 }
 
 // ScaleInApplicationResponse is the response struct for api ScaleInApplication
@@ -90,7 +89,7 @@ func CreateScaleInApplicationRequest() (request *ScaleInApplicationRequest) {
 	request = &ScaleInApplicationRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	request.InitWithApiInfo("Edas", "2017-08-01", "ScaleInApplication", "/roa/pop/v5/changeorder/co_scale_in", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "ScaleInApplication", "/pop/v5/changeorder/co_scale_in", "edas", "openAPI")
 	request.Method = requests.POST
 	return
 }

@@ -21,7 +21,6 @@ import (
 )
 
 // TransformToPrePaid invokes the dds.TransformToPrePaid API synchronously
-// api document: https://help.aliyun.com/api/dds/transformtoprepaid.html
 func (client *Client) TransformToPrePaid(request *TransformToPrePaidRequest) (response *TransformToPrePaidResponse, err error) {
 	response = CreateTransformToPrePaidResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) TransformToPrePaid(request *TransformToPrePaidRequest) (re
 }
 
 // TransformToPrePaidWithChan invokes the dds.TransformToPrePaid API asynchronously
-// api document: https://help.aliyun.com/api/dds/transformtoprepaid.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) TransformToPrePaidWithChan(request *TransformToPrePaidRequest) (<-chan *TransformToPrePaidResponse, <-chan error) {
 	responseChan := make(chan *TransformToPrePaidResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) TransformToPrePaidWithChan(request *TransformToPrePaidRequ
 }
 
 // TransformToPrePaidWithCallback invokes the dds.TransformToPrePaid API asynchronously
-// api document: https://help.aliyun.com/api/dds/transformtoprepaid.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) TransformToPrePaidWithCallback(request *TransformToPrePaidRequest, callback func(response *TransformToPrePaidResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -93,9 +88,9 @@ type TransformToPrePaidRequest struct {
 // TransformToPrePaidResponse is the response struct for api TransformToPrePaid
 type TransformToPrePaidResponse struct {
 	*responses.BaseResponse
+	EndTime   string `json:"EndTime" xml:"EndTime"`
 	RequestId string `json:"RequestId" xml:"RequestId"`
 	OrderId   string `json:"OrderId" xml:"OrderId"`
-	EndTime   string `json:"EndTime" xml:"EndTime"`
 }
 
 // CreateTransformToPrePaidRequest creates a request to invoke TransformToPrePaid API
@@ -103,7 +98,7 @@ func CreateTransformToPrePaidRequest() (request *TransformToPrePaidRequest) {
 	request = &TransformToPrePaidRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "TransformToPrePaid", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "TransformToPrePaid", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeIPv6Translators invokes the vpc.DescribeIPv6Translators API synchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6translators.html
 func (client *Client) DescribeIPv6Translators(request *DescribeIPv6TranslatorsRequest) (response *DescribeIPv6TranslatorsResponse, err error) {
 	response = CreateDescribeIPv6TranslatorsResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeIPv6Translators(request *DescribeIPv6TranslatorsRe
 }
 
 // DescribeIPv6TranslatorsWithChan invokes the vpc.DescribeIPv6Translators API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6translators.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeIPv6TranslatorsWithChan(request *DescribeIPv6TranslatorsRequest) (<-chan *DescribeIPv6TranslatorsResponse, <-chan error) {
 	responseChan := make(chan *DescribeIPv6TranslatorsResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeIPv6TranslatorsWithChan(request *DescribeIPv6Trans
 }
 
 // DescribeIPv6TranslatorsWithCallback invokes the vpc.DescribeIPv6Translators API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describeipv6translators.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeIPv6TranslatorsWithCallback(request *DescribeIPv6TranslatorsRequest, callback func(response *DescribeIPv6TranslatorsResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -95,10 +90,10 @@ type DescribeIPv6TranslatorsRequest struct {
 // DescribeIPv6TranslatorsResponse is the response struct for api DescribeIPv6Translators
 type DescribeIPv6TranslatorsResponse struct {
 	*responses.BaseResponse
-	RequestId       string          `json:"RequestId" xml:"RequestId"`
-	TotalCount      int             `json:"TotalCount" xml:"TotalCount"`
-	PageNumber      int             `json:"PageNumber" xml:"PageNumber"`
 	PageSize        int             `json:"PageSize" xml:"PageSize"`
+	RequestId       string          `json:"RequestId" xml:"RequestId"`
+	PageNumber      int             `json:"PageNumber" xml:"PageNumber"`
+	TotalCount      int             `json:"TotalCount" xml:"TotalCount"`
 	Ipv6Translators Ipv6Translators `json:"Ipv6Translators" xml:"Ipv6Translators"`
 }
 

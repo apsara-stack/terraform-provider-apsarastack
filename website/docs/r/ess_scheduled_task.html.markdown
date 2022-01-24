@@ -88,7 +88,7 @@ resource "apsarastack_ess_scaling_rule" "default" {
 
 resource "apsarastack_ess_scheduled_task" "default" {
   scheduled_action    = "${apsarastack_ess_scaling_rule.default.ari}"
-  launch_time         = "2019-05-21T11:37Z"
+  launch_time         = "2022-01-21T15:10Z"
   scheduled_task_name = "${var.name}"
 }
 ```

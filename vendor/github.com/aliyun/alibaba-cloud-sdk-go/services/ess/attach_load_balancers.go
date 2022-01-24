@@ -21,7 +21,6 @@ import (
 )
 
 // AttachLoadBalancers invokes the ess.AttachLoadBalancers API synchronously
-// api document: https://help.aliyun.com/api/ess/attachloadbalancers.html
 func (client *Client) AttachLoadBalancers(request *AttachLoadBalancersRequest) (response *AttachLoadBalancersResponse, err error) {
 	response = CreateAttachLoadBalancersResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) AttachLoadBalancers(request *AttachLoadBalancersRequest) (
 }
 
 // AttachLoadBalancersWithChan invokes the ess.AttachLoadBalancers API asynchronously
-// api document: https://help.aliyun.com/api/ess/attachloadbalancers.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) AttachLoadBalancersWithChan(request *AttachLoadBalancersRequest) (<-chan *AttachLoadBalancersResponse, <-chan error) {
 	responseChan := make(chan *AttachLoadBalancersResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) AttachLoadBalancersWithChan(request *AttachLoadBalancersRe
 }
 
 // AttachLoadBalancersWithCallback invokes the ess.AttachLoadBalancers API asynchronously
-// api document: https://help.aliyun.com/api/ess/attachloadbalancers.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) AttachLoadBalancersWithCallback(request *AttachLoadBalancersRequest, callback func(response *AttachLoadBalancersResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -76,17 +71,20 @@ func (client *Client) AttachLoadBalancersWithCallback(request *AttachLoadBalance
 // AttachLoadBalancersRequest is the request struct for api AttachLoadBalancers
 type AttachLoadBalancersRequest struct {
 	*requests.RpcRequest
+	ClientToken          string           `position:"Query" name:"ClientToken"`
 	ScalingGroupId       string           `position:"Query" name:"ScalingGroupId"`
 	ForceAttach          requests.Boolean `position:"Query" name:"ForceAttach"`
 	LoadBalancer         *[]string        `position:"Query" name:"LoadBalancer"  type:"Repeated"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
 	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
+	Async                requests.Boolean `position:"Query" name:"Async"`
 }
 
 // AttachLoadBalancersResponse is the response struct for api AttachLoadBalancers
 type AttachLoadBalancersResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
+	ScalingActivityId string `json:"ScalingActivityId" xml:"ScalingActivityId"`
+	RequestId         string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateAttachLoadBalancersRequest creates a request to invoke AttachLoadBalancers API
@@ -95,6 +93,7 @@ func CreateAttachLoadBalancersRequest() (request *AttachLoadBalancersRequest) {
 		RpcRequest: &requests.RpcRequest{},
 	}
 	request.InitWithApiInfo("Ess", "2014-08-28", "AttachLoadBalancers", "ess", "openAPI")
+	request.Method = requests.POST
 	return
 }
 

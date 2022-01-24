@@ -21,7 +21,6 @@ import (
 )
 
 // GetDhcpOptionsSet invokes the vpc.GetDhcpOptionsSet API synchronously
-// api document: https://help.aliyun.com/api/vpc/getdhcpoptionsset.html
 func (client *Client) GetDhcpOptionsSet(request *GetDhcpOptionsSetRequest) (response *GetDhcpOptionsSetResponse, err error) {
 	response = CreateGetDhcpOptionsSetResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) GetDhcpOptionsSet(request *GetDhcpOptionsSetRequest) (resp
 }
 
 // GetDhcpOptionsSetWithChan invokes the vpc.GetDhcpOptionsSet API asynchronously
-// api document: https://help.aliyun.com/api/vpc/getdhcpoptionsset.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) GetDhcpOptionsSetWithChan(request *GetDhcpOptionsSetRequest) (<-chan *GetDhcpOptionsSetResponse, <-chan error) {
 	responseChan := make(chan *GetDhcpOptionsSetResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) GetDhcpOptionsSetWithChan(request *GetDhcpOptionsSetReques
 }
 
 // GetDhcpOptionsSetWithCallback invokes the vpc.GetDhcpOptionsSet API asynchronously
-// api document: https://help.aliyun.com/api/vpc/getdhcpoptionsset.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) GetDhcpOptionsSetWithCallback(request *GetDhcpOptionsSetRequest, callback func(response *GetDhcpOptionsSetResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -86,12 +81,12 @@ type GetDhcpOptionsSetRequest struct {
 // GetDhcpOptionsSetResponse is the response struct for api GetDhcpOptionsSet
 type GetDhcpOptionsSetResponse struct {
 	*responses.BaseResponse
-	RequestId                 string         `json:"RequestId" xml:"RequestId"`
-	DhcpOptionsSetName        string         `json:"DhcpOptionsSetName" xml:"DhcpOptionsSetName"`
 	DhcpOptionsSetDescription string         `json:"DhcpOptionsSetDescription" xml:"DhcpOptionsSetDescription"`
-	DhcpOptionsSetId          string         `json:"DhcpOptionsSetId" xml:"DhcpOptionsSetId"`
-	OwnerId                   int64          `json:"OwnerId" xml:"OwnerId"`
 	Status                    string         `json:"Status" xml:"Status"`
+	RequestId                 string         `json:"RequestId" xml:"RequestId"`
+	DhcpOptionsSetId          string         `json:"DhcpOptionsSetId" xml:"DhcpOptionsSetId"`
+	DhcpOptionsSetName        string         `json:"DhcpOptionsSetName" xml:"DhcpOptionsSetName"`
+	OwnerId                   int64          `json:"OwnerId" xml:"OwnerId"`
 	DhcpOptions               DhcpOptions    `json:"DhcpOptions" xml:"DhcpOptions"`
 	AssociateVpcs             []AssociateVpc `json:"AssociateVpcs" xml:"AssociateVpcs"`
 }

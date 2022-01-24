@@ -21,7 +21,6 @@ import (
 )
 
 // UnsubscribeBillToOSS invokes the bssopenapi.UnsubscribeBillToOSS API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/unsubscribebilltooss.html
 func (client *Client) UnsubscribeBillToOSS(request *UnsubscribeBillToOSSRequest) (response *UnsubscribeBillToOSSResponse, err error) {
 	response = CreateUnsubscribeBillToOSSResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) UnsubscribeBillToOSS(request *UnsubscribeBillToOSSRequest)
 }
 
 // UnsubscribeBillToOSSWithChan invokes the bssopenapi.UnsubscribeBillToOSS API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/unsubscribebilltooss.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) UnsubscribeBillToOSSWithChan(request *UnsubscribeBillToOSSRequest) (<-chan *UnsubscribeBillToOSSResponse, <-chan error) {
 	responseChan := make(chan *UnsubscribeBillToOSSResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) UnsubscribeBillToOSSWithChan(request *UnsubscribeBillToOSS
 }
 
 // UnsubscribeBillToOSSWithCallback invokes the bssopenapi.UnsubscribeBillToOSS API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/unsubscribebilltooss.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) UnsubscribeBillToOSSWithCallback(request *UnsubscribeBillToOSSRequest, callback func(response *UnsubscribeBillToOSSResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -83,10 +78,10 @@ type UnsubscribeBillToOSSRequest struct {
 // UnsubscribeBillToOSSResponse is the response struct for api UnsubscribeBillToOSS
 type UnsubscribeBillToOSSResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Success   bool   `json:"Success" xml:"Success"`
 	Code      string `json:"Code" xml:"Code"`
 	Message   string `json:"Message" xml:"Message"`
+	RequestId string `json:"RequestId" xml:"RequestId"`
+	Success   bool   `json:"Success" xml:"Success"`
 }
 
 // CreateUnsubscribeBillToOSSRequest creates a request to invoke UnsubscribeBillToOSS API

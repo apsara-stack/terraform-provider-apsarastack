@@ -77,6 +77,7 @@ type ModifyInstanceSpecRequest struct {
 	InstanceClass        string           `position:"Query" name:"InstanceClass"`
 	SecurityToken        string           `position:"Query" name:"SecurityToken"`
 	EffectiveTime        string           `position:"Query" name:"EffectiveTime"`
+	SourceBiz            string           `position:"Query" name:"SourceBiz"`
 	BusinessInfo         string           `position:"Query" name:"BusinessInfo"`
 	AutoPay              requests.Boolean `position:"Query" name:"AutoPay"`
 	FromApp              string           `position:"Query" name:"FromApp"`
@@ -92,8 +93,8 @@ type ModifyInstanceSpecRequest struct {
 // ModifyInstanceSpecResponse is the response struct for api ModifyInstanceSpec
 type ModifyInstanceSpecResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
 	OrderId   string `json:"OrderId" xml:"OrderId"`
+	RequestId string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateModifyInstanceSpecRequest creates a request to invoke ModifyInstanceSpec API

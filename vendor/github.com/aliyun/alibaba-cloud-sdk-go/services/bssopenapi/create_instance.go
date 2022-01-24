@@ -21,7 +21,6 @@ import (
 )
 
 // CreateInstance invokes the bssopenapi.CreateInstance API synchronously
-// api document: https://help.aliyun.com/api/bssopenapi/createinstance.html
 func (client *Client) CreateInstance(request *CreateInstanceRequest) (response *CreateInstanceResponse, err error) {
 	response = CreateCreateInstanceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateInstance(request *CreateInstanceRequest) (response *
 }
 
 // CreateInstanceWithChan invokes the bssopenapi.CreateInstance API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/createinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateInstanceWithChan(request *CreateInstanceRequest) (<-chan *CreateInstanceResponse, <-chan error) {
 	responseChan := make(chan *CreateInstanceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateInstanceWithChan(request *CreateInstanceRequest) (<-
 }
 
 // CreateInstanceWithCallback invokes the bssopenapi.CreateInstance API asynchronously
-// api document: https://help.aliyun.com/api/bssopenapi/createinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateInstanceWithCallback(request *CreateInstanceRequest, callback func(response *CreateInstanceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -80,11 +75,12 @@ type CreateInstanceRequest struct {
 	Period           requests.Integer           `position:"Query" name:"Period"`
 	ClientToken      string                     `position:"Query" name:"ClientToken"`
 	SubscriptionType string                     `position:"Query" name:"SubscriptionType"`
+	Logistics        string                     `position:"Query" name:"Logistics"`
 	OwnerId          requests.Integer           `position:"Query" name:"OwnerId"`
 	ProductType      string                     `position:"Query" name:"ProductType"`
 	RenewPeriod      requests.Integer           `position:"Query" name:"RenewPeriod"`
-	Parameter        *[]CreateInstanceParameter `position:"Query" name:"Parameter"  type:"Repeated"`
 	RenewalStatus    string                     `position:"Query" name:"RenewalStatus"`
+	Parameter        *[]CreateInstanceParameter `position:"Query" name:"Parameter"  type:"Repeated"`
 }
 
 // CreateInstanceParameter is a repeated param struct in CreateInstanceRequest
@@ -96,10 +92,10 @@ type CreateInstanceParameter struct {
 // CreateInstanceResponse is the response struct for api CreateInstance
 type CreateInstanceResponse struct {
 	*responses.BaseResponse
-	RequestId string `json:"RequestId" xml:"RequestId"`
-	Success   bool   `json:"Success" xml:"Success"`
 	Code      string `json:"Code" xml:"Code"`
 	Message   string `json:"Message" xml:"Message"`
+	RequestId string `json:"RequestId" xml:"RequestId"`
+	Success   bool   `json:"Success" xml:"Success"`
 	Data      Data   `json:"Data" xml:"Data"`
 }
 

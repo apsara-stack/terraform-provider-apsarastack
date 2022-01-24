@@ -21,7 +21,6 @@ import (
 )
 
 // CreateShardingDBInstance invokes the dds.CreateShardingDBInstance API synchronously
-// api document: https://help.aliyun.com/api/dds/createshardingdbinstance.html
 func (client *Client) CreateShardingDBInstance(request *CreateShardingDBInstanceRequest) (response *CreateShardingDBInstanceResponse, err error) {
 	response = CreateCreateShardingDBInstanceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) CreateShardingDBInstance(request *CreateShardingDBInstance
 }
 
 // CreateShardingDBInstanceWithChan invokes the dds.CreateShardingDBInstance API asynchronously
-// api document: https://help.aliyun.com/api/dds/createshardingdbinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateShardingDBInstanceWithChan(request *CreateShardingDBInstanceRequest) (<-chan *CreateShardingDBInstanceResponse, <-chan error) {
 	responseChan := make(chan *CreateShardingDBInstanceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) CreateShardingDBInstanceWithChan(request *CreateShardingDB
 }
 
 // CreateShardingDBInstanceWithCallback invokes the dds.CreateShardingDBInstance API asynchronously
-// api document: https://help.aliyun.com/api/dds/createshardingdbinstance.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) CreateShardingDBInstanceWithCallback(request *CreateShardingDBInstanceRequest, callback func(response *CreateShardingDBInstanceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -82,6 +77,7 @@ type CreateShardingDBInstanceRequest struct {
 	NetworkType           string                                  `position:"Query" name:"NetworkType"`
 	ReplicaSet            *[]CreateShardingDBInstanceReplicaSet   `position:"Query" name:"ReplicaSet"  type:"Repeated"`
 	StorageEngine         string                                  `position:"Query" name:"StorageEngine"`
+	ResourceGroupId       string                                  `position:"Query" name:"ResourceGroupId"`
 	SecurityToken         string                                  `position:"Query" name:"SecurityToken"`
 	Engine                string                                  `position:"Query" name:"Engine"`
 	DBInstanceDescription string                                  `position:"Query" name:"DBInstanceDescription"`
@@ -92,9 +88,9 @@ type CreateShardingDBInstanceRequest struct {
 	OwnerAccount          string                                  `position:"Query" name:"OwnerAccount"`
 	ConfigServer          *[]CreateShardingDBInstanceConfigServer `position:"Query" name:"ConfigServer"  type:"Repeated"`
 	OwnerId               requests.Integer                        `position:"Query" name:"OwnerId"`
-	Mongos                *[]CreateShardingDBInstanceMongos       `position:"Query" name:"Mongos"  type:"Repeated"`
 	SecurityIPList        string                                  `position:"Query" name:"SecurityIPList"`
 	VSwitchId             string                                  `position:"Query" name:"VSwitchId"`
+	Mongos                *[]CreateShardingDBInstanceMongos       `position:"Query" name:"Mongos"  type:"Repeated"`
 	AccountPassword       string                                  `position:"Query" name:"AccountPassword"`
 	AutoRenew             string                                  `position:"Query" name:"AutoRenew"`
 	VpcId                 string                                  `position:"Query" name:"VpcId"`
@@ -105,8 +101,9 @@ type CreateShardingDBInstanceRequest struct {
 
 // CreateShardingDBInstanceReplicaSet is a repeated param struct in CreateShardingDBInstanceRequest
 type CreateShardingDBInstanceReplicaSet struct {
-	Storage string `name:"Storage"`
-	Class   string `name:"Class"`
+	ReadonlyReplicas string `name:"ReadonlyReplicas"`
+	Storage          string `name:"Storage"`
+	Class            string `name:"Class"`
 }
 
 // CreateShardingDBInstanceConfigServer is a repeated param struct in CreateShardingDBInstanceRequest
@@ -123,9 +120,9 @@ type CreateShardingDBInstanceMongos struct {
 // CreateShardingDBInstanceResponse is the response struct for api CreateShardingDBInstance
 type CreateShardingDBInstanceResponse struct {
 	*responses.BaseResponse
+	RequestId    string `json:"RequestId" xml:"RequestId"`
 	DBInstanceId string `json:"DBInstanceId" xml:"DBInstanceId"`
 	OrderId      string `json:"OrderId" xml:"OrderId"`
-	RequestId    string `json:"RequestId" xml:"RequestId"`
 }
 
 // CreateCreateShardingDBInstanceRequest creates a request to invoke CreateShardingDBInstance API
@@ -133,7 +130,7 @@ func CreateCreateShardingDBInstanceRequest() (request *CreateShardingDBInstanceR
 	request = &CreateShardingDBInstanceRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "CreateShardingDBInstance", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "CreateShardingDBInstance", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

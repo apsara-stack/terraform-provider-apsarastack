@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeAvailableResource invokes the dds.DescribeAvailableResource API synchronously
-// api document: https://help.aliyun.com/api/dds/describeavailableresource.html
 func (client *Client) DescribeAvailableResource(request *DescribeAvailableResourceRequest) (response *DescribeAvailableResourceResponse, err error) {
 	response = CreateDescribeAvailableResourceResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeAvailableResource(request *DescribeAvailableResour
 }
 
 // DescribeAvailableResourceWithChan invokes the dds.DescribeAvailableResource API asynchronously
-// api document: https://help.aliyun.com/api/dds/describeavailableresource.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeAvailableResourceWithChan(request *DescribeAvailableResourceRequest) (<-chan *DescribeAvailableResourceResponse, <-chan error) {
 	responseChan := make(chan *DescribeAvailableResourceResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeAvailableResourceWithChan(request *DescribeAvailab
 }
 
 // DescribeAvailableResourceWithCallback invokes the dds.DescribeAvailableResource API asynchronously
-// api document: https://help.aliyun.com/api/dds/describeavailableresource.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeAvailableResourceWithCallback(request *DescribeAvailableResourceRequest, callback func(response *DescribeAvailableResourceResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -77,11 +72,14 @@ func (client *Client) DescribeAvailableResourceWithCallback(request *DescribeAva
 type DescribeAvailableResourceRequest struct {
 	*requests.RpcRequest
 	ResourceOwnerId      requests.Integer `position:"Query" name:"ResourceOwnerId"`
+	ResourceGroupId      string           `position:"Query" name:"ResourceGroupId"`
 	SecurityToken        string           `position:"Query" name:"SecurityToken"`
 	InstanceChargeType   string           `position:"Query" name:"InstanceChargeType"`
 	ResourceOwnerAccount string           `position:"Query" name:"ResourceOwnerAccount"`
+	Level                string           `position:"Query" name:"Level"`
 	OwnerAccount         string           `position:"Query" name:"OwnerAccount"`
 	OwnerId              requests.Integer `position:"Query" name:"OwnerId"`
+	DbType               string           `position:"Query" name:"DbType"`
 	ZoneId               string           `position:"Query" name:"ZoneId"`
 }
 
@@ -97,7 +95,7 @@ func CreateDescribeAvailableResourceRequest() (request *DescribeAvailableResourc
 	request = &DescribeAvailableResourceRequest{
 		RpcRequest: &requests.RpcRequest{},
 	}
-	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeAvailableResource", "Dds", "openAPI")
+	request.InitWithApiInfo("Dds", "2015-12-01", "DescribeAvailableResource", "dds", "openAPI")
 	request.Method = requests.POST
 	return
 }

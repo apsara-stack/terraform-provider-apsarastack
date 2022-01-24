@@ -75,7 +75,6 @@ type ListClusterMembersRequest struct {
 	CurrentPage requests.Integer `position:"Query" name:"CurrentPage"`
 	ClusterId   string           `position:"Query" name:"ClusterId"`
 	EcsList     string           `position:"Query" name:"EcsList"`
-	RegionId string  `position:"Query" name:"RegionId"`
 }
 
 // ListClusterMembersResponse is the response struct for api ListClusterMembers
@@ -92,8 +91,7 @@ func CreateListClusterMembersRequest() (request *ListClusterMembersRequest) {
 	request = &ListClusterMembersRequest{
 		RoaRequest: &requests.RoaRequest{},
 	}
-	//request.InitWithApiInfo("Edas", "2017-08-01", "ListClusterMembers", "/pop/v5/resource/cluster_member_list", "Edas", "openAPI")
-	request.InitWithApiInfo("Edas", "2017-08-01", "ListClusterMembers", "/roa/pop/v5/resource/cluster_member_list", "Edas", "openAPI")
+	request.InitWithApiInfo("Edas", "2017-08-01", "ListClusterMembers", "/pop/v5/resource/cluster_member_list", "edas", "openAPI")
 	request.Method = requests.GET
 	return
 }

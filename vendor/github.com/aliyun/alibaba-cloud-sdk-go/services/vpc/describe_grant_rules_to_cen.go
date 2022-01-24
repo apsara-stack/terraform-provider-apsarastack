@@ -21,7 +21,6 @@ import (
 )
 
 // DescribeGrantRulesToCen invokes the vpc.DescribeGrantRulesToCen API synchronously
-// api document: https://help.aliyun.com/api/vpc/describegrantrulestocen.html
 func (client *Client) DescribeGrantRulesToCen(request *DescribeGrantRulesToCenRequest) (response *DescribeGrantRulesToCenResponse, err error) {
 	response = CreateDescribeGrantRulesToCenResponse()
 	err = client.DoAction(request, response)
@@ -29,8 +28,6 @@ func (client *Client) DescribeGrantRulesToCen(request *DescribeGrantRulesToCenRe
 }
 
 // DescribeGrantRulesToCenWithChan invokes the vpc.DescribeGrantRulesToCen API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describegrantrulestocen.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeGrantRulesToCenWithChan(request *DescribeGrantRulesToCenRequest) (<-chan *DescribeGrantRulesToCenResponse, <-chan error) {
 	responseChan := make(chan *DescribeGrantRulesToCenResponse, 1)
 	errChan := make(chan error, 1)
@@ -53,8 +50,6 @@ func (client *Client) DescribeGrantRulesToCenWithChan(request *DescribeGrantRule
 }
 
 // DescribeGrantRulesToCenWithCallback invokes the vpc.DescribeGrantRulesToCen API asynchronously
-// api document: https://help.aliyun.com/api/vpc/describegrantrulestocen.html
-// asynchronous document: https://help.aliyun.com/document_detail/66220.html
 func (client *Client) DescribeGrantRulesToCenWithCallback(request *DescribeGrantRulesToCenRequest, callback func(response *DescribeGrantRulesToCenResponse, err error)) <-chan int {
 	result := make(chan int, 1)
 	err := client.AddAsyncTask(func() {
@@ -89,10 +84,10 @@ type DescribeGrantRulesToCenRequest struct {
 // DescribeGrantRulesToCenResponse is the response struct for api DescribeGrantRulesToCen
 type DescribeGrantRulesToCenResponse struct {
 	*responses.BaseResponse
-	RequestId     string        `json:"RequestId" xml:"RequestId"`
-	TotalCount    int           `json:"TotalCount" xml:"TotalCount"`
-	PageNumber    int           `json:"PageNumber" xml:"PageNumber"`
 	PageSize      int           `json:"PageSize" xml:"PageSize"`
+	RequestId     string        `json:"RequestId" xml:"RequestId"`
+	PageNumber    int           `json:"PageNumber" xml:"PageNumber"`
+	TotalCount    int           `json:"TotalCount" xml:"TotalCount"`
 	CenGrantRules CenGrantRules `json:"CenGrantRules" xml:"CenGrantRules"`
 }
 
