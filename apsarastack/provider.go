@@ -385,6 +385,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ram_role":                   resourceApsaraStackRamRole(),
 			"apsarastack_ram_policy_role_attachment": resourceApsaraStackRamPolicyRoleAttachment(),
 			//"apsarastack_ascm_access_key": 						resourceApsarastackRamAccessKey(),
+			"apsarastack_ascm_usergroup_user":         resourceApsaraStackAscmUserGroupUser(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
