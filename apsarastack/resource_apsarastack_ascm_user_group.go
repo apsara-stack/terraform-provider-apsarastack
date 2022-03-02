@@ -32,11 +32,6 @@ func resourceApsaraStackAscmUserGroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			//"role_ids": {
-			//	Type:     schema.TypeList,
-			//	Computed: true,
-			//	Elem:     &schema.Schema{Type: schema.TypeInt},
-			//},
 			"role_ids": {
 				Type:     schema.TypeSet,
 				Computed: true,
@@ -70,7 +65,6 @@ func resourceApsaraStackAscmUserGroupCreate(d *schema.ResourceData, meta interfa
 		"ProductName":     "ascm",
 		"groupName":       groupName,
 		"OrganizationId":  organizationId,
-		//"roleIdList":      ,
 	}
 
 	request.Method = "POST"
