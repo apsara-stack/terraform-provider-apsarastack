@@ -405,6 +405,136 @@ func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (respon
 	return resp, nil
 }
 
+func (s *AscmService) DescribeAscmUserGroupResourceSet(id string) (response *ListResourceGroup, err error) {
+	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
+
+	request := requests.NewCommonRequest()
+
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	if id == "" {
+		request.QueryParams = map[string]string{
+			"RegionId":        s.client.RegionId,
+			"AccessKeySecret": s.client.SecretKey,
+			"Product":         "ascm",
+			"Action":          "ListResourceGroup",
+			"Version":         "2019-05-10",
+			"pageSize":        "1000",
+		}
+	} else {
+		request.QueryParams = map[string]string{
+			"RegionId":          s.client.RegionId,
+			"AccessKeySecret":   s.client.SecretKey,
+			"Product":           "ascm",
+			"Action":            "ListResourceGroup",
+			"Version":           "2019-05-10",
+			"resourceGroupName": did[0],
+		}
+	}
+
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListResourceGroup"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &ListResourceGroup{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorResourceGroupNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, did[0], "ListResourceGroup", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListResourceGroup", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+	return resp, nil
+}
+
+func (s *AscmService) DescribeAscmUserGroupResourceSetBinding(id string) (response *ListResourceGroup, err error) {
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "ascm",
+		"Action":          "ListResourceGroup",
+		"Version":         "2019-05-10",
+		"pageSize":        "1000",
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListResourceGroup"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &ListResourceGroup{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorListResourceGroupNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListResourceGroup", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListResourceGroup", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code != "200" {
+		return resp, WrapError(err)
+	}
+
+	var rgname string
+	for i := range resp.Data {
+		if strconv.Itoa(resp.Data[i].Id) == id {
+			rgname = resp.Data[i].ResourceGroupName
+			break
+		}
+	}
+	res, err := s.DescribeAscmUserGroupResourceSet(rgname)
+
+	return res, nil
+}
+
 func (s *AscmService) DescribeAscmUser(id string) (response *User, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
