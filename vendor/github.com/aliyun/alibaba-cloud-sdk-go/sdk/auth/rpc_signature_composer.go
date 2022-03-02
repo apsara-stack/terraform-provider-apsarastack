@@ -68,7 +68,9 @@ func completeRpcSignParams(request requests.AcsRequest, signer Signer, regionId 
 		}
 	}
 
-	request.GetHeaders()["Content-Type"] = requests.Form
+	if request.GetHeaders()["Content-Type"] == "" {
+		request.GetHeaders()["Content-Type"] = requests.Form
+	}
 	formString := utils.GetUrlFormedMap(request.GetFormParams())
 	request.SetContent([]byte(formString))
 
