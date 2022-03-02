@@ -22,6 +22,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -233,6 +234,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_resource_groups":                 dataSourceApsaraStackAscmResourceGroups(),
 			"apsarastack_cs_kubernetes_clusters":               dataSourceApsaraStackCSKubernetesClusters(),
 			"apsarastack_ascm_users":                           dataSourceApsaraStackAscmUsers(),
+			"apsarastack_ascm_user_groups":                     dataSourceApsaraStackAscmUserGroups(),
 			"apsarastack_ascm_logon_policies":                  dataSourceApsaraStackAscmLogonPolicies(),
 			"apsarastack_ascm_ram_service_roles":               dataSourceApsaraStackAscmRamServiceRoles(),
 			"apsarastack_ascm_organizations":                   dataSourceApsaraStackAscmOrganizations(),
@@ -361,6 +363,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_mongodb_sharding_instance":           resourceApsaraStackMongoDBShardingInstance(),
 			"apsarastack_ascm_resource_group":                 resourceApsaraStackAscmResourceGroup(),
 			"apsarastack_ascm_user":                           resourceApsaraStackAscmUser(),
+			"apsarastack_ascm_user_group":                     resourceApsaraStackAscmUserGroup(),
 			"apsarastack_ascm_user_role_binding":              resourceApsaraStackAscmUserRoleBinding(),
 			"apsarastack_ascm_organization":                   resourceApsaraStackAscmOrganization(),
 			"apsarastack_cms_alarm":                           resourceApsaraStackCmsAlarm(),
@@ -1122,4 +1125,11 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(deptId), fmt.Sprint(resGrpId))
 	//return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID), err
 	return fmt.Sprint(deptId), fmt.Sprint(resGrpId), err
+}
+
+func waitSecondsIfWithTest(second int) {
+	// 测试模式下休眠一秒，防止数据缓存导致二次plan失败
+	if os.Getenv("TF_ACC") == "1" {
+		time.Sleep(time.Duration(second) * time.Second)
+	}
 }
