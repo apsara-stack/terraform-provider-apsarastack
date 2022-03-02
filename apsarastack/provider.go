@@ -365,6 +365,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_user":                           resourceApsaraStackAscmUser(),
 			"apsarastack_ascm_user_group":                     resourceApsaraStackAscmUserGroup(),
 			"apsarastack_ascm_user_role_binding":              resourceApsaraStackAscmUserRoleBinding(),
+			"apsarastack_ascm_user_group_role_binding":        resourceApsaraStackAscmUserGroupRoleBinding(),
 			"apsarastack_ascm_organization":                   resourceApsaraStackAscmOrganization(),
 			"apsarastack_cms_alarm":                           resourceApsaraStackCmsAlarm(),
 			"apsarastack_cms_site_monitor":                    resourceApsaraStackCmsSiteMonitor(),
