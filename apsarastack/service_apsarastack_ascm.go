@@ -1175,3 +1175,59 @@ func (s *AscmService) DescribeAscmPasswordPolicy(id string) (response *PasswordP
 
 	return resp, nil
 }
+
+func (s *AscmService) DescribeAscmUsergroupUser(id string) (response *User, err error) {
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": s.client.SecretKey,
+		"AccessKeyId":     s.client.AccessKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"RegionId":        s.client.RegionId,
+		"Product":         "ascm",
+		"Action":          "ListUsersInUserGroup",
+		"Version":         "2019-05-10",
+		"userGroupId":      id,
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListUsersInUserGroup"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &User{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorUserNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListUsersInUserGroup", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListUsersInUserGroup", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
