@@ -136,6 +136,7 @@ const (
 
 	InService      = Status("InService")
 	Removing       = Status("Removing")
+	EnabledStatus  = Status("Enabled")
 	DisabledStatus = Status("Disabled")
 
 	Init            = Status("Init")
