@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 	"time"
 
 	"strings"
