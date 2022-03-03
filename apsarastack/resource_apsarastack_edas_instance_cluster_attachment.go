@@ -115,7 +115,6 @@ func resourceApsaraStackEdasInstanceClusterAttachmentCreate(d *schema.ResourceDa
 		return WrapErrorf(err, DefaultErrorMsg, "apsaraStack_edas_instance_cluster_attachment", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	//使用这种方法有问题，超过120s还没有导入成功，则用例失败，需要改成
-	//time.Sleep(120 * time.Second)
 	var cnt int
 	ImportSuccessFlag := false
 	for {
