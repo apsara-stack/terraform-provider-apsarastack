@@ -109,7 +109,7 @@ func TestAccApsaraStackEdasK8sCluster_basic(t *testing.T) {
 	}
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
-
+	region := os.Getenv("APSARASTACK_REGION")
 	rand := acctest.RandIntRange(0, 1000)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	name := fmt.Sprintf("tf-testacc-edask8sclusterbasic%v", rand)
@@ -126,15 +126,14 @@ func TestAccApsaraStackEdasK8sCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"cs_cluster_id": "c3fc38ba25bb4452e8656a48534241888",
-					"namespace_id":  "cn-neimeng-env30-d01",
+					"cs_cluster_id": "cbd2c8f2c58c24c17b0c7462794a862ea",
+					"namespace_id":  region,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						//"cluster_name":  name,
 						"cluster_type": "5",
-						//"cs_cluster_id": CHECKSET,
-						"namespace_id": "cn-neimeng-env30-d01",
+						"cs_cluster_id": CHECKSET,
 					}),
 				),
 			},
