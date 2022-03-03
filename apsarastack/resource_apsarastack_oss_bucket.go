@@ -426,6 +426,7 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 }
 
 func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	ossService := OssService{client}
 	object, err := ossService.DescribeOssBucket(d.Id())
