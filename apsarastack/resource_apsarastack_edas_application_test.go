@@ -258,7 +258,6 @@ func resourceEdasApplicationConfigDependence(name string) string {
 		  cluster_type = 2
 		  network_mode = 2
 		  vpc_id       = "${apsarastack_vpc.default.id}"
-          region_id    = "cn-neimeng-env30-d01"
 		}
 		`, name)
 }
