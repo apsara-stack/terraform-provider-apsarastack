@@ -75,7 +75,7 @@ func resourceEdasIAAttachmentDependence(name string) string {
 		resource "apsarastack_vswitch" "default" {
 		  vpc_id = "${apsarastack_vpc.default.id}"
 		  cidr_block = "10.1.1.0/24"
-		  availability_zone = "cn-neimeng-env30-amtest30001-a"
+		  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 		  name = "${var.name}"
 		}
 		
@@ -88,7 +88,7 @@ func resourceEdasIAAttachmentDependence(name string) string {
 		resource "apsarastack_instance" "default" {
 		  vswitch_id = "${apsarastack_vswitch.default.id}"
 		  image_id = "centos_7_7_x64_20G_alibase_20200426.vhd"
-		  availability_zone = "cn-neimeng-env30-amtest30001-a"
+		  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 		  system_disk_category = "cloud_efficiency"
 		  system_disk_size ="60"
 		  instance_type = "ecs.xn4.small"

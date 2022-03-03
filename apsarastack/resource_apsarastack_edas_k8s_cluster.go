@@ -113,14 +113,7 @@ func resourceApsaraStackEdasK8sClusterCreate(d *schema.ResourceData, meta interf
 		}
 
 		addDebug(request.GetActionName(), raw, request.RoaRequest, request)
-		if response.Cluster.ClusterImportStatus == 3 {
-			return resource.RetryableError(Error("cluster is importing"))
-		}
-		if response.Cluster.ClusterImportStatus == 1 {
-			return nil
-		}
 
-		//return resource.NonRetryableError(Error("cluster status abnormal"))
 		return nil
 	})
 	if err != nil {
@@ -134,7 +127,7 @@ func resourceApsaraStackEdasK8sClusterRead(d *schema.ResourceData, meta interfac
 	client := meta.(*connectivity.ApsaraStackClient)
 	edasService := EdasService{client}
 
-	object, err := edasService.DescribeEdasK8sCluster(d.Id())
+	object, err := edasService.DescribeEdasListCluster(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -143,11 +136,17 @@ func resourceApsaraStackEdasK8sClusterRead(d *schema.ResourceData, meta interfac
 		return WrapError(err)
 	}
 
+	region := object.RegionId
+	pos := strings.Index(region, ":")
+	// get ":", should intercept the string
+	if pos != -1 {
+		region = region[0 : pos]
+	}
 	d.Set("cluster_name", object.ClusterName)
 	d.Set("cluster_type", object.ClusterType)
 	d.Set("network_mode", object.NetworkMode)
 	d.Set("vpc_id", object.VpcId)
-	d.Set("namespace_id", object.RegionId)
+	d.Set("namespace_id", region)
 	d.Set("cluster_import_status", object.ClusterImportStatus)
 	d.Set("cs_cluster_id", object.CsClusterId)
 
