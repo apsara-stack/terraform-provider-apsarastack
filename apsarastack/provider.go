@@ -313,6 +313,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_slb_backend_server":                  resourceApsaraStackSlbBackendServer(),
 			"apsarastack_oss_bucket":                          resourceApsaraStackOssBucket(),
 			"apsarastack_oss_bucket_object":                   resourceApsaraStackOssBucketObject(),
+			"apsarastack_oss_bucket_kms":                      resourceApsaraStackOssBucketKms(),
 			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
 			"apsarastack_ess_notification":                    resourceApsaraStackEssNotification(),
 			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
