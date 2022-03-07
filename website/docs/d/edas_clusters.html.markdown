@@ -11,7 +11,7 @@ description: |-
 
 This data source provides a list of EDAS clusters in an Alibaba Cloud account according to the specified filters.
 
--> **NOTE:** Available in 1.82.0+
+-> **NOTE:** Available in 1.0.11+
 
 ## Example Usage
 
