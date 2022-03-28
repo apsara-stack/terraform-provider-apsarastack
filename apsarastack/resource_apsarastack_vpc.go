@@ -215,6 +215,16 @@ func resourceApsaraStackVpcRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceApsaraStackVpcUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+
+	vpcService := VpcService{client}
+	if err := vpcService.setInstanceSecondaryCidrBlocks(d); err != nil {
+		return WrapError(err)
+	}
+	if d.HasChange("tags") {
+		if err := vpcService.SetResourceTags(d, "vpc"); err != nil {
+			return WrapError(err)
+		}
+	}
 	if d.IsNewResource() {
 		d.Partial(false)
 		return resourceApsaraStackVpcRead(d, meta)

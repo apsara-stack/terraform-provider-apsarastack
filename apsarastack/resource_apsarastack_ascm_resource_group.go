@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -146,7 +147,7 @@ func resourceApsaraStackAscmResourceGroupUpdate(d *schema.ResourceData, meta int
 			}
 			data.ResourceGroupName = name
 		}
-		id = string(data.ID)
+		id = strconv.Itoa(data.ID)
 		break
 	}
 
@@ -236,7 +237,7 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsResourceGroupExist", ApsaraStackSdkGoERROR)
 	}
 	for _, data := range check.Data {
-		id = string(data.ID)
+		id = strconv.Itoa(data.ID)
 	}
 	addDebug("IsResourceGroupExist", check, requestInfo, map[string]string{"resourceGroupName": id})
 	err = resource.Retry(1*time.Minute, func() *resource.RetryError {

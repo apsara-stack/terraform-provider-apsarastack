@@ -522,3 +522,33 @@ func slbTagIgnored(t slb.TagResource) bool {
 	}
 	return false
 }
+
+func ignoredTags(tagKey, tagValue string) bool {
+	filter := []string{"^aliyun", "^acs:", "^http://", "^https://"}
+	for _, v := range filter {
+		log.Printf("[DEBUG] Matching prefix %v with %v\n", v, tagKey)
+		ok, _ := regexp.MatchString(v, tagKey)
+		if ok {
+			log.Printf("[DEBUG] Found Alibaba Cloud specific tag %s (val: %s), ignoring.\n", tagKey, tagValue)
+			return true
+		}
+	}
+	return false
+}
+
+func parsingTags(d *schema.ResourceData) (map[string]interface{}, []string) {
+	oraw, nraw := d.GetChange("tags")
+	removedTags := oraw.(map[string]interface{})
+	addedTags := nraw.(map[string]interface{})
+	// Build the list of what to remove
+	removed := make([]string, 0)
+	for key, value := range removedTags {
+		old, ok := addedTags[key]
+		if !ok || old != value {
+			// Delete it!
+			removed = append(removed, key)
+		}
+	}
+
+	return addedTags, removed
+}

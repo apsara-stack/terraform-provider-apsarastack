@@ -155,7 +155,7 @@ func dataSourceApsaraStackKVStoreInstancesRead(d *schema.ResourceData, meta inte
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 
-	var dbi []r_kvstore.KVStoreInstanceInDescribeInstances
+	var dbi []r_kvstore.KVStoreInstance
 
 	var nameRegex *regexp.Regexp
 	if v, ok := d.GetOk("name_regex"); ok {
@@ -220,7 +220,7 @@ func dataSourceApsaraStackKVStoreInstancesRead(d *schema.ResourceData, meta inte
 	return kvstoreInstancesDescription(d, dbi)
 }
 
-func kvstoreInstancesDescription(d *schema.ResourceData, dbi []r_kvstore.KVStoreInstanceInDescribeInstances) error {
+func kvstoreInstancesDescription(d *schema.ResourceData, dbi []r_kvstore.KVStoreInstance) error {
 
 	var ids []string
 	var names []string
