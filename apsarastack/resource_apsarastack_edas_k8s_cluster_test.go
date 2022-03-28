@@ -3,6 +3,7 @@ package apsarastack
 import (
 	"fmt"
 	"log"
+	"os"
 	"testing"
 	"time"
 
@@ -132,7 +133,7 @@ func TestAccApsaraStackEdasK8sCluster_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						//"cluster_name":  name,
-						"cluster_type": "5",
+						"cluster_type":  "5",
 						"cs_cluster_id": CHECKSET,
 					}),
 				),

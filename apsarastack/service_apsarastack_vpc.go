@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"fmt"
+	util "github.com/alibabacloud-go/tea-utils/service"
 	"log"
 	"regexp"
 	"strings"
@@ -1349,4 +1350,138 @@ func (s *VpcService) tagsFromMap(m map[string]interface{}) []vpc.TagResourcesTag
 	}
 
 	return result
+}
+
+func (s *VpcService) setInstanceSecondaryCidrBlocks(d *schema.ResourceData) error {
+	if d.HasChange("secondary_cidr_blocks") {
+		oraw, nraw := d.GetChange("secondary_cidr_blocks")
+		removed := oraw.([]interface{})
+		added := nraw.([]interface{})
+		conn, err := s.client.NewVpcClient()
+		if err != nil {
+			return WrapError(err)
+		}
+		if len(removed) > 0 {
+			action := "UnassociateVpcCidrBlock"
+			request := map[string]interface{}{
+				"RegionId": s.client.RegionId,
+				"VpcId":    d.Id(),
+			}
+			for _, item := range removed {
+				request["SecondaryCidrBlock"] = item
+				request["Product"] = "Vpc"
+				request["OrganizationId"] = s.client.Department
+				response, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2016-04-28"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+				if err != nil {
+					return WrapErrorf(err, DefaultErrorMsg, d.Id(), action, ApsaraStackSdkGoERROR)
+				}
+				addDebug(action, response, request)
+			}
+		}
+
+		if len(added) > 0 {
+			action := "AssociateVpcCidrBlock"
+			request := map[string]interface{}{
+				"RegionId": s.client.RegionId,
+				"VpcId":    d.Id(),
+			}
+			for _, item := range added {
+				request["SecondaryCidrBlock"] = item
+				request["Product"] = "Vpc"
+				request["OrganizationId"] = s.client.Department
+				response, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2016-04-28"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+				if err != nil {
+					return WrapErrorf(err, DefaultErrorMsg, d.Id(), action, ApsaraStackSdkGoERROR)
+				}
+				addDebug(action, response, request)
+			}
+		}
+		//d.SetPartial("secondary_cidr_blocks")
+	}
+	return nil
+}
+
+func (s *VpcService) SetResourceTags(d *schema.ResourceData, resourceType string) error {
+
+	if d.HasChange("tags") {
+		added, removed := parsingTags(d)
+		conn, err := s.client.NewVpcClient()
+		if err != nil {
+			return WrapError(err)
+		}
+
+		removedTagKeys := make([]string, 0)
+		for _, v := range removed {
+			if !ignoredTags(v, "") {
+				removedTagKeys = append(removedTagKeys, v)
+			}
+		}
+		if len(removedTagKeys) > 0 {
+			action := "UnTagResources"
+			request := map[string]interface{}{
+				"RegionId":     s.client.RegionId,
+				"ResourceType": resourceType,
+				"ResourceId.1": d.Id(),
+			}
+			for i, key := range removedTagKeys {
+				request[fmt.Sprintf("TagKey.%d", i+1)] = key
+			}
+			wait := incrementalWait(2*time.Second, 1*time.Second)
+			err := resource.Retry(10*time.Minute, func() *resource.RetryError {
+				request["Product"] = "Vpc"
+				request["OrganizationId"] = s.client.Department
+				response, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2016-04-28"),
+					StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+				if err != nil {
+					if IsThrottling(err) {
+						wait()
+						return resource.RetryableError(err)
+
+					}
+					return resource.NonRetryableError(err)
+				}
+				addDebug(action, response, request)
+				return nil
+			})
+			if err != nil {
+				return WrapErrorf(err, DefaultErrorMsg, d.Id(), action, ApsaraStackSdkGoERROR)
+			}
+		}
+		if len(added) > 0 {
+			action := "TagResources"
+			request := map[string]interface{}{
+				"RegionId":     s.client.RegionId,
+				"ResourceType": resourceType,
+				"ResourceId.1": d.Id(),
+			}
+			count := 1
+			for key, value := range added {
+				request[fmt.Sprintf("Tag.%d.Key", count)] = key
+				request[fmt.Sprintf("Tag.%d.Value", count)] = value
+				count++
+			}
+
+			wait := incrementalWait(2*time.Second, 1*time.Second)
+			err := resource.Retry(10*time.Minute, func() *resource.RetryError {
+				request["Product"] = "Vpc"
+				request["OrganizationId"] = s.client.Department
+				response, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2016-04-28"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+				if err != nil {
+					if IsThrottling(err) {
+						wait()
+						return resource.RetryableError(err)
+
+					}
+					return resource.NonRetryableError(err)
+				}
+				addDebug(action, response, request)
+				return nil
+			})
+			if err != nil {
+				return WrapErrorf(err, DefaultErrorMsg, d.Id(), action, ApsaraStackSdkGoERROR)
+			}
+		}
+		//d.SetPartial("tags")
+	}
+	return nil
 }

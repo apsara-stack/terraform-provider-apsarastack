@@ -126,6 +126,7 @@ type ApiVersion string
 var ProviderVersion = "1.0.12"
 var TerraformVersion = strings.TrimSuffix(schema.Provider{}.TerraformVersion, "-dev")
 var goSdkMutex = sync.RWMutex{} // The Go SDK is not thread-safe
+var loadSdkEndpointMutex = sync.Mutex{}
 
 // Client for ApsaraStackClient
 func (c *Config) Client() (*ApsaraStackClient, error) {
@@ -1275,4 +1276,30 @@ func (client *ApsaraStackClient) WithMaxComputeClient(do func(*maxcompute.Client
 	}
 
 	return do(client.maxcomputeconn)
+}
+
+func (client *ApsaraStackClient) NewVpcClient() (*rpc.Client, error) {
+	productCode := "vpc"
+	endpoint := client.Config.VpcEndpoint
+	if v, ok := client.Config.Endpoints[productCode]; !ok || v.(string) == "" {
+		if err := client.loadEndpoint(productCode); err != nil {
+			return nil, err
+		}
+	}
+	if v, ok := client.Config.Endpoints[productCode]; ok && v.(string) != "" {
+		endpoint = v.(string)
+	}
+	if endpoint == "" {
+		return nil, fmt.Errorf("[ERROR] missing the product %s endpoint.", productCode)
+	}
+
+	sdkConfig := client.teaSdkConfig
+	sdkConfig.SetEndpoint(endpoint)
+
+	conn, err := rpc.NewClient(&sdkConfig)
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
+	}
+
+	return conn, nil
 }
