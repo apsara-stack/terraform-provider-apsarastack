@@ -1076,9 +1076,9 @@ func (client *ApsaraStackClient) WithLogClient(do func(*sls.Client) (interface{}
 			os.Setenv("http_proxy", client.Config.Proxy)
 		}
 		client.logconn = &sls.Client{
-			AccessKeyID:     client.Config.AccessKey,
-			AccessKeySecret: client.Config.SecretKey,
-			Endpoint:        endpoint,
+			AccessKeyID:     client.Config.OrganizationAccessKey,
+			AccessKeySecret: client.Config.OrganizationSecretKey,
+			Endpoint:        client.Config.SLSOpenAPIEndpoint,
 			SecurityToken:   client.Config.SecurityToken,
 			UserAgent:       client.getUserAgent(),
 		}
