@@ -39,7 +39,9 @@ type Config struct {
 	RamRoleSessionName       string
 	RamRolePolicy            string
 	RamRoleSessionExpiration int
-
+	OrganizationAccessKey   string
+	OrganizationSecretKey   string
+	SLSOpenAPIEndpoint    string
 	EcsEndpoint           string
 	RdsEndpoint           string
 	SlbEndpoint           string

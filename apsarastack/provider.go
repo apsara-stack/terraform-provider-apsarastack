@@ -134,6 +134,24 @@ func Provider() terraform.ResourceProvider {
 				Description:  descriptions["configuration_source"],
 				ValidateFunc: validation.StringLenBetween(0, 64),
 			},
+			"organization_accesskey": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_ORGANIZATION_ACCESSKEY", nil),
+				Description: descriptions["organization_accesskey"],
+			},
+			"organization_secretkey": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_ORGANIZATION_SECRETKEY", nil),
+				Description: descriptions["organization_secretkey"],
+			},
+			"sls_openapi_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_SLS_OPENAPI_ENDPOINT", nil),
+				Description: descriptions["sls_openapi_endpoint"],
+			},
 			"proxy": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -527,7 +545,18 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	} else {
 		config.Protocol = "HTTP"
 	}
-
+	organizationAccessKey := d.Get("organization_accesskey").(string)
+	if organizationAccessKey != "" {
+		config.OrganizationAccessKey = organizationAccessKey
+	}
+	organizationSecretKey := d.Get("organization_secretkey").(string)
+	if organizationSecretKey != "" {
+		config.OrganizationSecretKey = organizationSecretKey
+	}
+	slsOpenAPIEndpoint := d.Get("sls_openapi_endpoint").(string)
+	if slsOpenAPIEndpoint != "" {
+		config.SLSOpenAPIEndpoint = slsOpenAPIEndpoint
+	}
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
 		dept, rg, err := getResourceCredentials(config)

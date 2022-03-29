@@ -17,7 +17,10 @@ import (
 
 // this file is deprecated and no maintenance
 // see client_logstore.go
-
+type Encrypt_conf struct {
+		Enable           bool  `json:"enable"`
+		Encrypt_type       string `json:"encrypt_type"`
+	}
 // LogStore defines LogStore struct
 type LogStore struct {
 	Name          string `json:"logstoreName"`
@@ -32,7 +35,7 @@ type LogStore struct {
 
 	CreateTime     uint32 `json:"createTime,omitempty"`
 	LastModifyTime uint32 `json:"lastModifyTime,omitempty"`
-
+	Encrypt_conf       Encrypt_conf    `json:"Encrypt_conf"`
 	project            *LogProject
 	putLogCompressType int
 }
