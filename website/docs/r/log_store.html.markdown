@@ -7,7 +7,7 @@ description: |-
   Provides a Apsarastack log store resource.
 ---
 
-# alicloud\_log\_store
+# apsarastack\_log\_store
 
 The log store is a unit in Log Service to collect, store, and query the log data. Each log store belongs to a project,
 and each project can create multiple Logstores. [Refer to details](https://help.aliyun.com/apsara/enterprise/v_3_16_0_20220117/sls/enterprise-ascm-developer-guide/CreateLogstore.html?spm=a2c4g.14484438.10001.307)
