@@ -68,7 +68,7 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "domain alreadyExist", ApsaraStackSdkGoERROR)
 	}
-	if len(check.ZoneList) == 0 {
+	//if len(check.ZoneList) == 0 {
 
 		request := requests.NewCommonRequest()
 		request.Method = "POST"        // Set request method
@@ -111,14 +111,15 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "AddGlobalAuthZone", ApsaraStackSdkGoERROR)
 		}
 		addDebug("AddGlobalAuthZone", raw, requestInfo, bresponse.GetHttpContentString())
-	}
-	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
+	//}
+	//err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		check, err = dnsService.DescribeDnsDomain(DomainName)
 		if err != nil {
-			return resource.NonRetryableError(err)
+			return err
+			//return resource.NonRetryableError(err)
 		}
-		return resource.RetryableError(err)
-	})
+		//return resource.RetryableError(err)
+	//})
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "DescribeDnsDomain")
 	}
