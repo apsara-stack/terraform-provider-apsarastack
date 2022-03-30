@@ -147,8 +147,6 @@ func TestAccApsaraStackVpcBasic(t *testing.T) {
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
-	//name := fmt.Sprintf("tf-testAcc%sVpc%d", defaultRegionToTest, rand)
-	//testAccConfig := resourceTestAccConfigFunc(resourceId, name, ApsarastackVpcBasicDependence)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -244,8 +242,7 @@ variable "name" {
 }
 
 resource "apsarastack_vpc" "default" {
-	//name = "${var.name}"
-	name = "aaaaaabbbbbb"
+	name = "${var.name}"
 	cidr_block = "172.16.0.0/12"
   tags = {
 		   Created = "TF"
