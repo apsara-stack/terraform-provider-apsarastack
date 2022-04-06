@@ -64,6 +64,8 @@ const (
 	DiskCloudESSD       = DiskCategory("cloud_essd")
 	DiskCloudEfficiency = DiskCategory("cloud_efficiency")
 	DiskCloudSSD        = DiskCategory("cloud_ssd")
+	DiskCloudPPERF      = DiskCategory("cloud_pperf")
+	DiskCloudSPERF      = DiskCategory("cloud_sperf")
 	DiskLocalDisk       = DiskCategory("local_disk")
 )
 

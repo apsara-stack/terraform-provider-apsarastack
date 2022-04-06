@@ -73,7 +73,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Optional: true,
 				Default:  DiskCloudEfficiency,
 				ValidateFunc: validation.StringInSlice([]string{
-					string(DiskCloudEfficiency), string(DiskCloudSSD)}, false),
+					string(DiskCloudEfficiency), string(DiskCloudSSD), string(DiskCloudPPERF), string(DiskCloudSPERF)}, false),
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 			},
 			"delete_protection": {
@@ -97,7 +97,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Optional: true,
 				Default:  DiskCloudEfficiency,
 				ValidateFunc: validation.StringInSlice([]string{
-					string(DiskCloudEfficiency), string(DiskCloudSSD)}, false),
+					string(DiskCloudEfficiency), string(DiskCloudSSD), string(DiskCloudPPERF), string(DiskCloudSPERF)}, false),
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 			},
 			"worker_data_disk_size": {
@@ -111,7 +111,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
-					string(DiskCloudEfficiency), string(DiskCloudSSD)}, false),
+					string(DiskCloudEfficiency), string(DiskCloudSSD), string(DiskCloudPPERF), string(DiskCloudSPERF)}, false),
 				DiffSuppressFunc: csForceUpdateSuppressFunc,
 			},
 			"worker_data_disks": {
