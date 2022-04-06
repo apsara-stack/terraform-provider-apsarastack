@@ -84,7 +84,7 @@ func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      DiskCloudEfficiency,
-				ValidateFunc: validation.StringInSlice([]string{"cloud", "ephemeral_ssd", "cloud_ssd", "cloud_efficiency"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"cloud", "ephemeral_ssd", "cloud_ssd", "cloud_efficiency", "cloud_pperf", "cloud_sperf"}, false),
 			},
 			"system_disk_size": {
 				Type:         schema.TypeInt,
@@ -104,7 +104,7 @@ func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "cloud",
-							ValidateFunc: validation.StringInSlice([]string{"all", "cloud", "ephemeral_ssd", "cloud_efficiency", "cloud_ssd"}, false),
+							ValidateFunc: validation.StringInSlice([]string{"all", "cloud", "ephemeral_ssd", "cloud_efficiency", "cloud_ssd", "cloud_pperf", "cloud_sperf"}, false),
 						},
 						"snapshot_id": {
 							Type:     schema.TypeString,
