@@ -31,7 +31,6 @@ func TestAccApsaraStackAscm_quotasDataSource(t *testing.T) {
 
 const dataSourceApsaraStackAscm_Quota = `
 
-
 data "apsarastack_ascm_quotas" "default" {
   quota_type = "organization"
   quota_type_id = 1

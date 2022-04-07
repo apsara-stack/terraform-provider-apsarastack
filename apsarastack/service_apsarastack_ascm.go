@@ -77,7 +77,6 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 	did := strings.Split(id, COLON_SEPARATED)
 
 	request := requests.NewCommonRequest()
-
 	if s.client.Config.Insecure {
 		request.SetHTTPSInsecure(s.client.Config.Insecure)
 	}
@@ -1191,7 +1190,7 @@ func (s *AscmService) DescribeAscmUsergroupUser(id string) (response *User, err 
 		"Product":         "ascm",
 		"Action":          "ListUsersInUserGroup",
 		"Version":         "2019-05-10",
-		"userGroupId":      id,
+		"userGroupId":     id,
 	}
 	request.Method = "POST"
 	request.Product = "Ascm"

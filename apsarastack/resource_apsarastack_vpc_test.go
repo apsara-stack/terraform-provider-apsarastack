@@ -244,10 +244,6 @@ variable "name" {
 resource "apsarastack_vpc" "default" {
 	name = "${var.name}"
 	cidr_block = "172.16.0.0/12"
-  tags = {
-		   Created = "TF"
-		   For = "Test"
-		 }
 }
 `, rand)
 }
@@ -309,12 +305,6 @@ resource "apsarastack_vpc" "default" {
 	cidr_block = "172.16.0.0/12"
 }
 `, rand)
-}
-
-func ApsarastackVpcBasicDependence(name string) string {
-	return fmt.Sprintf(`
-
-`)
 }
 
 var testAccCheckVpcCheckMap = map[string]string{

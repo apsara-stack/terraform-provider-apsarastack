@@ -1077,9 +1077,9 @@ func (client *ApsaraStackClient) WithLogClient(do func(*sls.Client) (interface{}
 			os.Setenv("http_proxy", client.Config.Proxy)
 		}
 		client.logconn = &sls.Client{
-			AccessKeyID:     client.Config.OrganizationAccessKey,
-			AccessKeySecret: client.Config.OrganizationSecretKey,
-			Endpoint:        client.Config.SLSOpenAPIEndpoint,
+			AccessKeyID:     client.Config.AccessKey,
+			AccessKeySecret: client.Config.SecretKey,
+			Endpoint:        endpoint,
 			SecurityToken:   client.Config.SecurityToken,
 			UserAgent:       client.getUserAgent(),
 		}
@@ -1295,6 +1295,8 @@ func (client *ApsaraStackClient) NewVpcClient() (*rpc.Client, error) {
 
 	sdkConfig := client.teaSdkConfig
 	sdkConfig.SetEndpoint(endpoint)
+	sdkConfig.SetAccessKeyId(client.Config.AccessKey)
+	sdkConfig.SetAccessKeySecret(client.Config.SecretKey)
 
 	conn, err := rpc.NewClient(&sdkConfig)
 	if err != nil {

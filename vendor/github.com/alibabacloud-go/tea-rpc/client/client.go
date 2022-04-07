@@ -367,6 +367,17 @@ func (client *Client) DoRequest(action *string, protocol *string, method *string
 					"user-agent":    client.GetUserAgent(),
 				}, headers)
 			}
+			/*product, ok := body["Product"]
+			if ok {
+				request_.Headers["x-ascm-product-name"] = tea.String(product.(string))
+				delete(body, "Product")
+			}
+			organizationId, ok := body["OrganizationId"]
+			if ok {
+				request_.Headers["x-acs-organizationId"] = tea.String(organizationId.(string))
+				delete(body, "OrganizationId")
+			}*/
+			
 			if !tea.BoolValue(util.IsUnset(body)) {
 				tmp := util.AnyifyMapValue(rpcutil.Query(body))
 				request_.Body = tea.ToReader(util.ToFormString(tmp))

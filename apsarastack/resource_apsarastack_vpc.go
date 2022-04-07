@@ -68,7 +68,6 @@ func resourceApsaraStackVpc() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"tags": tagsSchema(),
 		},
 	}
 }
@@ -138,11 +137,10 @@ func resourceApsaraStackVpcCreate(d *schema.ResourceData, meta interface{}) erro
 
 		return nil
 	}
-	return resourceApsaraStackVpcUpdate(d, meta)
+	return resourceApsaraStackVpcRead(d, meta)
 }
 
 func resourceApsaraStackVpcRead(d *schema.ResourceData, meta interface{}) error {
-	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
 
@@ -160,9 +158,6 @@ func resourceApsaraStackVpcRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("name", object.VpcName)
 	d.Set("description", object.Description)
 	d.Set("router_id", object.VRouterId)
-	if tag := object.Tags.Tag; tag != nil {
-		d.Set("tags", vpcService.tagToMap(tag))
-	}
 	request := vpc.CreateDescribeRouteTablesRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -220,9 +215,13 @@ func resourceApsaraStackVpcRead(d *schema.ResourceData, meta interface{}) error 
 
 func resourceApsaraStackVpcUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+
 	vpcService := VpcService{client}
+	if err := vpcService.setInstanceSecondaryCidrBlocks(d); err != nil {
+		return WrapError(err)
+	}
 	if d.HasChange("tags") {
-		if err := vpcService.setInstanceTags(d, "vpc"); err != nil {
+		if err := vpcService.SetResourceTags(d, "vpc"); err != nil {
 			return WrapError(err)
 		}
 	}
@@ -230,7 +229,6 @@ func resourceApsaraStackVpcUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.Partial(false)
 		return resourceApsaraStackVpcRead(d, meta)
 	}
-
 	attributeUpdate := false
 	request := vpc.CreateModifyVpcAttributeRequest()
 	request.RegionId = client.RegionId
@@ -248,21 +246,10 @@ func resourceApsaraStackVpcUpdate(d *schema.ResourceData, meta interface{}) erro
 		attributeUpdate = true
 	}
 
-	if d.HasChange("vpc_name") {
-		request.VpcName = d.Get("vpc_name").(string)
-		attributeUpdate = true
-	}
-
 	if d.HasChange("description") {
 		request.Description = d.Get("description").(string)
 		attributeUpdate = true
 	}
-
-	if !d.IsNewResource() && d.HasChange("cidr_block") {
-		request.CidrBlock = d.Get("cidr_block").(string)
-		attributeUpdate = true
-	}
-
 	if d.HasChange("secondary_cidr_block") {
 		if SecondaryCidrBlock, ok := d.GetOk("secondary_cidr_block"); ok {
 			assorequest := vpc.CreateAssociateVpcCidrBlockRequest()

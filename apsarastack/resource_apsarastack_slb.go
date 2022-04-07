@@ -34,14 +34,14 @@ func resourceApsaraStackSlb() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{"internet", "intranet","VPC"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"internet", "intranet"}, false),
 			},
 			"specification": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ValidateFunc:  validation.StringInSlice([]string{"slb.s1.small", "slb.s2.medium", "slb.s2.small", "slb.s3.large", "slb.s3.medium", "slb.s3.small", "slb.s4.large"}, false),
-				Deprecated:    "Field 'specification' has been deprecated from provider version 1.123.1. New field 'load_balancer_spec' instead",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"slb.s1.small", "slb.s2.medium", "slb.s2.small", "slb.s3.large", "slb.s3.medium", "slb.s3.small", "slb.s4.large"}, false),
+				Deprecated:   "Field 'specification' has been deprecated from provider version 1.123.1. New field 'load_balancer_spec' instead",
 			},
 			"vswitch_id": {
 				Type:             schema.TypeString,
@@ -83,39 +83,6 @@ func resourceApsaraStackSlbCreate(d *schema.ResourceData, meta interface{}) erro
 	if v, ok := d.GetOk("name"); ok && v.(string) != "" {
 		request.LoadBalancerName = strings.ToLower(v.(string))
 	}
-	if v, ok := d.GetOk("address_type"); ok && v.(string) == "VPC" {
-		if v, ok := d.GetOk("vswitch_id"); ok && v.(string) != "" {
-			request.VSwitchId = v.(string)
-		}else {
-			return  GetNotFoundVPCError(GetNotVPCMessage())
-		}
-		var raw interface{}
-
-		invoker := Invoker{}
-		invoker.AddCatcher(Catcher{"OperationFailed.TokenIsProcessing", 10, 5})
-		log.Printf("[DEBUG] slb request %v", request)
-		if err := invoker.Run(func() error {
-			resp, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
-				return slbClient.CreateLoadBalancer(request)
-			})
-			raw = resp
-			return err
-		}); err != nil {
-			if IsExpectedErrors(err, []string{"OrderFailed"}) {
-				return WrapError(err)
-			}
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_slb", request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		response, _ := raw.(*slb.CreateLoadBalancerResponse)
-		d.SetId(response.LoadBalancerId)
-
-		if err := slbService.WaitForSlb(response.LoadBalancerId, Active, DefaultTimeout); err != nil {
-			return WrapError(err)
-		}
-
-		return resourceApsaraStackSlbUpdate(d, meta)
-	}else {
 	if v, ok := d.GetOk("address_type"); ok && v.(string) != "" {
 		request.AddressType = strings.ToLower(v.(string))
 	}
@@ -150,7 +117,6 @@ func resourceApsaraStackSlbCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	return resourceApsaraStackSlbUpdate(d, meta)
-	}
 }
 
 func resourceApsaraStackSlbRead(d *schema.ResourceData, meta interface{}) error {
@@ -166,12 +132,7 @@ func resourceApsaraStackSlbRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("name", object.LoadBalancerName)
-	if v, ok := d.GetOk("address_type"); ok && v.(string) == "VPC" {
-		d.Set("address_type", "VPC")
-	}else {
-		d.Set("address_type", object.AddressType)
-	}
-	//d.Set("address_type", object.AddressType)
+	d.Set("address_type", object.AddressType)
 	d.Set("vswitch_id", object.VSwitchId)
 	d.Set("address", object.Address)
 
