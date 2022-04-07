@@ -41,7 +41,7 @@ func testSweepKVStoreInstances(region string) error {
 		"testAcc",
 	}
 
-	var insts []r_kvstore.KVStoreInstance
+	var insts []r_kvstore.KVStoreInstanceInDescribeInstances
 	req := r_kvstore.CreateDescribeInstancesRequest()
 	req.RegionId = client.RegionId
 	req.PageSize = requests.NewInteger(PageSizeLarge)

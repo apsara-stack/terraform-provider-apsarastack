@@ -41,6 +41,9 @@ type Config struct {
 	RamRoleSessionExpiration int
 
 	Endpoints             map[string]interface{}
+	OrganizationAccessKey   string
+	OrganizationSecretKey   string
+	SLSOpenAPIEndpoint    string
 	EcsEndpoint           string
 	RdsEndpoint           string
 	SlbEndpoint           string

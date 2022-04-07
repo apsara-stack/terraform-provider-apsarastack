@@ -22,6 +22,7 @@ const (
 	NotFound                = "NotFound"
 	ResourceNotfound        = "ResourceNotfound"
 	InstanceNotFound        = "Instance.Notfound"
+	VSwitchIdNotFound        = "VSwitchId.Notfound"
 	MessageInstanceNotFound = "instance is not found"
 	Throttling              = "Throttling"
 
@@ -291,7 +292,15 @@ func WrapErrorf(cause error, msg string, args ...interface{}) error {
 	}
 	return WrapComplexError(cause, fmt.Errorf(msg, args...), filepath, line)
 }
-
+func GetNotFoundVPCError(str string) error {
+	return &ProviderError{
+		errorCode: VSwitchIdNotFound,
+		message:   str,
+	}
+}
+func GetNotVPCMessage() string {
+	return fmt.Sprintf("The VSwitchId is not found.")
+}
 func WrapComplexError(cause, err error, filepath string, fileline int) error {
 	return &ComplexError{
 		Cause: cause,
