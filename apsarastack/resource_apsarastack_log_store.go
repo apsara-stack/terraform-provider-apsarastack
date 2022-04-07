@@ -90,6 +90,10 @@ func resourceApsaraStackLogStore() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
+			"encryption": {
+				Type:     schema.TypeBool,
+				Optional: true,
+			},
 			"enable_web_tracking": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -101,6 +105,10 @@ func resourceApsaraStackLogStore() *schema.Resource {
 
 func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+	update:=false
+	if v, ok := d.GetOk("encryption"); ok {
+		update = v.(bool)
+	}
 	logstore := &sls.LogStore{
 		Name:          d.Get("name").(string),
 		TTL:           d.Get("retention_period").(int),
@@ -111,6 +119,47 @@ func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{})
 		AppendMeta:    d.Get("append_meta").(bool),
 	}
 	var requestinfo *sls.Client
+	if update{
+		logstore := &sls.LogStore{
+			Name:          d.Get("name").(string),
+			TTL:           d.Get("retention_period").(int),
+			ShardCount:    d.Get("shard_count").(int),
+			WebTracking:   d.Get("enable_web_tracking").(bool),
+			AutoSplit:     d.Get("auto_split").(bool),
+			MaxSplitShard: d.Get("max_split_shard_count").(int),
+			AppendMeta:    d.Get("append_meta").(bool),
+			Encrypt_conf: sls.Encrypt_conf{
+				Enable: true,
+				Encrypt_type: "sm4_gcm",
+			},
+		}
+		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
+
+			raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
+				requestinfo = slsClient
+				return nil, slsClient.CreateLogStoreV2(d.Get("project").(string), logstore)
+			})
+			if err != nil {
+				if IsExpectedErrors(err, []string{"InternalServerError", LogClientTimeout}) {
+					return resource.RetryableError(err)
+				}
+				return resource.NonRetryableError(err)
+			}
+			if debugOn() {
+				addDebug("CreateLogStoreV2", raw, requestinfo, map[string]interface{}{
+					"project":  d.Get("project").(string),
+					"logstore": logstore,
+				})
+			}
+			return nil
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_log_store", "CreateLogStoreV2", ApsaraStackLogGoSdkERROR)
+		}
+		d.SetId(fmt.Sprintf("%s%s%s", d.Get("project").(string), COLON_SEPARATED, d.Get("name").(string)))
+
+		return resourceApsaraStackLogStoreUpdate(d, meta)
+	}
 	err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 
 		raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {

@@ -286,6 +286,11 @@ func resourceApsaraStackOssBucket() *schema.Resource {
 				},
 				MaxItems: 1,
 			},
+			"vpclist": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -405,10 +410,23 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "Logging Failed", ApsaraStackOssGoSdk)
 		}
 	}
+	newlist := d.Get("vpclist").([]interface{})
+	bvclient := meta.(*connectivity.ApsaraStackClient)
+	bvserver := BucketVpcService{bvclient}
+	vpclist, binderr := bvserver.BucketVpcList(bucketName)
+	if binderr != nil {
+		return WrapError(binderr)
+	}
+	oldlist := vpclist.VpcList
+	vpc_err := checkVpcListChange(oldlist, newlist, d, meta)
+	if vpc_err != nil {
+		return WrapError(vpc_err)
+	}
 	return resourceApsaraStackOssBucketRead(d, meta)
 }
 
 func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	ossService := OssService{client}
 	object, err := ossService.DescribeOssBucket(d.Id())
@@ -426,7 +444,9 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 	logging, err := resourceApsaraStackOssBucketLoggingDescribe(client, d)
 	log.Printf("read describe logging %v", logging)
 	d.Set("bucket", d.Id())
-
+	if object.BucketInfo.Name == "" {
+		log.Print("read: BucketInfo fail!!!!!!")
+	}
 	d.Set("acl", acl)
 	d.Set("creation_date", object.BucketInfo.CreationDate.Format("2006-01-02"))
 	d.Set("extranet_endpoint", object.BucketInfo.ExtranetEndpoint)
@@ -441,7 +461,20 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 	if err = d.Set("logging", list); err != nil {
 		return WrapError(err)
 	}
-
+	bvclient := meta.(*connectivity.ApsaraStackClient)
+	bvserver := BucketVpcService{bvclient}
+	vpclist, binderr := bvserver.BucketVpcList(d.Get("bucket").(string))
+	if binderr != nil {
+		return WrapError(binderr)
+	}
+	var vlist []string
+	if len(vpclist.VpcList) > 0 {
+		for _, v := range vpclist.VpcList {
+			vpc := v.(map[string]interface{})
+			vlist = append(vlist, vpc["vpcId"].(string))
+		}
+	}
+	d.Set("vpclist", vlist)
 	//request := map[string]string{"bucketName": d.Id()}
 	//var requestInfo *oss.Client
 	//
@@ -715,11 +748,39 @@ func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}
 			return WrapError(err)
 		}
 	}
-
+	if d.HasChange("vpclist") {
+		o, n := d.GetChange("vpclist")
+		oldlist := o.([]interface{})
+		newlist := n.([]interface{})
+		vpc_err := checkVpcListChange(oldlist, newlist, d, meta)
+		if vpc_err != nil {
+			return WrapError(vpc_err)
+		}
+	}
+	d.Partial(false)
 	return resourceApsaraStackOssBucketRead(d, meta)
 }
 
 func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}) error {
+	bvclient := meta.(*connectivity.ApsaraStackClient)
+	bvserver := BucketVpcService{bvclient}
+	vpclist, binderr := bvserver.BucketVpcList(d.Id())
+	if binderr != nil {
+		return WrapError(binderr)
+	}
+	var vlist []string
+	if len(vpclist.VpcList) > 0 {
+		for _, v := range vpclist.VpcList {
+			vpc := v.(map[string]interface{})
+			client2 := meta.(*connectivity.ApsaraStackClient)
+			bvserver := BucketVpcService{client2}
+			binderr := bvserver.UnBindBucket(vpc["vpcId"].(string), d.Id())
+			if binderr != nil {
+				return WrapError(binderr)
+			}
+		}
+	}
+	d.Set("vpclist", vlist)
 	client := meta.(*connectivity.ApsaraStackClient)
 	ossService := OssService{client}
 	var requestInfo *oss.Client
@@ -732,7 +793,7 @@ func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}
 		return nil
 	}
 
-	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
+	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
 		request := requests.NewCommonRequest()
 		if client.Config.Insecure {
 			request.SetHTTPSInsecure(client.Config.Insecure)
@@ -786,6 +847,50 @@ func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}
 		return nil
 	})
 	return WrapError(ossService.WaitForOssBucket(d.Id(), Deleted, DefaultTimeoutMedium))
+}
+
+func checkVpcListChange(oldlist []interface{}, newlist []interface{}, d *schema.ResourceData, meta interface{}) error {
+	vpclist := []string{}
+	for _, ovpcid := range oldlist {
+		isdelete := true
+		for _, nvpcid := range newlist {
+			if ovpcid == nvpcid {
+				isdelete = false
+			}
+		}
+		if isdelete {
+			client2 := meta.(*connectivity.ApsaraStackClient)
+			bvserver := BucketVpcService{client2}
+			binderr := bvserver.UnBindBucket(ovpcid.(string), d.Id())
+			if binderr != nil {
+				return WrapError(binderr)
+			}
+		}
+	}
+	for _, nvpcid := range newlist {
+		iscreate := true
+		vpclist = append(vpclist, nvpcid.(string))
+		for _, ovpcid := range oldlist {
+			if ovpcid == nvpcid {
+				iscreate = false
+			}
+		}
+		if iscreate {
+			client := meta.(*connectivity.ApsaraStackClient)
+			vpcServer := VpcService{client}
+			vpcdata, err := vpcServer.DescribeVpc(nvpcid.(string))
+			if err != nil {
+				return WrapError(err)
+			}
+			client2 := meta.(*connectivity.ApsaraStackClient)
+			bvserver := BucketVpcService{client2}
+			binderr := bvserver.BindBucket(vpcdata.VpcId, vpcdata.VpcName, vpcdata.CidrBlock, d.Id())
+			if binderr != nil {
+				return WrapError(binderr)
+			}
+		}
+	}
+	return nil
 }
 
 func expirationHash(v interface{}) int {

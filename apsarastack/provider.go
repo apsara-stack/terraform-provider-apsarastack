@@ -22,6 +22,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -133,6 +134,24 @@ func Provider() terraform.ResourceProvider {
 				Description:  descriptions["configuration_source"],
 				ValidateFunc: validation.StringLenBetween(0, 64),
 			},
+			"organization_accesskey": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_ORGANIZATION_ACCESSKEY", nil),
+				Description: descriptions["organization_accesskey"],
+			},
+			"organization_secretkey": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_ORGANIZATION_SECRETKEY", nil),
+				Description: descriptions["organization_secretkey"],
+			},
+			"sls_openapi_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_SLS_OPENAPI_ENDPOINT", nil),
+				Description: descriptions["sls_openapi_endpoint"],
+			},
 			"proxy": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -233,6 +252,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_resource_groups":                 dataSourceApsaraStackAscmResourceGroups(),
 			"apsarastack_cs_kubernetes_clusters":               dataSourceApsaraStackCSKubernetesClusters(),
 			"apsarastack_ascm_users":                           dataSourceApsaraStackAscmUsers(),
+			"apsarastack_ascm_user_groups":                     dataSourceApsaraStackAscmUserGroups(),
 			"apsarastack_ascm_logon_policies":                  dataSourceApsaraStackAscmLogonPolicies(),
 			"apsarastack_ascm_ram_service_roles":               dataSourceApsaraStackAscmRamServiceRoles(),
 			"apsarastack_ascm_organizations":                   dataSourceApsaraStackAscmOrganizations(),
@@ -311,6 +331,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_slb_backend_server":                  resourceApsaraStackSlbBackendServer(),
 			"apsarastack_oss_bucket":                          resourceApsaraStackOssBucket(),
 			"apsarastack_oss_bucket_object":                   resourceApsaraStackOssBucketObject(),
+			"apsarastack_oss_bucket_kms":                      resourceApsaraStackOssBucketKms(),
 			"apsarastack_ess_lifecycle_hook":                  resourceApsaraStackEssLifecycleHook(),
 			"apsarastack_ess_notification":                    resourceApsaraStackEssNotification(),
 			"apsarastack_ess_scaling_group":                   resourceApsaraStackEssScalingGroup(),
@@ -361,7 +382,10 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_mongodb_sharding_instance":           resourceApsaraStackMongoDBShardingInstance(),
 			"apsarastack_ascm_resource_group":                 resourceApsaraStackAscmResourceGroup(),
 			"apsarastack_ascm_user":                           resourceApsaraStackAscmUser(),
+			"apsarastack_ascm_user_group":                     resourceApsaraStackAscmUserGroup(),
 			"apsarastack_ascm_user_role_binding":              resourceApsaraStackAscmUserRoleBinding(),
+			"apsarastack_ascm_user_group_role_binding":        resourceApsaraStackAscmUserGroupRoleBinding(),
+			"apsarastack_ascm_user_group_resource_set_binding": resourceApsaraStackAscmUserGroupResourceSetBinding(),
 			"apsarastack_ascm_organization":                   resourceApsaraStackAscmOrganization(),
 			"apsarastack_cms_alarm":                           resourceApsaraStackCmsAlarm(),
 			"apsarastack_cms_site_monitor":                    resourceApsaraStackCmsSiteMonitor(),
@@ -380,6 +404,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ram_role":                   resourceApsaraStackRamRole(),
 			"apsarastack_ram_policy_role_attachment": resourceApsaraStackRamPolicyRoleAttachment(),
 			//"apsarastack_ascm_access_key": 						resourceApsarastackRamAccessKey(),
+			"apsarastack_ascm_usergroup_user":         resourceApsaraStackAscmUserGroupUser(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -520,7 +545,18 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	} else {
 		config.Protocol = "HTTP"
 	}
-
+	organizationAccessKey := d.Get("organization_accesskey").(string)
+	if organizationAccessKey != "" {
+		config.OrganizationAccessKey = organizationAccessKey
+	}
+	organizationSecretKey := d.Get("organization_secretkey").(string)
+	if organizationSecretKey != "" {
+		config.OrganizationSecretKey = organizationSecretKey
+	}
+	slsOpenAPIEndpoint := d.Get("sls_openapi_endpoint").(string)
+	if slsOpenAPIEndpoint != "" {
+		config.SLSOpenAPIEndpoint = slsOpenAPIEndpoint
+	}
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
 		dept, rg, err := getResourceCredentials(config)
@@ -1122,4 +1158,11 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(deptId), fmt.Sprint(resGrpId))
 	//return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID), err
 	return fmt.Sprint(deptId), fmt.Sprint(resGrpId), err
+}
+
+func waitSecondsIfWithTest(second int) {
+	// 测试模式下休眠一秒，防止数据缓存导致二次plan失败
+	if os.Getenv("TF_ACC") == "1" {
+		time.Sleep(time.Duration(second) * time.Second)
+	}
 }

@@ -1350,3 +1350,26 @@ func (s *VpcService) tagsFromMap(m map[string]interface{}) []vpc.TagResourcesTag
 
 	return result
 }
+
+func (s *VpcService) vpcTagIgnored(t vpc.Tag) bool {
+	filter := []string{"^aliyun", "^acs:", "^http://", "^https://"}
+	for _, v := range filter {
+		log.Printf("[DEBUG] Matching prefix %v with %v\n", v, t.Key)
+		ok, _ := regexp.MatchString(v, t.Key)
+		if ok {
+			log.Printf("[DEBUG] Found ApsaraStack Cloud specific tag %s (val: %s), ignoring.\n", t.Key, t.Value)
+			return true
+		}
+	}
+	return false
+}
+
+func (s *VpcService) tagToMap(tags []vpc.Tag) map[string]string {
+	result := make(map[string]string)
+	for _, t := range tags {
+		if !s.vpcTagIgnored(t) {
+			result[t.Key] = t.Value
+		}
+	}
+	return result
+}

@@ -292,6 +292,44 @@ func (e *EdasService) DescribeEdasCluster(clusterId string) (*edas.Cluster, erro
 	return &v, nil
 }
 
+func (e *EdasService) DescribeEdasListCluster(clusterId string) (*edas.Cluster, error) {
+	cluster := &edas.Cluster{}
+
+	request := edas.CreateListClusterRequest()
+	request.Headers["x-ascm-product-name"] = "Edas"
+	request.Headers["x-acs-organizationid"] = e.client.Department
+	request.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
+	request.RegionId = e.client.RegionId
+	request.ResourceGroupId = e.client.ResourceGroup
+	request.LogicalRegionId = e.client.RegionId
+
+	raw, err := e.client.WithEdasClient(func(edasClient *edas.Client) (interface{}, error) {
+		return edasClient.ListCluster(request)
+	})
+
+	if err != nil {
+		return cluster, WrapErrorf(err, DefaultErrorMsg, "apsarastack_edas_cluster", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	addDebug(request.GetActionName(), raw, request.RoaRequest, request)
+
+	response, _ := raw.(*edas.ListClusterResponse)
+	if response.Code != 200 {
+		return cluster, WrapError(Error("create cluster failed for " + response.Message))
+	}
+
+	v:= edas.Cluster{}
+	for _, onecluster := range response.ClusterList.Cluster {
+		if onecluster.ClusterId == clusterId {
+			if onecluster.CsClusterStatus == "running" {
+				//return resource.RetryableError(Error("cluster is importing"))
+				v = onecluster
+			}
+		}
+	}
+
+	return &v, nil
+}
+
 func (e *EdasService) DescribeEdasDeployGroup(id string) (*edas.DeployGroup, error) {
 	group := &edas.DeployGroup{}
 	regionId := e.client.RegionId

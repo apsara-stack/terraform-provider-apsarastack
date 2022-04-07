@@ -73,11 +73,11 @@ func TestAccApsaraStackLogStore_basic(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"max_split_shard_count": "60",
+					"max_split_shard_count": "6",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"max_split_shard_count": "60",
+						"max_split_shard_count": "6",
 					}),
 				),
 			},
@@ -149,7 +149,7 @@ func TestAccApsaraStackLogStore_multi(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"name":    name + "${count.index}",
 					"project": "${apsarastack_log_project.foo.name}",
-					"count":   "5",
+					"shard_count":   "5",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),

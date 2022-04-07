@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
+	"strconv"
 	"strings"
 )
 
@@ -404,6 +405,136 @@ func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (respon
 	return resp, nil
 }
 
+func (s *AscmService) DescribeAscmUserGroupResourceSet(id string) (response *ListResourceGroup, err error) {
+	var requestInfo *ecs.Client
+	did := strings.Split(id, COLON_SEPARATED)
+
+	request := requests.NewCommonRequest()
+
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	if id == "" {
+		request.QueryParams = map[string]string{
+			"RegionId":        s.client.RegionId,
+			"AccessKeySecret": s.client.SecretKey,
+			"Product":         "ascm",
+			"Action":          "ListResourceGroup",
+			"Version":         "2019-05-10",
+			"pageSize":        "1000",
+		}
+	} else {
+		request.QueryParams = map[string]string{
+			"RegionId":          s.client.RegionId,
+			"AccessKeySecret":   s.client.SecretKey,
+			"Product":           "ascm",
+			"Action":            "ListResourceGroup",
+			"Version":           "2019-05-10",
+			"resourceGroupName": did[0],
+		}
+	}
+
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListResourceGroup"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &ListResourceGroup{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorResourceGroupNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, did[0], "ListResourceGroup", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListResourceGroup", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+	return resp, nil
+}
+
+func (s *AscmService) DescribeAscmUserGroupResourceSetBinding(id string) (response *ListResourceGroup, err error) {
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "ascm",
+		"Action":          "ListResourceGroup",
+		"Version":         "2019-05-10",
+		"pageSize":        "1000",
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListResourceGroup"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &ListResourceGroup{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorListResourceGroupNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListResourceGroup", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListResourceGroup", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code != "200" {
+		return resp, WrapError(err)
+	}
+
+	var rgname string
+	for i := range resp.Data {
+		if strconv.Itoa(resp.Data[i].Id) == id {
+			rgname = resp.Data[i].ResourceGroupName
+			break
+		}
+	}
+	res, err := s.DescribeAscmUserGroupResourceSet(rgname)
+
+	return res, nil
+}
+
 func (s *AscmService) DescribeAscmUser(id string) (response *User, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
@@ -464,6 +595,132 @@ func (s *AscmService) DescribeAscmUser(id string) (response *User, err error) {
 
 	return resp, nil
 }
+
+func (s *AscmService) DescribeAscmUserGroup(id string) (response *UserGroup, err error) {
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	if id == "" {
+		request.QueryParams = map[string]string{
+			"RegionId":        s.client.RegionId,
+			"AccessKeySecret": s.client.SecretKey,
+			"Product":         "ascm",
+			"Action":          "ListUserGroups",
+			"Version":         "2019-05-10",
+		}
+	} else {
+		request.QueryParams = map[string]string{
+			"RegionId":        s.client.RegionId,
+			"AccessKeySecret": s.client.SecretKey,
+			"Product":         "ascm",
+			"Action":          "ListUserGroups",
+			"Version":         "2019-05-10",
+			"userGroupName":   id,
+		}
+	}
+
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListUserGroups"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &UserGroup{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorUserGroupNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListUserGroups", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListUserGroups", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code != "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
+
+func (s *AscmService) DescribeAscmUserGroupRoleBinding(id string) (response *UserGroup, err error) {
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"RegionId":        s.client.RegionId,
+		"AccessKeySecret": s.client.SecretKey,
+		"Product":         "ascm",
+		"Action":          "ListUserGroups",
+		"Version":         "2019-05-10",
+		"pageSize":        "1000",
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListUserGroups"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &UserGroup{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorUserGroupNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListUserGroups", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListUserGroups", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code != "200" {
+		return resp, WrapError(err)
+	}
+	var gname string
+	for i := range resp.Data {
+		if strconv.Itoa(resp.Data[i].Id) == id {
+			gname = resp.Data[i].GroupName
+			break
+		}
+	}
+	res, err := s.DescribeAscmUserGroup(gname)
+
+	return res, nil
+}
+
 func (s *AscmService) DescribeAscmUserRoleBinding(id string) (response *User, err error) {
 	var requestInfo *ecs.Client
 	request := requests.NewCommonRequest()
@@ -913,6 +1170,62 @@ func (s *AscmService) DescribeAscmPasswordPolicy(id string) (response *PasswordP
 	}
 
 	if resp.Code == "200" {
+		return resp, WrapError(err)
+	}
+
+	return resp, nil
+}
+
+func (s *AscmService) DescribeAscmUsergroupUser(id string) (response *User, err error) {
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+	if s.client.Config.Insecure {
+		request.SetHTTPSInsecure(s.client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": s.client.SecretKey,
+		"AccessKeyId":     s.client.AccessKey,
+		"Department":      s.client.Department,
+		"ResourceGroup":   s.client.ResourceGroup,
+		"RegionId":        s.client.RegionId,
+		"Product":         "ascm",
+		"Action":          "ListUsersInUserGroup",
+		"Version":         "2019-05-10",
+		"userGroupId":      id,
+	}
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "ListUsersInUserGroup"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.RegionId = s.client.RegionId
+	var resp = &User{}
+	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ErrorUserNotFound"}) {
+			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+		}
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ListUsersInUserGroup", ApsaraStackSdkGoERROR)
+
+	}
+	addDebug("ListUsersInUserGroup", response, requestInfo, request)
+
+	bresponse, _ := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return resp, WrapError(err)
+	}
+
+	if len(resp.Data) < 1 || resp.Code == "200" {
 		return resp, WrapError(err)
 	}
 

@@ -209,6 +209,143 @@ type DeletedUser struct {
 	Message      string `json:"message"`
 }
 
+type CreateUserGroup struct {
+	Code         string `json:"code"`
+	Cost         int    `json:"cost"`
+	Message      string `json:"message"`
+	PureListData bool   `json:"pureListData"`
+	Redirect     bool   `json:"redirect"`
+	Success      bool   `json:"success"`
+	Data         []struct {
+		AugId          string `json:"augId"`
+		GroupName      string `json:"groupName"`
+		Id             int    `json:"id"`
+		OrganizationId int    `json:"organizationId"`
+	} `json:"data"`
+}
+
+type UserGroup struct {
+	Code         string `json:"code"`
+	Cost         int    `json:"cost"`
+	Message      string `json:"message"`
+	PureListData bool   `json:"pureListData"`
+	Redirect     bool   `json:"redirect"`
+	Success      bool   `json:"success"`
+	PageInfo     struct {
+		CurrentPage int `json:"currentPage"`
+		PageSize    int `json:"pageSize"`
+		Total       int `json:"total"`
+		TotalPage   int `json:"totalPage"`
+	} `json:"pageInfo"`
+	Data []struct {
+		AugId           string `json:"augId"`
+		CreateTimeStamp int64  `json:"createTimeStamp"`
+		GroupName       string `json:"groupName"`
+		Id              int    `json:"id"`
+		OrganizationId  int    `json:"organizationId"`
+		Organization    struct {
+			Alias             string        `json:"alias"`
+			Ctime             int64         `json:"ctime"`
+			CuserId           string        `json:"cuserId"`
+			Id                int           `json:"id"`
+			Internal          bool          `json:"internal"`
+			Level             string        `json:"level"`
+			Mtime             int64         `json:"mtime"`
+			MultiCloudStatus  string        `json:"multiCloudStatus"`
+			MuserId           string        `json:"muserId"`
+			Name              string        `json:"name"`
+			ParentId          int           `json:"parentId"`
+			SupportRegions    string        `json:"supportRegions"`
+			UUID              string        `json:"uuid"`
+			SupportRegionList []interface{} `json:"supportRegionList"`
+		} `json:"organization,omitempty"`
+		ResourceSets []struct {
+			Active                 bool   `json:"active"`
+			ArID                   string `json:"arId"`
+			Code                   string `json:"code"`
+			Default                bool   `json:"default"`
+			Description            string `json:"description"`
+			Enable                 bool   `json:"enable"`
+			ID                     int    `json:"id"`
+			OrganizationVisibility string `json:"organizationVisibility"`
+			OwnerOrganizationID    int    `json:"ownerOrganizationId"`
+			RAMRole                bool   `json:"rAMRole"`
+			RoleLevel              int64  `json:"roleLevel"`
+			RoleName               string `json:"roleName"`
+			RoleRange              string `json:"roleRange"`
+			RoleType               string `json:"roleType"`
+		} `json:"resourceSets"`
+		Roles []struct {
+			Active                 bool   `json:"active"`
+			ArId                   string `json:"arId"`
+			Code                   string `json:"code"`
+			CuserId                string `json:"cuserId"`
+			Default                bool   `json:"default"`
+			Description            string `json:"description"`
+			Enable                 bool   `json:"enable"`
+			Id                     int    `json:"id"`
+			MuserId                string `json:"muserId"`
+			OrganizationVisibility string `json:"organizationVisibility"`
+			OwnerOrganizationId    int    `json:"ownerOrganizationId"`
+			RAMRole                bool   `json:"rAMRole"`
+			RoleLevel              int64  `json:"roleLevel"`
+			RoleName               string `json:"roleName"`
+			RoleRange              string `json:"roleRange"`
+			RoleType               string `json:"roleType"`
+		} `json:"roles"`
+		Users []struct {
+			AccountType        int     `json:"accountType"`
+			Active             bool    `json:"active"`
+			AliyunUser         bool    `json:"aliyunUser"`
+			BackendAccountType string  `json:"backendAccountType"`
+			CellphoneNum       string  `json:"cellphoneNum"`
+			Ctime              int64   `json:"ctime"`
+			Default            bool    `json:"default"`
+			DefaultRoleId      int     `json:"defaultRoleId"`
+			Deleted            bool    `json:"deleted"`
+			Email              string  `json:"email"`
+			EnableDingTalk     bool    `json:"enableDingTalk"`
+			EnableEmail        bool    `json:"enableEmail"`
+			EnableShortMessage bool    `json:"enableShortMessage"`
+			Id                 int     `json:"id"`
+			LoginName          string  `json:"loginName"`
+			LoginTime          int64   `json:"loginTime"`
+			MobileNationCode   string  `json:"mobileNationCode"`
+			Mtime              float64 `json:"mtime"`
+			MuserID            string  `json:"muserId"`
+			OrganizationId     int     `json:"organizationId"`
+			Password           string  `json:"password"`
+			RamUser            bool    `json:"ramUser"`
+			UserLoginCtrlId    int     `json:"userLoginCtrlId"`
+			Username           string  `json:"username"`
+		} `json:"users"`
+	} `json:"data"`
+}
+
+type ListResourceGroup struct {
+	Redirect     bool   `json:"redirect"`
+	Code         string `json:"code"`
+	Cost         int    `json:"cost"`
+	Success      bool   `json:"success"`
+	PureListData bool   `json:"pureListData"`
+	Message      string `json:"message"`
+	PageInfo     struct {
+		CurrentPage int `json:"currentPage"`
+		PageSize    int `json:"pageSize"`
+		Total       int `json:"total"`
+		TotalPage   int `json:"totalPage"`
+	} `json:"pageInfo"`
+	Data []struct {
+		OrganizationID    int     `json:"organizationID"`
+		Creator           string  `json:"creator"`
+		ResourceGroupName string  `json:"resourceGroupName"`
+		OrganizationName  string  `json:"organizationName"`
+		GmtCreated        float64 `json:"gmtCreated"`
+		RsId              string  `json:"rsId"`
+		Id                int     `json:"id"`
+	} `json:"data"`
+}
+
 type PasswordPolicy struct {
 	Code string `json:"code"`
 	Cost int    `json:"cost"`
