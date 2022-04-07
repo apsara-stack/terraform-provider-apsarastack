@@ -750,25 +750,6 @@ contd:
 func resourceApsaraStackMongoDBInstanceDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ddsService := MongoDBService{client}
-	//
-	//request := dds.CreateDeleteDBInstanceRequest()
-	//request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "Dds", "RegionId": client.RegionId, "Action": "DeleteDBInstance", "Version": "2015-12-01", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
-	//request.DBInstanceId = d.Id()
-	//
-	//err := resource.Retry(10*time.Minute, func() *resource.RetryError {
-	//	raw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
-	//		return ddsClient.DeleteDBInstance(request)
-	//	})
-	//
-	//	if err != nil {
-	//		if IsExpectedErrors(err, []string{"InvalidDBInstanceId.NotFound"}) {
-	//			return resource.NonRetryableError(err)
-	//		}
-	//		return resource.RetryableError(err)
-	//	}
-	//	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	//	return nil
-	//})
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "Dds", "RegionId": client.RegionId, "Action": "DeleteDBInstance", "Version": "2015-12-01", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
 	request.Method = "POST"
@@ -819,8 +800,6 @@ func resourceApsaraStackMongoDBInstanceDelete(d *schema.ResourceData, meta inter
 		}
 		return WrapError(err)
 	}
-	/*	stateConf := BuildStateConf([]string{"Creating", "Deleting"}, []string{}, d.Timeout(schema.TimeoutDelete), 1*time.Minute, ddsService.RdsMongodbDBInstanceStateRefreshFunc(d.Id(), []string{}))
-		_, err = stateConf.WaitForState()*/
 
 	return WrapError(err)
 }
