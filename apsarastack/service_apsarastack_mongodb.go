@@ -1,7 +1,10 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
 	"regexp"
 	"strings"
@@ -20,35 +23,132 @@ type MongoDBService struct {
 	client *connectivity.ApsaraStackClient
 }
 
-func (s *MongoDBService) DescribeMongoDBInstance(id string) (instance dds.DBInstance, err error) {
-	request := dds.CreateDescribeDBInstanceAttributeRequest()
-	request.RegionId = s.client.RegionId
+func (s *MongoDBService) DescribeMongoDBInstance(id, dbType string) (instance dds.DBInstance, err error) {
+	request := requests.NewCommonRequest()
+	request.Method = "POST"
+	request.Product = "Dds"
+	request.Version = "2015-12-01"
+	//request.Scheme = "http"
+	request.ServiceCode = "Dds"
+	request.ApiName = "DescribeDBInstanceAttribute"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "dds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	request.DBInstanceId = id
-	raw, err := s.client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
-		return client.DescribeDBInstanceAttribute(request)
-	})
-	response, _ := raw.(*dds.DescribeDBInstanceAttributeResponse)
-	if err != nil {
-		if IsExpectedErrors(err, []string{"InvalidDBInstanceId.NotFound"}) {
-			return instance, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
-		}
-		return instance, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+	request.QueryParams = map[string]string{"AccessKeyId": s.client.AccessKey, "AccessKeySecret": s.client.SecretKey, "Product": "Dds", "RegionId": s.client.RegionId, "Action": "DescribeDBInstanceAttribute", "Version": "2015-12-01", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.RegionId = s.client.RegionId
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
 	}
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	if response == nil || len(response.DBInstances.DBInstance) == 0 {
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	if dbType == "Sharding" {
+		request.QueryParams = map[string]string{
+			"Product":         "Dds",
+			"Action":          "DescribeDBInstanceAttribute",
+			"Version":         "2015-12-01",
+			"RegionId":        s.client.RegionId,
+			"AccessKeyId":     s.client.AccessKey,
+			"AccessKeySecret": s.client.SecretKey,
+			"Department":      s.client.Department,
+			"ResourceGroup":   s.client.ResourceGroup,
+			"DBInstanceId":    id,
+			"DBInstanceType":  "sharding",
+		}
+	} else {
+		request.QueryParams = map[string]string{
+			"Product":         "Dds",
+			"Action":          "DescribeDBInstanceAttribute",
+			"Version":         "2015-12-01",
+			"RegionId":        s.client.RegionId,
+			"AccessKeyId":     s.client.AccessKey,
+			"AccessKeySecret": s.client.SecretKey,
+			"Department":      s.client.Department,
+			"ResourceGroup":   s.client.ResourceGroup,
+			"DBInstanceId":    id,
+		}
+	}
+	var raw interface{}
+
+	if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
+		raw, err = s.client.WithEcsClient(func(client *ecs.Client) (interface{}, error) {
+			return client.ProcessCommonRequest(request)
+		})
+
+		if err != nil {
+			if IsExpectedErrors(err, []string{"InvalidDBInstanceId.NotFound"}) {
+				return resource.RetryableError(err)
+			}
+			return resource.RetryableError(err)
+		}
+
+		return nil
+	}); err != nil {
+		return instance, WrapErrorf(err, DefaultErrorMsg, "apsarastack_mongodb_instance", "DescribeDBInstanceAttribute", ApsaraStackSdkGoERROR)
+	}
+	var Dbresponse dds.DescribeDBInstanceAttributeResponse
+	response, ok := raw.(*responses.CommonResponse)
+	if !ok {
+		return instance, WrapErrorf(err, "Error in parsing DescribeDBInstance Response")
+	}
+
+	addDebug(request.GetActionName(), raw, request)
+	err = json.Unmarshal(response.GetHttpContentBytes(), &Dbresponse)
+	if err != nil {
+		panic(err)
+	}
+	if len(Dbresponse.DBInstances.DBInstance) == 0 {
 		return instance, WrapErrorf(Error(GetNotFoundMessage("MongoDB Instance", id)), NotFoundMsg, ApsaraStackSdkGoERROR)
 	}
+	return Dbresponse.DBInstances.DBInstance[0], nil
+}
+func (s *MongoDBService) DescribeMongoDBInstanceAttribute(id string) (instance dds.DBInstance, err error) {
+	request := dds.CreateDescribeDBInstanceAttributeRequest()
+	request.Method = "POST"
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeyId": s.client.AccessKey, "AccessKeySecret": s.client.SecretKey, "RegionId": s.client.RegionId, "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.RegionId = s.client.RegionId
+	request.Domain = s.client.Domain
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.DBInstanceId = id
+	var raw interface{}
+
+	if err := resource.Retry(2*time.Minute, func() *resource.RetryError {
+		raw, err = s.client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
+			return client.DescribeDBInstanceAttribute(request)
+		})
+
+		if err != nil {
+			if IsExpectedErrors(err, []string{"InvalidDBInstanceId.NotFound"}) {
+				return resource.RetryableError(err)
+			}
+			return resource.RetryableError(err)
+		}
+
+		return nil
+	}); err != nil {
+		return instance, WrapErrorf(err, DefaultErrorMsg, "apsarastack_mongodb_instance", "DescribeDBInstanceAttribute", ApsaraStackSdkGoERROR)
+	}
+	response, ok := raw.(*dds.DescribeDBInstanceAttributeResponse)
+
+	if !ok {
+		return instance, WrapErrorf(err, "Error in parsing DescribeDBInstance Response")
+	}
+
+	addDebug(request.GetActionName(), raw, request)
+
 	return response.DBInstances.DBInstance[0], nil
 }
 
 // WaitForInstance waits for instance to given statusid
-func (s *MongoDBService) WaitForMongoDBInstance(instanceId string, status Status, timeout int) error {
+func (s *MongoDBService) WaitForMongoDBInstance(instanceId, dbType string, status Status, timeout int) error {
 	deadline := time.Now().Add(time.Duration(timeout) * time.Second)
 
 	for {
-		instance, err := s.DescribeMongoDBInstance(instanceId)
+		instance, err := s.DescribeMongoDBInstance(instanceId, dbType)
 		if err != nil {
 			if NotFoundError(err) {
 				if status == Deleted {
@@ -78,17 +178,16 @@ func (s *MongoDBService) WaitForMongoDBInstance(instanceId string, status Status
 	}
 }
 
-func (s *MongoDBService) RdsMongodbDBInstanceStateRefreshFunc(id string, failStates []string) resource.StateRefreshFunc {
+func (s *MongoDBService) RdsMongodbDBInstanceStateRefreshFunc(id, dbType string, failStates []string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		object, err := s.DescribeMongoDBInstance(id)
+		object, err := s.DescribeMongoDBInstance(id, dbType)
 		if err != nil {
-			if NotFoundError(err) {
-				// Set this to nil as if we didn't find anything.
-				return nil, "", nil
-			}
+			//if NotFoundError(err) {
+			//	// Set this to nil as if we didn't find anything.
+			//	return nil, "", WrapError(err)
+			//}
 			return nil, "", WrapError(err)
 		}
-
 		for _, failState := range failStates {
 			if object.DBInstanceStatus == failState {
 				return object, object.DBInstanceStatus, WrapError(Error(FailedToReachTargetStatus, object.DBInstanceStatus))
@@ -139,12 +238,12 @@ func (s *MongoDBService) DescribeMongoDBSecurityIps(instanceId string) (ips []st
 	return finalIps, nil
 }
 
-func (s *MongoDBService) ModifyMongoDBSecurityIps(instanceId, ips string) error {
+func (s *MongoDBService) ModifyMongoDBSecurityIps(instanceId, ips, dbType string) error {
 	request := dds.CreateModifySecurityIpsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "dds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-
+	request.ModifyMode = "Append"
 	request.DBInstanceId = instanceId
 	request.SecurityIps = ips
 
@@ -157,13 +256,13 @@ func (s *MongoDBService) ModifyMongoDBSecurityIps(instanceId, ips string) error 
 
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
-	if err := s.WaitForMongoDBInstance(instanceId, Running, DefaultTimeoutMedium); err != nil {
+	if err := s.WaitForMongoDBInstance(instanceId, dbType, Running, DefaultTimeoutMedium); err != nil {
 		return WrapError(err)
 	}
 	return nil
 }
 
-func (s *MongoDBService) DescribeMongoDBSecurityGroupId(id string) (*dds.DescribeSecurityGroupConfigurationResponse, error) {
+func (s *MongoDBService) DescribeMongoDBSecurityGroupId(id, dbType string) (*dds.DescribeSecurityGroupConfigurationResponse, error) {
 	response := &dds.DescribeSecurityGroupConfigurationResponse{}
 	request := dds.CreateDescribeSecurityGroupConfigurationRequest()
 	request.RegionId = s.client.RegionId
@@ -171,7 +270,7 @@ func (s *MongoDBService) DescribeMongoDBSecurityGroupId(id string) (*dds.Describ
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "dds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 
 	request.DBInstanceId = id
-	if err := s.WaitForMongoDBInstance(id, Running, DefaultTimeoutMedium); err != nil {
+	if err := s.WaitForMongoDBInstance(id, dbType, Running, DefaultTimeoutMedium); err != nil {
 		return response, WrapError(err)
 	}
 	raw, err := s.client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
@@ -190,7 +289,7 @@ func (server *MongoDBService) ModifyMongodbShardingInstanceNode(
 	instanceID string, nodeType MongoDBShardingNodeType, stateList, diffList []interface{}) error {
 	client := server.client
 
-	err := server.WaitForMongoDBInstance(instanceID, Running, DefaultLongTimeout)
+	err := server.WaitForMongoDBInstance(instanceID, "Sharding", Running, DefaultLongTimeout)
 	if err != nil {
 		return WrapError(err)
 	}
@@ -225,12 +324,12 @@ func (server *MongoDBService) ModifyMongodbShardingInstanceNode(
 			}
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
-			err = server.WaitForMongoDBInstance(instanceID, Updating, DefaultLongTimeout)
+			err = server.WaitForMongoDBInstance(instanceID, "Sharding", Updating, DefaultLongTimeout)
 			if err != nil {
 				return WrapError(err)
 			}
 
-			err = server.WaitForMongoDBInstance(instanceID, Running, DefaultLongTimeout)
+			err = server.WaitForMongoDBInstance(instanceID, "Sharding", Running, DefaultLongTimeout)
 			if err != nil {
 				return WrapError(err)
 			}
@@ -260,7 +359,7 @@ func (server *MongoDBService) ModifyMongodbShardingInstanceNode(
 
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
-			err = server.WaitForMongoDBInstance(instanceID, Running, DefaultLongTimeout)
+			err = server.WaitForMongoDBInstance(instanceID, "Sharding", Running, DefaultLongTimeout)
 			if err != nil {
 				return WrapError(err)
 			}
@@ -295,11 +394,11 @@ func (server *MongoDBService) ModifyMongodbShardingInstanceNode(
 				return WrapErrorf(err, DefaultErrorMsg, instanceID, request.GetActionName(), ApsaraStackSdkGoERROR)
 			}
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-			err = server.WaitForMongoDBInstance(instanceID, Updating, DefaultLongTimeout)
+			err = server.WaitForMongoDBInstance(instanceID, "Sharding", Updating, DefaultLongTimeout)
 			if err != nil {
 				return WrapError(err)
 			}
-			err = server.WaitForMongoDBInstance(instanceID, Running, DefaultLongTimeout)
+			err = server.WaitForMongoDBInstance(instanceID, "Sharding", Running, DefaultLongTimeout)
 			if err != nil {
 				return WrapError(err)
 			}
@@ -327,7 +426,7 @@ func (s *MongoDBService) DescribeMongoDBBackupPolicy(id string) (*dds.DescribeBa
 	return response, nil
 }
 
-func (s *MongoDBService) DescribeMongoDBTDEInfo(id string) (*dds.DescribeDBInstanceTDEInfoResponse, error) {
+func (s *MongoDBService) DescribeMongoDBTDEInfo(id, dbType string) (*dds.DescribeDBInstanceTDEInfoResponse, error) {
 
 	response := &dds.DescribeDBInstanceTDEInfoResponse{}
 	request := dds.CreateDescribeDBInstanceTDEInfoRequest()
@@ -336,7 +435,7 @@ func (s *MongoDBService) DescribeMongoDBTDEInfo(id string) (*dds.DescribeDBInsta
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "dds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 
 	request.DBInstanceId = id
-	statErr := s.WaitForMongoDBInstance(id, Running, DefaultLongTimeout)
+	statErr := s.WaitForMongoDBInstance(id, dbType, Running, DefaultLongTimeout)
 	if statErr != nil {
 		return response, WrapError(statErr)
 	}
@@ -370,8 +469,8 @@ func (s *MongoDBService) DescribeDBInstanceSSL(id string) (*dds.DescribeDBInstan
 	return response, nil
 }
 
-func (s *MongoDBService) MotifyMongoDBBackupPolicy(d *schema.ResourceData) error {
-	if err := s.WaitForMongoDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
+func (s *MongoDBService) MotifyMongoDBBackupPolicy(d *schema.ResourceData, dbType string) error {
+	if err := s.WaitForMongoDBInstance(d.Id(), dbType, Running, DefaultTimeoutMedium); err != nil {
 		return WrapError(err)
 	}
 	periodList := expandStringList(d.Get("backup_period").(*schema.Set).List())
@@ -393,7 +492,7 @@ func (s *MongoDBService) MotifyMongoDBBackupPolicy(d *schema.ResourceData) error
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	if err := s.WaitForMongoDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
+	if err := s.WaitForMongoDBInstance(d.Id(), dbType, Running, DefaultTimeoutMedium); err != nil {
 		return WrapError(err)
 	}
 	return nil
@@ -545,4 +644,142 @@ func (s *MongoDBService) tagsFromMap(m map[string]interface{}) []dds.TagResource
 	}
 
 	return result
+}
+
+type DescribeDBInstance struct {
+	*responses.BaseResponse
+	ServerRole      string `json:"serverRole"`
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AsapiSuccess    bool   `json:"asapiSuccess"`
+	AsapiRequestID  string `json:"asapiRequestId"`
+	RequestID       string `json:"RequestId"`
+	Domain          string `json:"domain"`
+	API             string `json:"api"`
+	DBInstances     struct {
+		DBInstance []struct {
+			ReplicaSetName              string `json:"ReplicaSetName" xml:"ReplicaSetName"`
+			DBInstanceDescription       string `json:"DBInstanceDescription" xml:"DBInstanceDescription"`
+			Engine                      string `json:"Engine" xml:"Engine"`
+			ChargeType                  string `json:"ChargeType" xml:"ChargeType"`
+			ReadonlyReplicas            string `json:"ReadonlyReplicas" xml:"ReadonlyReplicas"`
+			DBInstanceClass             string `json:"DBInstanceClass" xml:"DBInstanceClass"`
+			VpcAuthMode                 string `json:"VpcAuthMode" xml:"VpcAuthMode"`
+			CapacityUnit                string `json:"CapacityUnit" xml:"CapacityUnit"`
+			DestroyTime                 string `json:"DestroyTime" xml:"DestroyTime"`
+			LastDowngradeTime           string `json:"LastDowngradeTime" xml:"LastDowngradeTime"`
+			RegionId                    string `json:"RegionId" xml:"RegionId"`
+			MaxConnections              int    `json:"MaxConnections" xml:"MaxConnections"`
+			ResourceGroupId             string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+			CloudType                   string `json:"CloudType" xml:"CloudType"`
+			DBInstanceType              string `json:"DBInstanceType" xml:"DBInstanceType"`
+			MaintainEndTime             string `json:"MaintainEndTime" xml:"MaintainEndTime"`
+			ExpireTime                  string `json:"ExpireTime" xml:"ExpireTime"`
+			DBInstanceId                string `json:"DBInstanceId" xml:"DBInstanceId"`
+			NetworkType                 string `json:"NetworkType" xml:"NetworkType"`
+			ReplicationFactor           string `json:"ReplicationFactor" xml:"ReplicationFactor"`
+			MaxIOPS                     int    `json:"MaxIOPS" xml:"MaxIOPS"`
+			DBInstanceReleaseProtection bool   `json:"DBInstanceReleaseProtection" xml:"DBInstanceReleaseProtection"`
+			ReplacateId                 string `json:"ReplacateId" xml:"ReplacateId"`
+			EngineVersion               string `json:"EngineVersion" xml:"EngineVersion"`
+			VPCId                       string `json:"VPCId" xml:"VPCId"`
+			VSwitchId                   string `json:"VSwitchId" xml:"VSwitchId"`
+			VPCCloudInstanceIds         string `json:"VPCCloudInstanceIds" xml:"VPCCloudInstanceIds"`
+			MaintainStartTime           string `json:"MaintainStartTime" xml:"MaintainStartTime"`
+			CreationTime                string `json:"CreationTime" xml:"CreationTime"`
+			DBInstanceStorage           int    `json:"DBInstanceStorage" xml:"DBInstanceStorage"`
+			StorageEngine               string `json:"StorageEngine" xml:"StorageEngine"`
+			DBInstanceStatus            string `json:"DBInstanceStatus" xml:"DBInstanceStatus"`
+			CurrentKernelVersion        string `json:"CurrentKernelVersion" xml:"CurrentKernelVersion"`
+			ZoneId                      string `json:"ZoneId" xml:"ZoneId"`
+			ProtocolType                string `json:"ProtocolType" xml:"ProtocolType"`
+			KindCode                    string `json:"KindCode" xml:"KindCode"`
+			LockMode                    string `json:"LockMode" xml:"LockMode"`
+			ReplicaSets                 struct {
+				ReplicaSet []struct {
+					ReplicaSetRole     string `json:"ReplicaSetRole"`
+					ConnectionDomain   string `json:"ConnectionDomain"`
+					VPCCloudInstanceID string `json:"VPCCloudInstanceId"`
+					ConnectionPort     string `json:"ConnectionPort"`
+					VPCID              string `json:"VPCId"`
+					NetworkType        string `json:"NetworkType"`
+					VSwitchID          string `json:"VSwitchId"`
+				} `json:"ReplicaSet"`
+			} `json:"ReplicaSets"`
+			MongosList struct {
+				MongosAttribute []interface{} `json:"MongosAttribute"`
+			} `json:"MongosList"`
+			Tags struct {
+				Tag []interface{} `json:"Tag"`
+			} `json:"Tags"`
+			ConfigserverList struct {
+				ConfigserverAttribute []interface{} `json:"ConfigserverAttribute"`
+			} `json:"ConfigserverList"`
+			ShardList struct {
+				ShardAttribute []interface{} `json:"ShardAttribute"`
+			} `json:"ShardList"`
+		} `json:"DBInstance"`
+	} `json:"DBInstances"`
+}
+
+type DBInstance struct {
+	ReplicaSetName              string `json:"ReplicaSetName" xml:"ReplicaSetName"`
+	DBInstanceDescription       string `json:"DBInstanceDescription" xml:"DBInstanceDescription"`
+	Engine                      string `json:"Engine" xml:"Engine"`
+	ChargeType                  string `json:"ChargeType" xml:"ChargeType"`
+	ReadonlyReplicas            string `json:"ReadonlyReplicas" xml:"ReadonlyReplicas"`
+	DBInstanceClass             string `json:"DBInstanceClass" xml:"DBInstanceClass"`
+	VpcAuthMode                 string `json:"VpcAuthMode" xml:"VpcAuthMode"`
+	CapacityUnit                string `json:"CapacityUnit" xml:"CapacityUnit"`
+	DestroyTime                 string `json:"DestroyTime" xml:"DestroyTime"`
+	LastDowngradeTime           string `json:"LastDowngradeTime" xml:"LastDowngradeTime"`
+	RegionId                    string `json:"RegionId" xml:"RegionId"`
+	MaxConnections              int    `json:"MaxConnections" xml:"MaxConnections"`
+	ResourceGroupId             string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	CloudType                   string `json:"CloudType" xml:"CloudType"`
+	DBInstanceType              string `json:"DBInstanceType" xml:"DBInstanceType"`
+	MaintainEndTime             string `json:"MaintainEndTime" xml:"MaintainEndTime"`
+	ExpireTime                  string `json:"ExpireTime" xml:"ExpireTime"`
+	DBInstanceId                string `json:"DBInstanceId" xml:"DBInstanceId"`
+	NetworkType                 string `json:"NetworkType" xml:"NetworkType"`
+	ReplicationFactor           string `json:"ReplicationFactor" xml:"ReplicationFactor"`
+	MaxIOPS                     int    `json:"MaxIOPS" xml:"MaxIOPS"`
+	DBInstanceReleaseProtection bool   `json:"DBInstanceReleaseProtection" xml:"DBInstanceReleaseProtection"`
+	ReplacateId                 string `json:"ReplacateId" xml:"ReplacateId"`
+	EngineVersion               string `json:"EngineVersion" xml:"EngineVersion"`
+	VPCId                       string `json:"VPCId" xml:"VPCId"`
+	VSwitchId                   string `json:"VSwitchId" xml:"VSwitchId"`
+	VPCCloudInstanceIds         string `json:"VPCCloudInstanceIds" xml:"VPCCloudInstanceIds"`
+	MaintainStartTime           string `json:"MaintainStartTime" xml:"MaintainStartTime"`
+	CreationTime                string `json:"CreationTime" xml:"CreationTime"`
+	DBInstanceStorage           int    `json:"DBInstanceStorage" xml:"DBInstanceStorage"`
+	StorageEngine               string `json:"StorageEngine" xml:"StorageEngine"`
+	DBInstanceStatus            string `json:"DBInstanceStatus" xml:"DBInstanceStatus"`
+	CurrentKernelVersion        string `json:"CurrentKernelVersion" xml:"CurrentKernelVersion"`
+	ZoneId                      string `json:"ZoneId" xml:"ZoneId"`
+	ProtocolType                string `json:"ProtocolType" xml:"ProtocolType"`
+	KindCode                    string `json:"KindCode" xml:"KindCode"`
+	LockMode                    string `json:"LockMode" xml:"LockMode"`
+	ReplicaSets                 struct {
+		ReplicaSet []struct {
+			ReplicaSetRole     string `json:"ReplicaSetRole"`
+			ConnectionDomain   string `json:"ConnectionDomain"`
+			VPCCloudInstanceID string `json:"VPCCloudInstanceId"`
+			ConnectionPort     string `json:"ConnectionPort"`
+			VPCID              string `json:"VPCId"`
+			NetworkType        string `json:"NetworkType"`
+			VSwitchID          string `json:"VSwitchId"`
+		} `json:"ReplicaSet"`
+	} `json:"ReplicaSets"`
+	MongosList struct {
+		MongosAttribute []interface{} `json:"MongosAttribute"`
+	} `json:"MongosList"`
+	Tags struct {
+		Tag []interface{} `json:"Tag"`
+	} `json:"Tags"`
+	ConfigserverList struct {
+		ConfigserverAttribute []interface{} `json:"ConfigserverAttribute"`
+	} `json:"ConfigserverList"`
+	ShardList struct {
+		ShardAttribute []interface{} `json:"ShardAttribute"`
+	} `json:"ShardList"`
 }
