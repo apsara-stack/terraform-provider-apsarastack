@@ -134,7 +134,6 @@ func TestAccApsaraStackEdasCluster_basic(t *testing.T) {
 					"cluster_type": "2",
 					"network_mode": "2",
 					"vpc_id":       "${apsarastack_vpc.default.id}",
-					"region_id":    "cn-neimeng-env30-d01",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -204,7 +203,6 @@ func TestAccApsaraStackEdasCluster_multi(t *testing.T) {
 					"cluster_type": "2",
 					"network_mode": "2",
 					"vpc_id":       "${apsarastack_vpc.default.id}",
-					"region_id":    "cn-neimeng-env30-d01",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),

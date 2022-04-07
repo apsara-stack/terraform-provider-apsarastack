@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 	"time"
 
 	"strings"
@@ -66,8 +65,7 @@ func rresourceApsaraStackEdasClusterCreate(d *schema.ResourceData, meta interfac
 	request.Headers["x-ascm-product-name"] = "Edas"
 	request.Headers["x-acs-organizationid"] = client.Department
 	request.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
-	log.Printf("rresourceApsaraStackEdasClusterCreate  client.Department = %s", client.Department)
-	log.Printf("rresourceApsaraStackEdasClusterCreate  client.RegionId = %s", client.RegionId)
+
 	if v, ok := d.GetOk("vpc_id"); !ok {
 		if d.Get("network_mode") == 2 {
 			return WrapError(Error("vpcId is required for vpc network mode"))
@@ -125,7 +123,6 @@ func resourceApsaraStackEdasClusterRead(d *schema.ResourceData, meta interface{}
 	d.Set("cluster_name", response.Cluster.ClusterName)
 	d.Set("cluster_type", response.Cluster.ClusterType)
 	d.Set("network_mode", response.Cluster.NetworkMode)
-	d.Set("region_id", response.Cluster.RegionId)
 	d.Set("vpc_id", response.Cluster.VpcId)
 
 	return nil

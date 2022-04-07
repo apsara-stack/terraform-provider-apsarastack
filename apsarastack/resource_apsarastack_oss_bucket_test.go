@@ -122,11 +122,14 @@ func TestAccApsaraStackOssBucketBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"bucket": name,
+					"bucket":  name,
+					"vpclist": []string{"${apsarastack_vpc.vpc.id}", "${apsarastack_vpc.vpc2.id}"},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"bucket": name,
+						"bucket":    name,
+						"vpclist.0": CHECKSET,
+						"vpclist.#": "2",
 					}),
 				),
 			},
@@ -138,11 +141,14 @@ func TestAccApsaraStackOssBucketBasic(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"acl": "public-read",
+					"bucket":  name,
+					"vpclist": []string{"${apsarastack_vpc.vpc.id}"},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"acl": "public-read",
+						"bucket":    name,
+						"vpclist.0": CHECKSET,
+						"vpclist.#": "1",
 					}),
 				),
 			},
@@ -175,10 +181,15 @@ func testAccCheckOssBucketDestroy(s *terraform.State) error { //destroy function
 
 func resourceOssBucketConfigDependence(name string) string {
 	return fmt.Sprintf(`
-resource "apsarastack_oss_bucket" "target"{
-	bucket = "%s-t"
+resource "apsarastack_vpc" "vpc" {
+	name = "%s-v"
+	cidr_block = "192.168.0.0/24"
 }
-`, name)
+resource "apsarastack_vpc" "vpc2" {
+	name = "%s-v2"
+	cidr_block = "192.168.0.0/24"
+}
+`, name, name)
 }
 
 var ossBucketBasicMap = map[string]string{
