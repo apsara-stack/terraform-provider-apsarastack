@@ -287,8 +287,7 @@ func resourceApsaraStackMongoDBShardingInstanceCreate(d *schema.ResourceData, me
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
 	d.SetId(response.DBInstanceId)
-
-	if err := ddsService.WaitForMongoDBInstance(d.Id(), Running, DefaultLongTimeout); err != nil {
+	if err := ddsService.WaitForMongoDBInstance(d.Id(), "Sharding", Running, DefaultLongTimeout); err != nil {
 		return WrapError(err)
 	}
 
@@ -299,7 +298,7 @@ func resourceApsaraStackMongoDBShardingInstanceRead(d *schema.ResourceData, meta
 	client := meta.(*connectivity.ApsaraStackClient)
 	ddsService := MongoDBService{client}
 
-	instance, err := ddsService.DescribeMongoDBInstance(d.Id())
+	instance, err := ddsService.DescribeMongoDBInstance(d.Id(), "Sharding")
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -331,34 +330,34 @@ func resourceApsaraStackMongoDBShardingInstanceRead(d *schema.ResourceData, meta
 	d.Set("vswitch_id", instance.VSwitchId)
 
 	mongosList := []map[string]interface{}{}
-	for _, item := range instance.MongosList.MongosAttribute {
-		mongo := map[string]interface{}{
-			"node_class":     item.NodeClass,
-			"node_id":        item.NodeId,
-			"port":           item.Port,
-			"connect_string": item.ConnectSting,
-		}
-		mongosList = append(mongosList, mongo)
-	}
+	//for _, item := range instance.MongosList.MongosAttribute {
+	//	mongo := map[string]interface{}{
+	//		"node_class":     item.NodeClass,
+	//		"node_id":        item.NodeId,
+	//		"port":           item.Port,
+	//		"connect_string": item.ConnectSting,
+	//	}
+	//	mongosList = append(mongosList, mongo)
+	//}
 	err = d.Set("mongo_list", mongosList)
 	if err != nil {
 		return WrapError(err)
 	}
 
 	shardList := []map[string]interface{}{}
-	for _, item := range instance.ShardList.ShardAttribute {
-		shard := map[string]interface{}{
-			"node_id":      item.NodeId,
-			"node_storage": item.NodeStorage,
-			"node_class":   item.NodeClass,
-		}
-		shardList = append(shardList, shard)
-	}
+	//for _, item := range instance.ShardList.ShardAttribute {
+	//	shard := map[string]interface{}{
+	//		"node_id":      item.NodeId,
+	//		"node_storage": item.NodeStorage,
+	//		"node_class":   item.NodeClass,
+	//	}
+	//	shardList = append(shardList, shard)
+	//}
 	err = d.Set("shard_list", shardList)
 	if err != nil {
 		return WrapError(err)
 	}
-	tdeInfo, err := ddsService.DescribeMongoDBTDEInfo(d.Id())
+	tdeInfo, err := ddsService.DescribeMongoDBTDEInfo(d.Id(), "Sharding")
 	if err != nil {
 		return WrapError(err)
 	}
@@ -370,7 +369,7 @@ func resourceApsaraStackMongoDBShardingInstanceRead(d *schema.ResourceData, meta
 	}
 
 	d.Set("security_ip_list", ips)
-	groupIp, err := ddsService.DescribeMongoDBSecurityGroupId(d.Id())
+	groupIp, err := ddsService.DescribeMongoDBSecurityGroupId(d.Id(), "Sharding")
 	if err != nil {
 		return WrapError(err)
 	}
@@ -387,7 +386,7 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 	d.Partial(true)
 
 	if d.HasChange("backup_time") || d.HasChange("backup_period") {
-		if err := ddsService.MotifyMongoDBBackupPolicy(d); err != nil {
+		if err := ddsService.MotifyMongoDBBackupPolicy(d, "Sharding"); err != nil {
 			return WrapError(err)
 		}
 		d.SetPartial("backup_time")
@@ -502,7 +501,7 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 			ipstr = LOCAL_HOST_IP
 		}
 
-		if err := ddsService.ModifyMongoDBSecurityIps(d.Id(), ipstr); err != nil {
+		if err := ddsService.ModifyMongoDBSecurityIps(d.Id(), "Sharding", ipstr); err != nil {
 			return WrapError(err)
 		}
 		d.SetPartial("security_ip_list")
@@ -542,5 +541,5 @@ func resourceApsaraStackMongoDBShardingInstanceDelete(d *schema.ResourceData, me
 		}
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	return WrapError(ddsService.WaitForMongoDBInstance(d.Id(), Deleted, DefaultTimeout))
+	return WrapError(ddsService.WaitForMongoDBInstance(d.Id(), "Sharding", Deleted, DefaultTimeout))
 }

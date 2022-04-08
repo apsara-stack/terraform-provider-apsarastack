@@ -33,6 +33,7 @@ The following arguments are supported:
 * `name` - (Optional) The name of the VPC. Defaults to null.
 * `description` - (Optional) The VPC description. Defaults to null.
 * `secondary_cidr_block` - (Optional) The secondary IPv4 CIDR block of the VPC.
+* `tags` - (Optional, Available in v1.0.13+) A mapping of tags to assign to the resource.
 
 ### Timeouts
 
