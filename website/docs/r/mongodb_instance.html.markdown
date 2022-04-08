@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_mongodb_instance"
 sidebar_current: "docs-apsarastack-resource-mongodb-instance"
 description: |-
-Provides a MongoDB instance resource supports replica set instances only. the MongoDB provides stable, reliable, and automatic scalable database services. It offers a full range of database solutions, such as disaster recovery, backup, recovery, monitoring, and alarms.
+  Provides a MongoDB instance resource supports replica set instances only. the MongoDB provides stable, reliable, and automatic scalable database services. It offers a full range of database solutions, such as disaster recovery, backup, recovery, monitoring, and alarms.
 ---
 
 # apsarastack\_mongodb\_instance
