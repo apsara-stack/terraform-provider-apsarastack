@@ -91,6 +91,8 @@ func dataSourceApsaraStackZones() *schema.Resource {
 					"cloud_essd",
 					"cloud_efficiency",
 					"cloud_ssd",
+					"cloud_pperf",
+					"cloud_sperf",
 					"local_disk",
 				}, false),
 			},
