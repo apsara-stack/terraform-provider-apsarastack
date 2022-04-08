@@ -149,7 +149,7 @@ func resourceApsaraStackLaunchTemplate() *schema.Resource {
 			"system_disk_category": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.StringInSlice([]string{"all", "cloud", "ephemeral_ssd", "cloud_essd", "cloud_efficiency", "cloud_ssd", "local_disk"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"all", "cloud", "ephemeral_ssd", "cloud_essd", "cloud_efficiency", "cloud_ssd", "local_disk", "cloud_pperf", "cloud_sperf"}, false),
 			},
 			"system_disk_description": {
 				Type:         schema.TypeString,

@@ -70,7 +70,7 @@ func resourceApsaraStackDBInstance() *schema.Resource {
 			"storage_type": {
 				Type:         schema.TypeString,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"local_ssd", "cloud_ssd"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"local_ssd", "cloud_ssd", "cloud_pperf", "cloud_sperf"}, false),
 				Required:     true,
 			},
 			"encryption_key": {
