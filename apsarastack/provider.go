@@ -277,6 +277,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_edas_deploy_groups":                   dataSourceApsaraStackEdasDeployGroups(),
 			"apsarastack_edas_clusters":                        dataSourceApsaraStackEdasClusters(),
 			"apsarastack_edas_applications":                    dataSourceApsaraStackEdasApplications(),
+			"apsarastack_network_acls":                         dataSourceApsaraStackNetworkAcls(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":           resourceApsaraStackEssScalingConfiguration(),
@@ -405,6 +406,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ram_policy_role_attachment": resourceApsaraStackRamPolicyRoleAttachment(),
 			//"apsarastack_ascm_access_key": 						resourceApsarastackRamAccessKey(),
 			"apsarastack_ascm_usergroup_user":         resourceApsaraStackAscmUserGroupUser(),
+			"apsarastack_network_acl":            resourceApsaraStackNetworkAcl(),
+			"apsarastack_network_acl_attachment": resourceApsaraStackNetworkAclAttachment(),
+			"apsarastack_network_acl_entries":    resourceApsaraStackNetworkAclEntries(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
