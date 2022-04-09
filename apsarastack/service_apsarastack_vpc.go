@@ -1,7 +1,9 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"fmt"
+	util "github.com/alibabacloud-go/tea-utils/service"
 	"log"
 	"regexp"
 	"strings"
@@ -1042,35 +1044,54 @@ func (s *VpcService) WaitForRouteTableAttachment(id string, status Status, timeo
 	}
 }
 
-func (s *VpcService) DescribeNetworkAcl(id string) (networkAcl vpc.NetworkAcl, err error) {
+func (s *VpcService) DescribeNetworkAcl(id string) (object map[string]interface{}, err error) {
+	var response = vpc.CreateDescribeNetworkAclAttributesResponse()
+	request := vpc.CreateDescribeNetworkAclAttributesRequest()
 
-	request := vpc.CreateDescribeNetworkAclsRequest()
-	request.RegionId = s.client.RegionId
-	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	if strings.ToLower(s.client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	request.NetworkAclId = id
-
-	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
-		return vpcClient.DescribeNetworkAcls(request)
+	params := make(map[string]string)
+	request.QueryParams = params
+	action := "DescribeNetworkAclAttributes"
+	params["Action"] = action
+	params["RegionId"] = s.client.RegionId
+	params["NetworkAclId"] = id
+	params["Product"] = "Vpc"
+	params["OrganizationId"] = s.client.Department
+	runtime := util.RuntimeOptions{}
+	runtime.SetAutoretry(true)
+	wait := incrementalWait(3*time.Second, 3*time.Second)
+	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
+		raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+			return vpcClient.DescribeNetworkAclAttributes(request)
+		})
+		response = raw.(*vpc.DescribeNetworkAclAttributesResponse)
+		if err != nil {
+			if NeedRetry(err) {
+				wait()
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
+		}
+		return nil
 	})
+	addDebug(action, response, request.RpcRequest, request)
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidNetworkAcl.NotFound"}) {
-			return networkAcl, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
+			return object, WrapErrorf(Error(GetNotFoundMessage("VPC:NetworkAcl", id)),
+				NotFoundMsg, ProviderERROR, response.RequestId)
 		}
-		return networkAcl, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+		return object, WrapErrorf(err, DefaultErrorMsg, id, action, ApsaraStackSdkGoERROR)
 	}
-	response, _ := raw.(*vpc.DescribeNetworkAclsResponse)
-	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	if len(response.NetworkAcls.NetworkAcl) <= 0 || response.NetworkAcls.NetworkAcl[0].NetworkAclId != id {
-		return networkAcl, WrapErrorf(Error(GetNotFoundMessage("NetworkAcl", id)), NotFoundMsg, ProviderERROR)
+	b, err := json.Marshal(&response.NetworkAclAttribute)
+	if err != nil {
+		return nil, err
 	}
-	return response.NetworkAcls.NetworkAcl[0], nil
+	err = json.Unmarshal(b, &object)
+	if err != nil {
+		return nil, err
+	}
+	return object, nil
 }
+
 
 func (s *VpcService) DescribeNetworkAclAttachment(id string, resource []vpc.Resource) (err error) {
 
@@ -1080,14 +1101,16 @@ func (s *VpcService) DescribeNetworkAclAttachment(id string, resource []vpc.Reso
 		if err != nil {
 			return WrapError(err)
 		}
-		if len(object.Resources.Resource) < 1 {
+		resources, _ := object["Resources"].(map[string]interface{})["Resource"].([]interface{})
+		if len(resources) < 1 {
 			return WrapErrorf(Error(GetNotFoundMessage("Network Acl Attachment", id)), NotFoundMsg, ProviderERROR)
 		}
 		success := true
-		for _, source := range object.Resources.Resource {
+		for _, source := range resources {
 			success = false
 			for _, res := range resource {
-				if source.ResourceId == res.ResourceId {
+				item := source.(map[string]interface{})
+				if fmt.Sprint(item["ResourceId"]) == res.ResourceId {
 					success = true
 				}
 			}
@@ -1113,17 +1136,20 @@ func (s *VpcService) WaitForNetworkAcl(networkAclId string, status Status, timeo
 			}
 		}
 		success := true
+		resources, _ := object["Resources"].(map[string]interface{})["Resource"].([]interface{})
 		// Check Acl's binding resources
-		for _, resource := range object.Resources.Resource {
-			if resource.Status != string(BINDED) {
+		for _, res := range resources {
+			item := res.(map[string]interface{})
+			if fmt.Sprint(item["Status"]) != string(BINDED) {
 				success = false
 			}
 		}
-		if object.Status == string(status) && success == true {
+		if fmt.Sprint(object["Status"]) == string(status) && success == true {
 			return nil
 		}
 		if time.Now().After(deadline) {
-			return WrapErrorf(err, WaitTimeoutMsg, networkAclId, GetFunc(1), timeout, object.Status, string(status), ProviderERROR)
+			return WrapErrorf(err, WaitTimeoutMsg, networkAclId, GetFunc(1), timeout,
+				fmt.Sprint(object["Status"]), string(status), ProviderERROR)
 		}
 		time.Sleep(DefaultIntervalShort * time.Second)
 	}
@@ -1144,17 +1170,19 @@ func (s *VpcService) WaitForNetworkAclAttachment(id string, resource []vpc.Resou
 		}
 		object, err := s.DescribeNetworkAcl(id)
 		success := true
+		resources, _ := object["Resources"].(map[string]interface{})["Resource"].([]interface{})
 		// Check Acl's binding resources
-		for _, resource := range object.Resources.Resource {
-			if resource.Status != string(BINDED) {
+		for _, res := range resources {
+			item := res.(map[string]interface{})
+			if fmt.Sprint(item["Status"]) != string(BINDED) {
 				success = false
 			}
 		}
-		if object.Status == string(status) && success == true {
+		if fmt.Sprint(object["Status"]) == string(status) && success == true {
 			return nil
 		}
 		if time.Now().After(deadline) {
-			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, object.Status, string(status), ProviderERROR)
+			return WrapErrorf(err, WaitTimeoutMsg, id, GetFunc(1), timeout, fmt.Sprint(object["Status"]), string(status), ProviderERROR)
 		}
 		time.Sleep(DefaultIntervalShort * time.Second)
 	}
@@ -1372,4 +1400,62 @@ func (s *VpcService) tagToMap(tags []vpc.Tag) map[string]string {
 		}
 	}
 	return result
+}
+func (s *VpcService) NetworkAclStateRefreshFunc(id string, failStates []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		object, err := s.DescribeNetworkAcl(id)
+		if err != nil {
+			if NotFoundError(err) {
+				// Set this to nil as if we didn't find anything.
+				return nil, "", nil
+			}
+			return nil, "", WrapError(err)
+		}
+
+		for _, failState := range failStates {
+			if fmt.Sprint(object["Status"]) == failState {
+				return object, fmt.Sprint(object["Status"]), WrapError(Error(FailedToReachTargetStatus, fmt.Sprint(object["Status"])))
+			}
+		}
+		return object, fmt.Sprint(object["Status"]), nil
+	}
+}
+
+func (s *VpcService) DeleteAclResources(id string) (object map[string]interface{}, err error) {
+	acl, err := s.DescribeNetworkAcl(id)
+	if err != nil {
+		return object, WrapError(err)
+	}
+	var res = acl["Resources"].(map[string]interface{})["Resource"].([]interface{})
+	//空，直接跳过
+	if res == nil || len(res) == 0 {
+		return object, nil
+	}
+	var deleteResources []vpc.UnassociateNetworkAclResource
+	if res != nil && len(res) != 0 {
+		deleteResources = append(deleteResources, vpc.UnassociateNetworkAclResource{
+			ResourceId:   res[0].(map[string]interface{})["ResourceId"].(string),
+			ResourceType: res[0].(map[string]interface{})["ResourceType"].(string),
+		})
+	}
+	request := vpc.CreateUnassociateNetworkAclRequest()
+	var response = vpc.CreateUnassociateNetworkAclResponse()
+	request.Resource = &deleteResources
+	action := "UnassociateNetworkAcl"
+	request.NetworkAclId = id
+	request.ClientToken = buildClientToken("UnassociateNetworkAcl")
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "vpc", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	raw, err := s.client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
+		return vpcClient.UnassociateNetworkAcl(request)
+	})
+	response = raw.(*vpc.UnassociateNetworkAclResponse)
+	addDebug(action, response, request.RpcRequest, request)
+	if err != nil {
+		return nil, WrapErrorf(err, DefaultErrorMsg, id, action, ApsaraStackSdkGoERROR)
+	}
+	stateConf := BuildStateConf([]string{}, []string{"Available"}, 10*time.Minute, 5*time.Second, s.NetworkAclStateRefreshFunc(id, []string{"Modifying"}))
+	if _, err := stateConf.WaitForState(); err != nil {
+		return nil, WrapErrorf(err, IdMsg, id)
+	}
+	return object, nil
 }
