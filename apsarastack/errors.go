@@ -1,6 +1,8 @@
 package apsarastack
 
 import (
+	"github.com/alibabacloud-go/tea/tea"
+	"regexp"
 	"strings"
 
 	sls "github.com/aliyun/aliyun-log-go-sdk"
@@ -25,6 +27,7 @@ const (
 	VSwitchIdNotFound        = "VSwitchId.Notfound"
 	MessageInstanceNotFound = "instance is not found"
 	Throttling              = "Throttling"
+	ServiceUnavailable      = "ServiceUnavailable"
 
 	// RAM Instance Not Found
 	RamInstanceNotFound        = "Forbidden.InstanceNotFound"
@@ -100,7 +103,38 @@ func NotFoundError(err error) bool {
 
 	return false
 }
+func NeedRetry(err error) bool {
+	if err == nil {
+		return false
+	}
 
+	postRegex := regexp.MustCompile("^Post [\"]*https://.*")
+	if postRegex.MatchString(err.Error()) {
+		return true
+	}
+
+	throttlingRegex := regexp.MustCompile("^Throttling.*")
+	codeRegex := regexp.MustCompile("^code: 5[\\d]{2}")
+
+	if e, ok := err.(*tea.SDKError); ok {
+		if strings.Contains(*e.Message, "code: 500, 您已开通过") {
+			return false
+		}
+		if *e.Code == ServiceUnavailable || *e.Code == "Rejected.Throttling" || throttlingRegex.MatchString(*e.Code) || codeRegex.MatchString(*e.Message) {
+			return true
+		}
+	}
+
+	if e, ok := err.(*errors.ServerError); ok {
+		return e.ErrorCode() == ServiceUnavailable || e.ErrorCode() == "Rejected.Throttling" || throttlingRegex.MatchString(e.ErrorCode()) || codeRegex.MatchString(e.Message())
+	}
+
+	if e, ok := err.(*common.Error); ok {
+		return e.Code == ServiceUnavailable || e.Code == "Rejected.Throttling" || throttlingRegex.MatchString(e.Code) || codeRegex.MatchString(e.Message)
+	}
+
+	return false
+}
 func IsExpectedErrors(err error, expectCodes []string) bool {
 	if err == nil {
 		return false
