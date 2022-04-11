@@ -185,13 +185,13 @@ func TestAccApsaraStackKeyPairBasic(t *testing.T) {
 		CheckDestroy:  testAccCheckKeyPairDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccKeyPairConfigBasic(rand),
+				Config: providerCommon + testAccKeyPairConfigBasic(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
 			},
 			{
-				Config: testAccKeyPairConfig_public_key(rand),
+				Config: providerCommon + testAccKeyPairConfig_public_key(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"public_key": "ssh-rsa AAAAB3Nza12345678qwertyuudsfsg",
@@ -199,13 +199,13 @@ func TestAccApsaraStackKeyPairBasic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccKeyPairConfig_tag(rand),
+				Config: providerCommon + testAccKeyPairConfig_tag(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
 			},
 			{
-				Config: testAccKeyPairConfig_key_name(rand),
+				Config: providerCommon + testAccKeyPairConfig_key_name(rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"key_name": fmt.Sprintf("tf-testAccKeyPairConfig%d", rand),

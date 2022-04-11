@@ -510,6 +510,7 @@ func cdnTagIgnored(t cdn.TagItem) bool {
 	return false
 }
 
+
 func slbTagIgnored(t slb.TagResource) bool {
 	filter := []string{"^aliyun", "^acs:", "^http://", "^https://"}
 	for _, v := range filter {
