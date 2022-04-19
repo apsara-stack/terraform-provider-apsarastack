@@ -105,7 +105,7 @@ func resourceApsaraStackLogStore() *schema.Resource {
 
 func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	update:=false
+	update := false
 	if v, ok := d.GetOk("encryption"); ok {
 		update = v.(bool)
 	}
@@ -119,8 +119,8 @@ func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{})
 		AppendMeta:    d.Get("append_meta").(bool),
 	}
 	var requestinfo *sls.Client
-	if update{
-		logstore := &sls.LogStore{
+	if update {
+		logstore = &sls.LogStore{
 			Name:          d.Get("name").(string),
 			TTL:           d.Get("retention_period").(int),
 			ShardCount:    d.Get("shard_count").(int),
@@ -128,9 +128,9 @@ func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{})
 			AutoSplit:     d.Get("auto_split").(bool),
 			MaxSplitShard: d.Get("max_split_shard_count").(int),
 			AppendMeta:    d.Get("append_meta").(bool),
-			Encrypt_conf: sls.Encrypt_conf{
-				Enable: true,
-				Encrypt_type: "sm4_gcm",
+			EncryptConf: &sls.EncryptConf{
+				Enable:      true,
+				EncryptType: "sm4_gcm",
 			},
 		}
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
