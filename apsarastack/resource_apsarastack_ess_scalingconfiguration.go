@@ -110,6 +110,10 @@ func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
+						"kms_key_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 						"device": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -118,6 +122,11 @@ func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
+						},
+						"encrypted": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Default:  false,
 						},
 					},
 				},
@@ -381,6 +390,8 @@ func modifyEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 					Category:           pack["category"].(string),
 					SnapshotId:         pack["snapshot_id"].(string),
 					DeleteWithInstance: strconv.FormatBool(pack["delete_with_instance"].(bool)),
+					Encrypted:          strconv.FormatBool(pack["encrypted"].(bool)),
+					KMSKeyId:           pack["kms_key_id"].(string),
 				}
 				createDataDisks = append(createDataDisks, dataDisk)
 			}
@@ -711,6 +722,8 @@ func buildApsaraStackEssScalingConfigurationArgs(d *schema.ResourceData, meta in
 				Category:           pack["category"].(string),
 				SnapshotId:         pack["snapshot_id"].(string),
 				DeleteWithInstance: strconv.FormatBool(pack["delete_with_instance"].(bool)),
+				Encrypted:          strconv.FormatBool(pack["encrypted"].(bool)),
+				KMSKeyId:           pack["kms_key_id"].(string),
 			}
 			createDataDisks = append(createDataDisks, dataDisk)
 		}
