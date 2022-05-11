@@ -8,7 +8,6 @@ import (
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
 	"strings"
 )
 
@@ -64,6 +63,7 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 	var requestInfo *ecs.Client
 	DomainID := d.Get("domain_id").(string)
+
 	RR := d.Get("host_record").(string)
 	Type := d.Get("type").(string)
 	var rrset string
@@ -107,7 +107,6 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 		"ZoneId":          DomainID,
 		"Rr":              RR,
 	}
-
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ProcessCommonRequest(request)
 	})
@@ -180,7 +179,6 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
-		log.Printf(" response of raw RemarkGlobalRrSet : %s", raw)
 
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_record", "RemarkGlobalRrSet", raw)
@@ -284,7 +282,6 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
-		log.Printf(" response of raw UpdateGlobalRrSet : %s", raw)
 
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_record", "UpdateGlobalRrSet", raw)
@@ -308,11 +305,18 @@ func resourceApsaraStackDnsRecordRead(d *schema.ResourceData, meta interface{}) 
 		}
 		return WrapError(err)
 	}
-	d.Set("ttl", object.Records[0].TTL)
-	d.Set("record_id", object.Records[0].RecordID)
-	d.Set("host_record", object.Records[0].Rr)
-	d.Set("type", object.Records[0].Type)
-	d.Set("description", object.Records[0].Remark)
+
+	records := strings.Split(d.Id(), ":")
+	RR := records[0]
+	for _, record := range object.Records {
+		if RR == record.Rr {
+			d.Set("ttl", record.TTL)
+			d.Set("record_id", record.RecordID)
+			d.Set("host_record", record.Rr)
+			d.Set("type", record.Type)
+			d.Set("description", record.Remark)
+		}
+	}
 
 	return nil
 }
