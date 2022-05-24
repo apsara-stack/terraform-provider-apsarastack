@@ -303,7 +303,7 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 
 	bresponse, _ := raw.(*responses.CommonResponse)
 	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
+	if headers["X-Acs-Response-Success"] != nil && headers["X-Acs-Response-Success"][0] == "false" {
 		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
 			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
 		}
