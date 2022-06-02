@@ -465,7 +465,7 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 		if err := setTags(client, TagResourceInstance, d); err != nil {
 			return WrapError(err)
 		} else {
-			d.SetPartial("tags")
+			//d.SetPartial("tags")
 		}
 	}
 
@@ -491,7 +491,7 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 				}
 			}
 
-			d.SetPartial("security_groups")
+			//d.SetPartial("security_groups")
 		}
 	}
 
@@ -899,8 +899,8 @@ func modifyInstanceImage(d *schema.ResourceData, meta interface{}, run bool) (bo
 			}
 		}
 
-		d.SetPartial("system_disk_size")
-		d.SetPartial("image_id")
+		//d.SetPartial("system_disk_size")
+		//d.SetPartial("image_id")
 
 		// After updating image, it need to re-attach key pair
 		if keyPairName != "" {
@@ -932,19 +932,19 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if d.HasChange("instance_name") {
-		d.SetPartial("instance_name")
+		//d.SetPartial("instance_name")
 		request.InstanceName = d.Get("instance_name").(string)
 		update = true
 	}
 
 	if d.HasChange("description") {
-		d.SetPartial("description")
+		//d.SetPartial("description")
 		request.Description = d.Get("description").(string)
 		update = true
 	}
 
 	if d.HasChange("user_data") {
-		d.SetPartial("user_data")
+		//d.SetPartial("user_data")
 		old, new := d.GetChange("user_data")
 		old_s := base64.StdEncoding.EncodeToString([]byte(fmt.Sprint(old)))
 		if fmt.Sprint(new) != old_s {
@@ -963,7 +963,7 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 	}
 
 	if d.HasChange("host_name") {
-		d.SetPartial("host_name")
+		//d.SetPartial("host_name")
 		request.HostName = d.Get("host_name").(string)
 		update = true
 		reboot = true
@@ -971,7 +971,7 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 
 	if d.HasChange("password") || d.HasChange("kms_encrypted_password") {
 		if v := d.Get("password").(string); v != "" {
-			d.SetPartial("password")
+			//d.SetPartial("password")
 			request.Password = v
 			update = true
 			reboot = true
@@ -983,8 +983,8 @@ func modifyInstanceAttribute(d *schema.ResourceData, meta interface{}) (bool, er
 				return reboot, WrapError(err)
 			}
 			request.Password = decryptResp.Plaintext
-			d.SetPartial("kms_encrypted_password")
-			d.SetPartial("kms_encryption_context")
+			//d.SetPartial("kms_encrypted_password")
+			//d.SetPartial("kms_encryption_context")
 			update = true
 			reboot = true
 		}
@@ -1036,7 +1036,7 @@ func modifyVpcAttribute(d *schema.ResourceData, meta interface{}, run bool) (boo
 		if d.Get("vswitch_id").(string) == "" {
 			return update, WrapError(Error("Field 'vswitch_id' is required when modifying the instance VPC attribute."))
 		}
-		d.SetPartial("vswitch_id")
+		//d.SetPartial("vswitch_id")
 	}
 
 	if d.HasChange("subnet_id") {
@@ -1045,13 +1045,13 @@ func modifyVpcAttribute(d *schema.ResourceData, meta interface{}, run bool) (boo
 			return update, WrapError(Error("Field 'subnet_id' is required when modifying the instance VPC attribute."))
 		}
 		request.VSwitchId = d.Get("subnet_id").(string)
-		d.SetPartial("subnet_id")
+		//d.SetPartial("subnet_id")
 	}
 
 	if request.VSwitchId != "" && d.HasChange("private_ip") {
 		request.PrivateIpAddress = d.Get("private_ip").(string)
 		update = true
-		d.SetPartial("private_ip")
+		//d.SetPartial("private_ip")
 	}
 
 	if !run {
@@ -1152,7 +1152,7 @@ func modifyInstanceType(d *schema.ResourceData, meta interface{}, run bool) (boo
 
 			time.Sleep(DefaultIntervalShort * time.Second)
 		}
-		d.SetPartial("instance_type")
+		//d.SetPartial("instance_type")
 	}
 	return update, nil
 }
@@ -1184,13 +1184,13 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 		}
 		request.InternetMaxBandwidthOut = requests.NewInteger(n.(int))
 		update = true
-		d.SetPartial("internet_max_bandwidth_out")
+		//d.SetPartial("internet_max_bandwidth_out")
 	}
 
 	if d.HasChange("internet_max_bandwidth_in") {
 		request.InternetMaxBandwidthIn = requests.NewInteger(d.Get("internet_max_bandwidth_in").(int))
 		update = true
-		d.SetPartial("internet_max_bandwidth_in")
+		//d.SetPartial("internet_max_bandwidth_in")
 	}
 
 	//An instance that was successfully modified once cannot be modified again within 5 minutes.

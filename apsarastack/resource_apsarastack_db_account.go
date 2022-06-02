@@ -192,7 +192,7 @@ func resourceApsaraStackDBAccountUpdate(d *schema.ResourceData, meta interface{}
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("description")
+		//d.SetPartial("description")
 	}
 
 	if d.HasChange("password") || d.HasChange("kms_encrypted_password") {
@@ -218,7 +218,7 @@ func resourceApsaraStackDBAccountUpdate(d *schema.ResourceData, meta interface{}
 		}
 
 		if password != "" {
-			d.SetPartial("password")
+			//d.SetPartial("password")
 			request.AccountPassword = password
 		} else {
 			kmsService := KmsService{meta.(*connectivity.ApsaraStackClient)}
@@ -227,8 +227,8 @@ func resourceApsaraStackDBAccountUpdate(d *schema.ResourceData, meta interface{}
 				return WrapError(err)
 			}
 			request.AccountPassword = decryptResp.Plaintext
-			d.SetPartial("kms_encrypted_password")
-			d.SetPartial("kms_encryption_context")
+			//d.SetPartial("kms_encrypted_password")
+			//d.SetPartial("kms_encryption_context")
 		}
 
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -238,7 +238,7 @@ func resourceApsaraStackDBAccountUpdate(d *schema.ResourceData, meta interface{}
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("password")
+		//d.SetPartial("password")
 	}
 
 	d.Partial(false)

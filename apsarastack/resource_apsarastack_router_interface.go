@@ -166,7 +166,7 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 	}
 
 	if d.HasChange("specification") && !d.IsNewResource() {
-		d.SetPartial("specification")
+		//d.SetPartial("specification")
 		request := vpc.CreateModifyRouterInterfaceSpecRequest()
 		request.RegionId = string(client.Region)
 		if strings.ToLower(client.Config.Protocol) == "https" {
@@ -373,27 +373,27 @@ func buildApsaraStackRouterInterfaceModifyAttrArgs(d *schema.ResourceData, meta 
 	attributeUpdate := false
 
 	if d.HasChange("health_check_source_ip") {
-		d.SetPartial("health_check_source_ip")
+		//d.SetPartial("health_check_source_ip")
 		request.HealthCheckSourceIp = sourceIp.(string)
 		request.HealthCheckTargetIp = targetIp.(string)
 		attributeUpdate = true
 	}
 
 	if d.HasChange("health_check_target_ip") {
-		d.SetPartial("health_check_target_ip")
+		//d.SetPartial("health_check_target_ip")
 		request.HealthCheckTargetIp = targetIp.(string)
 		request.HealthCheckSourceIp = sourceIp.(string)
 		attributeUpdate = true
 	}
 
 	if d.HasChange("name") {
-		d.SetPartial("name")
+		//d.SetPartial("name")
 		request.Name = d.Get("name").(string)
 		attributeUpdate = true
 	}
 
 	if d.HasChange("description") {
-		d.SetPartial("description")
+		//d.SetPartial("description")
 		request.Description = d.Get("description").(string)
 		attributeUpdate = true
 	}
