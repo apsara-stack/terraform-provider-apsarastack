@@ -176,7 +176,7 @@ func resourceApsaraStackSlbBackendServersUpdate(d *schema.ResourceData, meta int
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
 				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				d.SetPartial("backend_servers")
+				//d.SetPartial("backend_servers")
 			}
 
 		}
@@ -219,7 +219,7 @@ func resourceApsaraStackSlbBackendServersUpdate(d *schema.ResourceData, meta int
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
 				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				d.SetPartial("backend_servers")
+				//d.SetPartial("backend_servers")
 			}
 		}
 
@@ -262,7 +262,7 @@ func resourceApsaraStackSlbBackendServersUpdate(d *schema.ResourceData, meta int
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
 				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				d.SetPartial("backend_servers")
+				//d.SetPartial("backend_servers")
 			}
 		}
 	}
