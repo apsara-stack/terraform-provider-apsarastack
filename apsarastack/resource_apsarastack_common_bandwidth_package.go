@@ -196,7 +196,7 @@ func resourceApsaraStackCommonBandwidthPackageUpdate(d *schema.ResourceData, met
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("bandwidth")
+		//d.SetPartial("bandwidth")
 	}
 
 	d.Partial(false)

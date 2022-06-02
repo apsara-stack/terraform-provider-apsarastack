@@ -172,7 +172,7 @@ func resourceApsaraStackKmsSecretUpdate(d *schema.ResourceData, meta interface{}
 		if err := kmsService.setResourceTags(d, "secret"); err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("tags")
+		//d.SetPartial("tags")
 	}
 	if d.HasChange("description") {
 		request := kms.CreateUpdateSecretRequest()
@@ -188,7 +188,7 @@ func resourceApsaraStackKmsSecretUpdate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		d.SetPartial("description")
+		//d.SetPartial("description")
 	}
 	update := false
 	request := kms.CreatePutSecretValueRequest()
@@ -220,10 +220,10 @@ func resourceApsaraStackKmsSecretUpdate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		d.SetPartial("secret_data")
-		d.SetPartial("version_id")
-		d.SetPartial("secret_data_type")
-		d.SetPartial("version_stages")
+		//d.SetPartial("secret_data")
+		//d.SetPartial("version_id")
+		//d.SetPartial("secret_data_type")
+		//d.SetPartial("version_stages")
 	}
 	d.Partial(false)
 	return resourceApsaraStackKmsSecretRead(d, meta)
