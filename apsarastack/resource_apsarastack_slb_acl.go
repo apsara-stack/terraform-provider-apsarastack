@@ -145,7 +145,7 @@ func resourceApsaraStackSlbAclUpdate(d *schema.ResourceData, meta interface{}) e
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("name")
+		//d.SetPartial("name")
 	}
 
 	if d.HasChange("entry_list") {
@@ -166,7 +166,7 @@ func resourceApsaraStackSlbAclUpdate(d *schema.ResourceData, meta interface{}) e
 				return WrapError(err)
 			}
 		}
-		d.SetPartial("entry_list")
+		//d.SetPartial("entry_list")
 	}
 
 	d.Partial(false)

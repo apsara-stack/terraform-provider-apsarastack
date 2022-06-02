@@ -195,7 +195,7 @@ func resourceApsaraStackDBReadonlyInstanceUpdate(d *schema.ResourceData, meta in
 
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
-			d.SetPartial("instance_name")
+			//d.SetPartial("instance_name")
 			return nil
 		})
 
@@ -252,9 +252,9 @@ func resourceApsaraStackDBReadonlyInstanceUpdate(d *schema.ResourceData, meta in
 				return resource.NonRetryableError(err)
 			}
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-			d.SetPartial("instance_type")
-			d.SetPartial("instance_storage")
-			d.SetPartial("db_instance_storage_type")
+			//d.SetPartial("instance_type")
+			//d.SetPartial("instance_storage")
+			//d.SetPartial("db_instance_storage_type")
 			return nil
 		})
 
