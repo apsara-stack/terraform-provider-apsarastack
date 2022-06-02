@@ -163,7 +163,7 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 		IDRefreshName: resourceId,
 
 		Providers:    testAccProviders,
-		CheckDestroy: rac.checkResourceDestroy(),
+		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -340,7 +340,7 @@ func TestAccApsaraStackDBInstanceMultiInstance(t *testing.T) {
 		IDRefreshName: resourceId,
 
 		Providers:    testAccProviders,
-		CheckDestroy: rac.checkResourceDestroy(),
+		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -380,7 +380,7 @@ func TestAccApsaraStackDBInstanceMultiAZ(t *testing.T) {
 		IDRefreshName: resourceId,
 
 		Providers:    testAccProviders,
-		CheckDestroy: rac.checkResourceDestroy(),
+		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
@@ -442,7 +442,7 @@ func TestAccApsaraStackDBInstanceClassic(t *testing.T) {
 		IDRefreshName: resourceId,
 
 		Providers:    testAccProviders,
-		CheckDestroy: rac.checkResourceDestroy(),
+		CheckDestroy: nil,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
