@@ -365,7 +365,7 @@ resource "apsarastack_instance" "default" {
   instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
   instance_name = "${var.name}"
   count = "2"
-  security_groups = "${apsarastack_security_group.default.*.id}"
+  security_groups = ["${apsarastack_security_group.default.id}"]
 
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
@@ -412,7 +412,7 @@ resource "apsarastack_instance" "default" {
   instance_type = "${data.apsarastack_instance_types.default.instance_types.0.id}"
   instance_name = "${var.name}"
   count = "2"
-  security_groups = "${apsarastack_security_group.default.*.id}"
+  security_groups = ["${apsarastack_security_group.default.id}"]
   internet_max_bandwidth_out = "10"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
   system_disk_category = "cloud_efficiency"
