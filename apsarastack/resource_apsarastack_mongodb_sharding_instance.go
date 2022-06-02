@@ -98,11 +98,10 @@ func resourceApsaraStackMongoDBShardingInstance() *schema.Resource {
 			"tde_status": {
 				Type: schema.TypeString,
 				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					return old != "" || d.Get("engine_version").(string) < "4.0"
+					return old == "" && new == "disabled" || old == "enabled"
 				},
-				ValidateFunc: validation.StringInSlice([]string{"enabled"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"enabled", "disabled"}, false),
 				Optional:     true,
-				ForceNew:     true,
 			},
 			"backup_period": {
 				Type:     schema.TypeSet,
@@ -208,7 +207,7 @@ func buildMongoDBShardingCreateRequest(d *schema.ResourceData, meta interface{})
 			item := rew.(map[string]interface{})
 			class := item["node_class"].(string)
 			nodeStorage := item["node_storage"].(int)
-			replicaSets = append(replicaSets, dds.CreateShardingDBInstanceReplicaSet{"", strconv.Itoa(nodeStorage), class})
+			replicaSets = append(replicaSets, dds.CreateShardingDBInstanceReplicaSet{strconv.Itoa(nodeStorage), class})
 		}
 		request.ReplicaSet = &replicaSets
 	}
@@ -287,7 +286,8 @@ func resourceApsaraStackMongoDBShardingInstanceCreate(d *schema.ResourceData, me
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
 	d.SetId(response.DBInstanceId)
-	if err := ddsService.WaitForMongoDBInstance(d.Id(), "Sharding", Running, DefaultLongTimeout); err != nil {
+
+	if err := ddsService.WaitForMongoDBInstance(d.Id(), Running, DefaultLongTimeout); err != nil {
 		return WrapError(err)
 	}
 
@@ -295,10 +295,11 @@ func resourceApsaraStackMongoDBShardingInstanceCreate(d *schema.ResourceData, me
 }
 
 func resourceApsaraStackMongoDBShardingInstanceRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	ddsService := MongoDBService{client}
 
-	instance, err := ddsService.DescribeMongoDBInstance(d.Id(), "Sharding")
+	instance, err := ddsService.DescribeMongoDBInstance(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -313,7 +314,8 @@ func resourceApsaraStackMongoDBShardingInstanceRead(d *schema.ResourceData, meta
 	}
 	d.Set("backup_time", backupPolicy.PreferredBackupTime)
 	d.Set("backup_period", strings.Split(backupPolicy.PreferredBackupPeriod, ","))
-	d.Set("retention_period", backupPolicy.BackupRetentionPeriod)
+	retention_period, _ := strconv.Atoi(backupPolicy.BackupRetentionPeriod)
+	d.Set("retention_period", retention_period)
 
 	d.Set("name", instance.DBInstanceDescription)
 	d.Set("engine_version", instance.EngineVersion)
@@ -330,38 +332,41 @@ func resourceApsaraStackMongoDBShardingInstanceRead(d *schema.ResourceData, meta
 	d.Set("vswitch_id", instance.VSwitchId)
 
 	mongosList := []map[string]interface{}{}
-	//for _, item := range instance.MongosList.MongosAttribute {
-	//	mongo := map[string]interface{}{
-	//		"node_class":     item.NodeClass,
-	//		"node_id":        item.NodeId,
-	//		"port":           item.Port,
-	//		"connect_string": item.ConnectSting,
-	//	}
-	//	mongosList = append(mongosList, mongo)
-	//}
+	for _, item := range instance.MongosList.MongosAttribute {
+		mongo := map[string]interface{}{
+			"node_class":     item.NodeClass,
+			"node_id":        item.NodeId,
+			"port":           item.Port,
+			"connect_string": item.ConnectSting,
+		}
+		mongosList = append(mongosList, mongo)
+	}
 	err = d.Set("mongo_list", mongosList)
 	if err != nil {
 		return WrapError(err)
 	}
 
 	shardList := []map[string]interface{}{}
-	//for _, item := range instance.ShardList.ShardAttribute {
-	//	shard := map[string]interface{}{
-	//		"node_id":      item.NodeId,
-	//		"node_storage": item.NodeStorage,
-	//		"node_class":   item.NodeClass,
-	//	}
-	//	shardList = append(shardList, shard)
-	//}
+	for _, item := range instance.ShardList.ShardAttribute {
+		shard := map[string]interface{}{
+			"node_id":      item.NodeId,
+			"node_storage": item.NodeStorage,
+			"node_class":   item.NodeClass,
+		}
+		shardList = append(shardList, shard)
+	}
 	err = d.Set("shard_list", shardList)
 	if err != nil {
 		return WrapError(err)
 	}
-	tdeInfo, err := ddsService.DescribeMongoDBTDEInfo(d.Id(), "Sharding")
+	tdeInfo, err := ddsService.DescribeMongoDBTDEInfo(d.Id())
 	if err != nil {
 		return WrapError(err)
 	}
-	d.Set("tde_Status", tdeInfo.TDEStatus)
+
+	if !(d.Get("tde_status") == "" && tdeInfo.TDEStatus == "disabled") {
+		d.Set("tde_status", tdeInfo.TDEStatus)
+	}
 
 	ips, err := ddsService.DescribeMongoDBSecurityIps(d.Id())
 	if err != nil {
@@ -369,13 +374,14 @@ func resourceApsaraStackMongoDBShardingInstanceRead(d *schema.ResourceData, meta
 	}
 
 	d.Set("security_ip_list", ips)
-	groupIp, err := ddsService.DescribeMongoDBSecurityGroupId(d.Id(), "Sharding")
-	if err != nil {
-		return WrapError(err)
-	}
-	if len(groupIp.Items.RdsEcsSecurityGroupRel) > 0 {
-		d.Set("security_group_id", groupIp.Items.RdsEcsSecurityGroupRel[0].SecurityGroupId)
-	}
+	// 混合云不支持
+	//	groupIp, err := ddsService.DescribeMongoDBSecurityGroupId(d.Id())
+	//	if err != nil {
+	//		return WrapError(err)
+	//	}
+	//	if len(groupIp.Items.RdsEcsSecurityGroupRel) > 0 {
+	//		d.Set("security_group_id", groupIp.Items.RdsEcsSecurityGroupRel[0].SecurityGroupId)
+	//	}
 
 	return nil
 }
@@ -386,11 +392,11 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 	d.Partial(true)
 
 	if d.HasChange("backup_time") || d.HasChange("backup_period") {
-		if err := ddsService.MotifyMongoDBBackupPolicy(d, "Sharding"); err != nil {
+		if err := ddsService.MotifyMongoDBBackupPolicy(d); err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("backup_time")
-		d.SetPartial("backup_period")
+		//d.SetPartial("backup_time")
+		//d.SetPartial("backup_period")
 	}
 	if d.HasChange("tde_status") {
 		request := dds.CreateModifyDBInstanceTDERequest()
@@ -406,7 +412,7 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("tde_status")
+		//d.SetPartial("tde_status")
 	}
 
 	if d.HasChange("security_group_id") {
@@ -425,12 +431,12 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("security_group_id")
+		//d.SetPartial("security_group_id")
 	}
 
 	if d.IsNewResource() {
 		d.Partial(false)
-		return resourceApsaraStackMongoDBInstanceRead(d, meta)
+		return resourceApsaraStackMongoDBShardingInstanceRead(d, meta)
 	}
 
 	if d.HasChange("shard_list") {
@@ -439,7 +445,7 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 		if err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("shard_list")
+		//d.SetPartial("shard_list")
 	}
 
 	if d.HasChange("mongo_list") {
@@ -448,7 +454,7 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 		if err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("mongo_list")
+		//d.SetPartial("mongo_list")
 	}
 
 	if d.HasChange("name") {
@@ -468,13 +474,13 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("name")
+		//d.SetPartial("name")
 	}
 
 	if d.HasChange("account_password") || d.HasChange("kms_encrypted_password") {
 		var accountPassword string
 		if accountPassword = d.Get("account_password").(string); accountPassword != "" {
-			d.SetPartial("account_password")
+			//d.SetPartial("account_password")
 		} else if kmsPassword := d.Get("kms_encrypted_password").(string); kmsPassword != "" {
 			kmsService := KmsService{meta.(*connectivity.ApsaraStackClient)}
 			decryptResp, err := kmsService.Decrypt(kmsPassword, d.Get("kms_encryption_context").(map[string]interface{}))
@@ -482,15 +488,15 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 				return WrapError(err)
 			}
 			accountPassword = decryptResp.Plaintext
-			d.SetPartial("kms_encrypted_password")
-			d.SetPartial("kms_encryption_context")
+			//d.SetPartial("kms_encrypted_password")
+			//d.SetPartial("kms_encryption_context")
 		}
 
 		err := ddsService.ResetAccountPassword(d, accountPassword)
 		if err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("account_password")
+		//d.SetPartial("account_password")
 	}
 
 	if d.HasChange("security_ip_list") {
@@ -501,10 +507,10 @@ func resourceApsaraStackMongoDBShardingInstanceUpdate(d *schema.ResourceData, me
 			ipstr = LOCAL_HOST_IP
 		}
 
-		if err := ddsService.ModifyMongoDBSecurityIps(d.Id(), "Sharding", ipstr); err != nil {
+		if err := ddsService.ModifyMongoDBSecurityIps(d.Id(), ipstr); err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("security_ip_list")
+		//d.SetPartial("security_ip_list")
 	}
 	d.Partial(false)
 	return resourceApsaraStackMongoDBShardingInstanceRead(d, meta)
@@ -541,5 +547,5 @@ func resourceApsaraStackMongoDBShardingInstanceDelete(d *schema.ResourceData, me
 		}
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	return WrapError(ddsService.WaitForMongoDBInstance(d.Id(), "Sharding", Deleted, DefaultTimeout))
+	return WrapError(ddsService.WaitForMongoDBInstance(d.Id(), Deleted, DefaultTimeout))
 }

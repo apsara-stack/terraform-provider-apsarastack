@@ -223,9 +223,9 @@ func TestAccApsaraStackMongoDBShardingInstance_classic(t *testing.T) {
 				Config: testMongoDBShardingInstance_classic_backup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"backup_period.#":          "1",
-						"backup_period.1970423419": "Wednesday",
-						"backup_time":              "11:00Z-12:00Z",
+						"backup_period.#": "1",
+						"backup_period.0": "Wednesday",
+						"backup_time":     "11:00Z-12:00Z",
 					}),
 				),
 			},
@@ -233,15 +233,15 @@ func TestAccApsaraStackMongoDBShardingInstance_classic(t *testing.T) {
 				Config: testMongoDBShardingInstance_classic_together,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":                        "tf-testAccMongoDBShardingInstance_test_together",
-						"account_password":            "YourPassword_123",
-						"security_ip_list.#":          "2",
-						"security_ip_list.4095458986": "10.168.1.12",
-						"security_ip_list.3976237035": "10.168.1.13",
-						"backup_period.#":             "2",
-						"backup_period.1592931319":    "Tuesday",
-						"backup_period.1970423419":    "Wednesday",
-						"backup_time":                 "10:00Z-11:00Z",
+						"name":               "tf-testAccMongoDBShardingInstance_test_together",
+						"account_password":   "YourPassword_123",
+						"security_ip_list.#": "2",
+						"security_ip_list.0": "10.168.1.12",
+						"security_ip_list.1": "10.168.1.13",
+						"backup_period.#":    "2",
+						"backup_period.0":    "Tuesday",
+						"backup_period.1":    "Wednesday",
+						"backup_time":        "10:00Z-11:00Z",
 					}),
 				),
 			}},
@@ -298,15 +298,15 @@ func TestAccApsaraStackMongoDBShardingInstance_classicVersion4(t *testing.T) {
 						"tde_status": "enabled",
 					}),
 				),
-			},
-			{
-				Config: testMongoDBShardingInstance_classic_security_group_id,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_group_id": CHECKSET,
-					}),
-				),
 			}},
+		//{
+		//	Config: testMongoDBShardingInstance_classic_security_group_id,
+		//	Check: resource.ComposeTestCheckFunc(
+		//		testAccCheck(map[string]string{
+		//			"security_group_id": CHECKSET,
+		//		}),
+		//	),
+		//}
 	})
 }
 
@@ -400,9 +400,9 @@ func TestAccApsaraStackMongoDBShardingInstance_vpc(t *testing.T) {
 				Config: testMongoDBShardingInstance_vpc_backup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"backup_period.#":          "1",
-						"backup_period.1970423419": "Wednesday",
-						"backup_time":              "11:00Z-12:00Z",
+						"backup_period.#": "1",
+						"backup_period.0": "Wednesday",
+						"backup_time":     "11:00Z-12:00Z",
 					}),
 				),
 			},
@@ -410,15 +410,15 @@ func TestAccApsaraStackMongoDBShardingInstance_vpc(t *testing.T) {
 				Config: testMongoDBShardingInstance_vpc_together,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":                        "tf-testAccMongoDBShardingInstance_test_together",
-						"account_password":            "YourPassword_123",
-						"security_ip_list.#":          "2",
-						"security_ip_list.4095458986": "10.168.1.12",
-						"security_ip_list.3976237035": "10.168.1.13",
-						"backup_period.#":             "2",
-						"backup_period.1592931319":    "Tuesday",
-						"backup_period.1970423419":    "Wednesday",
-						"backup_time":                 "10:00Z-11:00Z",
+						"name":               "tf-testAccMongoDBShardingInstance_test_together",
+						"account_password":   "YourPassword_123",
+						"security_ip_list.#": "2",
+						"security_ip_list.0": "10.168.1.12",
+						"security_ip_list.1": "10.168.1.13",
+						"backup_period.#":    "2",
+						"backup_period.0":    "Tuesday",
+						"backup_period.1":    "Wednesday",
+						"backup_time":        "10:00Z-11:00Z",
 					}),
 				),
 			}},
@@ -508,9 +508,15 @@ func TestAccApsaraStackMongoDBShardingInstance_multi_instance(t *testing.T) {
 				Config: testMongoDBShardingInstance_multi_instance_backup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"backup_period.#":          "1",
-						"backup_period.1970423419": "Wednesday",
-						"backup_time":              "11:00Z-12:00Z",
+						"name":               "tf-testAccMongoDBShardingInstance_test_together",
+						"account_password":   "YourPassword_123",
+						"security_ip_list.#": "2",
+						"security_ip_list.0": "10.168.1.12",
+						"security_ip_list.1": "10.168.1.13",
+						"backup_period.#":    "2",
+						"backup_period.0":    "Tuesday",
+						"backup_period.1":    "Wednesday",
+						"backup_time":        "10:00Z-11:00Z",
 					}),
 				),
 			},
@@ -518,15 +524,15 @@ func TestAccApsaraStackMongoDBShardingInstance_multi_instance(t *testing.T) {
 				Config: testMongoDBShardingInstance_multi_instance_together,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":                        "tf-testAccMongoDBShardingInstance_test_together",
-						"account_password":            "YourPassword_123",
-						"security_ip_list.#":          "2",
-						"security_ip_list.4095458986": "10.168.1.12",
-						"security_ip_list.3976237035": "10.168.1.13",
-						"backup_period.#":             "2",
-						"backup_period.1592931319":    "Tuesday",
-						"backup_period.1970423419":    "Wednesday",
-						"backup_time":                 "10:00Z-11:00Z",
+						"name":               "tf-testAccMongoDBShardingInstance_test_together",
+						"account_password":   "YourPassword_123",
+						"security_ip_list.#": "2",
+						"security_ip_list.0": "10.168.1.12",
+						"security_ip_list.1": "10.168.1.13",
+						"backup_period.#":    "2",
+						"backup_period.0":    "Tuesday",
+						"backup_period.1":    "Wednesday",
+						"backup_time":        "10:00Z-11:00Z",
 					}),
 				),
 			}},
