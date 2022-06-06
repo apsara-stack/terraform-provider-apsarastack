@@ -51,6 +51,7 @@ func resourceApsaraStackKVStoreBackupPolicyCreate(d *schema.ResourceData, meta i
 }
 
 func resourceApsaraStackKVStoreBackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	kvstoreService := KvstoreService{client}
 

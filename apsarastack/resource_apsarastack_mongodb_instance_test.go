@@ -174,24 +174,24 @@ func TestAccApsaraStackMongoDBInstance_classic(t *testing.T) {
 					}),
 				),
 			},
-			{
-				Config: testMongoDBInstance_classic_tags,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"tags.%":       "2",
-						"tags.Created": "TF",
-						"tags.For":     "acceptance test",
-					}),
-				),
-			},
+			//			{
+			//				Config: testMongoDBInstance_classic_tags,
+			//				Check: resource.ComposeTestCheckFunc(
+			//					testAccCheck(map[string]string{
+			//						"tags.%":       "2",
+			//						"tags.Created": "TF",
+			//						"tags.For":     "acceptance test",
+			//					}),
+			//				),
+			//			},
 			{
 				Config: testMongoDBInstance_classic_name,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":         "tf-testAccMongoDBInstance_test",
-						"tags.%":       REMOVEKEY,
-						"tags.Created": REMOVEKEY,
-						"tags.For":     REMOVEKEY,
+						"name": "tf-testAccMongoDBInstance_test",
+						//						"tags.%":       REMOVEKEY,
+						//						"tags.Created": REMOVEKEY,
+						//						"tags.For":     REMOVEKEY,
 					}),
 				),
 			},
@@ -216,26 +216,26 @@ func TestAccApsaraStackMongoDBInstance_classic(t *testing.T) {
 				Config: testMongoDBInstance_classic_security_ip_list,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"security_ip_list.#":          "1",
-						"security_ip_list.4095458986": "10.168.1.12",
+						"security_ip_list.#": "1",
+						"security_ip_list.0": "10.168.1.12",
 					}),
 				),
 			},
-			{
-				Config: testMongoDBInstance_classic_security_group_id,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"security_group_id": CHECKSET,
-					}),
-				),
-			},
+			//			{
+			//				Config: testMongoDBInstance_classic_security_group_id,
+			//				Check: resource.ComposeTestCheckFunc(
+			//					testAccCheck(map[string]string{
+			//						"security_group_id": CHECKSET,
+			//					}),
+			//				),
+			//			},
 			{
 				Config: testMongoDBInstance_classic_backup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"backup_period.#":          "1",
-						"backup_period.1970423419": "Wednesday",
-						"backup_time":              "11:00Z-12:00Z",
+						"backup_period.#": "1",
+						"backup_period.0": "Wednesday",
+						"backup_time":     "11:00Z-12:00Z",
 					}),
 				),
 			},
@@ -252,20 +252,20 @@ func TestAccApsaraStackMongoDBInstance_classic(t *testing.T) {
 				Config: testMongoDBInstance_classic_together,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":                        "tf-testAccMongoDBInstance_test_together",
-						"account_password":            "YourPassword_",
-						"security_ip_list.#":          "2",
-						"security_ip_list.4095458986": "10.168.1.12",
-						"security_ip_list.3976237035": "10.168.1.13",
-						"db_instance_storage":         "30",
-						"db_instance_class":           "dds.mongo.standard",
-						"backup_period.#":             "2",
-						"backup_period.1592931319":    "Tuesday",
-						"backup_period.1970423419":    "Wednesday",
-						"backup_time":                 "10:00Z-11:00Z",
-						"maintain_start_time":         REMOVEKEY,
-						"maintain_end_time":           REMOVEKEY,
-						"ssl_status":                  "Open",
+						"name":                "tf-testAccMongoDBInstance_test_together",
+						"account_password":    "YourPassword_",
+						"security_ip_list.#":  "2",
+						"security_ip_list.0":  "10.168.1.12",
+						"security_ip_list.1":  "10.168.1.13",
+						"db_instance_storage": "30",
+						"db_instance_class":   "dds.mongo.standard",
+						"backup_period.#":     "2",
+						"backup_period.0":     "Tuesday",
+						"backup_period.1":     "Wednesday",
+						"backup_time":         "10:00Z-11:00Z",
+						"maintain_start_time": REMOVEKEY,
+						"maintain_end_time":   REMOVEKEY,
+						"ssl_status":          "Open",
 					}),
 				),
 			},
@@ -391,8 +391,8 @@ func TestAccApsaraStackMongoDBInstance_vpc(t *testing.T) {
 				Config: testMongoDBInstance_vpc_security_ip_list,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"security_ip_list.#":          "1",
-						"security_ip_list.4095458986": "10.168.1.12",
+						"security_ip_list.#": "1",
+						"security_ip_list.0": "10.168.1.12",
 					}),
 				),
 			},
@@ -400,9 +400,9 @@ func TestAccApsaraStackMongoDBInstance_vpc(t *testing.T) {
 				Config: testMongoDBInstance_vpc_backup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"backup_period.#":          "1",
-						"backup_period.1970423419": "Wednesday",
-						"backup_time":              "11:00Z-12:00Z",
+						"backup_period.#": "1",
+						"backup_period.0": "Wednesday",
+						"backup_time":     "11:00Z-12:00Z",
 					}),
 				),
 			},
@@ -410,17 +410,17 @@ func TestAccApsaraStackMongoDBInstance_vpc(t *testing.T) {
 				Config: testMongoDBInstance_vpc_together,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":                        "tf-testAccMongoDBInstance_test_together",
-						"account_password":            "YourPassword_",
-						"security_ip_list.#":          "2",
-						"security_ip_list.4095458986": "10.168.1.12",
-						"security_ip_list.3976237035": "10.168.1.13",
-						"db_instance_storage":         "30",
-						"db_instance_class":           "dds.mongo.standard",
-						"backup_period.#":             "2",
-						"backup_period.1592931319":    "Tuesday",
-						"backup_period.1970423419":    "Wednesday",
-						"backup_time":                 "10:00Z-11:00Z",
+						"name":                "tf-testAccMongoDBInstance_test_together",
+						"account_password":    "YourPassword_",
+						"security_ip_list.#":  "2",
+						"security_ip_list.0":  "10.168.1.12",
+						"security_ip_list.1":  "10.168.1.13",
+						"db_instance_storage": "30",
+						"db_instance_class":   "dds.mongo.standard",
+						"backup_period.#":     "2",
+						"backup_period.0":     "Tuesday",
+						"backup_period.1":     "Wednesday",
+						"backup_time":         "10:00Z-11:00Z",
 					}),
 				),
 			}},
@@ -495,8 +495,8 @@ func TestAccApsaraStackMongoDBInstance_multiAZ(t *testing.T) {
 				Config: testMongoDBInstance_multiAZ_security_ip_list,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"security_ip_list.#":          "1",
-						"security_ip_list.4095458986": "10.168.1.12",
+						"security_ip_list.#": "1",
+						"security_ip_list.0": "10.168.1.12",
 					}),
 				),
 			},
@@ -504,9 +504,9 @@ func TestAccApsaraStackMongoDBInstance_multiAZ(t *testing.T) {
 				Config: testMongoDBInstance_multiAZ_backup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"backup_period.#":          "1",
-						"backup_period.1970423419": "Wednesday",
-						"backup_time":              "11:00Z-12:00Z",
+						"backup_period.#": "1",
+						"backup_period.0": "Wednesday",
+						"backup_time":     "11:00Z-12:00Z",
 					}),
 				),
 			},
@@ -514,17 +514,17 @@ func TestAccApsaraStackMongoDBInstance_multiAZ(t *testing.T) {
 				Config: testMongoDBInstance_multiAZ_together,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":                        "tf-testAccMongoDBInstance_test_together",
-						"account_password":            "YourPassword_",
-						"security_ip_list.#":          "2",
-						"security_ip_list.4095458986": "10.168.1.12",
-						"security_ip_list.3976237035": "10.168.1.13",
-						"db_instance_storage":         "30",
-						"db_instance_class":           "dds.mongo.standard",
-						"backup_period.#":             "2",
-						"backup_period.1592931319":    "Tuesday",
-						"backup_period.1970423419":    "Wednesday",
-						"backup_time":                 "10:00Z-11:00Z",
+						"name":                "tf-testAccMongoDBInstance_test_together",
+						"account_password":    "YourPassword_",
+						"security_ip_list.#":  "2",
+						"security_ip_list.0":  "10.168.1.12",
+						"security_ip_list.1":  "10.168.1.13",
+						"db_instance_storage": "30",
+						"db_instance_class":   "dds.mongo.standard",
+						"backup_period.#":     "2",
+						"backup_period.0":     "Tuesday",
+						"backup_period.1":     "Wednesday",
+						"backup_time":         "10:00Z-11:00Z",
 					}),
 				),
 			}},
@@ -593,8 +593,8 @@ func TestAccApsaraStackMongoDBInstance_multi_instance(t *testing.T) {
 				Config: testMongoDBInstance_multi_instance_security_ip_list,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"security_ip_list.#":          "1",
-						"security_ip_list.4095458986": "10.168.1.12",
+						"security_ip_list.#": "1",
+						"security_ip_list.0": "10.168.1.12",
 					}),
 				),
 			},
@@ -602,9 +602,9 @@ func TestAccApsaraStackMongoDBInstance_multi_instance(t *testing.T) {
 				Config: testMongoDBInstance_multi_instance_backup,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"backup_period.#":          "1",
-						"backup_period.1970423419": "Wednesday",
-						"backup_time":              "11:00Z-12:00Z",
+						"backup_period.#": "1",
+						"backup_period.0": "Wednesday",
+						"backup_time":     "11:00Z-12:00Z",
 					}),
 				),
 			},
@@ -612,17 +612,17 @@ func TestAccApsaraStackMongoDBInstance_multi_instance(t *testing.T) {
 				Config: testMongoDBInstance_multi_instance_together,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":                        "tf-testAccMongoDBInstance_test_together",
-						"account_password":            "YourPassword_",
-						"security_ip_list.#":          "2",
-						"security_ip_list.4095458986": "10.168.1.12",
-						"security_ip_list.3976237035": "10.168.1.13",
-						"db_instance_storage":         "30",
-						"db_instance_class":           "dds.mongo.standard",
-						"backup_period.#":             "2",
-						"backup_period.1592931319":    "Tuesday",
-						"backup_period.1970423419":    "Wednesday",
-						"backup_time":                 "10:00Z-11:00Z",
+						"name":                "tf-testAccMongoDBInstance_test_together",
+						"account_password":    "YourPassword_",
+						"security_ip_list.#":  "2",
+						"security_ip_list.0":  "10.168.1.12",
+						"security_ip_list.1":  "10.168.1.13",
+						"db_instance_storage": "30",
+						"db_instance_class":   "dds.mongo.standard",
+						"backup_period.#":     "2",
+						"backup_period.0":     "Tuesday",
+						"backup_period.1":     "Wednesday",
+						"backup_time":         "10:00Z-11:00Z",
 					}),
 				),
 			}},
@@ -630,11 +630,10 @@ func TestAccApsaraStackMongoDBInstance_multi_instance(t *testing.T) {
 }
 
 const testMongoDBInstance_classic_base = `
-data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+data "apsarastack_zones" "default" { 
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -642,10 +641,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_ssl_action = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -654,10 +653,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_ssl_action_update = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -666,10 +665,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_base4 = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "4.0"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -677,10 +676,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_tags = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -693,10 +692,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_name = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -706,10 +705,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_configure = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -719,10 +718,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_account_password = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -733,10 +732,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_tde = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "4.0"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -745,10 +744,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_security_ip_list = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -760,12 +759,12 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_security_group_id = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 data "apsarastack_security_groups" "default" {
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -777,10 +776,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_backup = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -794,10 +793,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_maintain_time = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -813,10 +812,10 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_classic_together = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -830,23 +829,26 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_vpc_base = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
-}
-
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+  
 }
 
 variable "name" {
   default = "tf-testAccMongoDBInstance_vpc"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -854,22 +856,25 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_vpc_name = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
-}
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_vpc"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = "data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -878,22 +883,26 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_vpc_configure = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
-}
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+  
 }
 
 variable "name" {
   default = "tf-testAccMongoDBInstance_vpc"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -902,22 +911,26 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_vpc_account_password = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
-}
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+  
 }
 
 variable "name" {
   default = "tf-testAccMongoDBInstance_vpc"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -927,22 +940,26 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_vpc_security_ip_list = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
-}
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+  
 }
 
 variable "name" {
   default = "tf-testAccMongoDBInstance_vpc"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -953,22 +970,26 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_vpc_backup = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
-}
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+  
 }
 
 variable "name" {
   default = "tf-testAccMongoDBInstance_vpc"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -981,22 +1002,25 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_vpc_together = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
-}
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_vpc"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -1009,24 +1033,27 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_multiAZ_base = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
   multi                       = true
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
-}
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_multiAZ"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -1034,24 +1061,27 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_multiAZ_name = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
   multi                       = true
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
-}
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_multiAZ"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 10
   db_instance_class   = "dds.mongo.mid"
@@ -1060,24 +1090,27 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_multiAZ_configure = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
   multi                       = true
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
-}
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_multiAZ"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -1086,24 +1119,26 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_multiAZ_account_password = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
-  multi                       = true
-}
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
 
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
 }
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_multiAZ"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -1113,24 +1148,27 @@ resource "apsarastack_mongodb_instance" "default" {
 
 const testMongoDBInstance_multiAZ_security_ip_list = `
 data "apsarastack_zones" "default" {
-  available_resource_creation = "MongoDB"
+  
   multi                       = true
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
-}
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_multiAZ"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -1144,21 +1182,24 @@ data "apsarastack_zones" "default" {
   available_resource_creation = "MongoDB"
   multi                       = true
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
-}
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_multiAZ"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -1174,21 +1215,24 @@ data "apsarastack_zones" "default" {
   available_resource_creation = "MongoDB"
   multi                       = true
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
-}
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
-}
-
 variable "name" {
   default = "tf-testAccMongoDBInstance_multiAZ"
 }
+
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
+}
+
 resource "apsarastack_mongodb_instance" "default" {
-  zone_id             = "${data.apsarastack_zones.default.zones.1.id}"
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
+  zone_id             = data.apsarastack_zones.default.zones[0].id
   engine_version      = "3.4"
   db_instance_storage = 30
   db_instance_class   = "dds.mongo.standard"
@@ -1206,17 +1250,19 @@ data "apsarastack_zones" "default" {
 variable "name" {
   default = "tf-testAccMongoDBInstance_multi_instance"
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
 }
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
 }
 
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   count               = 3
   engine_version      = "3.4"
   db_instance_storage = 10
@@ -1230,17 +1276,19 @@ data "apsarastack_zones" "default" {
 variable "name" {
   default = "tf-testAccMongoDBInstance_multi_instance"
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
 }
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
 }
 
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   count               = 3
   engine_version      = "3.4"
   db_instance_storage = 10
@@ -1255,17 +1303,19 @@ data "apsarastack_zones" "default" {
 variable "name" {
   default = "tf-testAccMongoDBInstance_multi_instance"
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
 }
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
 }
 
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   count               = 3
   engine_version      = "3.4"
   db_instance_storage = 30
@@ -1280,17 +1330,19 @@ data "apsarastack_zones" "default" {
 variable "name" {
   default = "tf-testAccMongoDBInstance_multi_instance"
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
 }
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
 }
 
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   count               = 3
   engine_version      = "3.4"
   db_instance_storage = 30
@@ -1306,17 +1358,19 @@ data "apsarastack_zones" "default" {
 variable "name" {
   default = "tf-testAccMongoDBInstance_multi_instance"
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
 }
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
 }
 
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   count               = 3
   engine_version      = "3.4"
   db_instance_storage = 30
@@ -1333,17 +1387,19 @@ data "apsarastack_zones" "default" {
 variable "name" {
   default = "tf-testAccMongoDBInstance_multi_instance"
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
 }
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
 }
 
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   count               = 3
   engine_version      = "3.4"
   db_instance_storage = 30
@@ -1362,17 +1418,19 @@ data "apsarastack_zones" "default" {
 variable "name" {
   default = "tf-testAccMongoDBInstance_multi_instance"
 }
-data "apsarastack_vpcs" "default" {
-	is_default = true
+resource "apsarastack_vpc" "default" {
+  name       = "${var.name}"
+  cidr_block = "172.16.0.0/16"
 }
-
-data "apsarastack_vswitches" "default" {
-  vpc_id = data.apsarastack_vpcs.default.ids.0
-  zone_id = "${data.apsarastack_zones.default.zones.1.id}"
+resource "apsarastack_vswitch" "default" {
+  vpc_id            = "${apsarastack_vpc.default.id}"
+  cidr_block        = "172.16.0.0/24"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  name              = "${var.name}"
 }
 
 resource "apsarastack_mongodb_instance" "default" {
-  vswitch_id          = data.apsarastack_vswitches.default.ids.0
+  vswitch_id          = apsarastack_vswitch.default.id
   count               = 3
   engine_version      = "3.4"
   db_instance_storage = 30

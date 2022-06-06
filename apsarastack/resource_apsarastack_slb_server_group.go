@@ -118,7 +118,7 @@ func resourceApsaraStackSlbServerGroupRead(d *schema.ResourceData, meta interfac
 	}
 
 	d.Set("name", object.VServerGroupName)
-	//d.Set("load_balancer_id", object.LoadBalancerId)
+	d.Set("load_balancer_id", object.LoadBalancerId)
 
 	servers := make([]map[string]interface{}, 0)
 	portAndWeight := make(map[string][]string)
