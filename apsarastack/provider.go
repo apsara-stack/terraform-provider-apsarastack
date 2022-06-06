@@ -410,6 +410,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_network_acl_attachment": resourceApsaraStackNetworkAclAttachment(),
 			"apsarastack_network_acl_entries":    resourceApsaraStackNetworkAclEntries(),
 			"apsarastack_kvstore_connection":     resourceApsaraStackKvstoreConnection(),
+			"apsarastack_ecs_deployment_set":     resourceApsaraStackEcsDeploymentSet(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
