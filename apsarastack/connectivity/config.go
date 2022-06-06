@@ -19,6 +19,7 @@ var securityCredURL = "http://100.100.100.200/latest/meta-data/ram/security-cred
 
 // Config of apsarastack
 type Config struct {
+	Endpoints                map[string]interface{}
 	AccessKey                string
 	SecretKey                string
 	EcsRoleName              string
@@ -39,51 +40,51 @@ type Config struct {
 	RamRoleSessionName       string
 	RamRolePolicy            string
 	RamRoleSessionExpiration int
-	OrganizationAccessKey   string
-	OrganizationSecretKey   string
-	SLSOpenAPIEndpoint    string
-	EcsEndpoint           string
-	RdsEndpoint           string
-	SlbEndpoint           string
-	VpcEndpoint           string
-	CenEndpoint           string
-	EssEndpoint           string
-	OssEndpoint           string
-	OnsEndpoint           string
-	AlikafkaEndpoint      string
-	DnsEndpoint           string
-	RamEndpoint           string
-	CsEndpoint            string
-	CrEndpoint            string
-	CdnEndpoint           string
-	KmsEndpoint           string
-	OtsEndpoint           string
-	CmsEndpoint           string
-	PvtzEndpoint          string
-	AscmEndpoint          string
-	LogEndpoint           string
-	DrdsEndpoint          string
-	DdsEndpoint           string
-	GpdbEndpoint          string
-	KVStoreEndpoint       string
-	PolarDBEndpoint       string
-	FcEndpoint            string
-	ApigatewayEndpoint    string
-	DatahubEndpoint       string
-	MnsEndpoint           string
-	LocationEndpoint      string
-	ElasticsearchEndpoint string
-	NasEndpoint           string
-	BssOpenApiEndpoint    string
-	DdoscooEndpoint       string
-	DdosbgpEndpoint       string
-	SagEndpoint           string
-	EmrEndpoint           string
-	CasEndpoint           string
-	MarketEndpoint        string
-	HBaseEndpoint         string
-	AdbEndpoint           string
-	MaxComputeEndpoint    string
+	OrganizationAccessKey    string
+	OrganizationSecretKey    string
+	SLSOpenAPIEndpoint       string
+	EcsEndpoint              string
+	RdsEndpoint              string
+	SlbEndpoint              string
+	VpcEndpoint              string
+	CenEndpoint              string
+	EssEndpoint              string
+	OssEndpoint              string
+	OnsEndpoint              string
+	AlikafkaEndpoint         string
+	DnsEndpoint              string
+	RamEndpoint              string
+	CsEndpoint               string
+	CrEndpoint               string
+	CdnEndpoint              string
+	KmsEndpoint              string
+	OtsEndpoint              string
+	CmsEndpoint              string
+	PvtzEndpoint             string
+	AscmEndpoint             string
+	LogEndpoint              string
+	DrdsEndpoint             string
+	DdsEndpoint              string
+	GpdbEndpoint             string
+	KVStoreEndpoint          string
+	PolarDBEndpoint          string
+	FcEndpoint               string
+	ApigatewayEndpoint       string
+	DatahubEndpoint          string
+	MnsEndpoint              string
+	LocationEndpoint         string
+	ElasticsearchEndpoint    string
+	NasEndpoint              string
+	BssOpenApiEndpoint       string
+	DdoscooEndpoint          string
+	DdosbgpEndpoint          string
+	SagEndpoint              string
+	EmrEndpoint              string
+	CasEndpoint              string
+	MarketEndpoint           string
+	HBaseEndpoint            string
+	AdbEndpoint              string
+	MaxComputeEndpoint       string
 
 	EdasEndpoint            string
 	SkipRegionValidation    bool

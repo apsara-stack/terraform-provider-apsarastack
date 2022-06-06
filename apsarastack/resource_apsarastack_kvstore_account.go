@@ -138,6 +138,7 @@ func resourceApsaraStackKVStoreAccountCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceApsaraStackKVStoreAccountRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	kvstoreService := KvstoreService{client}
 	object, err := kvstoreService.DescribeKVstoreAccount(d.Id())

@@ -81,11 +81,22 @@ func resourceSlbDomainExtensionConfigDependence(name string) string {
    variable "name" {
 		default = "%s"
 	}
+data "apsarastack_zones" "default" {
+	available_resource_creation = "VSwitch"
+ }
+resource "apsarastack_vpc" "default" {
+    name = "${var.name}"
+    cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+    vpc_id = "${apsarastack_vpc.default.id}"
+    cidr_block = "172.16.0.0/16"
+    availability_zone = data.apsarastack_zones.default.zones.0.id
+    name = "${var.name}"
+}
    resource "apsarastack_slb" "instance" {
         name                 = "${var.name}"
-        internet_charge_type = "PayByTraffic"
-        internet             = "true"
-		specification        = "slb.s2.small"
+		vswitch_id = "${apsarastack_vswitch.default.id}"
 	}
 	resource "apsarastack_slb_server_certificate" "foo" {
   		name               = "${var.name}"
@@ -115,7 +126,7 @@ func resourceSlbDomainExtensionConfigDependence(name string) string {
   		health_check_interval     = 5
   		health_check_http_code    = "http_2xx,http_3xx"
   		bandwidth                 = 10
-  		ssl_certificate_id        = "${apsarastack_slb_server_certificate.foo.id}"
+
 	}
 	`, name)
 }

@@ -458,7 +458,9 @@ func NewInvoker() Invoker {
 	i.AddCatcher(ThrottlingCatcher)
 	return i
 }
-
+func StringPointer(s string) *string {
+	return &s
+}
 func userDataHashSum(user_data string) string {
 	// Check whether the user_data is not Base64 encoded.
 	// Always calculate hash of base64 decoded value since we

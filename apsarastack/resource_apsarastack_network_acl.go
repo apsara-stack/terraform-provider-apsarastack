@@ -312,9 +312,9 @@ func resourceApsaraStackNetworkAclUpdate(d *schema.ResourceData, meta interface{
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapErrorf(err, IdMsg, d.Id())
 		}
-		//d.SetPartial("description")
-		//d.SetPartial("name")
-		//d.SetPartial("network_acl_name")
+		d.SetPartial("description")
+		d.SetPartial("name")
+		d.SetPartial("network_acl_name")
 	}
 
 	update = false
@@ -373,8 +373,8 @@ func resourceApsaraStackNetworkAclUpdate(d *schema.ResourceData, meta interface{
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapErrorf(err, IdMsg, d.Id())
 		}
-		//d.SetPartial("egress_acl_entries")
-		//d.SetPartial("ingress_acl_entries")
+		d.SetPartial("egress_acl_entries")
+		d.SetPartial("ingress_acl_entries")
 	}
 	d.Partial(false)
 	if d.HasChange("resources") {
@@ -428,7 +428,7 @@ func resourceApsaraStackNetworkAclUpdate(d *schema.ResourceData, meta interface{
 			if _, err := stateConf.WaitForState(); err != nil {
 				return WrapErrorf(err, IdMsg, d.Id())
 			}
-			//d.SetPartial("resources")
+			d.SetPartial("resources")
 		}
 		if removed.Len() > 0 {
 			var resourcesMaps []vpc.UnassociateNetworkAclResource
@@ -475,7 +475,7 @@ func resourceApsaraStackNetworkAclUpdate(d *schema.ResourceData, meta interface{
 			if _, err := stateConf.WaitForState(); err != nil {
 				return WrapErrorf(err, IdMsg, d.Id())
 			}
-			//d.SetPartial("resources")
+			d.SetPartial("resources")
 		}
 	}
 	return resourceApsaraStackNetworkAclRead(d, meta)
