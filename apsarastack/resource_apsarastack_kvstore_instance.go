@@ -218,7 +218,7 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 			}
 		}
 
-		//d.SetPartial("parameters")
+		d.SetPartial("parameters")
 	}
 
 	if d.HasChange("security_ips") {
@@ -244,7 +244,7 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("security_ips")
+		d.SetPartial("security_ips")
 		// wait instance status is Normal after modifying
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapError(err)
@@ -275,7 +275,7 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
 				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				//d.SetPartial("vpc_auth_mode")
+				d.SetPartial("vpc_auth_mode")
 
 				// The auth mode take some time to be effective, so wait to ensure the state !
 				if _, err := stateConf.WaitForState(); err != nil {
@@ -306,8 +306,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapError(err)
 		}
-		//d.SetPartial("instance_charge_type")
-		//d.SetPartial("period")
+		d.SetPartial("instance_charge_type")
+		d.SetPartial("period")
 	}
 
 	if d.HasChange("maintain_start_time") || d.HasChange("maintain_end_time") {
@@ -326,8 +326,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("maintain_start_time")
-		//d.SetPartial("maintain_end_time")
+		d.SetPartial("maintain_start_time")
+		d.SetPartial("maintain_end_time")
 	}
 
 	if d.IsNewResource() {
@@ -386,7 +386,7 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapError(err)
 		}
 
-		//d.SetPartial("instance_class")
+		d.SetPartial("instance_class")
 	}
 
 	request := r_kvstore.CreateModifyInstanceAttributeRequest()
@@ -402,7 +402,7 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 
 	if d.HasChange("password") || d.HasChange("kms_encrypted_password") {
 		if v := d.Get("password").(string); v != "" {
-			//d.SetPartial("password")
+			d.SetPartial("password")
 			request.NewPassword = v
 			update = true
 		}
@@ -413,8 +413,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 				return WrapError(err)
 			}
 			request.NewPassword = decryptResp.Plaintext
-			//d.SetPartial("kms_encrypted_password")
-			//d.SetPartial("kms_encryption_context")
+			d.SetPartial("kms_encrypted_password")
+			d.SetPartial("kms_encryption_context")
 			update = true
 		}
 	}
@@ -435,8 +435,8 @@ func resourceApsaraStackKVStoreInstanceUpdate(d *schema.ResourceData, meta inter
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapError(err)
 		}
-		//d.SetPartial("instance_name")
-		//d.SetPartial("password")
+		d.SetPartial("instance_name")
+		d.SetPartial("password")
 	}
 
 	d.Partial(false)

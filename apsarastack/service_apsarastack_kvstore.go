@@ -214,7 +214,7 @@ func (s *KvstoreService) setInstanceTags(d *schema.ResourceData) error {
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		}
 
-		//d.SetPartial("tags")
+		d.SetPartial("tags")
 	}
 
 	return nil

@@ -481,8 +481,8 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapErrorf(err, IdMsg, d.Id())
 		}
-		//d.SetPartial("instance_charge_type")
-		//d.SetPartial("period")
+		d.SetPartial("instance_charge_type")
+		d.SetPartial("period")
 
 	}
 
@@ -513,8 +513,8 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
-		//d.SetPartial("auto_renew")
-		//d.SetPartial("auto_renew_period")
+		d.SetPartial("auto_renew")
+		d.SetPartial("auto_renew_period")
 	}
 
 	if d.HasChange("monitoring_period") {
@@ -561,7 +561,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("maintain_time")
+		d.SetPartial("maintain_time")
 	}
 
 	//if d.HasChange("security_ip_mode") && d.Get("security_ip_mode").(string) == SafetyMode {
@@ -610,7 +610,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("instance_name")
+		d.SetPartial("instance_name")
 	}
 
 	if d.HasChange("security_ips") {
@@ -625,7 +625,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		if err := rdsService.ModifyDBSecurityIps(d.Id(), ipstr); err != nil {
 			return WrapError(err)
 		}
-		//d.SetPartial("security_ips")
+		d.SetPartial("security_ips")
 	}
 
 	update := false
@@ -666,8 +666,8 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 				return resource.NonRetryableError(err)
 			}
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-			//d.SetPartial("instance_type")
-			//d.SetPartial("instance_storage")
+			d.SetPartial("instance_type")
+			d.SetPartial("instance_storage")
 			return nil
 		})
 

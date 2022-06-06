@@ -1317,7 +1317,7 @@ func (s *VpcService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 			}
 		}
 
-		//d.SetPartial("tags")
+		d.SetPartial("tags")
 	}
 
 	return nil

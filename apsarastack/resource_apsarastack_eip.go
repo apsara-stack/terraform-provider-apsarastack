@@ -83,6 +83,7 @@ func resourceApsaraStackEipCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceApsaraStackEipRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
 

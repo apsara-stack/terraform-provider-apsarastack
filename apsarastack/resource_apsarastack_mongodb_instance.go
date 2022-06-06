@@ -380,16 +380,16 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapError(err)
 		}
-		//d.SetPartial("instance_charge_type")
-		//d.SetPartial("period")
+		d.SetPartial("instance_charge_type")
+		d.SetPartial("period")
 	}
 
 	if d.HasChange("backup_time") || d.HasChange("backup_period") {
 		if err := ddsService.MotifyMongoDBBackupPolicy(d); err != nil {
 			return WrapError(err)
 		}
-		//d.SetPartial("backup_time")
-		//d.SetPartial("backup_period")
+		d.SetPartial("backup_time")
+		d.SetPartial("backup_period")
 	}
 
 	if d.HasChange("tde_status") {
@@ -406,7 +406,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("tde_status")
+		d.SetPartial("tde_status")
 	}
 
 	if d.HasChange("maintain_start_time") || d.HasChange("maintain_end_time") {
@@ -426,8 +426,8 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("maintain_start_time")
-		//d.SetPartial("maintain_end_time")
+		d.SetPartial("maintain_start_time")
+		d.SetPartial("maintain_end_time")
 	}
 
 	if d.HasChange("security_group_id") {
@@ -446,7 +446,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("security_group_id")
+		d.SetPartial("security_group_id")
 	}
 
 	if err := ddsService.setInstanceTags(d); err != nil {
@@ -472,7 +472,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("name")
+		d.SetPartial("name")
 	}
 
 	if d.HasChange("security_ip_list") {
@@ -486,13 +486,13 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		if err := ddsService.ModifyMongoDBSecurityIps(d.Id(), ipstr); err != nil {
 			return WrapError(err)
 		}
-		//d.SetPartial("security_ip_list")
+		d.SetPartial("security_ip_list")
 	}
 
 	if d.HasChange("account_password") || d.HasChange("kms_encrypted_password") {
 		var accountPassword string
 		if accountPassword = d.Get("account_password").(string); accountPassword != "" {
-			//d.SetPartial("account_password")
+			d.SetPartial("account_password")
 		} else if kmsPassword := d.Get("kms_encrypted_password").(string); kmsPassword != "" {
 			kmsService := KmsService{meta.(*connectivity.ApsaraStackClient)}
 			decryptResp, err := kmsService.Decrypt(kmsPassword, d.Get("kms_encryption_context").(map[string]interface{}))
@@ -500,8 +500,8 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 				return WrapError(err)
 			}
 			accountPassword = decryptResp.Plaintext
-			//d.SetPartial("kms_encrypted_password")
-			//d.SetPartial("kms_encryption_context")
+			d.SetPartial("kms_encrypted_password")
+			d.SetPartial("kms_encryption_context")
 		}
 
 		err := ddsService.ResetAccountPassword(d, accountPassword)
@@ -527,7 +527,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("ssl_action")
+		d.SetPartial("ssl_action")
 	}
 
 	if d.HasChange("db_instance_storage") ||
@@ -561,9 +561,9 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		}
 
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("db_instance_class")
-		//d.SetPartial("db_instance_storage")
-		//d.SetPartial("replication_factor")
+		d.SetPartial("db_instance_class")
+		d.SetPartial("db_instance_storage")
+		d.SetPartial("replication_factor")
 
 		// wait instance status is running after modifying
 		if _, err := stateConf.WaitForState(); err != nil {

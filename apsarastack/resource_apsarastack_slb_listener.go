@@ -522,14 +522,14 @@ func resourceApsaraStackSlbListenerUpdate(d *schema.ResourceData, meta interface
 		update = true
 	}
 
-	//d.SetPartial("gzip")
+	d.SetPartial("gzip")
 	if d.Get("gzip").(bool) {
 		httpArgs.QueryParams["Gzip"] = string(OnFlag)
 	} else {
 		httpArgs.QueryParams["Gzip"] = string(OffFlag)
 	}
 
-	//d.SetPartial("x_forwarded_for")
+	d.SetPartial("x_forwarded_for")
 	if len(d.Get("x_forwarded_for").([]interface{})) > 0 && (d.Get("protocol").(string) == "http" || d.Get("protocol").(string) == "https") {
 		xff := d.Get("x_forwarded_for").([]interface{})[0].(map[string]interface{})
 		if xff["retrive_slb_ip"].(bool) {

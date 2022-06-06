@@ -145,7 +145,7 @@ func resourceApsaraStackSlbDomainExtensionUpdate(d *schema.ResourceData, meta in
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_slb_domain_extension", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		//d.SetPartial("server_certificate_id")
+		d.SetPartial("server_certificate_id")
 	}
 	return resourceApsaraStackSlbDomainExtensionRead(d, meta)
 }
