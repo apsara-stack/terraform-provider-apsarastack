@@ -202,7 +202,7 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		//d.SetPartial("description")
+		d.SetPartial("description")
 	}
 	update := false
 	request := kms.CreateUpdateRotationPolicyRequest()
@@ -226,8 +226,8 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
-		//d.SetPartial("automatic_rotation")
-		//d.SetPartial("rotation_interval")
+		d.SetPartial("automatic_rotation")
+		d.SetPartial("rotation_interval")
 	}
 	if d.HasChange("key_state") || d.HasChange("is_enabled") {
 		object, err := kmsService.DescribeKmsKey(d.Id())
@@ -261,8 +261,8 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 				if err != nil {
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
-				//d.SetPartial("key_state")
-				//d.SetPartial("is_enabled")
+				d.SetPartial("key_state")
+				d.SetPartial("is_enabled")
 			}
 			if target == "Enabled" {
 				request := kms.CreateEnableKeyRequest()
@@ -277,8 +277,8 @@ func resourceApsaraStackKmsKeyUpdate(d *schema.ResourceData, meta interface{}) e
 				if err != nil {
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
-				//d.SetPartial("key_state")
-				//d.SetPartial("is_enabled")
+				d.SetPartial("key_state")
+				d.SetPartial("is_enabled")
 			}
 		}
 	}

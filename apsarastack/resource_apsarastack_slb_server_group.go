@@ -221,7 +221,7 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
 				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				//d.SetPartial("servers")
+				d.SetPartial("servers")
 			}
 		}
 		if addServerSet.Len() > 0 {
@@ -270,7 +270,7 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
 				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				//d.SetPartial("servers")
+				d.SetPartial("servers")
 			}
 		}
 	}
@@ -329,8 +329,8 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 					return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 				}
 				addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-				//d.SetPartial("servers")
-				//d.SetPartial("name")
+				d.SetPartial("servers")
+				d.SetPartial("name")
 			}
 		} else {
 			raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
@@ -340,7 +340,7 @@ func resourceApsaraStackSlbServerGroupUpdate(d *schema.ResourceData, meta interf
 				return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 			}
 			addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-			//d.SetPartial("name")
+			d.SetPartial("name")
 		}
 	}
 	d.Partial(false)

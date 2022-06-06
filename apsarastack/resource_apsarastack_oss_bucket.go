@@ -741,7 +741,7 @@ func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}
 		//if err := resourceApsaraStackOssBucketLoggingUpdate(client, d); err != nil {
 		//	return WrapError(err)
 		//}
-		//d.SetPartial("logging")
+		d.SetPartial("logging")
 		log.Print("changes in logging")
 		err := resourceApsaraStackOssBucketLoggingCreate(client, d)
 		if err != nil {

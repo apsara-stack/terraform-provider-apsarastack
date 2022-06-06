@@ -103,6 +103,7 @@ func resourceApsaraStackEipAssociationCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceApsaraStackEipAssociationRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	vpcService := VpcService{client}
 
@@ -163,7 +164,7 @@ func resourceApsaraStackEipAssociationDelete(d *schema.ResourceData, meta interf
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{"IncorrectInstanceStatus", "IncorrectHaVipStatus", "TaskConflict",
-				"InvalidIpStatus.HasBeenUsedBySnatTable", "InvalidIpStatus.HasBeenUsedByForwardEntry"}) {
+				"InvalidIpStatus.HasBeenUsedBySnatTable", "InvalidIpStatus.HasBeenUsedByForwardEntry", "InvalidStatus.SnatOrDnat"}) {
 				return resource.RetryableError(err)
 			}
 			return resource.NonRetryableError(err)

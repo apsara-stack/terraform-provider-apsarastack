@@ -186,7 +186,7 @@ func resourceApsaraStackKVStoreAccountUpdate(d *schema.ResourceData, meta interf
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("description")
+		d.SetPartial("description")
 	}
 
 	if d.HasChange("account_privilege") {
@@ -208,7 +208,7 @@ func resourceApsaraStackKVStoreAccountUpdate(d *schema.ResourceData, meta interf
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("account_privilege")
+		d.SetPartial("account_privilege")
 	}
 
 	if d.HasChange("account_password") || d.HasChange("kms_encrypted_password") {
@@ -249,9 +249,9 @@ func resourceApsaraStackKVStoreAccountUpdate(d *schema.ResourceData, meta interf
 		}
 
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		//d.SetPartial("kms_encrypted_password")
-		//d.SetPartial("kms_encryption_context")
-		//d.SetPartial("account_password")
+		d.SetPartial("kms_encrypted_password")
+		d.SetPartial("kms_encryption_context")
+		d.SetPartial("account_password")
 	}
 
 	d.Partial(false)
