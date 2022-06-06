@@ -6,7 +6,6 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"github.com/aliyun/aliyun-datahub-sdk-go/datahub"
 	"log"
 	"regexp"
 	"strings"
@@ -64,6 +63,10 @@ func resourceApsaraStackEcsDeploymentSet() *schema.Resource {
 			},
 		},
 	}
+}
+
+type EcsDeploymentSetCreateResult struct {
+	DeploymentSetId string `json:"DeploymentSetId"`
 }
 
 func resourceApsaraStackEcsDeploymentSetCreate(d *schema.ResourceData, meta interface{}) error {
@@ -148,7 +151,7 @@ func resourceApsaraStackEcsDeploymentSetCreate(d *schema.ResourceData, meta inte
 			return resource.NonRetryableError(err)
 		}
 		addDebug(action, raw, request)
-		resp := &datahub.EcsDeploymentSetCreateResult{}
+		resp := &EcsDeploymentSetCreateResult{}
 		bresponse := raw.(*responses.CommonResponse)
 		err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 		d.SetId(fmt.Sprint(resp.DeploymentSetId))

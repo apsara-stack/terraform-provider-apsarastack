@@ -6,7 +6,6 @@ import (
 	"fmt"
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
-	"github.com/aliyun/aliyun-datahub-sdk-go/datahub"
 	"log"
 	"regexp"
 	"strings"
@@ -1913,7 +1912,19 @@ func (s *EcsService) EcsDedicatedHostStateRefreshFunc(id string, failStates []st
 	}
 }
 
-func (s *EcsService) DescribeEcsDeploymentSet(id string) (result *datahub.EcsDescribeDeploymentSetsResult, err error) {
+type EcsDescribeDeploymentSetsResult struct {
+	DeploymentSets struct {
+		DeploymentSet []struct {
+			Granularity              string `json:"Granularity"`
+			DeploymentStrategy       string `json:"DeploymentStrategy"`
+			DeploymentSetDescription string `json:"DeploymentSetDescription"`
+			DeploymentSetName        string `json:"DeploymentSetName"`
+			Domain                   string `json:"Domain"`
+		} `json:"DeploymentSet"`
+	} `json:"DeploymentSets"`
+}
+
+func (s *EcsService) DescribeEcsDeploymentSet(id string) (result *EcsDescribeDeploymentSetsResult, err error) {
 	//var response map[string]interface{}
 	if err != nil {
 		return nil, WrapError(err)
@@ -1924,7 +1935,7 @@ func (s *EcsService) DescribeEcsDeploymentSet(id string) (result *datahub.EcsDes
 	//	"DeploymentSetIds": convertListToJsonString([]interface{}{id}),
 	//}
 
-	resp := &datahub.EcsDescribeDeploymentSetsResult{}
+	resp := &EcsDescribeDeploymentSetsResult{}
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
 	request.Product = "Ecs"
