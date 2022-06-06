@@ -100,6 +100,9 @@ type Product struct {
 var localEndpointPath = "./endpoints.xml"
 var localEndpointPathEnv = "TF_ENDPOINT_PATH"
 var loadLocalEndpoint = false
+var serviceCodeMapping = map[string]string{
+	"cloudapi": "apigateway",
+}
 
 func hasLocalEndpoint() bool {
 	data, err := ioutil.ReadFile(localEndpointPath)
@@ -147,4 +150,36 @@ func loadEndpoint(region string, serviceCode ServiceCode) string {
 	}
 
 	return ""
+}
+func (client *ApsaraStackClient) loadEndpoint(productCode string) error {
+	loadSdkEndpointMutex.Lock()
+	defer loadSdkEndpointMutex.Unlock()
+	// Firstly, load endpoint from environment variables
+	endpoint := strings.TrimSpace(os.Getenv(fmt.Sprintf("%s_ENDPOINT", strings.ToUpper(productCode))))
+	if endpoint != "" {
+		client.Config.Endpoints[productCode] = endpoint
+		return nil
+	}
+
+	// Secondly, load endpoint from known rules
+	// Currently, this way is not pass.
+	// if _, ok := irregularProductCode[productCode]; !ok {
+	// 	client.config.Endpoints[productCode] = regularEndpoint
+	// 	return nil
+	// }
+
+	// Thirdly, load endpoint from location
+	serviceCode := serviceCodeMapping[productCode]
+	if serviceCode == "" {
+		serviceCode = productCode
+	}
+	Endpoint, err := client.describeEndpointForService(serviceCode)
+	if Endpoint == nil {
+		return nil
+	}
+	endpoint = Endpoint.Endpoint
+	if err == nil {
+		client.Config.Endpoints[strings.ToLower(serviceCode)] = endpoint
+	}
+	return err
 }

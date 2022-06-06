@@ -176,7 +176,7 @@ func resourceApsaraStackNetworkAclAttachmentUpdate(d *schema.ResourceData, meta 
 				return WrapError(err)
 			}
 		}
-		//d.SetPartial("resources")
+		d.SetPartial("resources")
 	}
 
 	return resourceApsaraStackNetworkAclAttachmentRead(d, meta)

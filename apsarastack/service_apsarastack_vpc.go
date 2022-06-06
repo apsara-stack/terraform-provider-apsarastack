@@ -1092,7 +1092,6 @@ func (s *VpcService) DescribeNetworkAcl(id string) (object map[string]interface{
 	return object, nil
 }
 
-
 func (s *VpcService) DescribeNetworkAclAttachment(id string, resource []vpc.Resource) (err error) {
 
 	invoker := NewInvoker()

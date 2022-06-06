@@ -401,3 +401,31 @@ func (s *KvstoreService) DescribeDBInstanceNetInfo(id string) (*r_kvstore.NetInf
 
 	return &response.NetInfoItems, nil
 }
+func (s *KvstoreService) DescribeKvstoreConnection(id string) (object []r_kvstore.InstanceNetInfo, err error) {
+	request := r_kvstore.CreateDescribeDBInstanceNetInfoRequest()
+	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "R-kvstore", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+
+	request.InstanceId = id
+
+	raw, err := s.client.WithRkvClient(func(r_kvstoreClient *r_kvstore.Client) (interface{}, error) {
+		return r_kvstoreClient.DescribeDBInstanceNetInfo(request)
+	})
+	if err != nil {
+		if IsExpectedErrors(err, []string{"InvalidInstanceId.NotFound"}) {
+			err = WrapErrorf(Error(GetNotFoundMessage("KvstoreConnection", id)), NotFoundMsg, ProviderERROR)
+			return
+		}
+		err = WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+		return
+	}
+	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	response, _ := raw.(*r_kvstore.DescribeDBInstanceNetInfoResponse)
+
+	if len(response.NetInfoItems.InstanceNetInfo) < 1 {
+		err = WrapErrorf(Error(GetNotFoundMessage("KvstoreConnection", id)), NotFoundMsg, ProviderERROR, response.RequestId)
+		return
+	}
+	return response.NetInfoItems.InstanceNetInfo, nil
+}
