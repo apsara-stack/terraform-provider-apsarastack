@@ -411,6 +411,8 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_network_acl_entries":    resourceApsaraStackNetworkAclEntries(),
 			"apsarastack_kvstore_connection":     resourceApsaraStackKvstoreConnection(),
 			"apsarastack_ecs_deployment_set":     resourceApsaraStackEcsDeploymentSet(),
+			"apsarastack_ros_stack":              resourceApsaraStackRosStack(),
+			"apsarastack_ros_template":           resourceApsaraStackRosTemplate(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -519,7 +521,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.DdsEndpoint = domain
 		config.CsEndpoint = domain
 		config.CmsEndpoint = domain
-
+		config.RosEndpoint = domain
 		config.EdasEndpoint = domain
 	} else {
 
@@ -544,6 +546,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
 			config.CmsEndpoint = strings.TrimSpace(endpoints["cms"].(string))
+			config.RosEndpoint = strings.TrimSpace(endpoints["ros"].(string))
 		}
 	}
 	if strings.ToLower(config.Protocol) == "https" {
