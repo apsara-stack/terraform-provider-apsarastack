@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -713,4 +715,61 @@ func convertMaptoJsonString(m map[string]interface{}) (string, error) {
 	} else {
 		return string(result), nil
 	}
+}
+func compareJsonTemplateAreEquivalent(tem1, tem2 string) (bool, error) {
+	obj1 := make(map[string]interface{})
+	err := json.Unmarshal([]byte(tem1), &obj1)
+	if err != nil {
+		return false, err
+	}
+
+	canonicalJson1, _ := json.Marshal(obj1)
+
+	obj2 := make(map[string]interface{})
+	err = json.Unmarshal([]byte(tem2), &obj2)
+	if err != nil {
+		return false, err
+	}
+
+	canonicalJson2, _ := json.Marshal(obj2)
+
+	equal := bytes.Compare(canonicalJson1, canonicalJson2) == 0
+	if !equal {
+		log.Printf("[DEBUG] Canonical template are not equal.\nFirst: %s\nSecond: %s\n",
+			canonicalJson1, canonicalJson2)
+	}
+	return equal, nil
+}
+func formatInt(src interface{}) int {
+	if src == nil {
+		return 0
+	}
+	attrType := reflect.TypeOf(src)
+	switch attrType.String() {
+	case "float64":
+		return int(src.(float64))
+	case "float32":
+		return int(src.(float32))
+	case "int64":
+		return int(src.(int64))
+	case "int32":
+		return int(src.(int32))
+	case "int":
+		return src.(int)
+	case "string":
+		v, err := strconv.Atoi(src.(string))
+		if err != nil {
+			panic(err)
+		}
+		return v
+	case "json.Number":
+		v, err := strconv.Atoi(src.(json.Number).String())
+		if err != nil {
+			panic(err)
+		}
+		return v
+	default:
+		panic(fmt.Sprintf("Not support type %s", attrType.String()))
+	}
+	return 0
 }
