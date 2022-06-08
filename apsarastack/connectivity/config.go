@@ -85,25 +85,25 @@ type Config struct {
 	HBaseEndpoint            string
 	AdbEndpoint              string
 	MaxComputeEndpoint       string
-
-	EdasEndpoint            string
-	SkipRegionValidation    bool
-	ConfigurationSource     string
-	CbnEndpoint             string
-	DmsEnterpriseEndpoint   string
-	WafOpenapiEndpoint      string
-	ResourcemanagerEndpoint string
-	BssopenapiEndpoint      string
-	AlidnsEndpoint          string
-	CassandraEndpoint       string
-	EciEndpoint             string
-	OosEndpoint             string
-	DcdnEndpoint            string
-	MseEndpoint             string
-	ActiontrailEndpoint     string
-	Insecure                bool
-	Proxy                   string
-	Domain                  string
+	RosEndpoint              string
+	EdasEndpoint             string
+	SkipRegionValidation     bool
+	ConfigurationSource      string
+	CbnEndpoint              string
+	DmsEnterpriseEndpoint    string
+	WafOpenapiEndpoint       string
+	ResourcemanagerEndpoint  string
+	BssopenapiEndpoint       string
+	AlidnsEndpoint           string
+	CassandraEndpoint        string
+	EciEndpoint              string
+	OosEndpoint              string
+	DcdnEndpoint             string
+	MseEndpoint              string
+	ActiontrailEndpoint      string
+	Insecure                 bool
+	Proxy                    string
+	Domain                   string
 }
 
 func (c *Config) loadAndValidate() error {
