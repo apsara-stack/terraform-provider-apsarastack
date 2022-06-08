@@ -770,8 +770,9 @@ func buildApsaraStackInstanceArgs(d *schema.ResourceData, meta interface{}) (*ec
 		request.SecurityEnhancementStrategy = v.(string)
 	}
 
-	if v, ok := d.GetOk("tags"); ok && len(v.(map[string]interface{})) > 0 {
-		tags := make([]ecs.RunInstancesTag, len(v.(map[string]interface{})))
+	v, ok := d.GetOk("tags")
+	if ok && len(v.(map[string]interface{})) > 0 {
+		tags := make([]ecs.RunInstancesTag, 0)
 		for key, value := range v.(map[string]interface{}) {
 			tags = append(tags, ecs.RunInstancesTag{
 				Key:   key,
