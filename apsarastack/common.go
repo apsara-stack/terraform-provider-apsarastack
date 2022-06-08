@@ -773,3 +773,17 @@ func formatInt(src interface{}) int {
 	}
 	return 0
 }
+func convertListToCommaSeparate(configured []interface{}) string {
+	if len(configured) < 1 {
+		return ""
+	}
+	result := ""
+	for i, v := range configured {
+		rail := ","
+		if i == len(configured)-1 {
+			rail = ""
+		}
+		result += v.(string) + rail
+	}
+	return result
+}
