@@ -405,12 +405,16 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ram_role":                   resourceApsaraStackRamRole(),
 			"apsarastack_ram_policy_role_attachment": resourceApsaraStackRamPolicyRoleAttachment(),
 			//"apsarastack_ascm_access_key": 						resourceApsarastackRamAccessKey(),
-			"apsarastack_ascm_usergroup_user":    resourceApsaraStackAscmUserGroupUser(),
-			"apsarastack_network_acl":            resourceApsaraStackNetworkAcl(),
-			"apsarastack_network_acl_attachment": resourceApsaraStackNetworkAclAttachment(),
-			"apsarastack_network_acl_entries":    resourceApsaraStackNetworkAclEntries(),
-			"apsarastack_kvstore_connection":     resourceApsaraStackKvstoreConnection(),
-			"apsarastack_ecs_deployment_set":     resourceApsaraStackEcsDeploymentSet(),
+			"apsarastack_ascm_usergroup_user":     resourceApsaraStackAscmUserGroupUser(),
+			"apsarastack_network_acl":             resourceApsaraStackNetworkAcl(),
+			"apsarastack_network_acl_attachment":  resourceApsaraStackNetworkAclAttachment(),
+			"apsarastack_network_acl_entries":     resourceApsaraStackNetworkAclEntries(),
+			"apsarastack_kvstore_connection":      resourceApsaraStackKvstoreConnection(),
+			"apsarastack_ecs_deployment_set":      resourceApsaraStackEcsDeploymentSet(),
+			"apsarastack_ros_stack":               resourceApsaraStackRosStack(),
+			"apsarastack_ros_template":            resourceApsaraStackRosTemplate(),
+			"apsarastack_dms_enterprise_instance": resourceApsaraStackDmsEnterpriseInstance(),
+			"apsarastack_dms_enterprise_user":     resourceApsaraStackDmsEnterpriseUser(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -519,8 +523,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.DdsEndpoint = domain
 		config.CsEndpoint = domain
 		config.CmsEndpoint = domain
-
+		config.RosEndpoint = domain
 		config.EdasEndpoint = domain
+		config.DmsEnterpriseEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
@@ -544,6 +549,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.DdsEndpoint = strings.TrimSpace(endpoints["dds"].(string))
 			config.CsEndpoint = strings.TrimSpace(endpoints["cs"].(string))
 			config.CmsEndpoint = strings.TrimSpace(endpoints["cms"].(string))
+			config.RosEndpoint = strings.TrimSpace(endpoints["ros"].(string))
+			config.DmsEnterpriseEndpoint = strings.TrimSpace(endpoints["dms_enterprise"].(string))
 		}
 	}
 	if strings.ToLower(config.Protocol) == "https" {
