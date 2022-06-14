@@ -1349,3 +1349,28 @@ func (client *ApsaraStackClient) NewDmsenterpriseClient() (*rpc.Client, error) {
 	}
 	return conn, nil
 }
+func (client *ApsaraStackClient) NewQuickbiClient() (*rpc.Client, error) {
+	productCode := "quickbi"
+	endpoint := client.Config.QuickbiEndpoint
+	//endpoint := "quickbi-public.inter.env202.shuguang.com"
+	if v, ok := client.Config.Endpoints[productCode]; !ok || v.(string) == "" {
+		if err := client.loadEndpoint(productCode); err != nil {
+			endpoint = fmt.Sprintf("quickbi.%s.aliyuncs.com", client.Config.RegionId)
+			client.Config.Endpoints[productCode] = endpoint
+			log.Printf("[ERROR] loading %s endpoint got an error: %#v. Using the endpoint %s instead.", productCode, err, endpoint)
+		}
+	}
+	if v, ok := client.Config.Endpoints[productCode]; ok && v.(string) != "" {
+		endpoint = v.(string)
+	}
+	if endpoint == "" {
+		return nil, fmt.Errorf("[ERROR] missing the product %s endpoint.", productCode)
+	}
+	sdkConfig := client.teaSdkConfig
+	sdkConfig.SetEndpoint(endpoint)
+	conn, err := rpc.NewClient(&sdkConfig)
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
+	}
+	return conn, nil
+}

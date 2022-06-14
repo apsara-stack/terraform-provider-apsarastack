@@ -278,6 +278,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_edas_clusters":                        dataSourceApsaraStackEdasClusters(),
 			"apsarastack_edas_applications":                    dataSourceApsaraStackEdasApplications(),
 			"apsarastack_network_acls":                         dataSourceApsaraStackNetworkAcls(),
+			"apsarastack_quick_bi_users":                       dataSourceApsaraStackQuickBiUsers(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":            resourceApsaraStackEssScalingConfiguration(),
@@ -415,6 +416,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ros_template":            resourceApsaraStackRosTemplate(),
 			"apsarastack_dms_enterprise_instance": resourceApsaraStackDmsEnterpriseInstance(),
 			"apsarastack_dms_enterprise_user":     resourceApsaraStackDmsEnterpriseUser(),
+			"apsarastack_quick_bi_user":           resourceApsaraStackQuickBiUser(),
+			"apsarastack_quick_bi_user_group":     resourceApsaraStackQuickBiUserGroup(),
+			"apsarastack_quick_bi_workspace":      resourceApsaraStackQuickBiWorkspace(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
