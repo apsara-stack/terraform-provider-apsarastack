@@ -104,6 +104,7 @@ type Config struct {
 	Insecure                 bool
 	Proxy                    string
 	Domain                   string
+	QuickbiEndpoint          string
 }
 
 func (c *Config) loadAndValidate() error {
