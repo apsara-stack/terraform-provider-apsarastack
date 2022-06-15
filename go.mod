@@ -11,6 +11,7 @@ require (
 	github.com/aliyun/aliyun-datahub-sdk-go v0.1.5
 	github.com/aliyun/aliyun-log-go-sdk v0.1.21
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.4+incompatible
+	github.com/aliyun/credentials-go v1.2.3 // indirect
 	github.com/aliyun/fc-go-sdk v0.0.0-20200619091938-0882be48e49f
 	github.com/denverdino/aliyungo v0.0.0-20200831100606-661b4d73f397
 	github.com/go-yaml/yaml v2.1.0+incompatible
