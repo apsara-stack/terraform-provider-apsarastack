@@ -138,9 +138,13 @@ func (c *Config) Client() (*ApsaraStackClient, error) {
 			return nil, err
 		}
 	}
-
+	teaSdkConfig, err := c.getTeaDslSdkConfig(true)
+	if err != nil {
+		return nil, err
+	}
 	return &ApsaraStackClient{
 		Config:        c,
+		teaSdkConfig:  teaSdkConfig,
 		Region:        c.Region,
 		RegionId:      c.RegionId,
 		AccessKey:     c.AccessKey,

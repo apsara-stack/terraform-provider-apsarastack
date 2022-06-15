@@ -54,14 +54,6 @@ func (s *AscmService) DescribeAscmLogonPolicy(id string) (response *LoginPolicy,
 	addDebug("LoginPolicy", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -116,14 +108,6 @@ func (s *AscmService) DescribeAscmResourceGroup(id string) (response *ResourceGr
 	addDebug("ListResourceGroup", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -179,14 +163,6 @@ func (s *AscmService) DescribeAscmCustomRole(id string) (response *AscmCustomRol
 	addDebug("ListRoles", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -245,14 +221,6 @@ func (s *AscmService) DescribeAscmRamRole(id string) (response *AscmRoles, err e
 	addDebug("ListRoles", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -311,14 +279,6 @@ func (s *AscmService) DescribeAscmRamServiceRole(id string) (response *RamRole, 
 	addDebug("ListRAMServiceRoles", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -385,14 +345,6 @@ func (s *AscmService) DescribeAscmResourceGroupUserAttachment(id string) (respon
 	addDebug("ListAscmUsersInsideResourceGroup", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -576,14 +528,6 @@ func (s *AscmService) DescribeAscmUser(id string) (response *User, err error) {
 	addDebug("ListUsers", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -762,14 +706,6 @@ func (s *AscmService) DescribeAscmUserRoleBinding(id string) (response *User, er
 	addDebug("ListUsers", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -822,14 +758,6 @@ func (s *AscmService) DescribeAscmDeletedUser(id string) (response *DeletedUser,
 	addDebug("ListDeletedUsers", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -885,14 +813,6 @@ func (s *AscmService) DescribeAscmOrganization(id string) (response *Organizatio
 	addDebug("GetOrganization", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -949,14 +869,6 @@ func (s *AscmService) DescribeAscmRamPolicy(id string) (response *RamPolicies, e
 	addDebug("ListRAMPolicies", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -1015,14 +927,6 @@ func (s *AscmService) DescribeAscmRamPolicyForRole(id string) (response *RamPoli
 	addDebug("ListRAMPolicies", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -1093,14 +997,6 @@ func (s *AscmService) DescribeAscmQuota(id string) (response *AscmQuota, err err
 	addDebug("GetQuota", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -1156,14 +1052,6 @@ func (s *AscmService) DescribeAscmPasswordPolicy(id string) (response *PasswordP
 	addDebug("GetPasswordPolicy", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
