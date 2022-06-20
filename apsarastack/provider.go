@@ -286,6 +286,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_edas_applications":                    dataSourceApsaraStackEdasApplications(),
 			"apsarastack_network_acls":                         dataSourceApsaraStackNetworkAcls(),
 			"apsarastack_quick_bi_users":                       dataSourceApsaraStackQuickBiUsers(),
+			"apsarastack_maxcompute_cus":                       dataSourceApsaraStackMaxcomputeCus(),
+			"apsarastack_maxcompute_users":                     dataSourceApsaraStackMaxcomputeUsers(),
+			"apsarastack_maxcompute_clusters":                  dataSourceApsaraStackMaxcomputeClusters(),
+			"apsarastack_maxcompute_cluster_qutaos":            dataSourceApsaraStackMaxcomputeClusterQutaos(),
+			"apsarastack_maxcompute_projects":                  dataSourceApsaraStackMaxcomputeProjects(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":            resourceApsaraStackEssScalingConfiguration(),
@@ -426,6 +431,9 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_quick_bi_user":           resourceApsaraStackQuickBiUser(),
 			"apsarastack_quick_bi_user_group":     resourceApsaraStackQuickBiUserGroup(),
 			"apsarastack_quick_bi_workspace":      resourceApsaraStackQuickBiWorkspace(),
+			"apsarastack_maxcompute_project":      resourceApsaraStackMaxcomputeProject(),
+			"apsarastack_maxcompute_cu":           resourceApsaraStackMaxcomputeCu(),
+			"apsarastack_maxcompute_user":         resourceApsaraStackMaxcomputeUser(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -538,6 +546,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.EdasEndpoint = domain
 		config.DmsEnterpriseEndpoint = domain
 		config.QuickbiEndpoint = domain
+		config.MaxComputeEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
