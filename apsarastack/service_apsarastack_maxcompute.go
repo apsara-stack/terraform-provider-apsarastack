@@ -113,7 +113,7 @@ func (s *MaxcomputeService) DescribeMaxcomputeCu(name string) (object map[string
 	}
 	runtime := util.RuntimeOptions{}
 	runtime.SetAutoretry(true)
-	response, err = conn.DoRequestWithOrg(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-05-10"), StringPointer("AK"), nil, request, &runtime)
+	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-05-10"), StringPointer("AK"), nil, request, &runtime)
 	if err != nil {
 		err = WrapErrorf(err, DefaultErrorMsg, name, action, ApsaraStackSdkGoERROR)
 		return
