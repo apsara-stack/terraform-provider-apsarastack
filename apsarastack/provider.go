@@ -182,8 +182,15 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_RESOURCE_GROUP_SET", nil),
 				Description: descriptions["resource_group_set_name"],
 			},
+			"quickbi_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_QUICKBI_ENDPOINT", nil),
+				Description: descriptions["quickbi_endpoint"],
+			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
+			"apsarastack_account":                              dataSourceApsaraStackAccount(),
 			"apsarastack_ess_scaling_configurations":           dataSourceApsaraStackEssScalingConfigurations(),
 			"apsarastack_instances":                            dataSourceApsaraStackInstances(),
 			"apsarastack_disks":                                dataSourceApsaraStackDisks(),
@@ -278,6 +285,12 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_edas_clusters":                        dataSourceApsaraStackEdasClusters(),
 			"apsarastack_edas_applications":                    dataSourceApsaraStackEdasApplications(),
 			"apsarastack_network_acls":                         dataSourceApsaraStackNetworkAcls(),
+			"apsarastack_quick_bi_users":                       dataSourceApsaraStackQuickBiUsers(),
+			"apsarastack_maxcompute_cus":                       dataSourceApsaraStackMaxcomputeCus(),
+			"apsarastack_maxcompute_users":                     dataSourceApsaraStackMaxcomputeUsers(),
+			"apsarastack_maxcompute_clusters":                  dataSourceApsaraStackMaxcomputeClusters(),
+			"apsarastack_maxcompute_cluster_qutaos":            dataSourceApsaraStackMaxcomputeClusterQutaos(),
+			"apsarastack_maxcompute_projects":                  dataSourceApsaraStackMaxcomputeProjects(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_ess_scaling_configuration":            resourceApsaraStackEssScalingConfiguration(),
@@ -415,6 +428,12 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ros_template":            resourceApsaraStackRosTemplate(),
 			"apsarastack_dms_enterprise_instance": resourceApsaraStackDmsEnterpriseInstance(),
 			"apsarastack_dms_enterprise_user":     resourceApsaraStackDmsEnterpriseUser(),
+			"apsarastack_quick_bi_user":           resourceApsaraStackQuickBiUser(),
+			"apsarastack_quick_bi_user_group":     resourceApsaraStackQuickBiUserGroup(),
+			"apsarastack_quick_bi_workspace":      resourceApsaraStackQuickBiWorkspace(),
+			"apsarastack_maxcompute_project":      resourceApsaraStackMaxcomputeProject(),
+			"apsarastack_maxcompute_cu":           resourceApsaraStackMaxcomputeCu(),
+			"apsarastack_maxcompute_user":         resourceApsaraStackMaxcomputeUser(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -526,6 +545,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.RosEndpoint = domain
 		config.EdasEndpoint = domain
 		config.DmsEnterpriseEndpoint = domain
+		config.QuickbiEndpoint = domain
+		config.MaxComputeEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
@@ -551,7 +572,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.CmsEndpoint = strings.TrimSpace(endpoints["cms"].(string))
 			config.RosEndpoint = strings.TrimSpace(endpoints["ros"].(string))
 			config.DmsEnterpriseEndpoint = strings.TrimSpace(endpoints["dms_enterprise"].(string))
+			config.QuickbiEndpoint = strings.TrimSpace(endpoints["quickbi"].(string))
 		}
+	}
+	QuickbiEndpoint := d.Get("quickbi_endpoint").(string)
+	if QuickbiEndpoint != "" {
+		config.QuickbiEndpoint = QuickbiEndpoint
 	}
 	if strings.ToLower(config.Protocol) == "https" {
 		config.Protocol = "HTTPS"
@@ -830,6 +856,12 @@ func endpointsSchema() *schema.Schema {
 					Optional:    true,
 					Default:     "",
 					Description: descriptions["elasticsearch_endpoint"],
+				},
+				"quickbi": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Default:     "",
+					Description: descriptions["quickbi_endpoint"],
 				},
 				"nas": {
 					Type:        schema.TypeString,

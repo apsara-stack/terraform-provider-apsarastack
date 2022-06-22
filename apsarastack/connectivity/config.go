@@ -2,6 +2,7 @@ package connectivity
 
 import (
 	"fmt"
+	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	"log"
 
 	"encoding/json"
@@ -13,6 +14,8 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/jmespath/go-jmespath"
+
+	credential "github.com/aliyun/credentials-go/credentials"
 )
 
 var securityCredURL = "http://100.100.100.200/latest/meta-data/ram/security-credentials/"
@@ -104,6 +107,7 @@ type Config struct {
 	Insecure                 bool
 	Proxy                    string
 	Domain                   string
+	QuickbiEndpoint          string
 }
 
 func (c *Config) loadAndValidate() error {
@@ -228,4 +232,61 @@ func (c *Config) MakeConfigByEcsRoleName() error {
 	}
 	c.AccessKey, c.SecretKey, c.SecurityToken = accessKey, secretKey, token
 	return nil
+}
+func (c *Config) getTeaDslSdkConfig(stsSupported bool) (config rpc.Config, err error) {
+	config.SetRegionId(c.RegionId)
+	config.SetUserAgent(fmt.Sprintf("%s/%s %s/%s %s/%s", Terraform, TerraformVersion, Provider, ProviderVersion, Module, c.ConfigurationSource))
+	credential, err := credential.NewCredential(c.getCredentialConfig(stsSupported))
+	config.SetCredential(credential).
+		SetRegionId(c.RegionId).
+		SetProtocol(c.Protocol).
+		SetReadTimeout(c.ClientReadTimeout).
+		SetConnectTimeout(c.ClientConnectTimeout).
+		SetMaxIdleConns(500)
+	if c.SourceIp != "" {
+		config.SetSourceIp(c.SourceIp)
+	}
+	if c.SecureTransport != "" {
+		config.SetSecureTransport(c.SecureTransport)
+	}
+
+	proxyProtocol := strings.ToUpper(strings.Split(c.Proxy, ":")[0])
+	switch proxyProtocol {
+	case "HTTP":
+		config.SetHttpProxy(c.Proxy)
+	case "HTTPS":
+		config.SetHttpsProxy(c.Proxy)
+	case "SOCKS":
+		config.SetSocks5Proxy(c.Proxy)
+	}
+
+	return
+}
+
+func (c *Config) getCredentialConfig(stsSupported bool) *credential.Config {
+	credentialType := ""
+	credentialConfig := &credential.Config{}
+	if c.AccessKey != "" && c.SecretKey != "" {
+		credentialType = "access_key"
+		credentialConfig.AccessKeyId = &c.AccessKey     // AccessKeyId
+		credentialConfig.AccessKeySecret = &c.SecretKey // AccessKeySecret
+
+		if stsSupported && c.SecurityToken != "" {
+			credentialType = "sts"
+			credentialConfig.SecurityToken = &c.SecurityToken // STS Token
+		} else if c.RamRoleArn != "" {
+			log.Printf("[INFO] Assume RAM Role specified in provider block assume_role { ... }")
+			credentialType = "ram_role_arn"
+			credentialConfig.RoleArn = &c.RamRoleArn
+			credentialConfig.RoleSessionName = &c.RamRoleSessionName
+			credentialConfig.RoleSessionExpiration = &c.RamRoleSessionExpiration
+			credentialConfig.Policy = &c.RamRolePolicy
+		}
+	} else if c.EcsRoleName != "" {
+		credentialType = "ecs_ram_role"
+		credentialConfig.RoleName = &c.EcsRoleName
+	}
+
+	credentialConfig.Type = &credentialType
+	return credentialConfig
 }
