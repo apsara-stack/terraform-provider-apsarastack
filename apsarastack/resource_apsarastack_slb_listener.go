@@ -65,7 +65,7 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 			},
 			"scheduler": {
 				Type:         schema.TypeString,
-				ValidateFunc: validation.StringInSlice([]string{"wrr", "wlc", "rr"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"wrr", "wlc", "rr", "sch", "tch"}, false),
 				Optional:     true,
 				Default:      WRRScheduler,
 			},
