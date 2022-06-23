@@ -627,6 +627,16 @@ func TestAccApsaraStackSlbListener_tcp_basic(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
+					"scheduler": "tch",
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"scheduler": "tch",
+					}),
+				),
+			},
+			{
+				Config: testAccConfig(map[string]interface{}{
 					"description": name + "update",
 				}),
 				Check: resource.ComposeTestCheckFunc(
