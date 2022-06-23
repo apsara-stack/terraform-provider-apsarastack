@@ -50,13 +50,14 @@ func TestAccApsaraStackDBReadonlyInstance_update(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"master_db_instance_id": "${apsarastack_db_instance.default.id}",
-					"zone_id":               "${apsarastack_apsarastack_apsarastack_db_instance.default.zone_id}",
-					"engine_version":        "${apsarastack_apsarastack_db_instance.default.engine_version}",
-					"instance_type":         "${apsarastack_db_instance.default.instance_type}",
-					"instance_storage":      "${apsarastack_db_instance.default.instance_storage}",
-					"instance_name":         "${var.name}",
-					"vswitch_id":            "${apsarastack_vswitch.default.id}",
+					"master_db_instance_id":    "${apsarastack_db_instance.default.id}",
+					"zone_id":                  "${apsarastack_db_instance.default.zone_id}",
+					"engine_version":           "${apsarastack_db_instance.default.engine_version}",
+					"instance_type":            "${apsarastack_db_instance.default.instance_type}",
+					"instance_storage":         "${apsarastack_db_instance.default.instance_storage}",
+					"instance_name":            "${var.name}",
+					"vswitch_id":               "${apsarastack_vswitch.default.id}",
+					"db_instance_storage_type": "${apsarastack_db_instance.default.storage_type}",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
@@ -167,7 +168,6 @@ func TestAccApsaraStackDBReadonlyInstance_multi(t *testing.T) {
 		return &RdsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}, "DescribeDBReadonlyInstance")
 	rac := resourceAttrCheckInit(rc, ra)
-
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceDBReadonlyInstanceConfigDependence)
 	resource.Test(t, resource.TestCase{
@@ -177,20 +177,20 @@ func TestAccApsaraStackDBReadonlyInstance_multi(t *testing.T) {
 
 		// module name
 		IDRefreshName: resourceId,
-
-		Providers:    testAccProviders,
-		CheckDestroy: rac.checkResourceDestroy(),
+		Providers:     testAccProviders,
+		CheckDestroy:  rac.checkResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"count":                 "2",
-					"master_db_instance_id": "${apsarastack_db_instance.default.id}",
-					"zone_id":               "${apsarastack_db_instance.default.zone_id}",
-					"engine_version":        "${apsarastack_db_instance.default.engine_version}",
-					"instance_type":         "${apsarastack_db_instance.default.instance_type}",
-					"instance_storage":      "${apsarastack_db_instance.default.instance_storage}",
-					"instance_name":         "${var.name}",
-					"vswitch_id":            "${apsarastack_vswitch.default.id}",
+					"count":                    "1",
+					"master_db_instance_id":    "${apsarastack_db_instance.default.id}",
+					"zone_id":                  "${apsarastack_db_instance.default.zone_id}",
+					"engine_version":           "${apsarastack_db_instance.default.engine_version}",
+					"instance_type":            "${apsarastack_db_instance.default.instance_type}",
+					"instance_storage":         "${apsarastack_db_instance.default.instance_storage}",
+					"instance_name":            "${var.name}",
+					"vswitch_id":               "${apsarastack_vswitch.default.id}",
+					"db_instance_storage_type": "${apsarastack_db_instance.default.storage_type}",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
@@ -212,28 +212,17 @@ func resourceDBReadonlyInstanceConfigDependence(name string) string {
 	variable "name" {
 		default = "%s"
 	}
-
-data "apsarastack_db_instance_engines" "default" {
-  instance_charge_type = "PostPaid"
-  engine               = "MySQL"
-  engine_version       = "5.6"
-}
-
-data "apsarastack_db_instance_classes" "default" {
-  instance_charge_type = "PostPaid"
-  engine               = "MySQL"
-  engine_version       = "5.6"
-}
-
-	resource "apsarastack_db_instance" "default" {
-		engine = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-		engine_version = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-		instance_type = "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}"
-		instance_storage = "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}"
+resource "apsarastack_db_instance" "default" {
+		engine = "MySQL"
+		engine_version = "5.6"
+		instance_type = "rds.mysql.s2.large"
+		instance_storage = "30"
 		instance_charge_type = "Postpaid"
 		instance_name = "${var.name}"
+		storage_type = "local_ssd"
 		vswitch_id = "${apsarastack_vswitch.default.id}"
 		security_ips = ["10.168.1.12", "100.69.7.112"]
 	}
+	
 `, RdsCommonTestCase, name)
 }

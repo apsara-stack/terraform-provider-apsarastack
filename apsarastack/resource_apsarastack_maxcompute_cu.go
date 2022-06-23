@@ -25,7 +25,7 @@ func resourceApsaraStackMaxcomputeCu() *schema.Resource {
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
-			"id": {
+			"max_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
@@ -73,7 +73,7 @@ func resourceApsaraStackMaxcomputeCuCreate(d *schema.ResourceData, meta interfac
 	request["Product"] = product
 	wait := incrementalWait(3*time.Second, 3*time.Second)
 	err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		response, err = conn.DoRequestWithOrg(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-05-10"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-05-10"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
 		if err != nil {
 			if NeedRetry(err) {
 				wait()
@@ -112,7 +112,7 @@ func resourceApsaraStackMaxcomputeCuRead(d *schema.ResourceData, meta interface{
 	var data map[string]interface{}
 	datas := object["data"].([]interface{})
 	if datas == nil || len(datas) < 1 {
-		d.SetId(d.Get("id").(string))
+		d.SetId(d.Get("max_id").(string))
 		d.Set("cluster_name", d.Get("cluster_name").(string))
 	}
 	s := d.Get("cu_name").(string)

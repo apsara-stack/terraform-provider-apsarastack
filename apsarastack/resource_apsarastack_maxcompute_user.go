@@ -29,7 +29,7 @@ func resourceApsaraStackMaxcomputeUser() *schema.Resource {
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
-			"id": {
+			"max_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
@@ -87,12 +87,13 @@ func resourceApsaraStackMaxcomputeUserCreate(d *schema.ResourceData, meta interf
 		request["OrganizationId"] = client.Department
 	}
 	request["Description"] = d.Get("description")
+
 	request["RegionId"] = client.RegionId
 	request["RegionName"] = client.RegionId
 	request["Product"] = product
 	wait := incrementalWait(3*time.Second, 3*time.Second)
 	err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		response, err = conn.DoRequestWithOrg(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-05-10"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-05-10"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
 		if err != nil {
 			if NeedRetry(err) {
 				wait()
@@ -188,7 +189,7 @@ func resourceApsaraStackMaxcomputeUserUpdate(d *schema.ResourceData, meta interf
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
-			"Id":               d.Get("id").(string),
+			"Id":               d.Get("max_id").(string),
 			"UserId":           d.Get("user_id").(string),
 			"UserName":         d.Get("user_name").(string),
 			"UserType":         d.Get("user_type").(string),

@@ -27,7 +27,7 @@ func resourceApsaraStackMaxcomputeProject() *schema.Resource {
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
-			"id": {
+			"max_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
