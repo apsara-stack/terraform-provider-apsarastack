@@ -1448,15 +1448,13 @@ func (client *ApsaraStackClient) NewDmsenterpriseClient() (*rpc.Client, error) {
 	}
 	return conn, nil
 }
-func (client *ApsaraStackClient) NewQuickbiClient() (*rpc.Client, error) {
-	productCode := "quickbi"
-	endpoint := client.Config.QuickbiEndpoint
-	//endpoint := "quickbi-public.inter.env202.shuguang.com"
+
+func (client *ApsaraStackClient) NewRdsClient() (*rpc.Client, error) {
+	productCode := "rds"
+	endpoint := client.Config.RdsEndpoint
 	if v, ok := client.Config.Endpoints[productCode]; !ok || v.(string) == "" {
 		if err := client.loadEndpoint(productCode); err != nil {
-			endpoint = fmt.Sprintf("quickbi.%s.aliyuncs.com", client.Config.RegionId)
-			client.Config.Endpoints[productCode] = endpoint
-			log.Printf("[ERROR] loading %s endpoint got an error: %#v. Using the endpoint %s instead.", productCode, err, endpoint)
+			return nil, err
 		}
 	}
 	if v, ok := client.Config.Endpoints[productCode]; ok && v.(string) != "" {
@@ -1465,62 +1463,14 @@ func (client *ApsaraStackClient) NewQuickbiClient() (*rpc.Client, error) {
 	if endpoint == "" {
 		return nil, fmt.Errorf("[ERROR] missing the product %s endpoint.", productCode)
 	}
-	sdkConfig := client.teaSdkConfig
-	sdkConfig.SetEndpoint(endpoint)
-	conn, err := rpc.NewClient(&sdkConfig)
-	if err != nil {
-		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
-	}
-	return conn, nil
-}
-func (client *ApsaraStackClient) NewAscmClient() (*rpc.Client, error) {
-	productCode := "ascm"
-	endpoint := client.Config.AscmEndpoint
-	if endpoint == "" {
-		if v, ok := client.Config.Endpoints[productCode]; !ok || v.(string) == "" {
-			if err := client.loadEndpoint(productCode); err != nil {
-				endpoint = fmt.Sprintf("eds-user.%s.aliyuncs.com", client.Config.RegionId)
-				client.Config.Endpoints[productCode] = endpoint
-				log.Printf("[ERROR] loading %s endpoint got an error: %#v. Using the endpoint %s instead.", productCode, err, endpoint)
-			}
-		}
-		if v, ok := client.Config.Endpoints[productCode]; ok && v.(string) != "" {
-			endpoint = v.(string)
-		}
-		if endpoint == "" {
-			return nil, fmt.Errorf("[ERROR] missing the product %s endpoint.", productCode)
-		}
-	}
-	sdkConfig := client.teaSdkConfig
-	sdkConfig.SetEndpoint(endpoint)
-	conn, err := rpc.NewClient(&sdkConfig)
-	if err != nil {
-		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
-	}
-	return conn, nil
-}
 
-func (client *ApsaraStackClient) NewOdpsClient() (*rpc.Client, error) {
-	productCode := "odps"
-	endpoint := client.Config.MaxComputeEndpoint
-	if endpoint == "" {
-		if v, ok := client.Config.Endpoints[productCode]; !ok || v.(string) == "" {
-			if err := client.loadEndpoint(productCode); err != nil {
-				return nil, err
-			}
-		}
-		if v, ok := client.Config.Endpoints[productCode]; ok && v.(string) != "" {
-			endpoint = v.(string)
-		}
-	}
-	if endpoint == "" {
-		return nil, fmt.Errorf("[ERROR] missing the product %s endpoint.", productCode)
-	}
 	sdkConfig := client.teaSdkConfig
 	sdkConfig.SetEndpoint(endpoint)
+
 	conn, err := rpc.NewClient(&sdkConfig)
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
 	}
+
 	return conn, nil
 }
