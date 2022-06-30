@@ -34,8 +34,15 @@ The following arguments are supported:
 * `name_regex` - (Optional) A regex string to filter VPCs by name.
 * `is_default` - (Optional, type: bool) Indicate whether the VPC is the default one in the specified region.
 * `vswitch_id` - (Optional) Filter results by the specified VSwitch.
+* `tags` - (Optional) A mapping of tags to assign to the resource.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).
 * `ids` - (Optional) A list of VPC IDs.
+* `resource_group_id` - (Optional) The Id of resource group which VPC belongs.
+* `dhcp_options_set_id` - (Optional, ForceNew) The ID of dhcp options set.
+* `dry_run` - (Optional, ForceNew) Indicates whether to check this request only. Valid values: `true` and `false`.
+* `vpc_name` - (Optional, ForceNew) The name of the VPC.
+* `vpc_owner_id` - (Optional, ForceNew) The owner ID of VPC.
+* `enable_details` -(Optional) Default to `true`. Set it to true can output the `route_table_id`.
 
 ## Attributes Reference
 
@@ -55,7 +62,11 @@ The following attributes are exported in addition to the arguments listed above:
   * `description` - Description of the VPC
   * `is_default` - Whether the VPC is the default VPC in the region.
   * `creation_time` - Time of creation.
-  * `secondary_cidr_blocks` - The secondary IPv4 CIDR block of the VPC.
-
+  * `tags` - A map of tags assigned to the VPC.
+  * `ipv6_cidr_block` - The IPv6 CIDR block of the VPC.
+  * `router_id` - The ID of the VRouter.
+  * `secondary_cidr_blocks` - A list of secondary IPv4 CIDR blocks of the VPC.
+  * `user_cidrs` - A list of user CIDRs.
+  * `vpc_id` - ID of the VPC.
 
  

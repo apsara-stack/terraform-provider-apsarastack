@@ -9,7 +9,7 @@ description: |-
 
 # apsarastack\_edas\_applications
 
-This data source provides a list of EDAS application in an Alibaba Cloud account according to the specified filters.
+This data source provides a list of EDAS application in an Apsara Stack Cloud account according to the specified filters.
 
 -> **NOTE:** Available in 1.0.11+
 
