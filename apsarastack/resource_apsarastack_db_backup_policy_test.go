@@ -57,12 +57,12 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 		},
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
-		CheckDestroy:  testAccCheckDBBackupPolicyDestroy,
+		//CheckDestroy:  rac.checkResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"instance_id":                 "${apsarastack_db_instance.default.id}",
-					"enable_backup_log":           "true",
+					"instance_id":                 "rm-i2qu37du50kuh359n",
+					"backup_log":                  "Enable",
 					"local_log_retention_hours":   "18",
 					"high_space_usage_protection": "Enable",
 				}),
@@ -99,11 +99,11 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"backup_retention_period": "800",
+					"backup_retention_period": "7",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"backup_retention_period": "800",
+						"backup_retention_period": "7",
 					}),
 				),
 			},
@@ -159,35 +159,11 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"archive_backup_retention_period": "50",
-					"archive_backup_keep_count":       "3",
-					"archive_backup_keep_policy":      "ByWeek",
+					"backup_log": "Disabled",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"archive_backup_retention_period": "50",
-						"archive_backup_keep_count":       "3",
-						"archive_backup_keep_policy":      "ByWeek",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"archive_backup_keep_policy": "KeepAll",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"archive_backup_keep_policy": "KeepAll",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"enable_backup_log": "false",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"enable_backup_log": "false",
+						"backup_log": "Disabled",
 					}),
 				),
 			},
@@ -196,9 +172,9 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 					"instance_id":                     "${apsarastack_db_instance.default.id}",
 					"preferred_backup_period":         []string{"Tuesday", "Monday", "Wednesday"},
 					"preferred_backup_time":           "13:00Z-14:00Z",
-					"backup_retention_period":         "900",
-					"enable_backup_log":               "true",
-					"log_backup_retention_period":     "7",
+					"backup_retention_period":         "700",
+					"backup_log":                      "Disabled",
+					"log_backup_retention_period":     "700",
 					"local_log_retention_hours":       "48",
 					"high_space_usage_protection":     "Enable",
 					"archive_backup_retention_period": "150",
@@ -209,9 +185,9 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 					testAccCheck(map[string]string{
 						"preferred_backup_period.#":       "3",
 						"preferred_backup_time":           "13:00Z-14:00Z",
-						"backup_retention_period":         "900",
-						"enable_backup_log":               "true",
-						"log_backup_retention_period":     "7",
+						"backup_retention_period":         "700",
+						"backup_log":                      "Disabled",
+						"log_backup_retention_period":     "700",
 						"local_log_retention_hours":       "48",
 						"high_space_usage_protection":     "Enable",
 						"archive_backup_retention_period": "150",
@@ -222,7 +198,6 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 			}},
 	})
 }
-
 func resourceDBBackupPolicyMysqlConfigDependence(name string) string {
 	return fmt.Sprintf(`
 variable "name" {

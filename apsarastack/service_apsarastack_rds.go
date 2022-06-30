@@ -3,6 +3,8 @@ package apsarastack
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/PaesslerAG/jsonpath"
+	util "github.com/alibabacloud-go/tea-utils/service"
 	"log"
 	"regexp"
 	"strconv"
@@ -21,20 +23,6 @@ type RdsService struct {
 	client *connectivity.ApsaraStackClient
 }
 
-//
-//       _______________                      _______________                       _______________
-//       |              | ______param______\  |              |  _____request_____\  |              |
-//       |   Business   |                     |    Service   |                      |    SDK/API   |
-//       |              | __________________  |              |  __________________  |              |
-//       |______________| \    (obj, err)     |______________|  \ (status, cont)    |______________|
-//                           |                                    |
-//                           |A. {instance, nil}                  |a. {200, content}
-//                           |B. {nil, error}                     |b. {200, nil}
-//                      					  |c. {4xx, nil}
-//
-// The API return 200 for resource not found.
-// When getInstance is empty, then throw InstanceNotfound error.
-// That the business layer only need to check error.
 var DBInstanceStatusCatcher = Catcher{"OperationDenied.DBInstanceStatus", 60, 5}
 
 func (s *RdsService) DescribeDBInstance(id string) (*rds.DBInstanceAttribute, error) {
@@ -420,7 +408,7 @@ func (s *RdsService) ModifyParameters(d *schema.ResourceData, attribute string) 
 			return WrapError(err)
 		}
 	}
-	d.SetPartial(attribute)
+	//d.SetPartial(attribute)
 	return nil
 }
 
@@ -625,7 +613,6 @@ func (s *RdsService) ReleaseDBPublicConnection(instanceId, connection string) er
 }
 
 func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData, updateForLog bool) error {
-	enableBackupLog := "1"
 
 	backupPeriod := ""
 	if v, ok := d.GetOk("preferred_backup_period"); ok && v.(*schema.Set).Len() > 0 {
@@ -660,8 +647,9 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 
 	highSpaceUsageProtection := d.Get("high_space_usage_protection").(string)
 
-	if !d.Get("enable_backup_log").(bool) {
-		enableBackupLog = "0"
+	enableBackupLog := ""
+	if v, ok := d.GetOk("backup_log"); ok {
+		enableBackupLog = v.(string)
 	}
 
 	if d.HasChange("log_backup_retention_period") {
@@ -709,6 +697,7 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		} else {
 			request.Scheme = "http"
 		}
+		request.BackupLog = enableBackupLog
 		request.PreferredBackupPeriod = backupPeriod
 		request.PreferredBackupTime = backupTime
 		request.BackupRetentionPeriod = retentionPeriod
@@ -719,7 +708,7 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		}
 		if instance.Engine == "MySQL" && instance.DBInstanceStorageType == "local_ssd" {
 			request.ArchiveBackupRetentionPeriod = archiveBackupRetentionPeriod
-			request.ArchiveBackupKeepCount = requests.Integer(archiveBackupKeepCount)
+			request.ArchiveBackupKeepCount = archiveBackupKeepCount
 			request.ArchiveBackupKeepPolicy = archiveBackupKeepPolicy
 		}
 		raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -749,7 +738,6 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		} else {
 			request.Scheme = "http"
 		}
-		request.EnableBackupLog = enableBackupLog
 		request.LocalLogRetentionHours = localLogRetentionHours
 		request.LocalLogRetentionSpace = localLogRetentionSpace
 		request.HighSpaceUsageProtection = highSpaceUsageProtection
@@ -1534,7 +1522,7 @@ func (s *RdsService) setInstanceTags(d *schema.ResourceData) error {
 			}
 		}
 
-		d.SetPartial("tags")
+		//d.SetPartial("tags")
 	}
 
 	return nil
@@ -1595,7 +1583,7 @@ func (s *RdsService) ignoreTag(t Tag) bool {
 		log.Printf("[DEBUG] Matching prefix %v with %v\n", v, t.Key)
 		ok, _ := regexp.MatchString(v, t.Key)
 		if ok {
-			log.Printf("[DEBUG] Found Alibaba Cloud specific t %s (val: %s), ignoring.\n", t.Key, t.Value)
+			log.Printf("[DEBUG] Found Apsara Stack Cloud specific t %s (val: %s), ignoring.\n", t.Key, t.Value)
 			return true
 		}
 	}
@@ -1606,4 +1594,110 @@ func (s *RdsService) tagsToString(tags []Tag) string {
 	v, _ := json.Marshal(s.tagsToMap(tags))
 
 	return string(v)
+}
+
+func (s *RdsService) DescribeRdsAccount(id string) (object map[string]interface{}, err error) {
+	var response map[string]interface{}
+	conn, err := s.client.NewRdsClient()
+	if err != nil {
+		return nil, WrapError(err)
+	}
+	action := "DescribeAccounts"
+	parts, err := ParseResourceId(id, 2)
+	if err != nil {
+		err = WrapError(err)
+		return
+	}
+	request := map[string]interface{}{
+		"RegionId":     s.client.RegionId,
+		"SourceIp":     s.client.SourceIp,
+		"AccountName":  parts[1],
+		"DBInstanceId": parts[0],
+	}
+	request["Product"] = "Rds"
+	request["OrganizationId"] = s.client.Department
+
+	runtime := util.RuntimeOptions{}
+	runtime.SetAutoretry(true)
+	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2014-08-15"), StringPointer("AK"), nil, request, &runtime)
+	if err != nil {
+		if IsExpectedErrors(err, []string{"InvalidDBInstanceId.NotFound"}) {
+			err = WrapErrorf(Error(GetNotFoundMessage("RdsAccount", id)), NotFoundMsg, ProviderERROR)
+			return object, err
+		}
+		err = WrapErrorf(err, DefaultErrorMsg, id, action, ApsaraStackSdkGoERROR)
+		return object, err
+	}
+	addDebug(action, response, request)
+	v, err := jsonpath.Get("$.Accounts.DBInstanceAccount", response)
+	if err != nil {
+		return object, WrapErrorf(err, FailedGetAttributeMsg, id, "$.Accounts.DBInstanceAccount", response)
+	}
+	if len(v.([]interface{})) < 1 {
+		return object, WrapErrorf(Error(GetNotFoundMessage("RDS", id)), NotFoundWithResponse, response)
+	}
+	object = v.([]interface{})[0].(map[string]interface{})
+	return object, nil
+}
+
+func (s *RdsService) RdsAccountStateRefreshFunc(id string, failStates []string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		object, err := s.DescribeRdsAccount(id)
+		if err != nil {
+			if NotFoundError(err) {
+				// Set this to nil as if we didn't find anything.
+				return nil, "", nil
+			}
+			return nil, "", WrapError(err)
+		}
+		for _, failState := range failStates {
+			if object["AccountStatus"].(string) == failState {
+				return object, object["AccountStatus"].(string), WrapError(Error(FailedToReachTargetStatus, object["AccountStatus"].(string)))
+			}
+		}
+		return object, object["AccountStatus"].(string), nil
+	}
+}
+
+func (s *RdsService) DescribeRdsParameterGroup(id string) (object map[string]interface{}, err error) {
+	var response map[string]interface{}
+	conn, err := s.client.NewRdsClient()
+	if err != nil {
+		return nil, WrapError(err)
+	}
+	action := "DescribeParameterGroup"
+	request := map[string]interface{}{
+		"RegionId":         s.client.RegionId,
+		"ParameterGroupId": id,
+	}
+	request["Product"] = "Rds"
+	request["OrganizationId"] = s.client.Department
+
+	request["product"] = "Rds"
+
+	runtime := util.RuntimeOptions{}
+	runtime.SetAutoretry(true)
+	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2014-08-15"), StringPointer("AK"), nil, request, &runtime)
+	if err != nil {
+		if IsExpectedErrors(err, []string{"ParamGroupsNotExistError"}) {
+			err = WrapErrorf(Error(GetNotFoundMessage("RdsParameterGroup", id)), NotFoundMsg, ProviderERROR)
+			return object, err
+		}
+		err = WrapErrorf(err, DefaultErrorMsg, id, action, ApsaraStackSdkGoERROR)
+		return object, err
+	}
+	addDebug(action, response, request)
+	v, err := jsonpath.Get("$.ParamGroup.ParameterGroup", response)
+	if err != nil {
+		return object, WrapErrorf(err, FailedGetAttributeMsg, id, "$.ParamGroup.ParameterGroup", response)
+	}
+	if len(v.([]interface{})) < 1 {
+		return object, WrapErrorf(Error(GetNotFoundMessage("RDS", id)), NotFoundWithResponse, response)
+	} else {
+		if v.([]interface{})[0].(map[string]interface{})["ParameterGroupId"].(string) != id {
+			return object, WrapErrorf(Error(GetNotFoundMessage("RDS", id)), NotFoundWithResponse, response)
+		}
+	}
+	object = v.([]interface{})[0].(map[string]interface{})
+	return object, nil
 }

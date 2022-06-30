@@ -40,5 +40,5 @@ The following attributes are exported in addition to the arguments listed above:
 * `notifications` - A list of notifications. Each element contains the following attributes:
   * `id` - ID of the notification.
   * `scaling_group_id` - ID of the scaling group.
-  * `notification_arn` - The Alibaba Cloud Resource Name (ARN) for the notification object. 
+  * `notification_arn` - The Apsara Stack Cloud Resource Name (ARN) for the notification object. 
   * `notification_types` - The notification types of Auto Scaling events and resource changes.
