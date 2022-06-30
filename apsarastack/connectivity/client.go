@@ -1372,6 +1372,5 @@ func (client *ApsaraStackClient) NewRdsClient() (*rpc.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
 	}
-
 	return conn, nil
 }
