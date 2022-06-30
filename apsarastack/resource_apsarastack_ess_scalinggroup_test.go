@@ -480,6 +480,7 @@ func testAccEssScalingGroup(common string, rand int) string {
 		max_size = 4
 		scaling_group_name = "${var.name}"
 		default_cooldown = 20
+        multi_az_policy = "BALANCE"
 		vswitch_ids = ["${apsarastack_vswitch.default.id}", "${apsarastack_vswitch.default2.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
 	}`, common, rand)
