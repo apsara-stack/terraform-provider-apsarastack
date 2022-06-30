@@ -343,6 +343,17 @@ func WrapComplexError(cause, err error, filepath string, fileline int) error {
 		Line:  fileline,
 	}
 }
+func IsExpectedErrorCodes(code string, errorCodes []string) bool {
+	if code == "" {
+		return false
+	}
+	for _, v := range errorCodes {
+		if v == code {
+			return true
+		}
+	}
+	return false
+}
 
 // A default message of ComplexError's Err. It is format to Resource <resource-id> <operation> Failed!!! <error source>
 const DefaultErrorMsg = "Resource %s %s Failed!!! %s"

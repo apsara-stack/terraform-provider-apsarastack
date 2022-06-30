@@ -43,7 +43,7 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"scaling_group_id":  "${apsarastack_ess_scaling_group.default.id}",
 					"image_id":          "${data.apsarastack_images.default.images.0.id}",
-					"instance_type":     "${data.apsarastack_instance_types.default.instance_types.0.id}",
+					"instance_type":     "${local.instance_type_id}",
 					"security_group_id": "${apsarastack_security_group.default.id}",
 					"force_delete":      "true",
 				}),
@@ -80,11 +80,11 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"system_disk_category": "cloud_ssd",
+					"system_disk_category": "cloud_efficiency",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"system_disk_category": "cloud_ssd",
+						"system_disk_category": "cloud_efficiency",
 					}),
 				),
 			},
@@ -102,8 +102,9 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"data_disk": []map[string]string{{
 						"size":                 "20",
-						"category":             "cloud_ssd",
+						"category":             "cloud_efficiency",
 						"delete_with_instance": "false",
+						"encrypted":            "true",
 					},
 					},
 				}),
@@ -111,7 +112,7 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 					testAccCheck(map[string]string{
 						"data_disk.#":                      "1",
 						"data_disk.0.size":                 "20",
-						"data_disk.0.category":             "cloud_ssd",
+						"data_disk.0.category":             "cloud_efficiency",
 						"data_disk.0.delete_with_instance": "false",
 					}),
 				),
@@ -128,16 +129,16 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 				//ExpectNonEmptyPlan: true,
 			},
 
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"key_name": "${apsarastack_key_pair.default.id}",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"key_name": CHECKSET,
-					}),
-				),
-			},
+			//			{
+			//				Config: testAccConfig(map[string]interface{}{
+			//					"key_name": "${apsarastack_key_pair.default.id}",
+			//				}),
+			//				Check: resource.ComposeTestCheckFunc(
+			//					testAccCheck(map[string]string{
+			//						"key_name": CHECKSET,
+			//					}),
+			//				),
+			//			},
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"tags": map[string]string{
@@ -167,7 +168,7 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 func TestAccApsaraStackEssScalingConfigurationMulti(t *testing.T) {
 	rand := acctest.RandIntRange(1000, 999999)
 	var v ess.ScalingConfiguration
-	resourceId := "apsarastack_ess_scaling_configuration.default.9"
+	resourceId := "apsarastack_ess_scaling_configuration.default.0"
 	basicMap := map[string]string{
 		"scaling_group_id":  CHECKSET,
 		"instance_type":     CHECKSET,
@@ -195,12 +196,20 @@ func TestAccApsaraStackEssScalingConfigurationMulti(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"count":             "10",
+					"count":             "1",
 					"scaling_group_id":  "${apsarastack_ess_scaling_group.default.id}",
 					"image_id":          "${data.apsarastack_images.default.images.0.id}",
-					"instance_type":     "${data.apsarastack_instance_types.default.instance_types.0.id}",
+					"instance_type":     "${local.instance_type_id}",
 					"security_group_id": "${apsarastack_security_group.default.id}",
 					"force_delete":      "true",
+					"data_disk": []map[string]string{{
+						"size":                 "20",
+						"category":             "cloud_efficiency",
+						"delete_with_instance": "false",
+						"encrypted":            "true",
+						"kms_key_id":           "149ca9b2-564d-42f7-ab60-abfd15a91503",
+					},
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
@@ -216,10 +225,6 @@ func resourceEssScalingConfigurationConfigDependence(name string) string {
 	
 	variable "name" {
 		default = "%s"
-	}
-	
-	resource "apsarastack_key_pair" "default" {
-  		key_name = "${var.name}"
 	}
 	
 	resource "apsarastack_security_group" "default1" {
