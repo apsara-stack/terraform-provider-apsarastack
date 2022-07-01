@@ -679,14 +679,14 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		compressType = v.(string)
 	}
 
-	archiveBackupRetentionPeriod := "0"
+	var archiveBackupRetentionPeriod requests.Integer
 	if v, ok := d.GetOk("archive_backup_retention_period"); ok {
-		archiveBackupRetentionPeriod = strconv.Itoa(v.(int))
+		archiveBackupRetentionPeriod = requests.Integer(strconv.Itoa(v.(int)))
 	}
 
-	archiveBackupKeepCount := "1"
+	var archiveBackupKeepCount requests.Integer
 	if v, ok := d.GetOk("archive_backup_keep_count"); ok {
-		archiveBackupKeepCount = strconv.Itoa(v.(int))
+		archiveBackupKeepCount = requests.Integer(strconv.Itoa(v.(int)))
 	}
 
 	archiveBackupKeepPolicy := "0"

@@ -19,7 +19,7 @@ Basic Usage
 
 ```
 resource "apsarastack_vpc" "vpc" {
-  vpc_name       = "tf_test_foo"
+  name       = "tf_test_foo"
   cidr_block     = "172.16.0.0/12"
 }
 ```
@@ -30,8 +30,7 @@ resource "apsarastack_vpc" "vpc" {
 The following arguments are supported:
 
 * `cidr_block` - (Required, ForceNew) The CIDR block for the VPC. The `cidr_block` is Optional and default value is `172.16.0.0/12`.
-* `vpc_name` - (Optional) The name of the VPC. Defaults to null.
-* `name` - (Optional) Field `name` has been deprecated from provider. New field `vpc_name` instead.
+* `name` - (Optional) Field `name` has been deprecated from provider. 
 * `description` - (Optional) The VPC description. Defaults to null.
 * `resource_group_id` - (Optional) The Id of resource group which the VPC belongs.
 * `tags` - (Optional) A mapping of tags to assign to the resource.

@@ -40,7 +40,7 @@ The following arguments are supported:
 * `resource_group_id` - (Optional) The Id of resource group which VPC belongs.
 * `dhcp_options_set_id` - (Optional, ForceNew) The ID of dhcp options set.
 * `dry_run` - (Optional, ForceNew) Indicates whether to check this request only. Valid values: `true` and `false`.
-* `vpc_name` - (Optional, ForceNew) The name of the VPC.
+* `name` - (Optional, ForceNew) The name of the VPC.
 * `vpc_owner_id` - (Optional, ForceNew) The owner ID of VPC.
 * `enable_details` -(Optional) Default to `true`. Set it to true can output the `route_table_id`.
 
@@ -54,7 +54,7 @@ The following attributes are exported in addition to the arguments listed above:
   * `id` - ID of the VPC.
   * `region_id` - ID of the region where the VPC is located.
   * `status` - Status of the VPC.
-  * `vpc_name` - Name of the VPC.
+  * `name` - Name of the VPC.
   * `vswitch_ids` - List of VSwitch IDs in the specified VPC
   * `cidr_block` - CIDR block of the VPC.
   * `vrouter_id` - ID of the VRouter.
