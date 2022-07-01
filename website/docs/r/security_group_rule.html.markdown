@@ -54,7 +54,7 @@ The following arguments are supported:
 * `priority` - (Optional, ForceNew) Authorization policy priority, with parameter values: `1-100`, default value: 1.
 * `cidr_ip` - (Optional, ForceNew) The target IP address range. The default value is 0.0.0.0/0 (which means no restriction will be applied). Other supported formats include 10.159.6.18/12. Only IPv4 is supported.
 * `source_security_group_id` - (Optional, ForceNew) The target security group ID within the same region. If this field is specified, the `nic_type` can only select `intranet`.
-* `source_group_owner_account` - (Optional, ForceNew) The Alibaba Cloud user account Id of the target security group when security groups are authorized across accounts.  This parameter is invalid if `cidr_ip` has already been set.
+* `source_group_owner_account` - (Optional, ForceNew) The Apsara Stack Cloud user account Id of the target security group when security groups are authorized across accounts.  This parameter is invalid if `cidr_ip` has already been set.
 
 -> **NOTE:**  Either the `source_security_group_id` or `cidr_ip` must be set.
 
