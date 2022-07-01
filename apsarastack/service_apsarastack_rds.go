@@ -719,7 +719,7 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		}
 		if instance.Engine == "MySQL" && instance.DBInstanceStorageType == "local_ssd" {
 			request.ArchiveBackupRetentionPeriod = archiveBackupRetentionPeriod
-			request.ArchiveBackupKeepCount = archiveBackupKeepCount
+			request.ArchiveBackupKeepCount = requests.Integer(archiveBackupKeepCount)
 			request.ArchiveBackupKeepPolicy = archiveBackupKeepPolicy
 		}
 		raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
