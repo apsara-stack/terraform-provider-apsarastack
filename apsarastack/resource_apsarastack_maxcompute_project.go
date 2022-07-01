@@ -27,7 +27,7 @@ func resourceApsaraStackMaxcomputeProject() *schema.Resource {
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
-			"max_id": {
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
@@ -70,6 +70,10 @@ func resourceApsaraStackMaxcomputeProject() *schema.Resource {
 				Required: true,
 			},
 			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"pk": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -117,6 +121,8 @@ func resourceApsaraStackMaxcomputeProjectCreate(d *schema.ResourceData, meta int
 
 	name := d.Get("name").(string)
 
+	pk := d.Get("pk").(string)
+
 	request.QueryParams = map[string]string{
 		"Action": "CreateCalcEngineForAscm",
 		//"KmsRegion": "cn-neimeng-env30-d01", //不需要
@@ -127,7 +133,7 @@ func resourceApsaraStackMaxcomputeProjectCreate(d *schema.ResourceData, meta int
 		//"Timestamp": "2021-11-25T10:14:13Z",
 		"EnvType":    "PRD", // 固定值
 		"Name":       name,
-		"EngineInfo": "{\"taskAk\":{\"kp\":\"1380537809230745\",\"aliyunAccount\":\"ascm-dw-1637809230710\"},\"clusters\":[{\"name\":\"" + cluster_name + "\",\"quota\":" + d.Get("quota_id").(string) + ",\"disk\":" + fmt.Sprintf("%f", float64(disk_size)/1024) + ",\"isDefault\":1,\"projectQuota\":{\"fileLength\":" + strconv.Itoa(disk_size*1024*1024*1024) + ",\"fileNumber\":null}}],\"odpsProjectName\":\"" + name + "\",\"needToCreateOdpsProject\":true,\"defaultClusterArch\":\"" + cluster["core_arch"].(string) + "\",\"isOdpsDev\":false}",
+		"EngineInfo": "{\"taskAk\":{\"kp\":\"" + pk + "\",\"aliyunAccount\":\"ascm-dw-1637809230710\"},\"clusters\":[{\"name\":\"" + cluster_name + "\",\"quota\":" + d.Get("quota_id").(string) + ",\"disk\":" + fmt.Sprintf("%f", float64(disk_size)/1024) + ",\"isDefault\":1,\"projectQuota\":{\"fileLength\":" + strconv.Itoa(disk_size*1024*1024*1024) + ",\"fileNumber\":null}}],\"odpsProjectName\":\"" + name + "\",\"needToCreateOdpsProject\":true,\"defaultClusterArch\":\"" + cluster["core_arch"].(string) + "\",\"isOdpsDev\":false}",
 		"Department": client.Department,
 		//"Format": "JSON",
 		//"XRealIp": "10.30.208.219",
