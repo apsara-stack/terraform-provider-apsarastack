@@ -25,7 +25,7 @@ func resourceApsaraStackMaxcomputeCu() *schema.Resource {
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
-			"max_id": {
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
@@ -64,7 +64,7 @@ func resourceApsaraStackMaxcomputeCuCreate(d *schema.ResourceData, meta interfac
 	request["CuName"] = d.Get("cu_name")
 	request["CuNum"] = d.Get("cu_num")
 	request["ClusterName"] = d.Get("cluster_name")
-	//request["Department"] = client.Department
+	request["Department"] = client.Department
 	request["OrganizationId"] = client.Department
 	request["ResourceGroupId"] = client.ResourceGroup
 	request["RegionId"] = client.RegionId
@@ -112,7 +112,7 @@ func resourceApsaraStackMaxcomputeCuRead(d *schema.ResourceData, meta interface{
 	var data map[string]interface{}
 	datas := object["data"].([]interface{})
 	if datas == nil || len(datas) < 1 {
-		d.SetId(d.Get("max_id").(string))
+		d.SetId(d.Get("id").(string))
 		d.Set("cluster_name", d.Get("cluster_name").(string))
 	}
 	s := d.Get("cu_name").(string)
@@ -168,8 +168,6 @@ func resourceApsaraStackMaxcomputeCuDelete(d *schema.ResourceData, meta interfac
 	if IsExpectedErrorCodes(fmt.Sprintf("%v", response["code"]), []string{"102", "403"}) {
 		return nil
 	}
-	if fmt.Sprintf(`%v`, response["code"]) != "200" {
-		return WrapError(Error("DeleteOdpsCu failed for " + response["Message"].(string)))
-	}
+
 	return nil
 }

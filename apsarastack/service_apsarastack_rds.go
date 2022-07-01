@@ -718,7 +718,7 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 			request.LogBackupFrequency = logBackupFrequency
 		}
 		if instance.Engine == "MySQL" && instance.DBInstanceStorageType == "local_ssd" {
-			request.ArchiveBackupRetentionPeriod = archiveBackupRetentionPeriod
+			request.ArchiveBackupRetentionPeriod = requests.Integer(archiveBackupRetentionPeriod)
 			request.ArchiveBackupKeepCount = requests.Integer(archiveBackupKeepCount)
 			request.ArchiveBackupKeepPolicy = archiveBackupKeepPolicy
 		}
