@@ -679,14 +679,14 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		compressType = v.(string)
 	}
 
-	var archiveBackupRetentionPeriod requests.Integer
+	archiveBackupRetentionPeriod := "0"
 	if v, ok := d.GetOk("archive_backup_retention_period"); ok {
-		archiveBackupRetentionPeriod = requests.Integer(strconv.Itoa(v.(int)))
+		archiveBackupRetentionPeriod = strconv.Itoa(v.(int))
 	}
 
-	var archiveBackupKeepCount requests.Integer
+	archiveBackupKeepCount := "1"
 	if v, ok := d.GetOk("archive_backup_keep_count"); ok {
-		archiveBackupKeepCount = requests.Integer(strconv.Itoa(v.(int)))
+		archiveBackupKeepCount = strconv.Itoa(v.(int))
 	}
 
 	archiveBackupKeepPolicy := "0"
@@ -718,8 +718,8 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 			request.LogBackupFrequency = logBackupFrequency
 		}
 		if instance.Engine == "MySQL" && instance.DBInstanceStorageType == "local_ssd" {
-			request.ArchiveBackupRetentionPeriod = requests.Integer(archiveBackupRetentionPeriod)
-			request.ArchiveBackupKeepCount = requests.Integer(archiveBackupKeepCount)
+			request.ArchiveBackupRetentionPeriod = archiveBackupRetentionPeriod
+			request.ArchiveBackupKeepCount = archiveBackupKeepCount
 			request.ArchiveBackupKeepPolicy = archiveBackupKeepPolicy
 		}
 		raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
