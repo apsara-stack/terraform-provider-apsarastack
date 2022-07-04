@@ -127,9 +127,8 @@ func TestAccApsaraStackEssScalingGroup_basic(t *testing.T) {
 
 		// module name
 		IDRefreshName: resourceId,
-
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckEssScalingGroupDestroy,
+		Providers:     testAccProviders,
+		CheckDestroy:  testAccCheckEssScalingGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccEssScalingGroup(EcsInstanceCommonTestCase, rand),
@@ -202,7 +201,7 @@ func TestAccApsaraStackEssScalingGroup_basic(t *testing.T) {
 
 }
 
-func TestAccApsaraStackdEssScalingGroup_vpc(t *testing.T) {
+func TestAccApsaraStackEssScalingGroup_vpc(t *testing.T) {
 	rand := acctest.RandIntRange(10000, 999999)
 	var v ess.ScalingGroup
 	resourceId := "apsarastack_ess_scaling_group.default"
@@ -480,6 +479,7 @@ func testAccEssScalingGroup(common string, rand int) string {
 		max_size = 4
 		scaling_group_name = "${var.name}"
 		default_cooldown = 20
+        multi_az_policy = "BALANCE"
 		vswitch_ids = ["${apsarastack_vswitch.default.id}", "${apsarastack_vswitch.default2.id}"]
 		removal_policies = ["OldestInstance", "NewestInstance"]
 	}`, common, rand)
