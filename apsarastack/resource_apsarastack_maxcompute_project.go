@@ -27,7 +27,7 @@ func resourceApsaraStackMaxcomputeProject() *schema.Resource {
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
-			"id": {
+			"max_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
@@ -280,7 +280,7 @@ func resourceApsaraStackMaxcomputeProjectUpdate(d *schema.ResourceData, meta int
 			"Forwardedregionid": client.RegionId,
 			"Version":           "2019-05-10",
 			"RegionId":          client.RegionId,
-			"Id":                d.Get("id").(string),
+			"Id":                d.Get("max_id").(string),
 			"Disk":              fmt.Sprintf("%f", float64(d.Get("disk").(int))/1024),
 		}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
