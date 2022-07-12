@@ -147,15 +147,13 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"name":          name,
-					"address_type":  "internet",
-					"specification": "slb.s2.small",
+					"name":         name,
+					"address_type": "internet",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name":          name,
-						"address_type":  "internet",
-						"specification": "slb.s2.small",
+						"name":         name,
+						"address_type": "internet",
 					}),
 				),
 			},

@@ -136,7 +136,7 @@ func resourceApsaraStackSlbRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("address_type", object.AddressType)
 	d.Set("vswitch_id", object.VSwitchId)
 	d.Set("address", object.Address)
-
+	d.Set("specification", object.LoadBalancerSpec)
 	tags, _ := slbService.DescribeTags(d.Id(), nil, TagResourceInstance)
 	if len(tags) > 0 {
 		if err := d.Set("tags", slbService.tagsToMap(tags)); err != nil {
