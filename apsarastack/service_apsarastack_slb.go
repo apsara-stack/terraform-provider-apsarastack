@@ -767,25 +767,26 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 	if len(remove) > 0 {
 		var tagKey []string
 		for _, v := range remove {
-			tagKey = append(tagKey, v.Key)
+			tagKey = append(tagKey, v.TagKey)
 		}
-		request := slb.CreateUntagResourcesRequest()
+		request := slb.CreateRemoveTagsRequest()
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-		request.ResourceId = &[]string{d.Id()}
+		request.LoadBalancerId = d.Id()
 		if strings.ToLower(s.client.Config.Protocol) == "https" {
 			request.Scheme = "https"
 		} else {
 			request.Scheme = "http"
 		}
-		request.ResourceType = string(resourceType)
-		request.TagKey = &tagKey
+		bytes, _ := json.Marshal(remove)
+		s2 := string(bytes)
+		request.Tags = fmt.Sprint(s2)
 		request.RegionId = s.client.RegionId
 
 		wait := incrementalWait(1*time.Second, 1*time.Second)
 		err := resource.Retry(10*time.Minute, func() *resource.RetryError {
 			raw, err := s.client.WithSlbClient(func(client *slb.Client) (interface{}, error) {
-				return client.UntagResources(request)
+				return client.RemoveTags(request)
 			})
 			if err != nil {
 				if IsThrottling(err) {
@@ -804,8 +805,8 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 	}
 
 	if len(create) > 0 {
-		request := slb.CreateTagResourcesRequest()
-		request.ResourceId = &[]string{d.Id()}
+		request := slb.CreateAddTagsRequest()
+		request.LoadBalancerId = d.Id()
 		if strings.ToLower(s.client.Config.Protocol) == "https" {
 			request.Scheme = "https"
 		} else {
@@ -813,14 +814,15 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 		}
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
 		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-		request.Tag = &create
-		request.ResourceType = string(resourceType)
+		bytes, _ := json.Marshal(create)
+		s2 := string(bytes)
+		request.Tags = fmt.Sprint(s2)
 		request.RegionId = s.client.RegionId
 
 		wait := incrementalWait(1*time.Second, 1*time.Second)
 		err := resource.Retry(10*time.Minute, func() *resource.RetryError {
 			raw, err := s.client.WithSlbClient(func(client *slb.Client) (interface{}, error) {
-				return client.TagResources(request)
+				return client.AddTags(request)
 			})
 			if err != nil {
 				if IsThrottling(err) {
@@ -838,12 +840,10 @@ func (s *SlbService) setInstanceTags(d *schema.ResourceData, resourceType TagRes
 		}
 	}
 
-	d.SetPartial("tags")
-
 	return nil
 }
 
-func (s *SlbService) tagsToMap(tags []slb.TagResource) map[string]string {
+func (s *SlbService) tagsToMap(tags []slb.TagSet) map[string]string {
 	result := make(map[string]string)
 	for _, t := range tags {
 		if !s.ignoreTag(t) {
@@ -853,31 +853,31 @@ func (s *SlbService) tagsToMap(tags []slb.TagResource) map[string]string {
 	return result
 }
 
-func (s *SlbService) ignoreTag(t slb.TagResource) bool {
+func (s *SlbService) ignoreTag(t slb.TagSet) bool {
 	filter := []string{"^aliyun", "^acs:", "^http://", "^https://"}
 	for _, v := range filter {
 		log.Printf("[DEBUG] Matching prefix %v with %v\n", v, t.TagKey)
 		ok, _ := regexp.MatchString(v, t.TagKey)
 		if ok {
-			log.Printf("[DEBUG] Found Alibaba Cloud specific t %s (val: %s), ignoring.\n", t.TagKey, t.TagValue)
+			log.Printf("[DEBUG] Found Apsara Stack Cloud specific t %s (val: %s), ignoring.\n", t.TagKey, t.TagValue)
 			return true
 		}
 	}
 	return false
 }
 
-func (s *SlbService) diffTags(oldTags, newTags []slb.TagResourcesTag) ([]slb.TagResourcesTag, []slb.TagResourcesTag) {
+func (s *SlbService) diffTags(oldTags, newTags []slb.TagSet) ([]slb.TagSet, []slb.TagSet) {
 	// First, we're creating everything we have
 	create := make(map[string]interface{})
 	for _, t := range newTags {
-		create[t.Key] = t.Value
+		create[t.TagKey] = t.TagValue
 	}
 
 	// Build the list of what to remove
-	var remove []slb.TagResourcesTag
+	var remove []slb.TagSet
 	for _, t := range oldTags {
-		old, ok := create[t.Key]
-		if !ok || old != t.Value {
+		old, ok := create[t.TagKey]
+		if !ok || old != t.TagValue {
 			// Delete it!
 			remove = append(remove, t)
 		}
@@ -886,20 +886,20 @@ func (s *SlbService) diffTags(oldTags, newTags []slb.TagResourcesTag) ([]slb.Tag
 	return s.tagsFromMap(create), remove
 }
 
-func (s *SlbService) tagsFromMap(m map[string]interface{}) []slb.TagResourcesTag {
-	result := make([]slb.TagResourcesTag, 0, len(m))
+func (s *SlbService) tagsFromMap(m map[string]interface{}) []slb.TagSet {
+	result := make([]slb.TagSet, 0, len(m))
 	for k, v := range m {
-		result = append(result, slb.TagResourcesTag{
-			Key:   k,
-			Value: v.(string),
+		result = append(result, slb.TagSet{
+			TagKey:   k,
+			TagValue: v.(string),
 		})
 	}
 
 	return result
 }
 
-func (s *SlbService) DescribeTags(resourceId string, resourceTags map[string]interface{}, resourceType TagResourceType) (tags []slb.TagResource, err error) {
-	request := slb.CreateListTagResourcesRequest()
+func (s *SlbService) DescribeTags(resourceId string, resourceTags map[string]interface{}, resourceType TagResourceType) (tags []slb.TagSet, err error) {
+	request := slb.CreateDescribeTagsRequest()
 	request.RegionId = s.client.RegionId
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
@@ -908,21 +908,22 @@ func (s *SlbService) DescribeTags(resourceId string, resourceTags map[string]int
 	}
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "slb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
-	request.ResourceType = string(resourceType)
-	request.ResourceId = &[]string{resourceId}
+	request.LoadBalancerId = resourceId
 	if resourceTags != nil && len(resourceTags) > 0 {
-		var reqTags []slb.ListTagResourcesTag
+		var reqTags []slb.TagSet
 		for key, value := range resourceTags {
-			reqTags = append(reqTags, slb.ListTagResourcesTag{
-				Key:   key,
-				Value: value.(string),
+			reqTags = append(reqTags, slb.TagSet{
+				TagKey:   key,
+				TagValue: value.(string),
 			})
 		}
-		request.Tag = &reqTags
+		bytes, _ := json.Marshal(reqTags)
+		s2 := string(bytes)
+		request.Tags = fmt.Sprint(s2)
 	}
 	err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := s.client.WithSlbClient(func(Client *slb.Client) (interface{}, error) {
-			return Client.ListTagResources(request)
+			return Client.DescribeTags(request)
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{Throttling}) {
@@ -932,8 +933,8 @@ func (s *SlbService) DescribeTags(resourceId string, resourceTags map[string]int
 			return resource.NonRetryableError(err)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		response, _ := raw.(*slb.ListTagResourcesResponse)
-		tags = response.TagResources.TagResource
+		response, _ := raw.(*slb.DescribeTagsResponse)
+		tags = response.TagSets.TagSet
 		return nil
 	})
 	if err != nil {
