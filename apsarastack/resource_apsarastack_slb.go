@@ -136,7 +136,7 @@ func resourceApsaraStackSlbRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("address_type", object.AddressType)
 	d.Set("vswitch_id", object.VSwitchId)
 	d.Set("address", object.Address)
-
+	d.Set("specification", object.LoadBalancerSpec)
 	tags, _ := slbService.DescribeTags(d.Id(), nil, TagResourceInstance)
 	if len(tags) > 0 {
 		if err := d.Set("tags", slbService.tagsToMap(tags)); err != nil {
@@ -162,7 +162,26 @@ func resourceApsaraStackSlbUpdate(d *schema.ResourceData, meta interface{}) erro
 		d.Partial(false)
 		return resourceApsaraStackSlbRead(d, meta)
 	}
-
+	if d.HasChange("specification") {
+		request := slb.CreateModifyLoadBalancerInstanceSpecRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.LoadBalancerId = d.Id()
+		request.LoadBalancerSpec = d.Get("specification").(string)
+		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			return slbClient.ModifyLoadBalancerInstanceSpec(request)
+		})
+		if err != nil {
+			WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	}
 	if d.HasChange("name") {
 		request := slb.CreateSetLoadBalancerNameRequest()
 		if strings.ToLower(client.Config.Protocol) == "https" {

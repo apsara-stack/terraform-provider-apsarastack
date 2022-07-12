@@ -159,13 +159,30 @@ func TestAccApsaraStackSlb_classictest(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
+					"specification": "slb.s1.small",
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"specification": "slb.s1.small",
+					}),
+				),
+			},
+			{
+				Config: testAccConfig(map[string]interface{}{
 					"name":         name,
 					"address_type": "internet",
+					"tags": map[string]string{
+						"Created": "TF",
+						"For":     "Test",
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"name":         name,
 						"address_type": "internet",
+						"tags.%":       "2",
+						"tags.Created": "TF",
+						"tags.For":     "Test",
 					}),
 				),
 			},
@@ -236,8 +253,8 @@ func TestAccApsaraStackSlb_vpctest(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceId,
-				ImportState:       true,
+				ResourceName: resourceId,
+				ImportState:  true,
 				//ImportStateVerify: true,
 			},
 			{
