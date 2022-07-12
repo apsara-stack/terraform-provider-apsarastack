@@ -162,6 +162,27 @@ func resourceApsaraStackSlbUpdate(d *schema.ResourceData, meta interface{}) erro
 		return resourceApsaraStackSlbRead(d, meta)
 	}
 
+	if d.HasChange("specification") {
+		request := slb.CreateModifyLoadBalancerInstanceSpecRequest()
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.LoadBalancerId = d.Id()
+		request.LoadBalancerSpec = d.Get("specification").(string)
+		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
+			return slbClient.ModifyLoadBalancerInstanceSpec(request)
+		})
+		if err != nil {
+			WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+	}
+
 	if d.HasChange("name") {
 		request := slb.CreateSetLoadBalancerNameRequest()
 		if strings.ToLower(client.Config.Protocol) == "https" {

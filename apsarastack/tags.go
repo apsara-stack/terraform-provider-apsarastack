@@ -395,7 +395,7 @@ func cdnTagsToMap(tags []cdn.TagItem) map[string]string {
 	return result
 }
 
-func slbTagsToMap(tags []slb.TagResource) map[string]string {
+func slbTagsToMap(tags []slb.TagSet) map[string]string {
 	result := make(map[string]string)
 	for _, t := range tags {
 		if !slbTagIgnored(t) {
@@ -510,7 +510,7 @@ func cdnTagIgnored(t cdn.TagItem) bool {
 	return false
 }
 
-func slbTagIgnored(t slb.TagResource) bool {
+func slbTagIgnored(t slb.TagSet) bool {
 	filter := []string{"^aliyun", "^acs:", "^http://", "^https://"}
 	for _, v := range filter {
 		log.Printf("[DEBUG] Matching prefix %v with %v\n", v, t.TagKey)
