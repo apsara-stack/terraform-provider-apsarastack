@@ -35,10 +35,36 @@ func resourceApsaraStackMongoDBInstance() *schema.Resource {
 				ForceNew: true,
 				Required: true,
 			}, // EngineVersion
+			"audit_policy": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_audit_policy": {
+							Type:     schema.TypeBool,
+							Required: true,
+						},
+						"storage_period": {
+							Type:     schema.TypeInt,
+							Optional: true,
+							Default:  30,
+						},
+					},
+				},
+			}, //AuditPolicy
 			"db_instance_class": {
 				Type:     schema.TypeString,
 				Required: true,
 			}, // DBInstanceClass
+			"new_connection_string": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"connection_string": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Optional: true,
+			},
 			"db_instance_storage": {
 				Type:         schema.TypeInt,
 				ValidateFunc: validation.IntBetween(10, 2000),
@@ -274,7 +300,62 @@ func resourceApsaraStackMongoDBInstanceCreate(d *schema.ResourceData, meta inter
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapError(err)
 	}
+	auditPolicy, ok := d.Get("audit_policy").(map[string]interface{})
+	if ok {
+		auditPolicyreq := dds.CreateModifyAuditPolicyRequest()
+		if auditPolicy["enable_audit_policy"].(string) == "true" {
+			auditPolicyreq.AuditStatus = "Enable"
+		}
+		storagePeriod, _ := strconv.Atoi(auditPolicy["storage_period"].(string))
+		auditPolicyreq.StoragePeriod = requests.NewInteger(storagePeriod)
+		auditPolicyreq.DBInstanceId = d.Id()
+		auditPolicyreq.RegionId = string(client.Region)
+		auditPolicyreq.Headers = map[string]string{"RegionId": client.RegionId}
+		auditPolicyreq.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		audit, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
+			return client.ModifyAuditPolicy(auditPolicyreq)
+		})
 
+		if err != nil {
+			return WrapError(err)
+		}
+
+		addDebug(auditPolicyreq.GetActionName(), audit, auditPolicyreq)
+	}
+	if okay := func() bool {
+		if _, ok := d.GetOk("backup_period"); ok {
+			return ok
+		}
+		if _, ok := d.GetOk("backup_time"); ok {
+			return ok
+		}
+		return false
+	}; okay() {
+		err := ddsService.MotifyMongoDBBackupPolicy(d)
+		if err != nil {
+			return WrapError(err)
+		}
+	}
+
+	if _, sslok := d.GetOk("ssl_action"); sslok {
+		sslrequest := dds.CreateModifyDBInstanceSSLRequest()
+		sslrequest.DBInstanceId = d.Id()
+		sslrequest.RegionId = client.RegionId
+		sslrequest.Headers = map[string]string{"RegionId": client.RegionId}
+		sslrequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
+		sslrequest.SSLAction = d.Get("ssl_action").(string)
+
+		sslraw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
+			return ddsClient.ModifyDBInstanceSSL(sslrequest)
+		})
+
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		addDebug(request.GetActionName(), sslraw, request.RpcRequest, request)
+		//d.SetPartial("ssl_action")
+	}
 	return resourceApsaraStackMongoDBInstanceUpdate(d, meta)
 }
 
@@ -380,16 +461,16 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("instance_charge_type")
-		d.SetPartial("period")
+		//d.SetPartial("instance_charge_type")
+		//d.SetPartial("period")
 	}
 
 	if d.HasChange("backup_time") || d.HasChange("backup_period") {
 		if err := ddsService.MotifyMongoDBBackupPolicy(d); err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("backup_time")
-		d.SetPartial("backup_period")
+		//d.SetPartial("backup_time")
+		//d.SetPartial("backup_period")
 	}
 
 	if d.HasChange("tde_status") {
@@ -406,7 +487,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("tde_status")
+		//d.SetPartial("tde_status")
 	}
 
 	if d.HasChange("maintain_start_time") || d.HasChange("maintain_end_time") {
@@ -426,8 +507,8 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("maintain_start_time")
-		d.SetPartial("maintain_end_time")
+		//d.SetPartial("maintain_start_time")
+		//d.SetPartial("maintain_end_time")
 	}
 
 	if d.HasChange("security_group_id") {
@@ -446,7 +527,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("security_group_id")
+		//d.SetPartial("security_group_id")
 	}
 
 	if err := ddsService.setInstanceTags(d); err != nil {
@@ -472,7 +553,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("name")
+		//d.SetPartial("name")
 	}
 
 	if d.HasChange("security_ip_list") {
@@ -486,13 +567,13 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		if err := ddsService.ModifyMongoDBSecurityIps(d.Id(), ipstr); err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("security_ip_list")
+		//d.SetPartial("security_ip_list")
 	}
 
 	if d.HasChange("account_password") || d.HasChange("kms_encrypted_password") {
 		var accountPassword string
 		if accountPassword = d.Get("account_password").(string); accountPassword != "" {
-			d.SetPartial("account_password")
+			//d.SetPartial("account_password")
 		} else if kmsPassword := d.Get("kms_encrypted_password").(string); kmsPassword != "" {
 			kmsService := KmsService{meta.(*connectivity.ApsaraStackClient)}
 			decryptResp, err := kmsService.Decrypt(kmsPassword, d.Get("kms_encryption_context").(map[string]interface{}))
@@ -500,8 +581,8 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 				return WrapError(err)
 			}
 			accountPassword = decryptResp.Plaintext
-			d.SetPartial("kms_encrypted_password")
-			d.SetPartial("kms_encryption_context")
+			//d.SetPartial("kms_encrypted_password")
+			//d.SetPartial("kms_encryption_context")
 		}
 
 		err := ddsService.ResetAccountPassword(d, accountPassword)
@@ -527,7 +608,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("ssl_action")
+		//d.SetPartial("ssl_action")
 	}
 
 	if d.HasChange("db_instance_storage") ||
@@ -561,10 +642,107 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		}
 
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-		d.SetPartial("db_instance_class")
-		d.SetPartial("db_instance_storage")
-		d.SetPartial("replication_factor")
+		//d.SetPartial("db_instance_class")
+		//d.SetPartial("db_instance_storage")
+		//d.SetPartial("replication_factor")
+		newconnectionString, ok := d.Get("new_connection_string").(string)
+		currconnectionString, ok1 := d.Get("connection_string").(string)
 
+		if ok && ok1 {
+			var connFound bool
+			if !d.HasChange("new_connection_string") {
+				goto contd
+			}
+			DBInstance, err := ddsService.DescribeMongoDBInstance(d.Id())
+			if err != nil {
+				return WrapError(err)
+			}
+		db:
+			for _, x := range DBInstance.ReplicaSets.ReplicaSet {
+				if currconnectionString == x.ConnectionDomain {
+					connFound = true
+					break db
+				}
+			}
+			if !connFound {
+				errs := Error("CurrentConnectionString Not Found")
+				return WrapError(errs)
+			}
+			conn := DBInstanceConnectionString(d, meta)
+			conn.NewConnectionString = newconnectionString
+			conn.CurrentConnectionString = currconnectionString
+			audit, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
+				return client.ModifyDBInstanceConnectionString(conn)
+			})
+			if err != nil {
+				return WrapError(err)
+			}
+
+			addDebug(conn.GetActionName(), audit, conn)
+		}
+	contd:
+		if _, okay := d.GetOk("audit_policy"); okay {
+			if d.HasChange("audit_policy") {
+				auditPolicy, ok := d.Get("audit_policy").(map[string]interface{})
+				if ok {
+					auditPolicyreq := dds.CreateModifyAuditPolicyRequest()
+					if auditPolicy["enable_audit_policy"].(string) == "true" {
+						auditPolicyreq.AuditStatus = "Enable"
+					} else if auditPolicy["enable_audit_policy"].(string) == "false" {
+						auditPolicyreq.AuditStatus = "Disabled"
+					}
+
+					storagePeriod, _ := strconv.Atoi(auditPolicy["storage_period"].(string))
+					auditPolicyreq.StoragePeriod = requests.NewInteger(storagePeriod)
+					auditPolicyreq.DBInstanceId = d.Id()
+					auditPolicyreq.RegionId = string(client.Region)
+					auditPolicyreq.Headers = map[string]string{"RegionId": client.RegionId}
+					auditPolicyreq.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+					audit, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
+						return client.ModifyAuditPolicy(auditPolicyreq)
+					})
+
+					if err != nil {
+						return WrapError(err)
+					}
+
+					addDebug(auditPolicyreq.GetActionName(), audit, auditPolicyreq)
+				} else {
+					auditPolicyreq := dds.CreateModifyAuditPolicyRequest()
+					auditPolicyreq.AuditStatus = "Disabled"
+					auditPolicyreq.DBInstanceId = d.Id()
+					auditPolicyreq.RegionId = string(client.Region)
+					auditPolicyreq.Headers = map[string]string{"RegionId": client.RegionId}
+					auditPolicyreq.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+					audit, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
+						return client.ModifyAuditPolicy(auditPolicyreq)
+					})
+
+					if err != nil {
+						return WrapError(err)
+					}
+
+					addDebug(auditPolicyreq.GetActionName(), audit, auditPolicyreq)
+
+				}
+			}
+		} else if !okay {
+			auditPolicyreq := dds.CreateModifyAuditPolicyRequest()
+			auditPolicyreq.AuditStatus = "Disabled"
+			auditPolicyreq.DBInstanceId = d.Id()
+			auditPolicyreq.RegionId = string(client.Region)
+			auditPolicyreq.Headers = map[string]string{"RegionId": client.RegionId}
+			auditPolicyreq.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			audit, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
+				return client.ModifyAuditPolicy(auditPolicyreq)
+			})
+
+			if err != nil {
+				return WrapError(err)
+			}
+
+			addDebug(auditPolicyreq.GetActionName(), audit, auditPolicyreq)
+		}
 		// wait instance status is running after modifying
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapError(err)
@@ -606,4 +784,13 @@ func resourceApsaraStackMongoDBInstanceDelete(d *schema.ResourceData, meta inter
 	stateConf := BuildStateConf([]string{"Creating", "Deleting"}, []string{}, d.Timeout(schema.TimeoutDelete), 1*time.Minute, ddsService.RdsMongodbDBInstanceStateRefreshFunc(d.Id(), []string{}))
 	_, err = stateConf.WaitForState()
 	return WrapError(err)
+}
+func DBInstanceConnectionString(d *schema.ResourceData, meta interface{}) *dds.ModifyDBInstanceConnectionStringRequest {
+	client := meta.(*connectivity.ApsaraStackClient)
+	conn := dds.CreateModifyDBInstanceConnectionStringRequest()
+	conn.DBInstanceId = d.Id()
+	conn.RegionId = string(client.Region)
+	conn.Headers = map[string]string{"RegionId": client.RegionId}
+	conn.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	return conn
 }
