@@ -10,7 +10,7 @@ description: |-
 # apsarastack\_maxcompute\_user
 
 The user is the basic unit of operation in maxcompute. It is similar to the concept of Database or Schema in traditional databases, and sets the boundary for maxcompute multi-user isolation and access control.
-->**NOTE:** Available in 1.77.0+.
+->**NOTE:** Available in 1.0.18+.
 
 ## Example Usage
 
