@@ -104,7 +104,9 @@ func (s *MaxcomputeService) DescribeMaxcomputeCu(name string) (object map[string
 	action := "ListOdpsCus"
 	request := map[string]interface{}{
 		"RegionName": s.client.RegionId,
-		//"Type":            "cuName",
+		"RegionId":   s.client.RegionId,
+		"product":    "ascm",
+		"Type":       "cuName",
 		//"CuName":          name,
 		"Product":         "ascm",
 		"OrganizationId":  s.client.Department,
@@ -113,7 +115,7 @@ func (s *MaxcomputeService) DescribeMaxcomputeCu(name string) (object map[string
 	}
 	runtime := util.RuntimeOptions{}
 	runtime.SetAutoretry(true)
-	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-05-10"), StringPointer("AK"), nil, request, &runtime)
+	response, err = conn.DoRequesttowpoint1(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-05-10"), StringPointer("AK"), nil, request, &runtime)
 	if err != nil {
 		err = WrapErrorf(err, DefaultErrorMsg, name, action, ApsaraStackSdkGoERROR)
 		return
