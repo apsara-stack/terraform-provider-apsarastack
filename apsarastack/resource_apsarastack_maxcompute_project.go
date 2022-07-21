@@ -124,6 +124,8 @@ func resourceApsaraStackMaxcomputeProjectCreate(d *schema.ResourceData, meta int
 
 	pk := d.Get("pk").(string)
 
+	aliyunaccount := d.Get("aliyun_account").(string)
+
 	request.QueryParams = map[string]string{
 		"Action": "CreateCalcEngineForAscm",
 		//"KmsRegion": "cn-neimeng-env30-d01", //不需要
@@ -134,7 +136,7 @@ func resourceApsaraStackMaxcomputeProjectCreate(d *schema.ResourceData, meta int
 		//"Timestamp": "2021-11-25T10:14:13Z",
 		"EnvType":    "PRD", // 固定值
 		"Name":       name,
-		"EngineInfo": "{\"taskAk\":{\"kp\":\"" + pk + "\",\"aliyunAccount\":\"ascm-dw-1637809230710\"},\"clusters\":[{\"name\":\"" + cluster_name + "\",\"quota\":" + d.Get("quota_id").(string) + ",\"disk\":" + fmt.Sprintf("%f", float64(disk_size)/1024) + ",\"isDefault\":1,\"projectQuota\":{\"fileLength\":" + strconv.Itoa(disk_size*1024*1024*1024) + ",\"fileNumber\":null}}],\"odpsProjectName\":\"" + name + "\",\"needToCreateOdpsProject\":true,\"defaultClusterArch\":\"" + cluster["core_arch"].(string) + "\",\"isOdpsDev\":false}",
+		"EngineInfo": "{\"taskAk\":{\"kp\":\"" + pk + "\",\"aliyunAccount\":\"" + aliyunaccount + "\"},\"clusters\":[{\"name\":\"" + cluster_name + "\",\"quota\":" + d.Get("quota_id").(string) + ",\"disk\":" + fmt.Sprintf("%f", float64(disk_size)/1024) + ",\"isDefault\":1,\"projectQuota\":{\"fileLength\":" + strconv.Itoa(disk_size*1024*1024*1024) + ",\"fileNumber\":null}}],\"odpsProjectName\":\"" + name + "\",\"needToCreateOdpsProject\":true,\"defaultClusterArch\":\"" + cluster["core_arch"].(string) + "\",\"isOdpsDev\":false}",
 		"Department": client.Department,
 		//"Format": "JSON",
 		//"XRealIp": "10.30.208.219",

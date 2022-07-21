@@ -104,7 +104,9 @@ func (s *MaxcomputeService) DescribeMaxcomputeCu(name string) (object map[string
 	action := "ListOdpsCus"
 	request := map[string]interface{}{
 		"RegionName": s.client.RegionId,
-		//"Type":            "cuName",
+		"RegionId":   s.client.RegionId,
+		"product":    "ascm",
+		"Type":       "cuName",
 		//"CuName":          name,
 		"Product":         "ascm",
 		"OrganizationId":  s.client.Department,

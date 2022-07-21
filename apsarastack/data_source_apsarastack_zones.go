@@ -313,6 +313,8 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeMongoDB)) {
 		request := dds.CreateDescribeRegionsRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		raw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
 			return ddsClient.DescribeRegions(request)
 		})
@@ -361,6 +363,8 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeAdb)) {
 		request := adb.CreateDescribeRegionsRequest()
 		request.RegionId = client.RegionId
+		request.Headers["x-ascm-product-name"] = "adb"
+		request.Headers["x-acs-organizationId"] = client.Department
 		raw, err := client.WithAdbClient(func(adbClient *adb.Client) (interface{}, error) {
 			return adbClient.DescribeRegions(request)
 		})
@@ -385,6 +389,8 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeGpdb)) {
 		request := gpdb.CreateDescribeRegionsRequest()
 		request.RegionId = client.RegionId
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 		raw, err := client.WithGpdbClient(func(gpdbClient *gpdb.Client) (interface{}, error) {
 			return gpdbClient.DescribeRegions(request)
 		})
