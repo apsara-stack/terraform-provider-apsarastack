@@ -547,6 +547,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.DmsEnterpriseEndpoint = domain
 		config.QuickbiEndpoint = domain
 		config.MaxComputeEndpoint = domain
+		config.DataworkspublicEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
@@ -573,7 +574,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.RosEndpoint = strings.TrimSpace(endpoints["ros"].(string))
 			config.DmsEnterpriseEndpoint = strings.TrimSpace(endpoints["dms_enterprise"].(string))
 			config.QuickbiEndpoint = strings.TrimSpace(endpoints["quickbi"].(string))
+			config.DataworkspublicEndpoint = strings.TrimSpace(endpoints["dataworkspublic"].(string))
 		}
+	}
+	DataworkspublicEndpoint := d.Get("dataworkspublic").(string)
+	if DataworkspublicEndpoint != "" {
+		config.DataworkspublicEndpoint = DataworkspublicEndpoint
 	}
 	QuickbiEndpoint := d.Get("quickbi_endpoint").(string)
 	if QuickbiEndpoint != "" {

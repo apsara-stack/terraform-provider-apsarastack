@@ -296,3 +296,9 @@ func cmsClientCriticalSuppressFunc(k, old, new string, d *schema.ResourceData) b
 	}
 	return false
 }
+func rdsDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if v, ok := d.GetOk("connection_type"); ok && (v.(string)) == "rds" {
+		return false
+	}
+	return true
+}
