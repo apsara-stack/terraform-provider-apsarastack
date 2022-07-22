@@ -177,7 +177,7 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 			}
 		}
 
-		d.SetPartial("instance_ids")
+		//d.SetPartial("instance_ids")
 	}
 
 	d.Partial(false)
@@ -186,6 +186,7 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 }
 
 func resourceApsarastackEssAttachmentRead(d *schema.ResourceData, meta interface{}) error {
+
 	client := meta.(*connectivity.ApsaraStackClient)
 	essService := EssService{client}
 	object, err := essService.DescribeEssAttachment(d.Id(), make([]string, 0))
