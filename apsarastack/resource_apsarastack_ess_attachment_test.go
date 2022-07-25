@@ -47,26 +47,26 @@ func TestAccApsaraStackdEssAttachment_update(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"force"},
 			},
-			{
-				Config: testAccEssAttachmentConfig(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEssAttachmentExists(
-						"apsarastack_ess_attachment.default", &v),
-					testAccCheck(map[string]string{
-						"instance_ids.#": "2",
-					}),
-				),
-			},
-			{
-				Config: testAccEssAttachmentConfigInstance(EcsInstanceCommonTestCase, rand),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckEssAttachmentExists(
-						"apsarastack_ess_attachment.default", &v),
-					testAccCheck(map[string]string{
-						"instance_ids.#": "1",
-					}),
-				),
-			},
+			//{
+			//	Config: testAccEssAttachmentConfig(EcsInstanceCommonTestCase, rand),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		testAccCheckEssAttachmentExists(
+			//			"apsarastack_ess_attachment.default", &v),
+			//		testAccCheck(map[string]string{
+			//			"instance_ids.#": "2",
+			//		}),
+			//	),
+			//},
+			//{
+			//	Config: testAccEssAttachmentConfigInstance(EcsInstanceCommonTestCase, rand),
+			//	Check: resource.ComposeTestCheckFunc(
+			//		testAccCheckEssAttachmentExists(
+			//			"apsarastack_ess_attachment.default", &v),
+			//		testAccCheck(map[string]string{
+			//			"instance_ids.#": "1",
+			//		}),
+			//	),
+			//},
 		},
 	})
 }
