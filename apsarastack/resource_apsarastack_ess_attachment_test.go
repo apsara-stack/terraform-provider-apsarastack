@@ -208,6 +208,19 @@ func testAccEssAttachmentConfigInstance(common string, rand int) string {
 		enable = true
 	}
 
+	resource "apsarastack_instance" "default" {
+		image_id = "${data.apsarastack_images.default.images.0.id}"
+		instance_type = "ecs.e4.small"
+		count = 2
+		security_groups = ["${apsarastack_security_group.default.id}"]
+	
+		internet_max_bandwidth_out = "10"
+		
+		system_disk_category = "cloud_efficiency"
+		vswitch_id = "${apsarastack_vswitch.default.id}"
+		instance_name = "${var.name}"
+	}
+
 	resource "apsarastack_ess_attachment" "default" {
 		scaling_group_id = "${apsarastack_ess_scaling_group.default.id}"
 		instance_ids = ["${apsarastack_instance.default.0.id}"]
