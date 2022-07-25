@@ -3,7 +3,6 @@ package apsarastack
 import (
 	"fmt"
 	"log"
-	"reflect"
 	"strings"
 	"time"
 
@@ -437,12 +436,14 @@ func (srv *EssService) DescribeEssAttachment(id string, instanceIds []string) (i
 	request.QueryParams = map[string]string{"AccessKeySecret": srv.client.SecretKey, "Product": "ess", "Department": srv.client.Department, "ResourceGroup": srv.client.ResourceGroup}
 
 	request.ScalingGroupId = id
-	s := reflect.ValueOf(request).Elem()
+	//ids := expandStringList(instanceIds.(*schema.Set).List())
+
+	//s := reflect.ValueOf(request).Elem()
 
 	if len(instanceIds) > 0 {
-		for i, id := range instanceIds {
-			s.FieldByName(fmt.Sprintf("InstanceId%d", i+1)).Set(reflect.ValueOf(id))
-		}
+		listInterface := convertListStringToListInterface(instanceIds)
+		ids := expandStringList(listInterface)
+		request.InstanceId = &ids
 	}
 
 	raw, err := srv.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {

@@ -1,11 +1,8 @@
 package apsarastack
 
 import (
-	"fmt"
 	"strings"
 	"time"
-
-	"reflect"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -55,9 +52,32 @@ func resourceApsarastackEssAttachmentCreate(d *schema.ResourceData, meta interfa
 
 func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+	//var response map[string]interface{}
+	//action := "AttachInstances"
+	//request := make(map[string]interface{})
+	//conn, err := client.NewEssClient()
+	//if err != nil {
+	//	return WrapError(err)
+	//}
+	//if v, ok := d.GetOk("description"); ok {
+	//	request["Description"] = v
+	//}
+	//
+	//request["ScalingGroupId"] = d.Get("scaling_group_id")
+	//
+	//request["RegionId"] = client.RegionId
+	//request["Product"] = "Ess"
+	//request["product"] = "Ess"
+	//request["OrganizationId"] = client.Department
+	//response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-09-10"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+	//if err != nil {
+	//	return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ess_attachment", action, ApsaraStackSdkGoERROR)
+	//}
+	//
+	//d.SetId(fmt.Sprint(response["TemplateId"]))
+
 	essService := EssService{client}
 	d.Partial(true)
-
 	if d.HasChange("instance_ids") {
 		object, err := essService.DescribeEssScalingGroup(d.Id())
 		if err != nil {
@@ -86,14 +106,18 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 			}
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			//instanceids := d.Get("instance_ids")
+			arrayString := convertArrayInterfaceToArrayString(d.Get("instance_ids").(*schema.Set).List())
+			//ids := expandStringList(instanceids.(*schema.Set).List())
+			request.InstanceId = &arrayString
 
 			request.ScalingGroupId = d.Id()
-			s := reflect.ValueOf(request).Elem()
+			//s := reflect.ValueOf(request).Elem()
 
 			err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-				for i, id := range add {
-					s.FieldByName(fmt.Sprintf("InstanceId%d", i+1)).Set(reflect.ValueOf(id))
-				}
+				//for i, id := range add {
+				//	s.FieldByName(fmt.Sprintf("InstanceId%d", i+1)).Set(reflect.ValueOf(id))
+				//}
 
 				raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 					return essClient.AttachInstances(request)
@@ -152,7 +176,7 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 
 			err = resource.Retry(3*time.Minute, func() *resource.RetryError {
 
-				instances, err := essService.DescribeEssAttachment(d.Id(), add)
+				instances, err := essService.DescribeEssAttachment(d.Id(), arrayString)
 				if err != nil {
 					return resource.NonRetryableError(WrapError(err))
 				}
