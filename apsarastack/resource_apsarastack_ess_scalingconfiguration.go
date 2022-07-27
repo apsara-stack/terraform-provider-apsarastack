@@ -136,7 +136,10 @@ func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-
+			"system_disk_auto_snapshot_policy_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"user_data": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -365,7 +368,10 @@ func modifyEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 		request.InstanceName = d.Get("instance_name").(string)
 		//d.SetPartial("instance_name")
 	}
+	if d.HasChange("system_disk_auto_snapshot_policy_id") {
+		request.SystemDiskAutoSnapshotPolicyId = d.Get("system_disk_auto_snapshot_policy_id").(string)
 
+	}
 	if d.HasChange("tags") {
 		if v, ok := d.GetOk("tags"); ok {
 			tags := "{"
@@ -522,6 +528,7 @@ func resourceApsaraStackEssScalingConfigurationRead(d *schema.ResourceData, meta
 	d.Set("internet_max_bandwidth_in", object.InternetMaxBandwidthIn)
 	d.Set("system_disk_category", object.SystemDiskCategory)
 	d.Set("system_disk_size", object.SystemDiskSize)
+	d.Set("system_disk_auto_snapshot_policy_id", object.SystemDiskAutoSnapshotPolicyId)
 	d.Set("data_disk", essService.flattenDataDiskMappings(object.DataDisks.DataDisk))
 	d.Set("role_name", object.RamRoleName)
 	d.Set("key_name", object.KeyPairName)
@@ -706,7 +713,9 @@ func buildApsaraStackEssScalingConfigurationArgs(d *schema.ResourceData, meta in
 	if v := d.Get("system_disk_category").(string); v != "" {
 		request.SystemDiskCategory = v
 	}
-
+	if v := d.Get("system_disk_auto_snapshot_policy_id").(string); v != "" {
+		request.SystemDiskAutoSnapshotPolicyId = v
+	}
 	if v := d.Get("system_disk_size").(int); v != 0 {
 		request.SystemDiskSize = requests.NewInteger(v)
 	}
