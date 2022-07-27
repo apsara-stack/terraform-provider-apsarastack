@@ -1524,3 +1524,55 @@ func (client *ApsaraStackClient) NewOdpsClient() (*rpc.Client, error) {
 	}
 	return conn, nil
 }
+func (client *ApsaraStackClient) NewDataworkspublicClient() (*rpc.Client, error) {
+	productCode := "dataworkspublic"
+	endpoint := client.Config.DataworkspublicEndpoint
+	//endpoint := "dataworks-public.cloud.ste3.com"
+	if v, ok := client.Config.Endpoints[productCode]; !ok || v.(string) == "" {
+		if err := client.loadEndpoint(productCode); err != nil {
+			endpoint = fmt.Sprintf("dataworks.%s.aliyuncs.com", client.Config.RegionId)
+			client.Config.Endpoints[productCode] = endpoint
+			log.Printf("[ERROR] loading %s endpoint got an error: %#v. Using the endpoint %s instead.", productCode, err, endpoint)
+		}
+	}
+	if v, ok := client.Config.Endpoints[productCode]; ok && v.(string) != "" {
+		endpoint = v.(string)
+	}
+	if endpoint == "" {
+		return nil, fmt.Errorf("[ERROR] missing the product %s endpoint.", productCode)
+	}
+	sdkConfig := client.teaSdkConfig
+	sdkConfig.SetEndpoint(endpoint)
+	conn, err := rpc.NewClient(&sdkConfig)
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
+	}
+	return conn, nil
+}
+func (client *ApsaraStackClient) NewDataworksPrivateClient() (*rpc.Client, error) {
+	productCode := "dataworks-private-cloud"
+	endpoint := client.Config.DataworkspublicEndpoint
+	//endpoint := "dataworks.inter.env66.shuguang.com"
+	if v, ok := client.Config.Endpoints[productCode]; !ok || v.(string) == "" {
+		if err := client.loadEndpoint(productCode); err != nil {
+			endpoint = fmt.Sprintf("dataworks.%s.aliyuncs.com", client.Config.RegionId)
+			client.Config.Endpoints[productCode] = endpoint
+			log.Printf("[ERROR] loading %s endpoint got an error: %#v. Using the endpoint %s instead.", productCode, err, endpoint)
+		}
+	}
+	if v, ok := client.Config.Endpoints[productCode]; ok && v.(string) != "" {
+		endpoint = v.(string)
+	}
+	if endpoint == "" {
+		return nil, fmt.Errorf("[ERROR] missing the product %s endpoint.", productCode)
+	}
+	sdkConfig := client.teaSdkConfig
+	index := strings.Index(endpoint, ".")
+	privateEndpoint := "dataworks" + endpoint[index:]
+	sdkConfig.SetEndpoint(privateEndpoint)
+	conn, err := rpc.NewClient(&sdkConfig)
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
+	}
+	return conn, nil
+}
