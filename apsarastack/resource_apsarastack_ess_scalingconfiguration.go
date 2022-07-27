@@ -127,6 +127,18 @@ func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
 							Optional: true,
 							Default:  true,
 						},
+						"description": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"auto_snapshot_policy_id": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -177,6 +189,10 @@ func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+			"host_name": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
@@ -382,7 +398,9 @@ func modifyEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 		}
 		//d.SetPartial("tags")
 	}
-
+	if d.HasChange("host_name") {
+		request.HostName = d.Get("host_name").(string)
+	}
 	if d.HasChange("data_disk") {
 		dds, ok := d.GetOk("data_disk")
 		if ok {
@@ -391,12 +409,16 @@ func modifyEssScalingConfiguration(d *schema.ResourceData, meta interface{}) err
 			for _, e := range disks {
 				pack := e.(map[string]interface{})
 				dataDisk := ess.ModifyScalingConfigurationDataDisk{
-					Size:               strconv.Itoa(pack["size"].(int)),
-					Category:           pack["category"].(string),
-					SnapshotId:         pack["snapshot_id"].(string),
-					Encrypted:          pack["encrypted"].(string),
-					KMSKeyId:           pack["kms_key_id"].(string),
-					DeleteWithInstance: strconv.FormatBool(pack["delete_with_instance"].(bool)),
+					Size:                 strconv.Itoa(pack["size"].(int)),
+					Category:             pack["category"].(string),
+					SnapshotId:           pack["snapshot_id"].(string),
+					Encrypted:            pack["encrypted"].(string),
+					KMSKeyId:             pack["kms_key_id"].(string),
+					DeleteWithInstance:   strconv.FormatBool(pack["delete_with_instance"].(bool)),
+					Device:               pack["device"].(string),
+					Description:          pack["description"].(string),
+					AutoSnapshotPolicyId: pack["auto_snapshot_policy_id"].(string),
+					DiskName:             pack["name"].(string),
 				}
 				createDataDisks = append(createDataDisks, dataDisk)
 			}
@@ -536,7 +558,7 @@ func resourceApsaraStackEssScalingConfigurationRead(d *schema.ResourceData, meta
 	d.Set("tags", essTagsToMap(object.Tags.Tag))
 	d.Set("instance_name", object.InstanceName)
 	d.Set("override", d.Get("override").(bool))
-
+	d.Set("host_name", object.HostName)
 	if sg, ok := d.GetOk("security_group_id"); ok && sg.(string) != "" {
 		d.Set("security_group_id", object.SecurityGroupId)
 	}
@@ -727,12 +749,16 @@ func buildApsaraStackEssScalingConfigurationArgs(d *schema.ResourceData, meta in
 		for _, e := range disks {
 			pack := e.(map[string]interface{})
 			dataDisk := ess.CreateScalingConfigurationDataDisk{
-				Size:               strconv.Itoa(pack["size"].(int)),
-				Category:           pack["category"].(string),
-				SnapshotId:         pack["snapshot_id"].(string),
-				Encrypted:          pack["encrypted"].(string),
-				KMSKeyId:           pack["kms_key_id"].(string),
-				DeleteWithInstance: strconv.FormatBool(pack["delete_with_instance"].(bool)),
+				Size:                 strconv.Itoa(pack["size"].(int)),
+				Category:             pack["category"].(string),
+				SnapshotId:           pack["snapshot_id"].(string),
+				DeleteWithInstance:   strconv.FormatBool(pack["delete_with_instance"].(bool)),
+				Device:               pack["device"].(string),
+				Encrypted:            pack["encrypted"].(string),
+				KMSKeyId:             pack["kms_key_id"].(string),
+				DiskName:             pack["name"].(string),
+				Description:          pack["description"].(string),
+				AutoSnapshotPolicyId: pack["auto_snapshot_policy_id"].(string),
 			}
 			createDataDisks = append(createDataDisks, dataDisk)
 		}
@@ -767,7 +793,9 @@ func buildApsaraStackEssScalingConfigurationArgs(d *schema.ResourceData, meta in
 	if v, ok := d.GetOk("instance_name"); ok && v.(string) != "" {
 		request.InstanceName = v.(string)
 	}
-
+	if v, ok := d.GetOk("host_name"); ok && v.(string) != "" {
+		request.HostName = v.(string)
+	}
 	return request, nil
 }
 
