@@ -113,36 +113,6 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"detail": "detail",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"detail": "detail",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"summary": "summary update",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"summary": "summary update",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"repo_type": "PRIVATE",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"repo_type": "PRIVATE",
-					}),
-				),
-			},
 		},
 	})
 }
@@ -176,7 +146,7 @@ variable "k8s_number" {
 
 variable "vpc_id" {
   description = "Existing vpc id used to create several vswitches and other resources."
-  default     = "vpc-b5pnvvnoi8nhzfgyjo8vu"
+  default     = "vpc-6cq9nimfvcnrg2jnesxzs"
 }
 
 # leave it to empty then terraform will create several vswitches
