@@ -315,19 +315,19 @@ func resourceApsaraStackMongoDBShardingInstanceCreate(d *schema.ResourceData, me
 
 	//auditPolicy, ok := d.Get("audit_policy").(map[string]interface{})
 	//if ok && auditPolicy !=nil {
-	if _, ok := d.GetOk("audit_policy"); ok {
+	if v, ok := d.GetOk("audit_policy"); ok && v != nil {
 		auditPolicyreq := dds.CreateModifyAuditPolicyRequest()
-		audit := d.Get("audit_policy").(map[string]interface{})
-		if audit["enable_audit_policy"].(string) == "true" {
+		auditPolicy := v.(map[string]interface{})
+		if auditPolicy["enable_audit_policy"].(string) == "true" {
 			auditPolicyreq.AuditStatus = "Enable"
 		}
-		storagePeriod, _ := strconv.Atoi(audit["storage_period"].(string))
+		storagePeriod, _ := strconv.Atoi(auditPolicy["storage_period"].(string))
 		auditPolicyreq.StoragePeriod = requests.NewInteger(storagePeriod)
 		auditPolicyreq.DBInstanceId = d.Id()
 		auditPolicyreq.RegionId = string(client.Region)
 		auditPolicyreq.Headers = map[string]string{"RegionId": client.RegionId}
 		auditPolicyreq.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		raw, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
+		auditraw, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
 			return client.ModifyAuditPolicy(auditPolicyreq)
 		})
 
@@ -335,7 +335,7 @@ func resourceApsaraStackMongoDBShardingInstanceCreate(d *schema.ResourceData, me
 			return WrapError(err)
 		}
 
-		addDebug(auditPolicyreq.GetActionName(), raw, auditPolicyreq)
+		addDebug(auditPolicyreq.GetActionName(), auditraw, auditPolicyreq)
 	}
 	if okay := func() bool {
 		if _, ok := d.GetOk("backup_period"); ok {
