@@ -562,9 +562,6 @@ func resourceApsaraStackEssScalingConfigurationRead(d *schema.ResourceData, meta
 	if sg, ok := d.GetOk("security_group_id"); ok && sg.(string) != "" {
 		d.Set("security_group_id", object.SecurityGroupId)
 	}
-	if sgs, ok := d.GetOk("security_group_ids"); ok && len(sgs.([]interface{})) > 0 {
-		d.Set("security_group_ids", object.SecurityGroupIds.SecurityGroupId)
-	}
 	if instanceType, ok := d.GetOk("instance_type"); ok && instanceType.(string) != "" {
 		d.Set("instance_type", object.InstanceType)
 	}
