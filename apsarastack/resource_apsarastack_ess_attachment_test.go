@@ -57,16 +57,16 @@ func TestAccApsaraStackdEssAttachment_update(t *testing.T) {
 			//		}),
 			//	),
 			//},
-			//{
-			//	Config: testAccEssAttachmentConfigInstance(EcsInstanceCommonTestCase, rand),
-			//	Check: resource.ComposeTestCheckFunc(
-			//		testAccCheckEssAttachmentExists(
-			//			"apsarastack_ess_attachment.default", &v),
-			//		testAccCheck(map[string]string{
-			//			"instance_ids.#": "1",
-			//		}),
-			//	),
-			//},
+			{
+				Config: testAccEssAttachmentConfigInstance(EcsInstanceCommonTestCase, rand),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckEssAttachmentExists(
+						"apsarastack_ess_attachment.default", &v),
+					testAccCheck(map[string]string{
+						"instance_ids.#": "1",
+					}),
+				),
+			},
 		},
 	})
 }
@@ -145,7 +145,7 @@ func testAccEssAttachmentConfig(common string, rand int) string {
 	resource "apsarastack_ess_scaling_group" "default" {
 multi_az_policy    = "PRIORITY"
 		min_size = 0
-		max_size = 2
+		max_size = 100
 		scaling_group_name = "${var.name}"
 		removal_policies = ["OldestInstance", "NewestInstance"]
 		vswitch_ids = ["${apsarastack_vswitch.default.id}"]
@@ -192,7 +192,7 @@ func testAccEssAttachmentConfigInstance(common string, rand int) string {
 	resource "apsarastack_ess_scaling_group" "default" {
        multi_az_policy    = "PRIORITY"
 		min_size = 0
-		max_size = 2
+		max_size = 100
 		scaling_group_name = "${var.name}"
 		removal_policies = ["OldestInstance", "NewestInstance"]
 		vswitch_ids = ["${apsarastack_vswitch.default.id}"]
