@@ -418,22 +418,27 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ram_role":                   resourceApsaraStackRamRole(),
 			"apsarastack_ram_policy_role_attachment": resourceApsaraStackRamPolicyRoleAttachment(),
 			//"apsarastack_ascm_access_key": 						resourceApsarastackRamAccessKey(),
-			"apsarastack_ascm_usergroup_user":     resourceApsaraStackAscmUserGroupUser(),
-			"apsarastack_network_acl":             resourceApsaraStackNetworkAcl(),
-			"apsarastack_network_acl_attachment":  resourceApsaraStackNetworkAclAttachment(),
-			"apsarastack_network_acl_entries":     resourceApsaraStackNetworkAclEntries(),
-			"apsarastack_kvstore_connection":      resourceApsaraStackKvstoreConnection(),
-			"apsarastack_ecs_deployment_set":      resourceApsaraStackEcsDeploymentSet(),
-			"apsarastack_ros_stack":               resourceApsaraStackRosStack(),
-			"apsarastack_ros_template":            resourceApsaraStackRosTemplate(),
-			"apsarastack_dms_enterprise_instance": resourceApsaraStackDmsEnterpriseInstance(),
-			"apsarastack_dms_enterprise_user":     resourceApsaraStackDmsEnterpriseUser(),
-			"apsarastack_quick_bi_user":           resourceApsaraStackQuickBiUser(),
-			"apsarastack_quick_bi_user_group":     resourceApsaraStackQuickBiUserGroup(),
-			"apsarastack_quick_bi_workspace":      resourceApsaraStackQuickBiWorkspace(),
-			"apsarastack_maxcompute_project":      resourceApsaraStackMaxcomputeProject(),
-			"apsarastack_maxcompute_cu":           resourceApsaraStackMaxcomputeCu(),
-			"apsarastack_maxcompute_user":         resourceApsaraStackMaxcomputeUser(),
+			"apsarastack_ascm_usergroup_user":          resourceApsaraStackAscmUserGroupUser(),
+			"apsarastack_network_acl":                  resourceApsaraStackNetworkAcl(),
+			"apsarastack_network_acl_attachment":       resourceApsaraStackNetworkAclAttachment(),
+			"apsarastack_network_acl_entries":          resourceApsaraStackNetworkAclEntries(),
+			"apsarastack_kvstore_connection":           resourceApsaraStackKvstoreConnection(),
+			"apsarastack_ecs_deployment_set":           resourceApsaraStackEcsDeploymentSet(),
+			"apsarastack_ros_stack":                    resourceApsaraStackRosStack(),
+			"apsarastack_ros_template":                 resourceApsaraStackRosTemplate(),
+			"apsarastack_dms_enterprise_instance":      resourceApsaraStackDmsEnterpriseInstance(),
+			"apsarastack_dms_enterprise_user":          resourceApsaraStackDmsEnterpriseUser(),
+			"apsarastack_quick_bi_user":                resourceApsaraStackQuickBiUser(),
+			"apsarastack_quick_bi_user_group":          resourceApsaraStackQuickBiUserGroup(),
+			"apsarastack_quick_bi_workspace":           resourceApsaraStackQuickBiWorkspace(),
+			"apsarastack_maxcompute_project":           resourceApsaraStackMaxcomputeProject(),
+			"apsarastack_maxcompute_cu":                resourceApsaraStackMaxcomputeCu(),
+			"apsarastack_maxcompute_user":              resourceApsaraStackMaxcomputeUser(),
+			"apsarastack_data_works_folder":            resourceApsaraStackDataWorksFolder(),
+			"apsarastack_data_works_connection":        resourceApsaraStackDataWorksConnection(),
+			"apsarastack_data_works_user":              resourceApsaraStackDataWorksUser(),
+			"apsarastack_data_works_user_role_binding": resourceApsaraStackDataWorksUserRoleBinding(),
+			"apsarastack_data_works_remind":            resourceApsaraStackDataWorksRemind(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
@@ -547,6 +552,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.DmsEnterpriseEndpoint = domain
 		config.QuickbiEndpoint = domain
 		config.MaxComputeEndpoint = domain
+		config.DataworkspublicEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
@@ -573,11 +579,16 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.RosEndpoint = strings.TrimSpace(endpoints["ros"].(string))
 			config.DmsEnterpriseEndpoint = strings.TrimSpace(endpoints["dms_enterprise"].(string))
 			config.QuickbiEndpoint = strings.TrimSpace(endpoints["quickbi"].(string))
+			config.DataworkspublicEndpoint = strings.TrimSpace(endpoints["dataworkspublic"].(string))
 		}
 	}
 	QuickbiEndpoint := d.Get("quickbi_endpoint").(string)
 	if QuickbiEndpoint != "" {
 		config.QuickbiEndpoint = QuickbiEndpoint
+	}
+	DataworkspublicEndpoint := d.Get("dataworkspublic").(string)
+	if DataworkspublicEndpoint != "" {
+		config.DataworkspublicEndpoint = DataworkspublicEndpoint
 	}
 	if strings.ToLower(config.Protocol) == "https" {
 		config.Protocol = "HTTPS"

@@ -108,6 +108,7 @@ type Config struct {
 	Proxy                    string
 	Domain                   string
 	QuickbiEndpoint          string
+	DataworkspublicEndpoint  string
 }
 
 func (c *Config) loadAndValidate() error {
