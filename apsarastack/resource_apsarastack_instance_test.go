@@ -182,10 +182,9 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"image_id":        "${data.apsarastack_images.default.images.0.id}",
-					"security_groups": []string{"${apsarastack_security_group.default.id}"},
-					"instance_type":   "${data.apsarastack_instance_types.default.instance_types.0.id}",
-
+					"image_id":                      "${data.apsarastack_images.default.images.0.id}",
+					"security_groups":               []string{"${apsarastack_security_group.default.id}"},
+					"instance_type":                 "${data.apsarastack_instance_types.default.instance_types.0.id}",
 					"availability_zone":             "${data.apsarastack_zones.default.zones[0].id}",
 					"system_disk_category":          "cloud_efficiency",
 					"instance_name":                 "${var.name}",
