@@ -188,6 +188,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_QUICKBI_ENDPOINT", nil),
 				Description: descriptions["quickbi_endpoint"],
 			},
+			"dataworkspublic": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_DATAWORKS_PUBLIC_ENDPOINT", nil),
+				Description: descriptions["dataworkspublic_endpoint"],
+			},
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"apsarastack_account":                              dataSourceApsaraStackAccount(),

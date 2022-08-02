@@ -300,8 +300,8 @@ func resourceApsaraStackMongoDBInstanceCreate(d *schema.ResourceData, meta inter
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapError(err)
 	}
-	auditPolicy, ok := d.Get("audit_policy").(map[string]interface{})
-	if ok {
+	if v, ok := d.GetOk("audit_policy"); ok && v != nil {
+		auditPolicy := v.(map[string]interface{})
 		auditPolicyreq := dds.CreateModifyAuditPolicyRequest()
 		if auditPolicy["enable_audit_policy"].(string) == "true" {
 			auditPolicyreq.AuditStatus = "Enable"
