@@ -212,15 +212,15 @@ func TestAccApsaraStackMongoDBInstance_classic(t *testing.T) {
 					}),
 				),
 			},
-			//{
-			//	Config: testMongoDBInstance_classic_security_ip_list,
-			//	Check: resource.ComposeTestCheckFunc(
-			//		testAccCheck(map[string]string{
-			//			"security_ip_list.#": "1",
-			//			"security_ip_list.0": "10.168.1.12",
-			//		}),
-			//	),
-			//},
+			{
+				Config: testMongoDBInstance_classic_security_ip_list,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"security_ip_list.#": "1",
+						"security_ip_list.0": "10.168.1.12",
+					}),
+				),
+			},
 			//			{
 			//				Config: testMongoDBInstance_classic_security_group_id,
 			//				Check: resource.ComposeTestCheckFunc(
@@ -396,16 +396,16 @@ func TestAccApsaraStackMongoDBInstance_vpc(t *testing.T) {
 					}),
 				),
 			},
-			//{
-			//	Config: testMongoDBInstance_vpc_backup,
-			//	Check: resource.ComposeTestCheckFunc(
-			//		testAccCheck(map[string]string{
-			//			"backup_period.#": "1",
-			//			"backup_period.0": "Wednesday",
-			//			"backup_time":     "11:00Z-12:00Z",
-			//		}),
-			//	),
-			//},
+			{
+				Config: testMongoDBInstance_vpc_backup,
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"backup_period.#": "1",
+						"backup_period.0": "Wednesday",
+						"backup_time":     "11:00Z-12:00Z",
+					}),
+				),
+			},
 			{
 				Config: testMongoDBInstance_vpc_together,
 				Check: resource.ComposeTestCheckFunc(
