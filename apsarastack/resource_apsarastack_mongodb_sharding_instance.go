@@ -320,6 +320,8 @@ func resourceApsaraStackMongoDBShardingInstanceCreate(d *schema.ResourceData, me
 		auditPolicy := v.(map[string]interface{})
 		if auditPolicy["enable_audit_policy"].(string) == "true" {
 			auditPolicyreq.AuditStatus = "Enable"
+		} else if auditPolicy["enable_audit_policy"].(string) == "false" {
+			auditPolicyreq.AuditStatus = "Disabled"
 		}
 		storagePeriod, _ := strconv.Atoi(auditPolicy["storage_period"].(string))
 		auditPolicyreq.StoragePeriod = requests.NewInteger(storagePeriod)
