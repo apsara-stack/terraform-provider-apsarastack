@@ -43,7 +43,7 @@ func TestAccApsaraStackEssScalingConfigurationUpdate(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"scaling_group_id":  "${apsarastack_ess_scaling_group.default.id}",
 					"image_id":          "${data.apsarastack_images.default.images.0.id}",
-					"instance_type":     "${local.instance_type_id}",
+					"instance_type":     "ecs.ghg.large",
 					"security_group_id": "${apsarastack_security_group.default.id}",
 					"force_delete":      "true",
 				}),
@@ -199,7 +199,7 @@ func TestAccApsaraStackEssScalingConfigurationMulti(t *testing.T) {
 					"count":             "1",
 					"scaling_group_id":  "${apsarastack_ess_scaling_group.default.id}",
 					"image_id":          "${data.apsarastack_images.default.images.0.id}",
-					"instance_type":     "${local.instance_type_id}",
+					"instance_type":     "ecs.ghg.large",
 					"security_group_id": "${apsarastack_security_group.default.id}",
 					"force_delete":      "true",
 					"data_disk": []map[string]string{{

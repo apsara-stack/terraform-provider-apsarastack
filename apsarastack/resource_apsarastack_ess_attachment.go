@@ -229,7 +229,8 @@ func resourceApsarastackEssAttachmentRead(d *schema.ResourceData, meta interface
 	}
 
 	d.Set("scaling_group_id", object[0].ScalingGroupId)
-	d.Set("instance_ids", instanceIds)
+	//arrayString := convertArrayInterfaceToArrayString(d.Get("instance_ids").(*schema.Set).List())
+	//d.Set("instance_ids", arrayString)
 
 	return nil
 }

@@ -647,7 +647,7 @@ func (s *EssService) WaitForEssAttachment(id string, status Status, timeout int)
 				return WrapError(err)
 			}
 		}
-		if len(object) > 0 && status != Deleted {
+		if len(object) > 0 && status == Deleted {
 			return nil
 		}
 		time.Sleep(DefaultIntervalShort * time.Second)
