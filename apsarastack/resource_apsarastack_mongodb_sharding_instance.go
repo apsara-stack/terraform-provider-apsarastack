@@ -353,22 +353,22 @@ func resourceApsaraStackMongoDBShardingInstanceCreate(d *schema.ResourceData, me
 			return WrapError(err)
 		}
 	}
-	if _, tdeok := d.GetOk("tde_status"); tdeok {
-		tderequest := dds.CreateModifyDBInstanceTDERequest()
-		tderequest.DBInstanceId = d.Id()
-		tderequest.RegionId = client.RegionId
-		tderequest.Headers = map[string]string{"RegionId": client.RegionId}
-		tderequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		tderequest.DBInstanceId = d.Id()
-		tderequest.TDEStatus = d.Get("tde_status").(string)
-		tderaw, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
-			return client.ModifyDBInstanceTDE(tderequest)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), tderaw, request.RpcRequest, request)
-	}
+	//if _, tdeok := d.GetOk("tde_status"); tdeok {
+	//	tderequest := dds.CreateModifyDBInstanceTDERequest()
+	//	tderequest.DBInstanceId = d.Id()
+	//	tderequest.RegionId = client.RegionId
+	//	tderequest.Headers = map[string]string{"RegionId": client.RegionId}
+	//	tderequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//	tderequest.DBInstanceId = d.Id()
+	//	tderequest.TDEStatus = d.Get("tde_status").(string)
+	//	tderaw, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
+	//		return client.ModifyDBInstanceTDE(tderequest)
+	//	})
+	//	if err != nil {
+	//		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+	//	}
+	//	addDebug(request.GetActionName(), tderaw, request.RpcRequest, request)
+	//}
 	if _, sslok := d.GetOk("ssl_action"); sslok {
 		sslrequest := dds.CreateModifyDBInstanceSSLRequest()
 		sslrequest.DBInstanceId = d.Id()
