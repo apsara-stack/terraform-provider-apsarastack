@@ -8,6 +8,7 @@ const (
 	QingdaoEnv66 = Region("cn-qingdao-env66-d01")
 	QingdaoEnv17 = Region("cn-qingdao-env17-d01")
 	WulanEnv82   = Region("cn-wulan-env82-d01")
+	hohhotEnv    = Region("cn-hohhot-ste3-d01")
 	Hangzhou     = Region("cn-hangzhou")
 	Qingdao      = Region("cn-qingdao")
 	Beijing      = Region("cn-beijing")
@@ -41,7 +42,7 @@ const (
 )
 
 var ValidRegions = []Region{
-	NeimengEnv30, QingdaoEnv66, QingdaoEnv17, WulanEnv82, Hangzhou, Qingdao, Beijing, Shenzhen, Hongkong, Shanghai, Zhangjiakou, Huhehaote, ChengDu, HeYuan, WuLanChaBu,
+	NeimengEnv30, QingdaoEnv66, QingdaoEnv17, WulanEnv82, hohhotEnv, Hangzhou, Qingdao, Beijing, Shenzhen, Hongkong, Shanghai, Zhangjiakou, Huhehaote, ChengDu, HeYuan, WuLanChaBu,
 	USWest1, USEast1,
 	APNorthEast1, APSouthEast1, APSouthEast2, APSouthEast3, APSouthEast5,
 	APSouth1,

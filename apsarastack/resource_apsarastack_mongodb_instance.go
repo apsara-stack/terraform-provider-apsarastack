@@ -305,6 +305,8 @@ func resourceApsaraStackMongoDBInstanceCreate(d *schema.ResourceData, meta inter
 		auditPolicyreq := dds.CreateModifyAuditPolicyRequest()
 		if auditPolicy["enable_audit_policy"].(string) == "true" {
 			auditPolicyreq.AuditStatus = "Enable"
+		} else if auditPolicy["enable_audit_policy"].(string) == "false" {
+			auditPolicyreq.AuditStatus = "Disabled"
 		}
 		storagePeriod, _ := strconv.Atoi(auditPolicy["storage_period"].(string))
 		auditPolicyreq.StoragePeriod = requests.NewInteger(storagePeriod)
