@@ -302,3 +302,21 @@ func rdsDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 	}
 	return true
 }
+func adbPostPaidAndRenewDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if v, ok := d.GetOk("pay_type"); ok && v.(string) == "PrePaid" && d.Get("renewal_status").(string) != string(RenewNotRenewal) {
+		return false
+	}
+	if v, ok := d.GetOk("payment_type"); ok && v.(string) == "Subscription" && d.Get("renewal_status").(string) != string(RenewNotRenewal) {
+		return false
+	}
+	return true
+}
+func adbPostPaidDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if v, ok := d.GetOk("pay_type"); ok && v.(string) == "PrePaid" {
+		return false
+	}
+	if v, ok := d.GetOk("payment_type"); ok && v.(string) == "Subscription" {
+		return false
+	}
+	return true
+}

@@ -1576,3 +1576,25 @@ func (client *ApsaraStackClient) NewDataworksPrivateClient() (*rpc.Client, error
 	}
 	return conn, nil
 }
+func (client *ApsaraStackClient) NewAdsClient() (*rpc.Client, error) {
+	productCode := "ads"
+	endpoint := client.Config.AdbEndpoint
+	if v, ok := client.Config.Endpoints[productCode]; !ok || v.(string) == "" {
+		if err := client.loadEndpoint(productCode); err != nil {
+			return nil, err
+		}
+	}
+	if v, ok := client.Config.Endpoints[productCode]; ok && v.(string) != "" {
+		endpoint = v.(string)
+	}
+	if endpoint == "" {
+		return nil, fmt.Errorf("[ERROR] missing the product %s endpoint.", productCode)
+	}
+	sdkConfig := client.teaSdkConfig
+	sdkConfig.SetEndpoint(endpoint)
+	conn, err := rpc.NewClient(&sdkConfig)
+	if err != nil {
+		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
+	}
+	return conn, nil
+}

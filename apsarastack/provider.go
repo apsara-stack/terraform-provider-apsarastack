@@ -299,6 +299,11 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_maxcompute_projects":                  dataSourceApsaraStackMaxcomputeProjects(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
+			"apsarastack_adb_account":                          resourceApsaraStackAdbAccount(),
+			"apsarastack_adb_backup_policy":                    resourceApsaraStackAdbBackupPolicy(),
+			"apsarastack_adb_cluster":                          resourceApsaraStackAdbDbCluster(),
+			"apsarastack_adb_connection":                       resourceApsaraStackAdbConnection(),
+			"apsarastack_adb_db_cluster":                       resourceApsaraStackAdbDbCluster(),
 			"apsarastack_ess_scaling_configuration":            resourceApsaraStackEssScalingConfiguration(),
 			"apsarastack_network_interface":                    resourceApsaraStackNetworkInterface(),
 			"apsarastack_network_interface_attachment":         resourceNetworkInterfaceAttachment(),
@@ -560,6 +565,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.QuickbiEndpoint = domain
 		config.MaxComputeEndpoint = domain
 		config.DataworkspublicEndpoint = domain
+		config.AdbEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
@@ -587,6 +593,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.DmsEnterpriseEndpoint = strings.TrimSpace(endpoints["dms_enterprise"].(string))
 			config.QuickbiEndpoint = strings.TrimSpace(endpoints["quickbi"].(string))
 			config.DataworkspublicEndpoint = strings.TrimSpace(endpoints["dataworkspublic"].(string))
+			config.AdbEndpoint = strings.TrimSpace(endpoints["adb"].(string))
 		}
 	}
 	DataworkspublicEndpoint := d.Get("dataworkspublic").(string)
