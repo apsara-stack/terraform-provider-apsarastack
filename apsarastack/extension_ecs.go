@@ -39,6 +39,11 @@ const (
 	SpotWithPriceLimit = SpotStrategyType("SpotWithPriceLimit")
 	SpotAsPriceGo      = SpotStrategyType("SpotAsPriceGo")
 )
+const (
+	RenewAutoRenewal = RenewalStatus("AutoRenewal")
+	RenewNormal      = RenewalStatus("Normal")
+	RenewNotRenewal  = RenewalStatus("NotRenewal")
+)
 
 type DestinationResource string
 
