@@ -297,14 +297,14 @@ func dataSourceApsaraStackOssBucketsRead(d *schema.ResourceData, meta interface{
 		}
 		addDebug("GetBucketInfo", raw, requestInfo, request)
 		bresponse, _ := raw.(*responses.CommonResponse)
-		headers := bresponse.GetHttpHeaders()
-		if headers["X-Acs-Response-Success"][0] == "false" {
-			if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-			} else {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-			}
-		}
+		//headers := bresponse.GetHttpHeaders()
+		//if headers["X-Acs-Response-Success"][0] == "false" {
+		//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+		//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		//	} else {
+		//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+		//	}
+		//}
 
 		err = json.Unmarshal(bresponse.GetHttpContentBytes(), bucketList)
 		if err != nil {

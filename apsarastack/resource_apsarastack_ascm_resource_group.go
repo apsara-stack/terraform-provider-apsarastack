@@ -91,14 +91,14 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		addDebug("CreateResourceGroup", raw, requestInfo, request)
 
 		bresponse, _ := raw.(*responses.CommonResponse)
-		headers := bresponse.GetHttpHeaders()
-		if headers["X-Acs-Response-Success"][0] == "false" {
-			if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-			} else {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-			}
-		}
+		//headers := bresponse.GetHttpHeaders()
+		//if headers["X-Acs-Response-Success"][0] == "false" {
+		//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+		//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		//	} else {
+		//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+		//	}
+		//}
 		if bresponse.GetHttpStatus() != 200 {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_resource_group", "CreateResourceGroup", ApsaraStackSdkGoERROR)
 		}
