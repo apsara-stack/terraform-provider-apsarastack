@@ -55,14 +55,14 @@ func (s *OnsService) DescribeOnsInstance(instanceid string) (response *OnsInstan
 	}
 	addDebug("ConsoleInstanceBaseInfo", response, requestInfo, request)
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
+	//headers := bresponse.GetHttpHeaders()
+	//if headers["X-Acs-Response-Success"][0] == "false" {
+	//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+	//		return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+	//	} else {
+	//		return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+	//	}
+	//}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -131,14 +131,14 @@ func (s *OnsService) DescribeOnsTopic(id string) (response *Topic, err error) {
 	}
 	addDebug("ConsoleTopicList", response, requestInfo, request)
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
+	//headers := bresponse.GetHttpHeaders()
+	//if headers["X-Acs-Response-Success"][0] == "false" {
+	//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+	//		return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+	//	} else {
+	//		return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+	//	}
+	//}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
@@ -198,14 +198,14 @@ func (s *OnsService) DescribeOnsGroup(id string) (response *OnsGroup, err error)
 	}
 	addDebug("ConsoleGroupList", response, requestInfo, request)
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
+	//headers := bresponse.GetHttpHeaders()
+	//if headers["X-Acs-Response-Success"][0] == "false" {
+	//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+	//		return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+	//	} else {
+	//		return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+	//	}
+	//}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)

@@ -149,14 +149,14 @@ func dataSourceApsaraStackAscmPasswordPoliciesRead(d *schema.ResourceData, meta 
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_password_policies", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		bresponse, _ := raw.(*responses.CommonResponse)
-		headers := bresponse.GetHttpHeaders()
-		if headers["X-Acs-Response-Success"][0] == "false" {
-			if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-			} else {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-			}
-		}
+		//headers := bresponse.GetHttpHeaders()
+		//if headers["X-Acs-Response-Success"][0] == "false" {
+		//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+		//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		//	} else {
+		//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+		//	}
+		//}
 
 		err = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
 

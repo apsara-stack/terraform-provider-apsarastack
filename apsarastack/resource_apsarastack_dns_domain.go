@@ -70,55 +70,55 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 	}
 	//if len(check.ZoneList) == 0 {
 
-		request := requests.NewCommonRequest()
-		request.Method = "POST"        // Set request method
-		request.Product = "GenesisDns" // Specify product
-		request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
-		request.Version = "2018-07-20" // Specify product version
-		if strings.ToLower(client.Config.Protocol) == "https" {
-			request.Scheme = "https"
-		} else {
-			request.Scheme = "http"
-		}
-		request.ApiName = "AddGlobalAuthZone"
-		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{
-			"AccessKeySecret": client.SecretKey,
-			"AccessKeyId":     client.AccessKey,
-			"Product":         "GenesisDns",
-			"RegionId":        client.RegionId,
-			"Action":          "AddGlobalAuthZone",
-			"Version":         "2018-07-20",
-			"DomainName":      DomainName,
-		}
-		raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
-			return dnsClient.ProcessCommonRequest(request)
-		})
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), raw)
-		bresponse, _ := raw.(*responses.CommonResponse)
-		headers := bresponse.GetHttpHeaders()
-		if headers["X-Acs-Response-Success"][0] == "false" {
-			if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-			} else {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-			}
-		}
-		if bresponse.GetHttpStatus() != 200 {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "AddGlobalAuthZone", ApsaraStackSdkGoERROR)
-		}
-		addDebug("AddGlobalAuthZone", raw, requestInfo, bresponse.GetHttpContentString())
+	request := requests.NewCommonRequest()
+	request.Method = "POST"        // Set request method
+	request.Product = "GenesisDns" // Specify product
+	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2018-07-20" // Specify product version
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.ApiName = "AddGlobalAuthZone"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "GenesisDns",
+		"RegionId":        client.RegionId,
+		"Action":          "AddGlobalAuthZone",
+		"Version":         "2018-07-20",
+		"DomainName":      DomainName,
+	}
+	raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
+		return dnsClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	addDebug(request.GetActionName(), raw)
+	bresponse, _ := raw.(*responses.CommonResponse)
+	//headers := bresponse.GetHttpHeaders()
+	//if headers["X-Acs-Response-Success"][0] == "false" {
+	//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+	//	} else {
+	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+	//	}
+	//}
+	if bresponse.GetHttpStatus() != 200 {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "AddGlobalAuthZone", ApsaraStackSdkGoERROR)
+	}
+	addDebug("AddGlobalAuthZone", raw, requestInfo, bresponse.GetHttpContentString())
 	//}
 	//err = resource.Retry(5*time.Minute, func() *resource.RetryError {
-		check, err = dnsService.DescribeDnsDomain(DomainName)
-		if err != nil {
-			return err
-			//return resource.NonRetryableError(err)
-		}
-		//return resource.RetryableError(err)
+	check, err = dnsService.DescribeDnsDomain(DomainName)
+	if err != nil {
+		return err
+		//return resource.NonRetryableError(err)
+	}
+	//return resource.RetryableError(err)
 	//})
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "DescribeDnsDomain")

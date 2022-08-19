@@ -100,14 +100,14 @@ func resourceApsaraStackOnsGroupCreate(d *schema.ResourceData, meta interface{})
 	addDebug("ConsoleGroupCreate", raw, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
+	//headers := bresponse.GetHttpHeaders()
+	//if headers["X-Acs-Response-Success"][0] == "false" {
+	//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+	//	} else {
+	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+	//	}
+	//}
 	if bresponse.IsSuccess() != true {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ons_group", "ConsoleGroupCreate", ApsaraStackSdkGoERROR)
 	}

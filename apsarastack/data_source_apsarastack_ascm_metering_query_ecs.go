@@ -195,14 +195,14 @@ func dataSourceApsarastackAscmMeteringQueryEcsRead(d *schema.ResourceData, meta 
 			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_ascm_metering_query", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		bresponse, _ := raw.(*responses.CommonResponse)
-		headers := bresponse.GetHttpHeaders()
-		if headers["X-Acs-Response-Success"][0] == "false" {
-			if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-			} else {
-				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-			}
-		}
+		//headers := bresponse.GetHttpHeaders()
+		//if headers["X-Acs-Response-Success"][0] == "false" {
+		//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
+		//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
+		//	} else {
+		//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
+		//	}
+		//}
 
 		_ = json.Unmarshal(bresponse.GetHttpContentBytes(), &response)
 
