@@ -756,6 +756,7 @@ func (s *AdbService) DescribeAdbDbCluster(id string) (object map[string]interfac
 	request["OrganizationId"] = s.client.Department
 	runtime := util.RuntimeOptions{}
 	runtime.SetAutoretry(true)
+	runtime.SetIgnoreSSL(true)
 	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &runtime)
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidDBCluster.NotFound", "InvalidDBClusterId.NotFoundError"}) {
