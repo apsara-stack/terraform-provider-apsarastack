@@ -593,6 +593,7 @@ func (s *AdbService) DescribeAutoRenewAttribute(id string) (object map[string]in
 	}
 	runtime := util.RuntimeOptions{}
 	runtime.SetAutoretry(true)
+	runtime.SetIgnoreSSL(true)
 	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &runtime)
 	if err != nil {
 		err = WrapErrorf(err, DefaultErrorMsg, id, action, ApsaraStackSdkGoERROR)
@@ -629,6 +630,7 @@ func (s *AdbService) DescribeDBClusterAccessWhiteList(id string) (object map[str
 	request["OrganizationId"] = s.client.Department
 	runtime := util.RuntimeOptions{}
 	runtime.SetAutoretry(true)
+	runtime.SetIgnoreSSL(true)
 	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &runtime)
 	if err != nil {
 		if IsExpectedErrors(err, []string{"InvalidDBCluster.NotFound"}) {
@@ -686,9 +688,11 @@ func (s *AdbService) SetResourceTags(d *schema.ResourceData, resourceType string
 			for i, key := range removedTagKeys {
 				request[fmt.Sprintf("TagKey.%d", i+1)] = key
 			}
+			runtime := util.RuntimeOptions{}
+			runtime.SetIgnoreSSL(true)
 			wait := incrementalWait(2*time.Second, 1*time.Second)
 			err := resource.Retry(10*time.Minute, func() *resource.RetryError {
-				response, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+				response, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &runtime)
 				if err != nil {
 					if IsThrottling(err) {
 						wait()
@@ -719,8 +723,10 @@ func (s *AdbService) SetResourceTags(d *schema.ResourceData, resourceType string
 			}
 
 			wait := incrementalWait(2*time.Second, 1*time.Second)
+			runtime := util.RuntimeOptions{}
+			runtime.SetIgnoreSSL(true)
 			err := resource.Retry(10*time.Minute, func() *resource.RetryError {
-				response, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+				response, err := conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &runtime)
 				if err != nil {
 					if IsThrottling(err) {
 						wait()
@@ -797,6 +803,7 @@ func (s *AdbService) DescribeDBClusters(id string) (object map[string]interface{
 	request["OrganizationId"] = s.client.Department
 	runtime := util.RuntimeOptions{}
 	runtime.SetAutoretry(true)
+	runtime.SetIgnoreSSL(true)
 	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &runtime)
 	if err != nil {
 		err = WrapErrorf(err, DefaultErrorMsg, id, action, ApsaraStackSdkGoERROR)
