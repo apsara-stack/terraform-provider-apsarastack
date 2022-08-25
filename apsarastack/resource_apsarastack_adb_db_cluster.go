@@ -564,6 +564,8 @@ func resourceApsaraStackAdbDbClusterUpdate(d *schema.ResourceData, meta interfac
 		update = true
 	}
 	modifyDBClusterAccessWhiteListReq["SecurityIps"] = convertListToCommaSeparate(d.Get("security_ips").(*schema.Set).List())
+	runtime := util.RuntimeOptions{}
+	runtime.SetIgnoreSSL(true)
 	if update {
 		action := "ModifyDBClusterAccessWhiteList"
 		conn, err := client.NewAdsClient()
@@ -573,7 +575,7 @@ func resourceApsaraStackAdbDbClusterUpdate(d *schema.ResourceData, meta interfac
 		if modifyDBClusterAccessWhiteListReq["SecurityIps"].(string) == "" {
 			modifyDBClusterAccessWhiteListReq["SecurityIps"] = LOCAL_HOST_IP
 		}
-		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, modifyDBClusterAccessWhiteListReq, &util.RuntimeOptions{})
+		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, modifyDBClusterAccessWhiteListReq, &runtime)
 		addDebug(action, response, modifyDBClusterAccessWhiteListReq)
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), action, ApsaraStackSdkGoERROR)
@@ -628,7 +630,7 @@ func resourceApsaraStackAdbDbClusterUpdate(d *schema.ResourceData, meta interfac
 		}
 		modifyDBClusterReq["Product"] = "adb"
 		modifyDBClusterReq["OrganizationId"] = client.Department
-		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, modifyDBClusterReq, &util.RuntimeOptions{})
+		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, modifyDBClusterReq, &runtime)
 		addDebug(action, response, modifyDBClusterReq)
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), action, ApsaraStackSdkGoERROR)
@@ -662,10 +664,12 @@ func resourceApsaraStackAdbDbClusterDelete(d *schema.ResourceData, meta interfac
 	request["RegionId"] = client.RegionId
 	request["Product"] = "adb"
 	request["OrganizationId"] = client.Department
+	runtime := util.RuntimeOptions{}
+	runtime.SetIgnoreSSL(true)
 	//var taskId string
 	wait := incrementalWait(3*time.Second, 3*time.Second)
 	err = resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
-		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2019-03-15"), StringPointer("AK"), nil, request, &runtime)
 		if err != nil {
 			if NeedRetry(err) {
 				wait()
