@@ -71,3 +71,5 @@ var OtsHighPerformanceNoSupportedRegions = []Region{Qingdao, Zhangjiakou, Huheha
 var EdasSupportedRegions = []Region{Hangzhou, Beijing, Shanghai, Shenzhen, Zhangjiakou, Qingdao, Hongkong}
 var AdbReserverUnSupportRegions = []Region{EUCentral1}
 var AlbSupportRegions = []Region{Hangzhou, Shanghai, Qingdao, Zhangjiakou, Beijing, WuLanChaBu, Shenzhen, ChengDu, Hongkong, APSouthEast1, APSouthEast2, APSouthEast3, APSouthEast5, APNorthEast1, EUCentral1, USEast1, APSouth1}
+var DrdsSupportedRegions = []Region{Beijing, Shenzhen, Hangzhou, Qingdao, Hongkong, Shanghai, Huhehaote, Zhangjiakou, APSouthEast1}
+var DrdsClassicNoSupportedRegions = []Region{Hongkong}

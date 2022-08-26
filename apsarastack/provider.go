@@ -297,6 +297,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_maxcompute_clusters":                  dataSourceApsaraStackMaxcomputeClusters(),
 			"apsarastack_maxcompute_cluster_qutaos":            dataSourceApsaraStackMaxcomputeClusterQutaos(),
 			"apsarastack_maxcompute_projects":                  dataSourceApsaraStackMaxcomputeProjects(),
+			"apsarastack_drds_instances":                       dataSourceApsaraStackDRDSInstances(),
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"apsarastack_adb_account":                          resourceApsaraStackAdbAccount(),
@@ -425,6 +426,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_ascm_resource_group_user_attachment":  resourceApsaraStackAscmResourceGroupUserAttachment(),
 			"apsarastack_ascm_custom_role":                     resourceApsaraStackAscmRole(),
 			"apsarastack_ram_policy":                           resourceApsaraStackRamPolicy(),
+			"apsarastack_drds_instance":                        resourceApsaraStackDRDSInstance(),
 			//"apsarastack_ascm_resource_group_user_attachment":            resourceApsaraStackAscmResourceGroupUserAttachment(),
 			"apsarastack_ram_role":                   resourceApsaraStackRamRole(),
 			"apsarastack_ram_policy_role_attachment": resourceApsaraStackRamPolicyRoleAttachment(),
@@ -566,6 +568,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		config.MaxComputeEndpoint = domain
 		config.DataworkspublicEndpoint = domain
 		config.AdbEndpoint = domain
+		config.DrdsEndpoint = domain
 	} else {
 
 		endpointsSet := d.Get("endpoints").(*schema.Set)
@@ -594,6 +597,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.QuickbiEndpoint = strings.TrimSpace(endpoints["quickbi"].(string))
 			config.DataworkspublicEndpoint = strings.TrimSpace(endpoints["dataworkspublic"].(string))
 			config.AdbEndpoint = strings.TrimSpace(endpoints["adb"].(string))
+			config.DrdsEndpoint = strings.TrimSpace(endpoints["drds"].(string))
 		}
 	}
 	DataworkspublicEndpoint := d.Get("dataworkspublic").(string)
