@@ -15,6 +15,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cr_ee"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/drds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/edas"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/elasticsearch"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
@@ -98,6 +99,7 @@ type ApsaraStackClient struct {
 	crconn            *cr.Client
 	cmsconn           *cms.Client
 	maxcomputeconn    *maxcompute.Client
+	drdsconn          *drds.Client
 	//otsconn                      *ots.Client
 	OtsInstanceName string
 	//tablestoreconnByInstanceName map[string]*tablestore.TableStoreClient
@@ -1597,4 +1599,38 @@ func (client *ApsaraStackClient) NewAdsClient() (*rpc.Client, error) {
 		return nil, fmt.Errorf("unable to initialize the %s client: %#v", productCode, err)
 	}
 	return conn, nil
+}
+func (client *ApsaraStackClient) WithDrdsClient(do func(*drds.Client) (interface{}, error)) (interface{}, error) {
+	// Initialize the DRDS client if necessary
+	if client.drdsconn == nil {
+		endpoint := client.Config.DrdsEndpoint
+		if endpoint == "" {
+			if endpoint == "" {
+				endpoint = fmt.Sprintf("%s.drds.aliyuncs.com", client.Config.RegionId)
+			}
+		}
+
+		drdsconn, err := drds.NewClientWithOptions(client.Config.RegionId, client.getSdkConfig(), client.Config.getAuthCredential(true))
+		if err != nil {
+			return nil, fmt.Errorf("unable to initialize the DRDS client: %#v", err)
+
+		}
+		drdsconn.Domain = endpoint
+		drdsconn.AppendUserAgent(Terraform, TerraformVersion)
+		drdsconn.AppendUserAgent(Provider, ProviderVersion)
+		drdsconn.AppendUserAgent(Module, client.Config.ConfigurationSource)
+		drdsconn.SetHTTPSInsecure(client.Config.Insecure)
+
+		drdsconn.SetReadTimeout(time.Duration(client.Config.ClientReadTimeout) * time.Millisecond)
+		drdsconn.SetConnectTimeout(time.Duration(client.Config.ClientConnectTimeout) * time.Millisecond)
+		drdsconn.SourceIp = client.Config.SourceIp
+		drdsconn.SecureTransport = client.Config.SecureTransport
+
+		if client.Config.Proxy != "" {
+			drdsconn.SetHttpProxy(client.Config.Proxy)
+		}
+		client.drdsconn = drdsconn
+	}
+
+	return do(client.drdsconn)
 }
