@@ -224,6 +224,7 @@ func TestAccApsaraStackDRDSInstance_Multi(t *testing.T) {
 
 func resourceDRDSInstanceConfigDependence(name string) string {
 	return fmt.Sprintf(`
+
 	variable "name" {
 		default = "%s"
 	}

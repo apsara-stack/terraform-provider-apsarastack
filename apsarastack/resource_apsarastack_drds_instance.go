@@ -1,9 +1,9 @@
 package apsarastack
 
 import (
-	"time"
-
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"time"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/drds"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -109,8 +109,8 @@ func resourceApsaraStackDRDSInstanceCreate(d *schema.ResourceData, meta interfac
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_drds_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	response, _ := raw.(*drds.CreateDrdsInstanceResponse)
-	idList := response.Data.DrdsInstanceIdList.DrdsInstanceIdList
+	response, _ := raw.(CreateDrdsInstanceResponse2)
+	idList := response.Data.DrdsInstanceIdList.DrdsInstanceId
 	if len(idList) != 1 {
 		return WrapError(Error("failed to get DRDS instance id and response. DrdsInstanceIdList is %#v", idList))
 	}
@@ -124,6 +124,58 @@ func resourceApsaraStackDRDSInstanceCreate(d *schema.ResourceData, meta interfac
 
 	return resourceApsaraStackDRDSInstanceUpdate(d, meta)
 
+}
+
+type CreateDrdsInstanceResponse2 struct {
+	*responses.BaseResponse
+	RequestId string `json:"RequestId" xml:"RequestId"`
+	Success   bool   `json:"Success" xml:"Success"`
+	Data      Data2  `json:"Data" xml:"Data"`
+}
+type Data2 struct {
+	OrderId            int64              `json:"OrderId" xml:"OrderId"`
+	NewestVersion      string             `json:"NewestVersion" xml:"NewestVersion"`
+	CreateTime         string             `json:"CreateTime" xml:"CreateTime"`
+	Mode               string             `json:"Mode" xml:"Mode"`
+	InstRole           string             `json:"InstRole" xml:"InstRole"`
+	ShardTbKey         string             `json:"ShardTbKey" xml:"ShardTbKey"`
+	Expired            string             `json:"Expired" xml:"Expired"`
+	IsActive           bool               `json:"IsActive" xml:"IsActive"`
+	Schema             string             `json:"Schema" xml:"Schema"`
+	DbInstType         string             `json:"DbInstType" xml:"DbInstType"`
+	SourceTableName    string             `json:"SourceTableName" xml:"SourceTableName"`
+	ShardDbKey         string             `json:"ShardDbKey" xml:"ShardDbKey"`
+	TableName          string             `json:"TableName" xml:"TableName"`
+	DbName             string             `json:"DbName" xml:"DbName"`
+	Stage              string             `json:"Stage" xml:"Stage"`
+	Progress           string             `json:"Progress" xml:"Progress"`
+	InstanceVersion    string             `json:"InstanceVersion" xml:"InstanceVersion"`
+	RandomCode         string             `json:"RandomCode" xml:"RandomCode"`
+	TargetTableName    string             `json:"TargetTableName" xml:"TargetTableName"`
+	Msg                string             `json:"Msg" xml:"Msg"`
+	Status             string             `json:"Status" xml:"Status"`
+	DrdsInstanceIdList DrdsInstanceIdList `json:"DrdsInstanceIdList" xml:"DrdsInstanceIdList"`
+	FullRevise         FullRevise         `json:"FullRevise" xml:"FullRevise"`
+	Increment          Increment          `json:"Increment" xml:"Increment"`
+	//FullCheck          FullCheck               `json:"FullCheck" xml:"FullCheck"`
+	//Full               Full                    `json:"Full" xml:"Full"`
+	//Review             Review                  `json:"Review" xml:"Review"`
+	//List               ListInDescribeHotDbList `json:"List" xml:"List"`
+}
+type DrdsInstanceIdList struct {
+	DrdsInstanceId []string `json:"DrdsInstanceId" xml:"DrdsInstanceId"`
+}
+type FullRevise struct {
+	Expired   int    `json:"Expired" xml:"Expired"`
+	Progress  int    `json:"Progress" xml:"Progress"`
+	Total     int    `json:"Total" xml:"Total"`
+	Tps       int    `json:"Tps" xml:"Tps"`
+	StartTime string `json:"StartTime" xml:"StartTime"`
+}
+type Increment struct {
+	Delay     int    `json:"Delay" xml:"Delay"`
+	Tps       int    `json:"Tps" xml:"Tps"`
+	StartTime string `json:"StartTime" xml:"StartTime"`
 }
 
 func resourceApsaraStackDRDSInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
