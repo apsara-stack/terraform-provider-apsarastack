@@ -289,6 +289,7 @@ func resourceApsaraStackAdbDbClusterCreate(d *schema.ResourceData, meta interfac
 	if v, ok := d.GetOk("zone_id"); ok {
 		request.ZoneId = v.(string)
 	}
+	request.DBClusterNetworkType = "Classic"
 
 	vswitchId := Trim(d.Get("vswitch_id").(string))
 	if vswitchId != "" {
