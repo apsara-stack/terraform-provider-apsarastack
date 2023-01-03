@@ -92,15 +92,13 @@ func resourceApsaraStackImageImport() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"disk_image_size": {
 							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  5,
+							Required: true,
 							ForceNew: true,
 						},
 						"format": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							ForceNew: true,
-							Computed: true,
 							ValidateFunc: validation.StringInSlice([]string{
 								"RAW",
 								"VHD",
@@ -109,12 +107,12 @@ func resourceApsaraStackImageImport() *schema.Resource {
 						},
 						"oss_bucket": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							ForceNew: true,
 						},
 						"oss_object": {
 							Type:     schema.TypeString,
-							Optional: true,
+							Required: true,
 							ForceNew: true,
 						},
 					},
@@ -150,8 +148,8 @@ func resourceApsaraStackImageImportCreate(d *schema.ResourceData, meta interface
 		for _, diskDeviceMapping := range diskDeviceMappings {
 			mapping := diskDeviceMapping.(map[string]interface{})
 			size := strconv.Itoa(mapping["disk_image_size"].(int))
+
 			diskmapping := ecs.ImportImageDiskDeviceMapping{
-				Device:        mapping["device"].(string),
 				DiskImageSize: size,
 				Format:        mapping["format"].(string),
 				OSSBucket:     mapping["oss_bucket"].(string),
