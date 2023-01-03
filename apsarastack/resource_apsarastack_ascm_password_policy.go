@@ -109,14 +109,7 @@ func resourceApsaraStackAscmPasswordPolicyCreate(d *schema.ResourceData, meta in
 	addDebug("SetPasswordPolicy", raw, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
-	headers := bresponse.GetHttpHeaders()
-	if headers["X-Acs-Response-Success"][0] == "false" {
-		if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-		} else {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-		}
-	}
+
 	if bresponse.GetHttpStatus() != 200 {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_password_policy", "", ApsaraStackSdkGoERROR)
 	}
