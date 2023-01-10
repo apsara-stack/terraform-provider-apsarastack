@@ -70,30 +70,22 @@ func (s *LogService) DescribeLogProject(id string) (*LogProject, error) {
 	}
 	var logpro = LogProject{}
 	logProject := &LogProject{}
-	err := resource.Retry(2*time.Minute, func() *resource.RetryError {
-		raw, err := s.client.WithEcsClient(func(slsClient *ecs.Client) (interface{}, error) {
-			return slsClient.ProcessCommonRequest(request)
-		})
-		if err != nil {
-			if IsExpectedErrors(err, []string{LogClientTimeout}) {
-				time.Sleep(5 * time.Second)
-				return resource.RetryableError(err)
-			}
-			return resource.NonRetryableError(err)
-		}
-		if debugOn() {
-			addDebug("GetProject", raw, requestInfo, map[string]string{"name": id})
-		}
-		project, _ = raw.(*responses.CommonResponse)
-		err = json.Unmarshal(project.GetHttpContentBytes(), &logpro)
-		for _, k := range logpro.Projects {
-			if k.ProjectName == id {
-				logProject.ProjectName = k.ProjectName
-				logProject.Description = k.Description
-			}
-		}
-		return nil
+
+	raw, err := s.client.WithEcsClient(func(slsClient *ecs.Client) (interface{}, error) {
+		return slsClient.ProcessCommonRequest(request)
 	})
+
+	if debugOn() {
+		addDebug("GetProject", raw, requestInfo, map[string]string{"name": id})
+	}
+	project, _ = raw.(*responses.CommonResponse)
+	err = json.Unmarshal(project.GetHttpContentBytes(), &logpro)
+
+	if logpro.ProjectName == id {
+		logProject.ProjectName = logpro.ProjectName
+		logProject.Description = logpro.Description
+	}
+
 	if err != nil {
 		if IsExpectedErrors(err, []string{"ProjectNotExist"}) {
 			return logProject, WrapErrorf(err, NotFoundMsg, ApsaraStackLogGoSdkERROR)

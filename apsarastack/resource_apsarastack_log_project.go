@@ -39,7 +39,7 @@ func resourceApsaraStackLogProject() *schema.Resource {
 
 func resourceApsaraStackLogProjectCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	logService := LogService{client}
+	//logService := LogService{client}
 	name := d.Get("name").(string)
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
@@ -73,16 +73,6 @@ func resourceApsaraStackLogProjectCreate(d *schema.ResourceData, meta interface{
 	}
 	addDebug("LogProject", raw)
 
-	err = resource.Retry(2*time.Minute, func() *resource.RetryError {
-		object, err := logService.DescribeLogProject(name)
-		if err != nil {
-			return resource.NonRetryableError(err)
-		}
-		if object.ProjectName != "" {
-			return nil
-		}
-		return resource.RetryableError(Error("Failed to describe log project"))
-	})
 	d.SetId(name)
 	return resourceApsaraStackLogProjectRead(d, meta)
 }
