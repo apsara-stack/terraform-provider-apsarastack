@@ -169,7 +169,7 @@ func resourceApsaraStackImageImportCreate(d *schema.ResourceData, meta interface
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	resp, _ := raw.(*ecs.ImportImageResponse)
 	d.SetId(resp.ImageId)
-	stateConf := BuildStateConf([]string{"Waiting"}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, ecsService.ImageStateRefreshFunc(d.Id(), []string{"CreateFailed", "UnAvailable"}))
+	stateConf := BuildStateConfByTimes([]string{"Waiting"}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, ecsService.ImageStateRefreshFunc(d.Id(), []string{"CreateFailed", "UnAvailable"}), 200)
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
@@ -205,7 +205,7 @@ func resourceApsaraStackImageImportUpdate(d *schema.ResourceData, meta interface
 	if err != nil {
 		return WrapError(err)
 	}
-	return resourceApsaraStackImageRead(d, meta)
+	return resourceApsaraStackImageImportRead(d, meta)
 }
 
 func resourceApsaraStackImageImportDelete(d *schema.ResourceData, meta interface{}) error {
@@ -219,7 +219,6 @@ func FlattenImageImportDiskDeviceMappings(list []ecs.DiskDeviceMapping) []map[st
 	for _, i := range list {
 		size, _ := strconv.Atoi(i.Size)
 		l := map[string]interface{}{
-			"device":          i.Device,
 			"disk_image_size": size,
 			"format":          i.Format,
 			"oss_bucket":      i.ImportOSSBucket,
