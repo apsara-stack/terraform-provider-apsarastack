@@ -616,7 +616,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	wsysdiskcat := d.Get("worker_disk_category").(string)
 	delete_pro := d.Get("delete_protection").(bool)
 	KubernetesVersion := d.Get("version").(string)
-	IsEnterpriseSecurityGroup:= d.Get("is_enterprise_security_group").(bool)
+	IsEnterpriseSecurityGroup := d.Get("is_enterprise_security_group").(bool)
 	addons := make([]cs.Addon, 0)
 	type WorkerData struct {
 		Size                 int
@@ -918,7 +918,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	} // Set request scheme. Default: http
 	request.ApiName = "CreateCluster"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-
+	request.Headers = map[string]string{"x-acs-asapi-gateway-version": "3.0"}
 	var err error
 	err = nil
 	log.Printf("ACK Create Cluster params : %s", request.GetQueryParams())
