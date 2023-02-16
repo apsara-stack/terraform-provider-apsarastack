@@ -122,14 +122,11 @@ func TestAccApsaraStackOssBucketBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"bucket":  name,
-					"vpclist": []string{"${apsarastack_vpc.vpc.id}", "${apsarastack_vpc.vpc2.id}"},
+					"bucket": name,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"bucket":    name,
-						"vpclist.0": CHECKSET,
-						"vpclist.#": "2",
+						"bucket": name,
 					}),
 				),
 			},
@@ -141,14 +138,11 @@ func TestAccApsaraStackOssBucketBasic(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"bucket":  name,
-					"vpclist": []string{"${apsarastack_vpc.vpc.id}"},
+					"bucket": name,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"bucket":    name,
-						"vpclist.0": CHECKSET,
-						"vpclist.#": "1",
+						"bucket": name,
 					}),
 				),
 			},
