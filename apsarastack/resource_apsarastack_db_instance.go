@@ -403,7 +403,7 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_db_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
-		if err := rdsService.WaitForDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
+		if err := rdsService.WaitForDBInstance(d.Id(), Running, DefaultLongTimeout); err != nil {
 			return WrapError(err)
 		}
 
