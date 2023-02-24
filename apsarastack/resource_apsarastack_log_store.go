@@ -99,6 +99,21 @@ func resourceApsaraStackLogStore() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"cmk_key_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"arn": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"encrypt_type": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				Default:      "sm4_gcm",
+				ValidateFunc: validation.StringInSlice([]string{"sm4_gcm", "aes_gcm"}, false),
+			},
 		},
 	}
 }
@@ -130,9 +145,17 @@ func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{})
 			AppendMeta:    d.Get("append_meta").(bool),
 			EncryptConf: &sls.EncryptConf{
 				Enable:      true,
-				EncryptType: "sm4_gcm",
+				EncryptType: d.Get("encrypt_type").(string),
 			},
 		}
+		if v, ok := d.GetOk("cmk_key_id"); ok {
+			logstore.EncryptConf.UserCmkInfo.CmkKeyId = v.(string)
+			logstore.EncryptConf.UserCmkInfo.RegionId = client.RegionId
+		}
+		if v, ok := d.GetOk("arn"); ok {
+			logstore.EncryptConf.UserCmkInfo.Arn = v.(string)
+		}
+
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 
 			raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
