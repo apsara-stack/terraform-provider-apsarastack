@@ -29,7 +29,6 @@ const dataSourceApsaraStackDnsDomain = `
 
 resource "apsarastack_dns_domain" "default" {
  domain_name = "testdummy."
- remark = "test_dummy"
 }
 data "apsarastack_dns_domains" "default"{
  domain_name_regex         = apsarastack_dns_domain.default.domain_name

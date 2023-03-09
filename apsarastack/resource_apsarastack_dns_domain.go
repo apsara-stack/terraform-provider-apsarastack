@@ -6,11 +6,12 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	_ "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
+	"strconv"
 	"strings"
-	"time"
+	_ "time"
 )
 
 func resourceApsaraStackDnsDomain() *schema.Resource {
@@ -66,70 +67,62 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 	DomainName := d.Get("domain_name").(string)
 	check, err := dnsService.DescribeDnsDomain(DomainName)
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "domain alreadyExist", ApsaraStackSdkGoERROR)
+		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", "domain alreadyExist", ApsaraStackSdkGoERROR)
 	}
-	//if len(check.ZoneList) == 0 {
+	if len(check.Data) == 0 {
 
-	request := requests.NewCommonRequest()
-	request.Method = "POST"        // Set request method
-	request.Product = "GenesisDns" // Specify product
-	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
-	request.Version = "2018-07-20" // Specify product version
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
+		request := requests.NewCommonRequest()
+		request.Method = "POST"        // Set request method
+		request.Product = "CloudDns"   // Specify product
+		request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+		request.Version = "2022-06-24" // Specify product version
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
+		}
+		request.ApiName = "AddGlobalZone"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"AccessKeyId":     client.AccessKey,
+			"Product":         "CloudDns",
+			"RegionId":        client.RegionId,
+			"Action":          "AddGlobalZone",
+			"Version":         "2022-06-24",
+			"Name":            DomainName,
+		}
+		raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
+			return dnsClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		addDebug(request.GetActionName(), raw)
+		bresponse, _ := raw.(*responses.CommonResponse)
+		if bresponse.GetHttpStatus() != 200 {
+			return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", "AddGlobalZone", ApsaraStackSdkGoERROR)
+		}
+		addDebug("AddGlobalZone", raw, requestInfo, bresponse.GetHttpContentString())
 	}
-	request.ApiName = "AddGlobalAuthZone"
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
-		"Product":         "GenesisDns",
-		"RegionId":        client.RegionId,
-		"Action":          "AddGlobalAuthZone",
-		"Version":         "2018-07-20",
-		"DomainName":      DomainName,
-	}
-	raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
-		return dnsClient.ProcessCommonRequest(request)
-	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", request.GetActionName(), ApsaraStackSdkGoERROR)
-	}
-	addDebug(request.GetActionName(), raw)
-	bresponse, _ := raw.(*responses.CommonResponse)
-	//headers := bresponse.GetHttpHeaders()
-	//if headers["X-Acs-Response-Success"][0] == "false" {
-	//	if len(headers["X-Acs-Response-Errorhint"]) > 0 {
-	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
-	//	} else {
-	//		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", bresponse.GetHttpContentString())
-	//	}
-	//}
-	if bresponse.GetHttpStatus() != 200 {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "AddGlobalAuthZone", ApsaraStackSdkGoERROR)
-	}
-	addDebug("AddGlobalAuthZone", raw, requestInfo, bresponse.GetHttpContentString())
-	//}
 	//err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 	check, err = dnsService.DescribeDnsDomain(DomainName)
-	if err != nil {
-		return err
-		//return resource.NonRetryableError(err)
-	}
+	//if err != nil {
+	//	return resource.NonRetryableError(err)
+	//}
 	//return resource.RetryableError(err)
 	//})
 	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "DescribeDnsDomain")
+		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", "DescribeDnsDomain")
 	}
 	//id := strconv.Itoa(dnsresp.ID)
 	//d.SetId(id)
-	d.SetId(check.ZoneList[0].DomainName + COLON_SEPARATED + fmt.Sprint(check.ZoneList[0].DomainID))
-
+	d.SetId(check.Data[0].Name + COLON_SEPARATED + fmt.Sprint(check.Data[0].Id))
+	//d.SetId(DomainName)
 	return resourceApsaraStackDnsDomainUpdate(d, meta)
 }
 func resourceApsaraStackDnsDomainRead(d *schema.ResourceData, meta interface{}) error {
+
 	client := meta.(*connectivity.ApsaraStackClient)
 	dnsService := DnsService{client}
 	object, err := dnsService.DescribeDnsDomain(d.Id())
@@ -142,8 +135,8 @@ func resourceApsaraStackDnsDomainRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.Set("domain_name", did[0])
-	d.Set("domain_id", object.ZoneList[0].DomainID)
-	d.Set("remark", object.ZoneList[0].Remark)
+	d.Set("domain_id", strconv.Itoa(object.Data[0].Id))
+	d.Set("remark", object.Data[0].Remark)
 	return nil
 }
 func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -163,35 +156,36 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 		if v, ok := d.GetOk("remark"); ok {
 			desc = v.(string)
 		}
-		check.ZoneList[0].Remark = desc
+		check.Data[0].Remark = desc
 		remarkUpdate = true
 	} else {
 		if v, ok := d.GetOk("remark"); ok {
 			desc = v.(string)
 		}
-		check.ZoneList[0].Remark = desc
+		check.Data[0].Remark = desc
 	}
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
-	request.Product = "GenesisDns"
+	request.Product = "CloudDns"
 	request.Domain = client.Domain
-	request.Version = "2018-07-20"
+	request.Version = "2021-06-24"
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
-	request.ApiName = "RemarkGlobalAuthZone"
+	request.ApiName = "UpdateGlobalZoneRemark"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.RegionId = client.RegionId
 
 	request.QueryParams = map[string]string{
 		"AccessKeySecret": client.SecretKey,
 		"AccessKeyId":     client.AccessKey,
-		"Product":         "GenesisDns",
+		"Product":         "CloudDns",
 		"RegionId":        client.RegionId,
-		"Action":          "RemarkGlobalAuthZone",
-		"Version":         "2018-07-20",
+		"Action":          "UpdateGlobalZoneRemark",
+		"Version":         "2021-06-24",
+		"Name":            did[0],
 		"Id":              did[1],
 		"Remark":          desc,
 	}
@@ -200,15 +194,15 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
-		log.Printf(" response of raw RemarkGlobalAuthZone : %s", raw)
+		log.Printf(" response of raw UpdateGlobalZoneRemark : %s", raw)
 
 		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "RemarkGlobalAuthZone", raw)
+			return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", "UpdateGlobalZoneRemark", raw)
 		}
 		addDebug(request.GetActionName(), raw, request)
 	}
-	//d.SetId(check.ZoneList[0].DomainName + COLON_SEPARATED + fmt.Sprint(check.ZoneList[0].DomainID))
-
+	d.SetId(check.Data[0].Name + COLON_SEPARATED + fmt.Sprint(check.Data[0].Id))
+	//d.SetId(did[0])
 	return resourceApsaraStackDnsDomainRead(d, meta)
 }
 func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}) error {
@@ -221,46 +215,36 @@ func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), "IsDomainExist", ApsaraStackSdkGoERROR)
 	}
 	addDebug("IsDomainExist", check, requestInfo, map[string]string{"Id": did[1]})
-	err = resource.Retry(1*time.Minute, func() *resource.RetryError {
-		if len(check.ZoneList) != 0 {
 
-			request := requests.NewCommonRequest()
-			request.Method = "POST"        // Set request method
-			request.Product = "GenesisDns" // Specify product
-			request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
-			request.Version = "2018-07-20" // Specify product version
-			if strings.ToLower(client.Config.Protocol) == "https" {
-				request.Scheme = "https"
-			} else {
-				request.Scheme = "http"
-			}
-			request.ApiName = "DeleteGlobalZone"
-			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{
-				"AccessKeySecret": client.SecretKey,
-				"AccessKeyId":     client.AccessKey,
-				"Product":         "GenesisDns",
-				"RegionId":        client.RegionId,
-				"Action":          "DeleteGlobalZone",
-				"Version":         "2018-07-20",
-				"Id":              d.Id(),
-			}
-			_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
-				return csClient.ProcessCommonRequest(request)
-			})
-			if err != nil {
-				return resource.RetryableError(err)
-			}
-			check, err = dnsService.DescribeDnsDomain(d.Id())
-
-			if err != nil {
-				return resource.NonRetryableError(err)
-			}
+	if len(check.Data) != 0 {
+		request := requests.NewCommonRequest()
+		request.Method = "POST"        // Set request method
+		request.Product = "CloudDns"   // Specify product
+		request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+		request.Version = "2021-06-24" // Specify product version
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			request.Scheme = "https"
+		} else {
+			request.Scheme = "http"
 		}
-		return nil
-	})
-	if err != nil {
-		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_dns_domain", "DeleteGlobalZone", ApsaraStackSdkGoERROR)
+		request.ApiName = "DeleteGlobalZone"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"AccessKeyId":     client.AccessKey,
+			"Product":         "CloudDns",
+			"RegionId":        client.RegionId,
+			"Action":          "DeleteGlobalZone",
+			"Version":         "2021-06-24",
+			"Id":              did[1],
+		}
+		_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
+			return csClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", "DeleteGlobalZone", ApsaraStackSdkGoERROR)
+		}
 	}
+
 	return nil
 }

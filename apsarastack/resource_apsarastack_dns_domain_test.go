@@ -86,5 +86,4 @@ resource "apsarastack_dns_domain" "default" {
 
 var dnsDomainBasicMap = map[string]string{
 	"domain_name": CHECKSET,
-	"remark":      CHECKSET,
 }

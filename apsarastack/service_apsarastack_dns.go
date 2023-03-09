@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
@@ -19,12 +20,7 @@ type DnsService struct {
 
 func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err error) {
 	var requestInfo *ecs.Client
-	did, err := ParseResourceId(id, 2)
-	if err != nil {
-		return response, WrapError(err)
-	}
-	RR := did[0]
-	DomainId := did[1]
+	ZoneId := id
 	request := requests.NewCommonRequest()
 	if s.client.Config.Insecure {
 		request.SetHTTPSInsecure(s.client.Config.Insecure)
@@ -32,23 +28,23 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
 		"AccessKeySecret": s.client.SecretKey,
-		"Product":         "GenesisDns",
-		"Action":          "ObtainGlobalAuthRecordList",
-		"Version":         "2018-07-20",
-		"Id":              DomainId,
-		"keyword":         RR,
+		"Product":         "CloudDns",
+		"Action":          "DescribeGlobalZoneRecords",
+		"Version":         "2021-06-24",
+		"ZoneId":          ZoneId,
+		"PageNumber":      fmt.Sprint(2),
+		"PageSize":        fmt.Sprint(PageSizeLarge),
 	}
 	request.Method = "POST"
-	request.Product = "GenesisDns"
-	request.Version = "2018-07-20"
-	request.ServiceCode = "GenesisDns"
-	request.Domain = s.client.Domain
+	request.Product = "CloudDns"
+	request.Version = "2021-06-24"
+	request.ServiceCode = "CloudDns"
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
-	request.ApiName = "ObtainGlobalAuthRecordList"
+	request.ApiName = "DescribeGlobalZoneRecords"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.RegionId = s.client.RegionId
 	var resp = &DnsRecord{}
@@ -59,10 +55,10 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 		if IsExpectedErrors(err, []string{"ErrorRecordNotFound"}) {
 			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ObtainGlobalAuthRecordList", ApsaraStackSdkGoERROR)
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "DescribeGlobalZoneRecords", ApsaraStackSdkGoERROR)
 
 	}
-	addDebug("ObtainGlobalAuthRecordList", response, requestInfo, request)
+	addDebug("DescribeGlobalZoneRecords", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
 	//headers := bresponse.GetHttpHeaders()
@@ -76,7 +72,7 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 		return resp, WrapError(err)
 	}
 
-	if len(resp.Records) < 1 || resp.AsapiSuccess == true {
+	if len(resp.Data) < 1 || resp.AsapiSuccess == true {
 		return resp, WrapError(err)
 	}
 
@@ -268,25 +264,28 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 
 	request := requests.NewCommonRequest()
 	request.Method = "POST"          // Set request method
-	request.Product = "GenesisDns"   // Specify product
+	request.Product = "CloudDns"     // Specify product
 	request.Domain = s.client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
-	request.Version = "2018-07-20"   // Specify product version
+	request.Version = "2022-06-24"   // Specify product version
+
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
-	request.ApiName = "ObtainGlobalAuthZoneList"
+	request.ApiName = "DescribeGlobalZones"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{
 		"AccessKeySecret": s.client.SecretKey,
 		"AccessKeyId":     s.client.AccessKey,
-		"Product":         "GenesisDns",
+		"Product":         "CloudDns",
 		"RegionId":        s.client.RegionId,
-		"Action":          "ObtainGlobalAuthZoneList",
-		"Version":         "2018-07-20",
+		"Action":          "DescribeGlobalZones",
+		"Version":         "2022-06-24",
+		"PageNumber":      fmt.Sprint(2),
+		"PageSize":        fmt.Sprint(PageSizeLarge),
 		//"Id":              did[1],
-		"DomainName": did[0],
+		"Name": did[0],
 	}
 	resp := &DnsDomains{}
 	raw, err := s.client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {
@@ -296,10 +295,10 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 		if IsExpectedErrors(err, []string{"ErrorDomainNotFound"}) {
 			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
 		}
-		return resp, WrapErrorf(err, DefaultErrorMsg, id, "ObtainGlobalAuthZoneList", ApsaraStackSdkGoERROR)
+		return resp, WrapErrorf(err, DefaultErrorMsg, id, "DescribeGlobalZones", ApsaraStackSdkGoERROR)
 
 	}
-	addDebug("ObtainGlobalAuthZoneList", response, requestInfo, request)
+	addDebug("DescribeGlobalZones", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
 
@@ -308,7 +307,7 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 		return resp, WrapError(err)
 	}
 
-	if len(resp.ZoneList) < 1 || resp.AsapiSuccess == true {
+	if len(resp.Data) < 1 || resp.AsapiSuccess == true {
 		return resp, WrapError(err)
 	}
 
