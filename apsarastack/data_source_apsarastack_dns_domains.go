@@ -2,6 +2,7 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -118,25 +119,27 @@ func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
-	request.Product = "GenesisDns"
+	request.Product = "CloudDns"
 	request.Domain = client.Domain
-	request.Version = "2018-07-20"
+	request.Version = "2022-06-24"
+	name := d.Get("domain_name").(string)
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
 		request.Scheme = "http"
 	}
-	request.ApiName = "ObtainGlobalAuthZoneList"
+	request.ApiName = "DescribeGlobalZones"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
 		"AccessKeySecret": client.SecretKey,
 		"AccessKeyId":     client.AccessKey,
-		"Product":         "GenesisDns",
+		"Product":         "CloudDns",
 		"RegionId":        client.RegionId,
-		"Action":          "ObtainGlobalAuthZoneList",
-		"Version":         "2018-07-20",
-		"PageSize":        "200",
-		"PageNumber":      "1",
+		"Action":          "DescribeGlobalZones",
+		"Version":         "2022-06-24",
+		"PageNumber":      fmt.Sprint(2),
+		"PageSize":        fmt.Sprint(PageSizeLarge),
+		"Name":            name,
 	}
 
 	var addDomains = DnsDomains{}
@@ -145,7 +148,7 @@ func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{
 			return alidnsClient.ProcessCommonRequest(request)
 		})
 		if err != nil {
-			return WrapErrorf(err, DataDefaultErrorMsg, "apsarastack_dns_domains", request.GetActionName(), ApsaraStackSdkGoERROR)
+			return WrapErrorf(err, DataDefaultErrorMsg, "ApsaraStack_dns_domains", request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request)
 		response, _ := raw.(*responses.CommonResponse)
@@ -153,7 +156,7 @@ func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{
 		if err != nil {
 			return WrapError(err)
 		}
-		if response.IsSuccess() == true || len(addDomains.ZoneList) < 1 {
+		if response.IsSuccess() == true || len(addDomains.Data) < 1 {
 			break
 		}
 
@@ -165,17 +168,17 @@ func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{
 	var ids []string
 	var names []string
 	var s []map[string]interface{}
-	for _, rg := range addDomains.ZoneList {
-		if r != nil && !r.MatchString(rg.DomainName) {
+	for _, rg := range addDomains.Data {
+		if r != nil && !r.MatchString(rg.Name) {
 			continue
 		}
-		id := strconv.Itoa(rg.DomainID)
+		id := strconv.Itoa(rg.Id)
 		mapping := map[string]interface{}{
 			"domain_id":   id,
-			"domain_name": rg.DomainName,
+			"domain_name": rg.Name,
 		}
 
-		names = append(names, rg.DomainName)
+		names = append(names, rg.Name)
 		ids = append(ids, id)
 		s = append(s, mapping)
 	}

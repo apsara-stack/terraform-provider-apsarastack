@@ -72,11 +72,13 @@ func TestAccApsaraStackDnsRecord_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"domain_id":   "${apsarastack_dns_domain.default.domain_id}",
-					"host_record": "test",
-					"type":        "A",
-					"ttl":         "300",
-					"rr_set":      []string{"10.0.0.1", "10.0.0.3", "10.0.0.2"},
+
+					"zone_id":      "${alibabacloudstack_dns_domain.default.domain_id}",
+					"lba_strategy": "ALL_RR",
+					"name":         "test",
+					"type":         "A",
+					"ttl":          "0",
+					"rr_set":       []string{"10.0.0.1", "10.0.0.3", "10.0.0.2"},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
@@ -98,8 +100,5 @@ resource "apsarastack_dns_domain" "default" {
 }
 
 var dnsRecordBasicMap = map[string]string{
-	"domain_id":   CHECKSET,
-	"host_record": CHECKSET,
-	"type":        CHECKSET,
-	"ttl":         CHECKSET,
+	"zone_id": CHECKSET,
 }
