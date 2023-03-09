@@ -73,7 +73,7 @@ func TestAccApsaraStackDnsRecord_basic(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 
-					"zone_id":      "${alibabacloudstack_dns_domain.default.domain_id}",
+					"zone_id":      "${apsarastack_dns_domain.default.domain_id}",
 					"lba_strategy": "ALL_RR",
 					"name":         "test",
 					"type":         "A",
