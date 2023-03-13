@@ -34,9 +34,13 @@ func TestAccApsaraStackLogStore_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"name":        name,
-					"project":     "${apsarastack_log_project.foo.name}",
-					"shard_count": "1",
+					"name":         name,
+					"project":      "${apsarastack_log_project.foo.name}",
+					"shard_count":  "1",
+					"cmk_key_id":   "45b6b43c-a479-4db5-8c79-f941e25ac216",
+					"encryption":   "true",
+					"encrypt_type": "sm4_gcm",
+					"arn":          "acs:ram::1056100926092423:role/aliyunlogaccessingkmsrole",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -147,9 +151,9 @@ func TestAccApsaraStackLogStore_multi(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"name":    name + "${count.index}",
-					"project": "${apsarastack_log_project.foo.name}",
-					"shard_count":   "5",
+					"name":        name + "${count.index}",
+					"project":     "${apsarastack_log_project.foo.name}",
+					"shard_count": "5",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
@@ -167,6 +171,7 @@ func resourceLogStoreConfigDependence(name string) string {
 	resource "apsarastack_log_project" "foo" {
 	    name = "${var.name}"
 	    description = "tf unit test"
+       
 	}
 	`, name)
 }

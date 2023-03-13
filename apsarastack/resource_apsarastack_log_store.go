@@ -146,14 +146,12 @@ func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{})
 			EncryptConf: &sls.EncryptConf{
 				Enable:      true,
 				EncryptType: d.Get("encrypt_type").(string),
+				UserCmkInfo: &sls.EncryptUserCmkConf{
+					CmkKeyId: d.Get("cmk_key_id").(string),
+					Arn:      d.Get("arn").(string),
+					RegionId: client.RegionId,
+				},
 			},
-		}
-		if v, ok := d.GetOk("cmk_key_id"); ok {
-			logstore.EncryptConf.UserCmkInfo.CmkKeyId = v.(string)
-			logstore.EncryptConf.UserCmkInfo.RegionId = client.RegionId
-		}
-		if v, ok := d.GetOk("arn"); ok {
-			logstore.EncryptConf.UserCmkInfo.Arn = v.(string)
 		}
 
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
