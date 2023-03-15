@@ -121,7 +121,7 @@ func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{
 	request.Method = "POST"
 	request.Product = "CloudDns"
 	request.Domain = client.Domain
-	request.Version = "2022-06-24"
+	request.Version = "2021-06-24"
 	name := d.Get("domain_name").(string)
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
@@ -136,7 +136,7 @@ func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{
 		"Product":         "CloudDns",
 		"RegionId":        client.RegionId,
 		"Action":          "DescribeGlobalZones",
-		"Version":         "2022-06-24",
+		"Version":         "2021-06-24",
 		"PageNumber":      fmt.Sprint(2),
 		"PageSize":        fmt.Sprint(PageSizeLarge),
 		"Name":            name,

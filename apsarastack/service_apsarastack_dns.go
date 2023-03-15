@@ -266,7 +266,7 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 	request.Method = "POST"          // Set request method
 	request.Product = "CloudDns"     // Specify product
 	request.Domain = s.client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
-	request.Version = "2022-06-24"   // Specify product version
+	request.Version = "2021-06-24"   // Specify product version
 
 	if strings.ToLower(s.client.Config.Protocol) == "https" {
 		request.Scheme = "https"
@@ -281,7 +281,7 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 		"Product":         "CloudDns",
 		"RegionId":        s.client.RegionId,
 		"Action":          "DescribeGlobalZones",
-		"Version":         "2022-06-24",
+		"Version":         "2021-06-24",
 		"PageNumber":      fmt.Sprint(2),
 		"PageSize":        fmt.Sprint(PageSizeLarge),
 		//"Id":              did[1],

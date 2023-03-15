@@ -75,7 +75,7 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 		request.Method = "POST"        // Set request method
 		request.Product = "CloudDns"   // Specify product
 		request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
-		request.Version = "2022-06-24" // Specify product version
+		request.Version = "2021-06-24" // Specify product version
 		if strings.ToLower(client.Config.Protocol) == "https" {
 			request.Scheme = "https"
 		} else {
@@ -89,7 +89,7 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 			"Product":         "CloudDns",
 			"RegionId":        client.RegionId,
 			"Action":          "AddGlobalZone",
-			"Version":         "2022-06-24",
+			"Version":         "2021-06-24",
 			"Name":            DomainName,
 		}
 		raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
