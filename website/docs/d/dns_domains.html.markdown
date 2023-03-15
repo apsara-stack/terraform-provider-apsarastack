@@ -19,7 +19,7 @@ resource "apsarastack_dns_domain" "default" {
   remark = "testing Domain"
 }
 data "apsarastack_dns_domains" "default"{
-  domain_name_regex         = apsarastack_dns_domain.default.domain_name
+ domain_name   = alibabacloudstack_dns_domain.default.domain_name
 }
 output "domains" {
   value = data.apsarastack_dns_domains.default.*
@@ -30,7 +30,7 @@ output "domains" {
 
 The following arguments are supported:
 
-* `domain_name_regex` - (Optional) A regex string to filter results by the domain name. 
+* `domain_name` - (Optional) A regex string to filter results by the domain name. 
 * `ids` (Optional) - A list of domain IDs.
 * `resource_group_id` - (Optional, ForceNew) The ID of resource group which the dns belongs.
 * `output_file` - (Optional) File name where to save data source results (after running `terraform plan`).

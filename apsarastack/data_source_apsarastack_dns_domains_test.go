@@ -31,7 +31,7 @@ resource "apsarastack_dns_domain" "default" {
  domain_name = "testdummy."
 }
 data "apsarastack_dns_domains" "default"{
- domain_name_regex         = apsarastack_dns_domain.default.domain_name
+ domain_name         = apsarastack_dns_domain.default.domain_name
 }
 
 `

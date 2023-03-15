@@ -19,7 +19,7 @@ func dataSourceApsaraStackDnsRecords() *schema.Resource {
 		Read: dataSourceApsaraStackDnsRecordsRead,
 
 		Schema: map[string]*schema.Schema{
-			"domain_id": {
+			"zone_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
