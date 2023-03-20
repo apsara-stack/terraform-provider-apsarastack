@@ -406,6 +406,8 @@ resource "apsarastack_kvstore_instance" "default" {
 	instance_type  = "%s"
 	instance_class = "%s"
 	engine_version = "%s"
+cpu_type = "intel"
+        architecture_type = "standard"
 }
 
 	`, instanceType, instanceClass, engineVersion)
@@ -635,6 +637,8 @@ func testAccKVStoreInstance_vpc(common, instanceClass, instanceType, engineVersi
 		security_ips = ["10.0.0.1"]
 		instance_type = "%s"
 		engine_version = "%s"
+cpu_type = "intel"
+        architecture_type = "standard"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -844,6 +848,8 @@ func testAccKVStoreInstance_vpcmulti(common, instanceClass, instanceType, engine
 		security_ips   = ["10.0.0.1"]
 		instance_type  = "%s"
 		engine_version = "%s"
+cpu_type = "intel"
+        architecture_type = "standard"
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -862,6 +868,8 @@ func testAccKVStoreInstance_classicmulti(instanceType, instanceClass, engineVers
 		instance_type = "%s"
 		instance_class = "%s"
 		engine_version = "%s"
+cpu_type = "intel"
+        architecture_type = "standard"
 	}
 	`, instanceType, instanceClass, engineVersion)
 }
