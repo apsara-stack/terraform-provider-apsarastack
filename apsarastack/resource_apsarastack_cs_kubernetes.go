@@ -593,6 +593,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"tags": tagsSchema(),
 		},
 	}
 }
@@ -672,6 +673,19 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		}
 	}
 	log.Printf("checking runtime %v", runtime)
+	var tags string
+	tagss := make([]interface{}, 0)
+	if v, ok := d.GetOk("tags"); ok && len(v.(map[string]interface{})) > 0 {
+		for key, value := range v.(map[string]interface{}) {
+			tagss = append(tagss, cs.Tag{
+				Key:   key,
+				Value: value.(string),
+			})
+		}
+	}
+	tagsBytes, _ := json.Marshal(tagss)
+	tags = string(tagsBytes)
+	log.Printf("checking tags %v", tags)
 	proxy_mode := d.Get("proxy_mode").(string)
 	VpcId := d.Get("vpc_id").(string)
 	//ImageId := d.Get("image_id").(string)
@@ -807,7 +821,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 			"Version":          "2015-12-15",
 			"SignatureVersion": "1.0",
 			"ProductName":      "cs",
-			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t}",
+			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%s}",
 				"Product", "Cs",
 				"os_type", OsType,
 				"platform", Platform,
@@ -848,6 +862,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"master_system_disk_performance_level", MasterSystemDiskPerformanceLevel,
 				"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
 				"is_enterprise_security_group", IsEnterpriseSecurityGroup,
+				"tags", tags,
 			),
 		}
 	} else {
@@ -862,7 +877,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 			"Version":          "2015-12-15",
 			"SignatureVersion": "1.0",
 			"ProductName":      "cs",
-			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":%t}",
+			"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%s}",
 				"Product", "Cs",
 				"os_type", OsType,
 				"platform", Platform,
@@ -904,6 +919,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"worker_data_disks", workerdisks,
 				"pod_vswitch_ids", podid,
 				"is_enterprise_security_group", IsEnterpriseSecurityGroup,
+				"tags", tags,
 			),
 		}
 	}
@@ -1129,7 +1145,9 @@ func resourceApsaraStackCSKubernetesRead(d *schema.ResourceData, meta interface{
 
 	d.Set("master_nodes", smaster)
 	d.Set("worker_nodes", sworker)
-
+	if err := d.Set("tags", flattenTagsConfig(object.Tags)); err != nil {
+		return WrapError(err)
+	}
 	return nil
 }
 
@@ -1191,6 +1209,97 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 	}
 
 	stateConf := BuildStateConf([]string{"running", "deleting", "initial"}, []string{}, d.Timeout(schema.TimeoutDelete), 10*time.Minute, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"delete_failed"}))
+	if _, err := stateConf.WaitForState(); err != nil {
+		return WrapErrorf(err, IdMsg, d.Id())
+	}
+	return nil
+}
+func flattenTagsConfig(config []cs.Tag) map[string]string {
+	m := make(map[string]string, len(config))
+	if len(config) < 0 {
+		return m
+	}
+
+	for _, tag := range config {
+		if tag.Key != DefaultClusterTag {
+			m[tag.Key] = tag.Value
+		}
+	}
+
+	return m
+}
+func updateKubernetesClusterTag(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*connectivity.ApsaraStackClient)
+	csService := CsService{client}
+	d.Partial(true)
+	var raw interface{}
+	invoker := NewInvoker()
+	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
+	var tags string
+	tagss := make([]interface{}, 0)
+	if v, ok := d.GetOk("tags"); ok && len(v.(map[string]interface{})) > 0 {
+		for key, value := range v.(map[string]interface{}) {
+			tagss = append(tagss, cs.Tag{
+				Key:   key,
+				Value: value.(string),
+			})
+		}
+	}
+	tagsBytes, _ := json.Marshal(tagss)
+	tags = string(tagsBytes)
+	log.Printf("checking tags %v", tags)
+	request.QueryParams = map[string]string{
+		"RegionId":         client.RegionId,
+		"AccessKeySecret":  client.SecretKey,
+		"Product":          "CS",
+		"Department":       client.Department,
+		"ResourceGroup":    client.ResourceGroup,
+		"Action":           "ModifyClusterTags",
+		"Version":          "2015-12-15",
+		"SignatureVersion": "1.0",
+		"ProductName":      "cs",
+		"ClusterId":        d.Id(),
+		"X-acs-body": fmt.Sprintf("{\"%s\":%s}",
+			"tags", tags,
+		),
+	}
+	request.Method = "POST"        // Set request method
+	request.Product = "CS"         // Specify product
+	request.Version = "2015-12-15" // Specify product version
+	request.ServiceCode = "cs"
+	request.PathPattern = fmt.Sprintf("/clusters/%s/tags", d.Id())
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	} // Set request scheme. Default: http
+	request.ApiName = "ModifyClusterTags"
+	request.Headers = map[string]string{
+		"RegionId":                    client.RegionId,
+		"Authorization":               "AuthorizationString",
+		"Content-Type":                "application/json",
+		"x-acs-asapi-gateway-version": "3.0",
+	}
+	var err error
+	if err = invoker.Run(func() error {
+		raw, err = client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			//ecsClient.Domain = "cs.inter.env17e.shuguang.com"
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		return err
+	}); err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "alibabacloudstack_cs_kubernetes", "ModifyClusterTags", raw)
+	}
+	if debugOn() {
+		resizeRequestMap := make(map[string]interface{})
+		resizeRequestMap["ClusterId"] = d.Id()
+		resizeRequestMap["Args"] = request.GetQueryParams()
+		addDebug("ModifyClusterTags", raw, resizeRequestMap)
+	}
+	stateConf := BuildStateConf([]string{"scaling"}, []string{"running"}, d.Timeout(schema.TimeoutUpdate), 10*time.Second, csService.CsKubernetesInstanceStateRefreshFunc(d.Id(), []string{"deleting", "failed"}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
