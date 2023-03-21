@@ -19,7 +19,25 @@ type CsService struct {
 	client *connectivity.ApsaraStackClient
 }
 
-const UpgradeClusterTimeout = 30 * time.Minute
+const (
+	COMPONENT_AUTO_SCALER      = "cluster-autoscaler"
+	COMPONENT_DEFAULT_VRESION  = "v1.0.0"
+	SCALING_CONFIGURATION_NAME = "kubernetes_autoscaler_autogen"
+	DefaultECSTag              = "k8s.aliyun.com"
+	DefaultClusterTag          = "ack.aliyun.com"
+	RECYCLE_MODE_LABEL         = "k8s.io/cluster-autoscaler/node-template/label/policy"
+	DefaultAutoscalerTag       = "k8s.io/cluster-autoscaler"
+	SCALING_GROUP_NAME         = "sg-%s-%s"
+	DEFAULT_COOL_DOWN_TIME     = 300
+	RELEASE_MODE               = "release"
+	RECYCLE_MODE               = "recycle"
+
+	PRIORITY_POLICY       = "PRIORITY"
+	COST_OPTIMIZED_POLICY = "COST_OPTIMIZED"
+	BALANCE_POLICY        = "BALANCE"
+
+	UpgradeClusterTimeout = 30 * time.Minute
+)
 
 func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDetail, err error) {
 	invoker := NewInvoker()
@@ -587,19 +605,20 @@ type ClustersV1 struct {
 	PureListData bool   `json:"pureListData"`
 	API          string `json:"api"`
 	Clusters     []struct {
-		ResourceGroupID        string `json:"resource_group_id"`
-		PrivateZone            bool   `json:"private_zone"`
-		VpcID                  string `json:"vpc_id"`
-		NetworkMode            string `json:"network_mode"`
-		SecurityGroupID        string `json:"security_group_id"`
-		ClusterType            string `json:"cluster_type"`
-		DockerVersion          string `json:"docker_version"`
-		DataDiskCategory       string `json:"data_disk_category"`
-		NextVersion            string `json:"next_version"`
-		ZoneID                 string `json:"zone_id"`
-		ClusterID              string `json:"cluster_id"`
-		Department             int    `json:"Department"`
-		ExternalLoadbalancerID string `json:"external_loadbalancer_id"`
+		Tags                   []cs.Tag `json:"tags"`
+		ResourceGroupID        string   `json:"resource_group_id"`
+		PrivateZone            bool     `json:"private_zone"`
+		VpcID                  string   `json:"vpc_id"`
+		NetworkMode            string   `json:"network_mode"`
+		SecurityGroupID        string   `json:"security_group_id"`
+		ClusterType            string   `json:"cluster_type"`
+		DockerVersion          string   `json:"docker_version"`
+		DataDiskCategory       string   `json:"data_disk_category"`
+		NextVersion            string   `json:"next_version"`
+		ZoneID                 string   `json:"zone_id"`
+		ClusterID              string   `json:"cluster_id"`
+		Department             int      `json:"Department"`
+		ExternalLoadbalancerID string   `json:"external_loadbalancer_id"`
 		//MetaData struct {
 		//	Addons []struct {
 		//		//Config      string      `json:"config"`
