@@ -249,7 +249,11 @@ func TestAccApsaraStackCRNamespace_Multi(t *testing.T) {
 }
 
 func resourceCRNamespaceConfigDependence(name string) string {
-	return ""
+	return fmt.Sprintf(`
+provider "apsarastack" {
+	assume_role {}
+}
+`)
 }
 
 var crNamespaceMap = map[string]string{

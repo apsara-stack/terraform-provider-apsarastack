@@ -72,6 +72,7 @@ const (
 	MAXCOMPUTECode      = ServiceCode("MAXCOMPUTE")
 	EDASCode            = ServiceCode("EDAS")
 	CassandraCode       = ServiceCode("CASSANDRA")
+	STSCode             = ServiceCode("STS")
 )
 
 type Endpoints struct {

@@ -168,7 +168,7 @@ func testAccPreCheckWithTime(t *testing.T) {
 func testAccPreCheckWithAlikafkaAclEnable(t *testing.T) {
 	aclEnable := os.Getenv("APSARASTACK_ALIKAFKA_ACL_ENABLE")
 
-	if aclEnable != "true" {
+	if aclEnable != "true" && aclEnable != "TRUE" {
 		t.Skipf("Skipping the test case because the acl is not enabled.")
 		t.Skipped()
 	}
