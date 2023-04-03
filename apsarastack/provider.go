@@ -513,8 +513,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	token := getProviderConfig(d.Get("security_token").(string), "sts_token")
 	config.SecurityToken = strings.TrimSpace(token)
-
 	config.RamRoleArn = getProviderConfig(d.Get("role_arn").(string), "ram_role_arn")
+
 	config.RamRoleSessionName = getProviderConfig("", "ram_session_name")
 	expiredSeconds, err := getConfigFromProfile(d, "expired_seconds")
 	if err == nil && expiredSeconds != nil {
