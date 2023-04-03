@@ -52,6 +52,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_SECURITY_TOKEN", os.Getenv("SECURITY_TOKEN")),
 				Description: descriptions["security_token"],
 			},
+			"role_arn": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: descriptions["assume_role_role_arn"],
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_ASSUME_ROLE_ARN", os.Getenv("APSARASTACK_ASSUME_ROLE_ARN")),
+			},
 			"ecs_role_name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -151,6 +157,12 @@ func Provider() terraform.ResourceProvider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_SLS_OPENAPI_ENDPOINT", nil),
 				Description: descriptions["sls_openapi_endpoint"],
+			},
+			"sts_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_STS_ENDPOINT", os.Getenv("APSARASTACK_STS_ENDPOINT")),
+				Description: descriptions["sts_endpoint"],
 			},
 			"proxy": {
 				Type:        schema.TypeString,
@@ -502,7 +514,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	token := getProviderConfig(d.Get("security_token").(string), "sts_token")
 	config.SecurityToken = strings.TrimSpace(token)
 
-	config.RamRoleArn = getProviderConfig("", "ram_role_arn")
+	config.RamRoleArn = getProviderConfig(d.Get("role_arn").(string), "ram_role_arn")
 	config.RamRoleSessionName = getProviderConfig("", "ram_session_name")
 	expiredSeconds, err := getConfigFromProfile(d, "expired_seconds")
 	if err == nil && expiredSeconds != nil {
@@ -613,6 +625,10 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	} else {
 		config.Protocol = "HTTP"
 	}
+	StsEndpoint := d.Get("sts_endpoint").(string)
+	if StsEndpoint != "" {
+		config.StsEndpoint = StsEndpoint
+	}
 	organizationAccessKey := d.Get("organization_accesskey").(string)
 	if organizationAccessKey != "" {
 		config.OrganizationAccessKey = organizationAccessKey
@@ -636,7 +652,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	if config.RamRoleArn != "" {
-		config.AccessKey, config.SecretKey, config.SecurityToken, err = getAssumeRoleAK(config.AccessKey, config.SecretKey, config.SecurityToken, region, config.RamRoleArn, config.RamRoleSessionName, config.RamRolePolicy, config.RamRoleSessionExpiration, config.AscmEndpoint)
+		config.AccessKey, config.SecretKey, config.SecurityToken, err = getAssumeRoleAK(config)
 		if err != nil {
 			return nil, err
 		}
@@ -718,6 +734,12 @@ func endpointsSchema() *schema.Schema {
 					Optional:    true,
 					Default:     "",
 					Description: descriptions["slb_endpoint"],
+				},
+				"sts": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Default:     "",
+					Description: descriptions["sts_endpoint"],
 				},
 				"vpc": {
 					Type:        schema.TypeString,
@@ -1092,7 +1114,7 @@ func assumeRoleSchema() *schema.Schema {
 					Type:        schema.TypeString,
 					Required:    true,
 					Description: descriptions["assume_role_role_arn"],
-					DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_ASSUME_ROLE_ARN", ""),
+					DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_ASSUME_ROLE_ARN", os.Getenv("APSARASTACK_ASSUME_ROLE_ARN")),
 				},
 				"session_name": {
 					Type:        schema.TypeString,
@@ -1116,27 +1138,36 @@ func assumeRoleSchema() *schema.Schema {
 	}
 }
 
-func getAssumeRoleAK(accessKey, secretKey, stsToken, region, roleArn, sessionName, policy string, sessionExpiration int, ascmEndpoint string) (string, string, string, error) {
+func getAssumeRoleAK(config *connectivity.Config) (string, string, string, error) {
 	request := sts.CreateAssumeRoleRequest()
-	request.RoleArn = roleArn
-	request.RoleSessionName = sessionName
-	request.DurationSeconds = requests.NewInteger(sessionExpiration)
-	request.Policy = policy
+	request.RoleArn = config.RamRoleArn
+	request.RoleSessionName = config.RamRoleSessionName
+	//request.DurationSeconds = requests.NewInteger(sessionExpiration)
+	request.Policy = config.RamRolePolicy
 	request.Scheme = "https"
-	request.Domain = ascmEndpoint
+	request.Domain = config.StsEndpoint
+	request.Headers["x-ascm-product-name"] = "sts"
+	request.Headers["x-acs-organizationId"] = config.Department
 
 	var client *sts.Client
 	var err error
-	if stsToken == "" {
-		client, err = sts.NewClientWithAccessKey(region, accessKey, secretKey)
+	if config.SecurityToken == "" {
+		client, err = sts.NewClientWithAccessKey(config.RegionId, config.AccessKey, config.SecretKey)
 	} else {
-		client, err = sts.NewClientWithStsToken(region, accessKey, secretKey, stsToken)
+		client, err = sts.NewClientWithStsToken(config.RegionId, config.AccessKey, config.SecretKey, config.SecurityToken)
 	}
 
 	if err != nil {
 		return "", "", "", err
 	}
-
+	client.Domain = config.StsEndpoint
+	client.AppendUserAgent(connectivity.Terraform, connectivity.TerraformVersion)
+	client.AppendUserAgent(connectivity.Provider, connectivity.ProviderVersion)
+	client.AppendUserAgent(connectivity.Module, config.ConfigurationSource)
+	client.SetHTTPSInsecure(config.Insecure)
+	if config.Proxy != "" {
+		client.SetHttpProxy(config.Proxy)
+	}
 	response, err := client.AssumeRole(request)
 	if err != nil {
 		return "", "", "", err
