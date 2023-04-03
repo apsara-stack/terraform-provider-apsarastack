@@ -23,7 +23,7 @@ func resourceApsaraStackSnapshot() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Minute),
+			Create: schema.DefaultTimeout(61 * time.Minute),
 			Delete: schema.DefaultTimeout(DefaultTimeout * time.Second),
 		},
 
