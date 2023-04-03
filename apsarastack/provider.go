@@ -610,6 +610,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			config.DataworkspublicEndpoint = strings.TrimSpace(endpoints["dataworkspublic"].(string))
 			config.AdbEndpoint = strings.TrimSpace(endpoints["adb"].(string))
 			config.DrdsEndpoint = strings.TrimSpace(endpoints["drds"].(string))
+			config.StsEndpoint = strings.TrimSpace(endpoints["sts"].(string))
 		}
 	}
 	DataworkspublicEndpoint := d.Get("dataworkspublic").(string)
