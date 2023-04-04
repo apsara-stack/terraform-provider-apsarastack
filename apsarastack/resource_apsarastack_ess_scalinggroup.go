@@ -42,6 +42,10 @@ func resourceApsaraStackEssScalingGroup() *schema.Resource {
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(2, 40),
 			},
+			"multi_az_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"default_cooldown": {
 				Type:         schema.TypeInt,
 				Default:      300,
@@ -118,7 +122,7 @@ func resourceApsaraStackEssScalingGroupCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceApsaraStackEssScalingGroupRead(d *schema.ResourceData, meta interface{}) error {
-
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	essService := EssService{client}
 
@@ -135,6 +139,7 @@ func resourceApsaraStackEssScalingGroupRead(d *schema.ResourceData, meta interfa
 	d.Set("max_size", object.MaxSize)
 	d.Set("scaling_group_name", object.ScalingGroupName)
 	d.Set("default_cooldown", object.DefaultCooldown)
+	d.Set("multi_az_policy", object.MultiAZPolicy)
 	var polices []string
 	if len(object.RemovalPolicies.RemovalPolicy) > 0 {
 		for _, v := range object.RemovalPolicies.RemovalPolicy {
@@ -188,7 +193,9 @@ func resourceApsaraStackEssScalingGroupUpdate(d *schema.ResourceData, meta inter
 	if d.HasChange("scaling_group_name") {
 		request.ScalingGroupName = d.Get("scaling_group_name").(string)
 	}
-
+	if d.HasChange("multi_az_policy") {
+		request.MultiAZPolicy = d.Get("multi_az_policy").(string)
+	}
 	if d.HasChange("min_size") {
 		request.MinSize = requests.NewInteger(d.Get("min_size").(int))
 	}
@@ -219,26 +226,20 @@ func resourceApsaraStackEssScalingGroupUpdate(d *schema.ResourceData, meta inter
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	d.SetPartial("scaling_group_name")
-	d.SetPartial("min_size")
-	d.SetPartial("max_size")
-	d.SetPartial("default_cooldown")
-	d.SetPartial("vswitch_ids")
-	d.SetPartial("removal_policies")
+
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
 	if d.HasChange("loadbalancer_ids") {
 		if err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("loadbalancer_ids")
+
 	}
 
 	if d.HasChange("db_instance_ids") {
 		if err != nil {
 			return WrapError(err)
 		}
-		d.SetPartial("db_instance_ids")
 	}
 	d.Partial(false)
 	return resourceApsaraStackEssScalingGroupRead(d, meta)
@@ -296,7 +297,9 @@ func buildApsaraStackEssScalingGroupArgs(d *schema.ResourceData, meta interface{
 	if v, ok := d.GetOk("scaling_group_name"); ok && v.(string) != "" {
 		request.ScalingGroupName = v.(string)
 	}
-
+	if v, ok := d.GetOk("multi_az_policy"); ok && v.(string) != "" {
+		request.MultiAZPolicy = v.(string)
+	}
 	if v, ok := d.GetOk("vswitch_ids"); ok {
 		ids := expandStringList(v.(*schema.Set).List())
 		request.VSwitchIds = &ids
