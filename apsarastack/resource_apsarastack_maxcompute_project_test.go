@@ -78,6 +78,7 @@ resource "apsarastack_maxcompute_project" "default"{
 	disk           = %d
 	name           = "${var.name}"
 	aliyun_account = "${apsarastack_maxcompute_user.default.user_name}"
+pk = "1075451910171540"
 }
 `
 
@@ -136,5 +137,6 @@ resource "apsarastack_maxcompute_project" "default"{
 	disk           = 50
 	name           = "${var.name}"
 	aliyun_account = "${apsarastack_maxcompute_user.default.user_name}"
+pk = "1075451910171540"
 }
 `

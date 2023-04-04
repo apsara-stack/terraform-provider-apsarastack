@@ -25,7 +25,7 @@ func resourceApsaraStackMaxcomputeCu() *schema.Resource {
 			Delete: schema.DefaultTimeout(2 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
-			"max_id": {
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
@@ -112,7 +112,7 @@ func resourceApsaraStackMaxcomputeCuRead(d *schema.ResourceData, meta interface{
 	var data map[string]interface{}
 	datas := object["data"].([]interface{})
 	if datas == nil || len(datas) < 1 {
-		d.SetId(d.Get("max_id").(string))
+		d.SetId(d.Get("id").(string))
 		d.Set("cluster_name", d.Get("cluster_name").(string))
 	}
 	s := d.Get("cu_name").(string)

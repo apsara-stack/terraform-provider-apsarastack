@@ -1,6 +1,7 @@
 package apsarastack
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -50,8 +51,8 @@ func resourceApsaraStackDBBackupPolicy() *schema.Resource {
 				ValidateFunc: validation.IntBetween(7, 730),
 			},
 
-			"enable_backup_log": {
-				Type:     schema.TypeBool,
+			"backup_log": {
+				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,
 			},
@@ -135,6 +136,7 @@ func resourceApsaraStackDBBackupPolicyCreate(d *schema.ResourceData, meta interf
 }
 
 func resourceApsaraStackDBBackupPolicyRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	rdsService := RdsService{client}
 	object, err := rdsService.DescribeBackupPolicy(d.Id())
@@ -150,10 +152,11 @@ func resourceApsaraStackDBBackupPolicyRead(d *schema.ResourceData, meta interfac
 	d.Set("preferred_backup_time", object.PreferredBackupTime)
 	d.Set("preferred_backup_period", strings.Split(object.PreferredBackupPeriod, ","))
 	d.Set("backup_retention_period", object.BackupRetentionPeriod)
-	d.Set("enable_backup_log", object.EnableBackupLog == "1")
+	d.Set("backup_log", object.BackupLog)
 	d.Set("log_backup_retention_period", object.LogBackupRetentionPeriod)
 	d.Set("local_log_retention_hours", object.LocalLogRetentionHours)
-	d.Set("local_log_retention_space", object.LocalLogRetentionSpace)
+	int, err := strconv.Atoi(object.LocalLogRetentionSpace)
+	d.Set("local_log_retention_space", int)
 	instance, err := rdsService.DescribeDBInstance(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
@@ -170,8 +173,10 @@ func resourceApsaraStackDBBackupPolicyRead(d *schema.ResourceData, meta interfac
 	}
 	d.Set("log_backup_frequency", object.LogBackupFrequency)
 	d.Set("compress_type", object.CompressType)
-	d.Set("archive_backup_retention_period", object.ArchiveBackupRetentionPeriod)
-	d.Set("archive_backup_keep_count", object.ArchiveBackupKeepCount)
+	int2, err := strconv.Atoi(object.ArchiveBackupRetentionPeriod)
+	d.Set("archive_backup_retention_period", int2)
+	int3, err := strconv.Atoi(object.ArchiveBackupKeepCount)
+	d.Set("archive_backup_keep_count", int3)
 	d.Set("archive_backup_keep_policy", object.ArchiveBackupKeepPolicy)
 	return nil
 }
@@ -182,14 +187,13 @@ func resourceApsaraStackDBBackupPolicyUpdate(d *schema.ResourceData, meta interf
 
 	updateForData := false
 	updateForLog := false
-	if d.HasChange("preferred_backup_period") || d.HasChange("preferred_backup_time") || d.HasChange("backup_retention_period") ||
+	if d.HasChange("backup_log") || d.HasChange("preferred_backup_period") || d.HasChange("preferred_backup_time") || d.HasChange("backup_retention_period") ||
 		d.HasChange("compress_type") || d.HasChange("log_backup_frequency") || d.HasChange("archive_backup_retention_period") ||
 		d.HasChange("archive_backup_keep_count") || d.HasChange("archive_backup_keep_policy") {
 		updateForData = true
 	}
 
-	if d.HasChange("enable_backup_log") || d.HasChange("log_backup_retention_period") ||
-		d.HasChange("local_log_retention_hours") || d.HasChange("local_log_retention_space") || d.HasChange("high_space_usage_protection") {
+	if d.HasChange("log_backup_retention_period") || d.HasChange("local_log_retention_hours") || d.HasChange("local_log_retention_space") || d.HasChange("high_space_usage_protection") {
 		updateForLog = true
 	}
 
@@ -231,7 +235,7 @@ func resourceApsaraStackDBBackupPolicyDelete(d *schema.ResourceData, meta interf
 	request.PreferredBackupPeriod = "Tuesday,Thursday,Saturday"
 	request.BackupRetentionPeriod = "7"
 	request.PreferredBackupTime = "02:00Z-03:00Z"
-	request.BackupLog = "Enable"
+	request.BackupLog = "Disabled"
 	instance, err := rdsService.DescribeDBInstance(d.Id())
 	if err != nil {
 		if NotFoundError(err) {
