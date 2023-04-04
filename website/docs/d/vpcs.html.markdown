@@ -47,7 +47,7 @@ The following attributes are exported in addition to the arguments listed above:
   * `id` - ID of the VPC.
   * `region_id` - ID of the region where the VPC is located.
   * `status` - Status of the VPC.
-  * `vpc_name` - Name of the VPC.
+  * `name` - Name of the VPC.
   * `vswitch_ids` - List of VSwitch IDs in the specified VPC
   * `cidr_block` - CIDR block of the VPC.
   * `vrouter_id` - ID of the VRouter.

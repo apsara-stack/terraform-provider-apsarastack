@@ -13,7 +13,7 @@ func TestAccApsaraStackMaxcomputeUser(t *testing.T) {
 	testAccCheck := ra.resourceAttrMapUpdateSet()
 	rand := acctest.RandIntRange(1000, 9999)
 	name := fmt.Sprintf("tf_testAccApsaraStack%d", rand)
-
+	name2 := fmt.Sprintf("tf_testAccApsaraStack2%d", rand)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -32,10 +32,10 @@ func TestAccApsaraStackMaxcomputeUser(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(testAccMaxcomputeUserUpdate, name),
+				Config: fmt.Sprintf(testAccMaxcomputeUserUpdate, name2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"user_name":   name,
+						"user_name":   name2,
 						"description": "TestAccApsaraStackMaxcomputeUserUpdate",
 					}),
 				),

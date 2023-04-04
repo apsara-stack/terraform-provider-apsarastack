@@ -356,7 +356,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Computed: true,
 			},
 			"security_group_id": {
-				Type:          schema.TypeString,
+				Type:          schema.TypeBool,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"is_enterprise_security_group"},
