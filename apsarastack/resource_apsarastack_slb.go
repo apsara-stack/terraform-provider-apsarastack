@@ -34,14 +34,13 @@ func resourceApsaraStackSlb() *schema.Resource {
 				Optional:     true,
 				ForceNew:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{"internet", "intranet"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"internet", "intranet", "VPC"}, false),
 			},
 			"specification": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{"slb.s1.small", "slb.s2.medium", "slb.s2.small", "slb.s3.large", "slb.s3.medium", "slb.s3.small", "slb.s4.large"}, false),
-			},
+				ValidateFunc: validation.StringInSlice([]string{"slb.s1.small", "slb.s2.medium", "slb.s2.small", "slb.s3.large", "slb.s3.medium", "slb.s3.small", "slb.s4.large"}, false)},
 			"vswitch_id": {
 				Type:             schema.TypeString,
 				Optional:         true,

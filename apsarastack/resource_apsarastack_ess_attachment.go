@@ -1,11 +1,8 @@
 package apsarastack
 
 import (
-	"fmt"
 	"strings"
 	"time"
-
-	"reflect"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -87,13 +84,11 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 			request.Headers = map[string]string{"RegionId": client.RegionId}
 			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
+			arrayString := convertArrayInterfaceToArrayString(d.Get("instance_ids").(*schema.Set).List())
+			request.InstanceId = &arrayString
 			request.ScalingGroupId = d.Id()
-			s := reflect.ValueOf(request).Elem()
 
 			err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-				for i, id := range add {
-					s.FieldByName(fmt.Sprintf("InstanceId%d", i+1)).Set(reflect.ValueOf(id))
-				}
 
 				raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 					return essClient.AttachInstances(request)
@@ -152,7 +147,7 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 
 			err = resource.Retry(3*time.Minute, func() *resource.RetryError {
 
-				instances, err := essService.DescribeEssAttachment(d.Id(), add)
+				instances, err := essService.DescribeEssAttachment(d.Id(), arrayString)
 				if err != nil {
 					return resource.NonRetryableError(WrapError(err))
 				}
@@ -177,7 +172,7 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 			}
 		}
 
-		d.SetPartial("instance_ids")
+		//d.SetPartial("instance_ids")
 	}
 
 	d.Partial(false)
@@ -231,7 +226,7 @@ func resourceApsarastackEssAttachmentDelete(d *schema.ResourceData, meta interfa
 	}
 
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		request := ess.CreateRemoveInstancesRequest()
+		request := ess.CreateDetachInstancesRequest()
 		request.RegionId = client.RegionId
 		if strings.ToLower(client.Config.Protocol) == "https" {
 			request.Scheme = "https"
@@ -249,7 +244,7 @@ func resourceApsarastackEssAttachmentDelete(d *schema.ResourceData, meta interfa
 			return nil
 		}
 		raw, err := essService.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
-			return essClient.RemoveInstances(request)
+			return essClient.DetachInstances(request)
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{"IncorrectCapacity.MinSize"}) {

@@ -115,6 +115,11 @@ func resourceApsaraStackImageImport() *schema.Resource {
 							Required: true,
 							ForceNew: true,
 						},
+						"device": {
+							Type:     schema.TypeString,
+							Optional: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},

@@ -625,7 +625,6 @@ func (s *RdsService) ReleaseDBPublicConnection(instanceId, connection string) er
 }
 
 func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData, updateForLog bool) error {
-	enableBackupLog := "1"
 
 	backupPeriod := ""
 	if v, ok := d.GetOk("preferred_backup_period"); ok && v.(*schema.Set).Len() > 0 {
@@ -660,8 +659,9 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 
 	highSpaceUsageProtection := d.Get("high_space_usage_protection").(string)
 
-	if !d.Get("enable_backup_log").(bool) {
-		enableBackupLog = "0"
+	enableBackupLog := ""
+	if v, ok := d.GetOk("backup_log"); ok {
+		enableBackupLog = v.(string)
 	}
 
 	if d.HasChange("log_backup_retention_period") {
@@ -709,6 +709,7 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		} else {
 			request.Scheme = "http"
 		}
+		request.BackupLog = enableBackupLog
 		request.PreferredBackupPeriod = backupPeriod
 		request.PreferredBackupTime = backupTime
 		request.BackupRetentionPeriod = retentionPeriod
@@ -749,7 +750,6 @@ func (s *RdsService) ModifyDBBackupPolicy(d *schema.ResourceData, updateForData,
 		} else {
 			request.Scheme = "http"
 		}
-		request.EnableBackupLog = enableBackupLog
 		request.LocalLogRetentionHours = localLogRetentionHours
 		request.LocalLogRetentionSpace = localLogRetentionSpace
 		request.HighSpaceUsageProtection = highSpaceUsageProtection
