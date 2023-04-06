@@ -226,7 +226,7 @@ func resourceApsarastackEssAttachmentDelete(d *schema.ResourceData, meta interfa
 	}
 
 	if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-		request := ess.CreateRemoveInstancesRequest()
+		request := ess.CreateDetachInstancesRequest()
 		request.RegionId = client.RegionId
 		if strings.ToLower(client.Config.Protocol) == "https" {
 			request.Scheme = "https"
@@ -244,7 +244,7 @@ func resourceApsarastackEssAttachmentDelete(d *schema.ResourceData, meta interfa
 			return nil
 		}
 		raw, err := essService.client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
-			return essClient.RemoveInstances(request)
+			return essClient.DetachInstances(request)
 		})
 		if err != nil {
 			if IsExpectedErrors(err, []string{"IncorrectCapacity.MinSize"}) {
