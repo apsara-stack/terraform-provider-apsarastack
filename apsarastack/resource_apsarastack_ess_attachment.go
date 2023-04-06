@@ -177,7 +177,7 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 			}
 		}
 
-		d.SetPartial("instance_ids")
+		//d.SetPartial("instance_ids")
 	}
 
 	d.Partial(false)
