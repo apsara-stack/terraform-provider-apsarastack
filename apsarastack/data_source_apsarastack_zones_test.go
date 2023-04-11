@@ -290,7 +290,7 @@ data "apsarastack_zones" "foo" {
 
 const testAccCheckApsaraStackZonesDataSourceMultiZone = `
 data "apsarastack_zones" "default" {
-  available_resource_creation= "Rds"
+  available_resource_creation= "MongoDB"
   multi = true
   enable_details = true
 }`

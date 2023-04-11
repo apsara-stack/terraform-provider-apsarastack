@@ -313,6 +313,9 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	if strings.ToLower(Trim(resType)) == strings.ToLower(string(ResourceTypeMongoDB)) {
 		request := dds.CreateDescribeRegionsRequest()
 		request.RegionId = client.RegionId
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "Dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 		raw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
 			return ddsClient.DescribeRegions(request)
 		})
