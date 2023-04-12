@@ -119,7 +119,7 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 			//cluster.MetaData = string(k.MetaData)
 			cluster.NetworkMode = k.NetworkMode
 			cluster.PrivateZone = k.PrivateZone
-			cluster.SecurityGroupId = k.SecurityGroupID
+
 			cluster.Profile = k.Profile
 			cluster.VSwitchIds = k.VswitchID
 			//cluster.Updated=k.Updated
