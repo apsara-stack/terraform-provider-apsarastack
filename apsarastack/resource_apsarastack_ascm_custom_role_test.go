@@ -65,7 +65,7 @@ func testAccCheckAscm_CustomRoleDestroy(s *terraform.State) error {
 
 const testAccAscm_CustomRole_resource = `
 resource "apsarastack_ascm_custom_role" "default" {
-	role_name = "Test_custom_Role"
+	role_name = "Test_custom_Role1"
 	description = "TestRole"
 	organization_visibility = "organizationVisibility.global"
 	role_range = "roleRange.allOrganizations"

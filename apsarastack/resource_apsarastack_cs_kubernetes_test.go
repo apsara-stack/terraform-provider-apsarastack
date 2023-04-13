@@ -63,7 +63,7 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"name": "${var.name}",
 					//"count":        "${var.k8s_number}",
-					"version":      "1.18.8-aliyun.1",
+					"version":      "1.22.15-aliyun.1",
 					"os_type":      "linux",
 					"platform":     "CentOS",
 					"timeout_mins": "25",
@@ -82,13 +82,12 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 					//"worker_disk_size":     "30",
 
 					//"worker_data_disks": "${var.worker_data_disks}",
-					//"worker_data_disks": []map[string]interface{}{
-					//	{
-					//		"size": "100",
-					//		"encrypted": "false",
-					//		"category": "cloud_efficiency",
-					//	},
-					//},
+					"runtime": []map[string]interface{}{
+						{
+							"name":    "containerd",
+							"version": "1.5.13",
+						},
+					},
 					//"worker_instance_types":     "${var.worker_instance_types}",
 					"worker_vswitch_ids": "${var.vswitch_ids}",
 					//"worker_vswitch_ids":        []string{"${apsarastack_vswitch.default.id}，${apsarastack_vswitch.default.id}，${apsarastack_vswitch.default.id}"},
@@ -112,36 +111,6 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 				ResourceName:      resourceId,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"detail": "detail",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"detail": "detail",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"summary": "summary update",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"summary": "summary update",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
-					"repo_type": "PRIVATE",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"repo_type": "PRIVATE",
-					}),
-				),
 			},
 		},
 	})
@@ -172,13 +141,13 @@ variable "k8s_number" {
 }
 variable "vpc_id" {
   description = "Existing vpc id used to create several vswitches and other resources."
-  default     = "vpc-b5pnvvnoi8nhzfgyjo8vu"
+  default     = "vpc-ss4jtlgjwxjbsrmd43phq"
 }
 # leave it to empty then terraform will create several vswitches
 variable "vswitch_ids" {
  description = "List of existing vswitch id."
  type        = list(string)
- default     = ["vsw-b5p1gizi45rvirprrm24v","vsw-b5p1gizi45rvirprrm24v","vsw-b5p1gizi45rvirprrm24v"]
+ default     = ["vsw-ss4qhwi7imlg9i8d46oy9"]
 }
 variable "new_nat_gateway" {
   description = "Whether to create a new nat gateway. In this template, a new nat gateway will create a nat gateway, eip and server snat entries."
@@ -187,11 +156,11 @@ variable "new_nat_gateway" {
 # 3 masters is default settings,so choose three appropriate instance types in the availability zones above.
 variable "master_instance_types" {
   description = "The ecs instance types used to launch master nodes."
-  default     = ["ecs.e4.large","ecs.e4.large","ecs.e4.large"]
+  default     = ["ecs.n4.large","ecs.n4.large","ecs.n4.large"]
 }
 variable "worker_instance_types" {
   description = "The ecs instance types used to launch worker nodes."
-  default     = ["ecs.e4.large"]
+  default     = ["ecs.n4.large"]
 }
 # options: between 24-28
 variable "node_cidr_mask" {

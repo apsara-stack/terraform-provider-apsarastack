@@ -143,29 +143,6 @@ func resourceApsaraStackMongoDBShardingInstance() *schema.Resource {
 				MinItems: 2,
 				MaxItems: 32,
 			},
-			"audit_policy": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"enable_audit_policy": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"storage_period": {
-							Type:     schema.TypeInt,
-							Optional: true,
-							Default:  30,
-						},
-					},
-				},
-			}, //AuditPolicy
-			"ssl_action": {
-				Type:         schema.TypeString,
-				ValidateFunc: validation.StringInSlice([]string{"Open", "Close", "Update"}, false),
-				Optional:     true,
-				Computed:     true,
-			},
 			"mongo_list": {
 				Type: schema.TypeList,
 				Elem: &schema.Resource{
@@ -312,81 +289,7 @@ func resourceApsaraStackMongoDBShardingInstanceCreate(d *schema.ResourceData, me
 	if err := ddsService.WaitForMongoDBInstance(d.Id(), Running, DefaultLongTimeout); err != nil {
 		return WrapError(err)
 	}
-	//auditPolicy, ok := d.Get("audit_policy").(map[string]interface{})
-	//if ok && auditPolicy !=nil {
-	if v, ok := d.GetOk("audit_policy"); ok && v != nil {
-		auditPolicyreq := dds.CreateModifyAuditPolicyRequest()
-		auditPolicy := v.(map[string]interface{})
-		if auditPolicy["enable_audit_policy"].(string) == "true" {
-			auditPolicyreq.AuditStatus = "Enable"
-		} else if auditPolicy["enable_audit_policy"].(string) == "false" {
-			auditPolicyreq.AuditStatus = "Disabled"
-		}
-		storagePeriod, _ := strconv.Atoi(auditPolicy["storage_period"].(string))
-		auditPolicyreq.StoragePeriod = requests.NewInteger(storagePeriod)
-		auditPolicyreq.DBInstanceId = d.Id()
-		auditPolicyreq.RegionId = string(client.Region)
-		auditPolicyreq.Headers = map[string]string{"RegionId": client.RegionId}
-		auditPolicyreq.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-		auditraw, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
-			return client.ModifyAuditPolicy(auditPolicyreq)
-		})
 
-		if err != nil {
-			return WrapError(err)
-		}
-
-		addDebug(auditPolicyreq.GetActionName(), auditraw, auditPolicyreq)
-	}
-	if okay := func() bool {
-		if _, ok := d.GetOk("backup_period"); ok {
-			return ok
-		}
-		if _, ok := d.GetOk("backup_time"); ok {
-			return ok
-		}
-		return false
-	}; okay() {
-		err := ddsService.MotifyMongoDBBackupPolicy(d)
-		if err != nil {
-			return WrapError(err)
-		}
-	}
-	//if _, tdeok := d.GetOk("tde_status"); tdeok {
-	//	tderequest := dds.CreateModifyDBInstanceTDERequest()
-	//	tderequest.DBInstanceId = d.Id()
-	//	tderequest.RegionId = client.RegionId
-	//	tderequest.Headers = map[string]string{"RegionId": client.RegionId}
-	//	tderequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	//	tderequest.DBInstanceId = d.Id()
-	//	tderequest.TDEStatus = d.Get("tde_status").(string)
-	//	tderaw, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
-	//		return client.ModifyDBInstanceTDE(tderequest)
-	//	})
-	//	if err != nil {
-	//		return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-	//	}
-	//	addDebug(request.GetActionName(), tderaw, request.RpcRequest, request)
-	//}
-	if _, sslok := d.GetOk("ssl_action"); sslok {
-		sslrequest := dds.CreateModifyDBInstanceSSLRequest()
-		sslrequest.DBInstanceId = d.Id()
-		sslrequest.RegionId = client.RegionId
-		sslrequest.Headers = map[string]string{"RegionId": client.RegionId}
-		sslrequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-
-		sslrequest.SSLAction = d.Get("ssl_action").(string)
-
-		sslraw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
-			return ddsClient.ModifyDBInstanceSSL(sslrequest)
-		})
-
-		if err != nil {
-			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
-		}
-		addDebug(request.GetActionName(), sslraw, request.RpcRequest, request)
-		//d.SetPartial("ssl_action")
-	}
 	return resourceApsaraStackMongoDBShardingInstanceUpdate(d, meta)
 }
 
