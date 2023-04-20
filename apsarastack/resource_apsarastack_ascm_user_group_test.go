@@ -33,8 +33,6 @@ func TestAccApsaraStackAscm_User_Group_Basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-
-		// module name
 		IDRefreshName: resourceId,
 		Providers:     testAccProviders,
 		CheckDestroy:  testAccCheckAscm_User_Group_Destroy,

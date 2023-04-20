@@ -158,6 +158,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_SLS_OPENAPI_ENDPOINT", nil),
 				Description: descriptions["sls_openapi_endpoint"],
 			},
+			"ascm_openapi_endpoint": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_ASCM_OPENAPI_ENDPOINT", nil),
+				Description: descriptions["ascm_openapi_endpoint"],
+			},
 			"sts_endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -641,6 +647,10 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	slsOpenAPIEndpoint := d.Get("sls_openapi_endpoint").(string)
 	if slsOpenAPIEndpoint != "" {
 		config.SLSOpenAPIEndpoint = slsOpenAPIEndpoint
+	}
+	ascmOpenAPIEndpoint := d.Get("ascm_openapi_endpoint").(string)
+	if ascmOpenAPIEndpoint != "" {
+		config.ASCMOpenAPIEndpoint = ascmOpenAPIEndpoint
 	}
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
