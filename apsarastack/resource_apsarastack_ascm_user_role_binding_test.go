@@ -1,7 +1,9 @@
 package apsarastack
 
 import (
+	"fmt"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"testing"
@@ -14,6 +16,7 @@ func TestAccApsaraStackAscm_UserRoleBinding(t *testing.T) {
 	serviceFunc := func() interface{} {
 		return &AscmService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}
+	rand := acctest.RandInt()
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
@@ -29,7 +32,7 @@ func TestAccApsaraStackAscm_UserRoleBinding(t *testing.T) {
 		CheckDestroy: testAccCheckAscm_UserRoleBinding_Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckAscm_UserRoleBinding,
+				Config: fmt.Sprintf(testAccCheckAscm_UserRoleBinding, rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
@@ -69,22 +72,22 @@ resource "apsarastack_ascm_organization" "default" {
 }
 
 resource "apsarastack_ascm_user" "default" {
- cellphone_number = "8675757834"
+
+ organization_id = apsarastack_ascm_organization.default.org_id
+cellphone_number = "13900000000"
  email = "test@gmail.com"
  display_name = "C2C-DELTA"
- organization_id = apsarastack_ascm_organization.default.org_id
  mobile_nation_code = "91"
- login_name = "User_Role_Test"
+ login_name = "User_Role_Test%d"
  login_policy_id = 1
 }
 
 resource "apsarastack_ascm_user_role_binding" "default" {
-  role_id = 5
+  role_ids = [5,]
   login_name = apsarastack_ascm_user.default.login_name
 }
 `
 
 var testAccCheckUserRoleBinding = map[string]string{
 	"login_name": CHECKSET,
-	"role_id":    CHECKSET,
 }
