@@ -3,7 +3,7 @@ package apsarastack
 import (
 	"fmt"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"os"
@@ -20,8 +20,8 @@ func TestAccApsaraStackAscm_UserBasic(t *testing.T) {
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
-	rand := acctest.RandInt()
-	name := fmt.Sprintf("tf-ascmusers%v", rand)
+
+	name := "dfasdfsd1"
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, testascmuserconfigbasic)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -37,10 +37,11 @@ func TestAccApsaraStackAscm_UserBasic(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"cellphone_number":   "8999995370",
 					"email":              "test01@gmail.com",
-					"display_name":       "Test_Apsara",
+					"display_name":       "C2C-DELTA",
 					"organization_id":    os.Getenv("APSARASTACK_DEPARTMENT"),
 					"mobile_nation_code": "91",
 					"login_name":         name,
+					"login_policy_id":    "1",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
