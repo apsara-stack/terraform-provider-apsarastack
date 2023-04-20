@@ -139,7 +139,7 @@ func TestAccApsaraStackMongoDBInstance_classic(t *testing.T) {
 		CheckDestroy:  testAccCheckMongoDBInstanceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testMongoDBInstance_classic_base,
+				Config: providerCommon + testMongoDBInstance_classic_base,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						"engine_version":       "3.4",

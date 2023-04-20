@@ -1,8 +1,10 @@
 package apsarastack
 
 import (
+	"encoding/json"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -37,67 +39,129 @@ func resourceApsaraStackAscmUserGroup() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"role_in_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
 
 func resourceApsaraStackAscmUserGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*connectivity.ApsaraStackClient)
-	var requestInfo *ecs.Client
-
+	//client := meta.(*connectivity.ApsaraStackClient)
+	//var requestInfo *ecs.Client
+	//
+	//groupName := d.Get("group_name").(string)
+	//organizationId := d.Get("organization_id").(string)
+	//var loginNamesList []string
+	//if v, ok := d.GetOk("role_in_ids"); ok {
+	//	loginNames := expandStringList(v.(*schema.Set).List())
+	//	for _, loginName := range loginNames {
+	//		loginNamesList = append(loginNamesList, loginName)
+	//	}
+	//}
+	//request := requests.NewCommonRequest()
+	//if client.Config.Insecure {
+	//	request.SetHTTPSInsecure(client.Config.Insecure)
+	//}
+	//request.Headers["x-ascm-product-name"] = "ascm"
+	//request.Headers["x-ascm-product-version"] = "2019-05-10"
+	//QueryParams := map[string]interface{}{
+	//	"groupName":      groupName,
+	//	"organizationId": organizationId,
+	//	"roleIdList":     loginNamesList,
+	//}
+	//request.Method = "POST"
+	//request.Product = "Ascm"
+	//request.Version = "2019-05-10"
+	//request.ServiceCode = "ascm"
+	//request.Domain = "ascm.inter.env48.shuguang.com"
+	//requeststring, err := json.Marshal(QueryParams)
+	//if strings.ToLower(client.Config.Protocol) == "https" {
+	//	request.Scheme = "https"
+	//} else {
+	//	request.Scheme = "http"
+	//}
+	//request.Headers["Content-Type"] = requests.Json
+	//request.SetContent(requeststring)
+	//request.PathPattern = "/ascm/auth/user/createUserGroup"
+	//request.ApiName = "CreateUserGroup"
+	//request.RegionId = client.RegionId
+	//request.Headers["RegionId"] = client.RegionId
+	//
+	//raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+	//	return ecsClient.ProcessCommonRequest(request)
+	//})
+	client1 := meta.(*connectivity.ApsaraStackClient)
 	groupName := d.Get("group_name").(string)
-
 	organizationId := d.Get("organization_id").(string)
-	if organizationId == "" {
-		organizationId = client.Department
+	var loginNamesList []string
+	if v, ok := d.GetOk("role_in_ids"); ok {
+		loginNames := expandStringList(v.(*schema.Set).List())
+		for _, loginName := range loginNames {
+			loginNamesList = append(loginNamesList, loginName)
+		}
+	}
+	QueryParams := map[string]interface{}{
+		"groupName":      groupName,
+		"organizationId": organizationId,
+		"roleIdList":     loginNamesList,
 	}
 
+	/*设置请求身份验证*/
+	credential := credentials.NewStsTokenCredential(
+		client1.AccessKey, // 请替换为您实际的AccessKey ID
+		client1.SecretKey, // 请替换为您实际的AccessKey Secret
+		"",                // 请替换为您实际的Security Token(非STS调用时为"")
+	)
+	/*创建请求连接*/
+	client, _ := sdk.NewClientWithOptions(client1.RegionId, sdk.NewConfig(), credential)
+	/*设置是否忽略证书*/
+	client.SetHTTPSInsecure(true)
+	/*(可选)设置创建连接超时时间*/
+	client.SetConnectTimeout(1 * time.Second)
+	/*(可选)设置读取超时时间*/
+	//client.SetReadTimeout(10 * time.Second)
+	/*（可选）请根据实际情况判断是否设置代理，设置方法如下：*/
+	//client.SetHttpProxy("http://" + client1.Config.Proxy)
+	//client.SetHttpsProxy("https://" + client1.Config.Proxy)
+
+	/*构造请求对象*/
 	request := requests.NewCommonRequest()
-	if client.Config.Insecure {
-		request.SetHTTPSInsecure(client.Config.Insecure)
-	}
-	request.QueryParams = map[string]string{
-		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
-		"Product":         "Ascm",
-		"Action":          "CreateUserGroup",
-		"Version":         "2019-05-10",
-		"ProductName":     "ascm",
-		"groupName":       groupName,
-		"OrganizationId":  organizationId,
-	}
-
-	request.Method = "POST"
-	request.Product = "Ascm"
-	request.Version = "2019-05-10"
+	request.Product = "ascm"
 	request.ServiceCode = "ascm"
-	request.Domain = client.Domain
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
+	request.Version = "2019-05-10"
 	request.ApiName = "CreateUserGroup"
-	request.RegionId = client.RegionId
-	request.Headers = map[string]string{"RegionId": client.RegionId}
-
-	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
-		return ecsClient.ProcessCommonRequest(request)
-	})
+	request.PathPattern = "/ascm/auth/user/createUserGroup"
+	request.Domain = "ascm.inter.env48.shuguang.com"
+	request.Method = "POST"
+	/*设置请求协议,默认http*/
+	//request.Scheme = "https" // https | http
+	request.SetContentType(requests.Json)
+	requeststring, err := json.Marshal(QueryParams)
+	//body := `{"groupName": "golangUserGroup","organizationId": 37, "description": "Golang调用示例", "roleIdList":["2","6"]}`
+	request.Content = requeststring
+	//request.Content = []byte(body)
+	raw, err := client.ProcessCommonRequest(request)
 	log.Printf("response of raw CreateUserGroup is : %s", raw)
 
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_group", "CreateUserGroup", raw)
 	}
 
-	addDebug("CreateUserGroup", raw, requestInfo, request)
+	addDebug("CreateUserGroup", raw, request)
 
-	bresponse, _ := raw.(*responses.CommonResponse)
-
-	if bresponse.GetHttpStatus() != 200 {
+	if raw.GetHttpStatus() != 200 {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_group", "CreateUserGroup", ApsaraStackSdkGoERROR)
 	}
-	addDebug("CreateUserGroup", raw, requestInfo, bresponse.GetHttpContentString())
+	addDebug("CreateUserGroup", raw, raw.GetHttpContentString())
+	//bresponse, _ := raw.(*responses.CommonResponse)
+	//
+	//if bresponse.GetHttpStatus() != 200 {
+	//	return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_group", "CreateUserGroup", ApsaraStackSdkGoERROR)
+	//}
+	//addDebug("CreateUserGroup", raw, bresponse.GetHttpContentString())
 
 	d.SetId(groupName)
 

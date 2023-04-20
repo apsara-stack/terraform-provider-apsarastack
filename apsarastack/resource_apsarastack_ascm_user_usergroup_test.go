@@ -9,7 +9,6 @@ import (
 	"testing"
 )
 
-
 func TestAccApsaraStackAscm_UserGroup_User_Basic(t *testing.T) {
 	var v *User
 	resourceId := "apsarastack_ascm_usergroup_user.default"
@@ -34,7 +33,7 @@ func TestAccApsaraStackAscm_UserGroup_User_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckAscmUserGroupUserDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckAscmUserGroupUserRoleBinding, name,rand),
+				Config: fmt.Sprintf(testAccCheckAscmUserGroupUserRoleBinding, name, rand),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
@@ -97,6 +96,6 @@ resource "apsarastack_ascm_usergroup_user" "default" {
 `
 
 var testAccCheckUserGroupUserBinding = map[string]string{
-	"user_group_id":   CHECKSET,
+	"user_group_id": CHECKSET,
 	//"login_name": CHECKSET,
 }
