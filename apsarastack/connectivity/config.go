@@ -47,6 +47,7 @@ type Config struct {
 	OrganizationAccessKey    string
 	OrganizationSecretKey    string
 	SLSOpenAPIEndpoint       string
+	ASCMOpenAPIEndpoint      string
 	EcsEndpoint              string
 	RdsEndpoint              string
 	SlbEndpoint              string

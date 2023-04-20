@@ -134,10 +134,16 @@ func resourceApsaraStackAscmUserGroupCreate(d *schema.ResourceData, meta interfa
 	request.Version = "2019-05-10"
 	request.ApiName = "CreateUserGroup"
 	request.PathPattern = "/ascm/auth/user/createUserGroup"
-	request.Domain = "ascm.inter.env48.shuguang.com"
+	request.Domain = client1.Config.ASCMOpenAPIEndpoint
+	//request.Domain = "ascm.inter.env48.shuguang.com"
 	request.Method = "POST"
 	/*设置请求协议,默认http*/
 	//request.Scheme = "https" // https | http
+	if strings.ToLower(client1.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.SetContentType(requests.Json)
 	requeststring, err := json.Marshal(QueryParams)
 	//body := `{"groupName": "golangUserGroup","organizationId": 37, "description": "Golang调用示例", "roleIdList":["2","6"]}`
