@@ -64,7 +64,7 @@ func testAccCheckAscm_Resource_GroupDestroy(s *terraform.State) error { //destro
 
 const testAccAscmResource_Group_resource = `
 resource "apsarastack_ascm_resource_group" "default" {
-  organization_id = "54438"
+  organization_id = "37"
   name = "apsarastack-Datasource-resourceGroup"
 }`
 

@@ -21,6 +21,7 @@ resource "apsarastack_ascm_organization" "default" {
 resource "apsarastack_ascm_user_group" "default" {
    group_name = "test"
    organization_id = apsarastack_ascm_organization.default.org_id
+   role_in_ids =   []string{"2", "6"}
 }
 
 output "org" {
@@ -33,6 +34,7 @@ The following arguments are supported:
 
 * `group_name` - (Required) group name. 
 * `organization_id` - (Required) User Organization ID.
+* `role_in_ids` - (Optional) ascm role id.
 
 ## Attributes Reference
 
