@@ -32,6 +32,11 @@ func resourceApsaraStackAscmUserGroupResourceSetBinding() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"ascm_role_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -42,7 +47,7 @@ func resourceApsaraStackAscmUserGroupResourceSetBindingCreate(d *schema.Resource
 
 	resourceSetId := d.Get("resource_set_id").(string)
 	userGroupId := d.Get("user_group_id").(string)
-
+	ascmRoleId := d.Get("ascm_role_id").(string)
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
 	request.Product = "Ascm"
@@ -65,9 +70,9 @@ func resourceApsaraStackAscmUserGroupResourceSetBindingCreate(d *schema.Resource
 		"Action":          "AddResourceSetToUserGroup",
 		"Version":         "2019-05-10",
 		"ProductName":     "ascm",
-		"ascmRoleId":      "2",
 		"userGroupId":     userGroupId,
 		"resourceSetId":   resourceSetId,
+		"ascmRoleId":      ascmRoleId,
 	}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.ProcessCommonRequest(request)

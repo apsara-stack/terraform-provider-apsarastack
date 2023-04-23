@@ -5,7 +5,6 @@ import (
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/hashicorp/terraform/helper/acctest"
 	"testing"
 )
 
@@ -16,8 +15,6 @@ func TestAccApsaraStackAscmUserGroupResourceSetBinding(t *testing.T) {
 	serviceFunc := func() interface{} {
 		return &AscmService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}
-	rand := acctest.RandInt()
-	name := fmt.Sprintf("tf-ascmusergroup%v", rand)
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
@@ -33,7 +30,7 @@ func TestAccApsaraStackAscmUserGroupResourceSetBinding(t *testing.T) {
 		CheckDestroy: testAccCheckAscmUserGroupResourceSetBindingDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckAscmUserGroupResourceSetRoleBinding, name),
+				Config: fmt.Sprintf(testAccCheckAscmUserGroupResourceSetRoleBinding),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
 				),
@@ -72,12 +69,6 @@ resource "apsarastack_ascm_organization" "default" {
  parent_id = "1"
 }
 
-resource "apsarastack_ascm_user_group" "default" {
- group_name =      "%s"
- organization_id = apsarastack_ascm_organization.default.org_id
-}
-
-
 resource "apsarastack_ascm_resource_group" "default" {
   organization_id = apsarastack_ascm_organization.default.org_id
   name = "apsarastack-terraform-resourceGroup"
@@ -85,7 +76,7 @@ resource "apsarastack_ascm_resource_group" "default" {
 
 resource "apsarastack_ascm_user_group_resource_set_binding" "default" {
   resource_set_id = apsarastack_ascm_resource_group.default.rg_id
-  user_group_id = apsarastack_ascm_user_group.default.user_group_id
+  user_group_id = "82"
 }
 `
 

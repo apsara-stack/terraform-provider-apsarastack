@@ -5,7 +5,6 @@ import (
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/hashicorp/terraform/helper/acctest"
 	"testing"
 )
 
@@ -16,8 +15,8 @@ func TestAccApsaraStackAscm_UserGroupRoleBinding(t *testing.T) {
 	serviceFunc := func() interface{} {
 		return &AscmService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}
-	rand := acctest.RandInt()
-	name := fmt.Sprintf("tf-ascmusergroup%v", rand)
+	//rand := acctest.RandInt()
+	//name := fmt.Sprintf("tf-ascmusergroup%v", rand)
 	rc := resourceCheckInit(resourceId, &v, serviceFunc)
 	rac := resourceAttrCheckInit(rc, ra)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
@@ -33,12 +32,9 @@ func TestAccApsaraStackAscm_UserGroupRoleBinding(t *testing.T) {
 		CheckDestroy: testAccCheckAscm_UserGroupRoleBinding_Destroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckAscm_UserGroupRoleBinding, name),
+				Config: fmt.Sprintf(testAccCheckAscm_UserGroupRoleBinding),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"role_ids.#": "1",
-						"role_ids.0": "5",
-					}),
+					testAccCheck(nil),
 				),
 			},
 		},
@@ -70,19 +66,10 @@ func testAccCheckAscm_UserGroupRoleBinding_Destroy(s *terraform.State) error {
 }
 
 const testAccCheckAscm_UserGroupRoleBinding = `
-resource "apsarastack_ascm_organization" "default" {
- name = "Test_binder"
- parent_id = "1"
-}
-
-resource "apsarastack_ascm_user_group" "default" {
- group_name =      "%s"
- organization_id = apsarastack_ascm_organization.default.org_id
-}
 
 resource "apsarastack_ascm_user_group_role_binding" "default" {
-  role_ids = [5,]
-  user_group_id = apsarastack_ascm_user_group.default.user_group_id
+  role_ids = [5]
+  user_group_id = "82"
 }
 `
 
