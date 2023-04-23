@@ -31,6 +31,7 @@ resource "apsarastack_ascm_resource_group" "default" {
 resource "apsarastack_ascm_user_group_resource_set_binding" "default" {
   resource_set_id = apsarastack_ascm_resource_group.default.rg_id
   user_group_id = apsarastack_ascm_user_group.default.user_group_id
+  ascm_role_id = "2"
 }
 
 output "binder" {
@@ -43,6 +44,7 @@ The following arguments are supported:
 
 * `resource_set_id` - (Required) List of resource group id.
 * `user_group_id` - (Required) user group id.
+* `ascm_role_id` - (Optional) ascm role id.
 
 ## Attributes Reference
 
