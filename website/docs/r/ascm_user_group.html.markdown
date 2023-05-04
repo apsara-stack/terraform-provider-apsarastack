@@ -12,7 +12,17 @@ description: |-
 Provides a Ascm user group resource.
 
 ## Example Usage
-
+provider "apsarastack" {
+domain    = "***"
+access_key  = "***"
+secret_key  = "***"
+region   = "***"
+proxy   = "***"
+protocol   = "***"
+insecure   = "***"
+resource_group_set_name = "***"
+ascm_openapi_endpoint = "***"
+}
 ```
 resource "apsarastack_ascm_organization" "default" {
   name = "Dummy_Test_1"
@@ -35,6 +45,7 @@ The following arguments are supported:
 * `group_name` - (Required) group name. 
 * `organization_id` - (Required) User Organization ID.
 * `role_in_ids` - (Optional) ascm role id.
+* `ascm_openapi_endpoint` -For  ascm_openapi_endpoint and how to find it, see [find a ascm_openapi_endpoint](https://help.aliyun.com/apsara/enterprise/v_3_17_0_30393230/apsarabase/enterprise-developer-guide/obtain-the-endpoint-of-a-cloud-service.html?spm=a2c4g.14484438.10001.343)
 
 ## Attributes Reference
 
