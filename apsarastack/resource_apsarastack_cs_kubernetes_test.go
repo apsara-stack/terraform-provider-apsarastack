@@ -63,14 +63,14 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"name": "${var.name}",
 					//"count":        "${var.k8s_number}",
-					"version":      "1.22.15-aliyun.1",
+					"version":      "1.20.11-aliyun.1",
 					"os_type":      "linux",
 					"platform":     "CentOS",
 					"timeout_mins": "25",
 					"vpc_id":       "${var.vpc_id}",
 
 					"master_count":          "3",
-					"master_disk_category":  "cloud_efficiency",
+					"master_disk_category":  "cloud_ssd",
 					"master_disk_size":      "45",
 					"master_instance_types": "${var.master_instance_types}",
 					"master_vswitch_ids":    "${var.vswitch_ids}",
@@ -84,12 +84,12 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 					//"worker_data_disks": "${var.worker_data_disks}",
 					"runtime": []map[string]interface{}{
 						{
-							"name":    "containerd",
-							"version": "1.5.13",
+							"name":    "Docker",
+							"version": "19.03.15",
 						},
 					},
-					//"worker_instance_types":     "${var.worker_instance_types}",
-					"worker_vswitch_ids": "${var.vswitch_ids}",
+					"worker_instance_types": "${var.worker_instance_types}",
+					"worker_vswitch_ids":    "${var.vswitch_ids}",
 					//"worker_vswitch_ids":        []string{"${apsarastack_vswitch.default.id}，${apsarastack_vswitch.default.id}，${apsarastack_vswitch.default.id}"},
 					"enable_ssh":           "${var.enable_ssh}",
 					"password":             "${var.password}",
@@ -141,13 +141,13 @@ variable "k8s_number" {
 }
 variable "vpc_id" {
   description = "Existing vpc id used to create several vswitches and other resources."
-  default     = "vpc-ss4jtlgjwxjbsrmd43phq"
+  default     = "vpc-rt7kj6dhuhand6pwal3kb"
 }
 # leave it to empty then terraform will create several vswitches
 variable "vswitch_ids" {
  description = "List of existing vswitch id."
  type        = list(string)
- default     = ["vsw-ss4qhwi7imlg9i8d46oy9"]
+ default     = ["vsw-rt7j69jj3g0nwz9q4znxf","vsw-rt7j69jj3g0nwz9q4znxf","vsw-rt7j69jj3g0nwz9q4znxf"]
 }
 variable "new_nat_gateway" {
   description = "Whether to create a new nat gateway. In this template, a new nat gateway will create a nat gateway, eip and server snat entries."
@@ -156,11 +156,11 @@ variable "new_nat_gateway" {
 # 3 masters is default settings,so choose three appropriate instance types in the availability zones above.
 variable "master_instance_types" {
   description = "The ecs instance types used to launch master nodes."
-  default     = ["ecs.n4.large","ecs.n4.large","ecs.n4.large"]
+  default     = ["ecs.sn1ne.large","ecs.sn1ne.large","ecs.sn1ne.large"]
 }
 variable "worker_instance_types" {
   description = "The ecs instance types used to launch worker nodes."
-  default     = ["ecs.n4.large"]
+  default     = ["ecs.sn1ne.large"]
 }
 # options: between 24-28
 variable "node_cidr_mask" {
