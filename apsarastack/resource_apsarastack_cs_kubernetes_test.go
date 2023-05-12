@@ -63,12 +63,12 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"name": "${var.name}",
 					//"count":        "${var.k8s_number}",
-					"version":      "1.20.11-aliyun.1",
-					"os_type":      "linux",
-					"platform":     "CentOS",
-					"timeout_mins": "25",
-					"vpc_id":       "${var.vpc_id}",
-
+					"version":               "1.20.11-aliyun.1",
+					"os_type":               "linux",
+					"platform":              "CentOS",
+					"timeout_mins":          "25",
+					"vpc_id":                "${var.vpc_id}",
+					"image_id":              "${var.image_id}",
 					"master_count":          "3",
 					"master_disk_category":  "cloud_ssd",
 					"master_disk_size":      "45",
@@ -142,6 +142,9 @@ variable "k8s_number" {
 variable "vpc_id" {
   description = "Existing vpc id used to create several vswitches and other resources."
   default     = "vpc-rt7kj6dhuhand6pwal3kb"
+}
+variable "image_id" {
+  default     = "centos_7_9_x64_20G_alibase_20220322.vhd"
 }
 # leave it to empty then terraform will create several vswitches
 variable "vswitch_ids" {
