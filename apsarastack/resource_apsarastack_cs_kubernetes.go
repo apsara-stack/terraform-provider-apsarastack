@@ -688,7 +688,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	log.Printf("checking tags %v", tags)
 	proxy_mode := d.Get("proxy_mode").(string)
 	VpcId := d.Get("vpc_id").(string)
-	//ImageId := d.Get("image_id").(string)
+	ImageId := d.Get("image_id").(string)
 	var LoginPassword string
 	if password := d.Get("password").(string); password == "" {
 		if v := d.Get("kms_encrypted_password").(string); v != "" {
@@ -822,7 +822,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"Version":          "2015-12-15",
 				"SignatureVersion": "1.0",
 				"ProductName":      "cs",
-				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%s}",
+				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%s}",
 					"Product", "Cs",
 					"os_type", OsType,
 					"platform", Platform,
@@ -862,6 +862,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 					"master_system_disk_performance_level", MasterSystemDiskPerformanceLevel,
 					"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
 					"is_enterprise_security_group", IsEnterpriseSecurityGroup,
+					"image_id", ImageId,
 					"tags", tags,
 				),
 			}
@@ -877,7 +878,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"Version":          "2015-12-15",
 				"SignatureVersion": "1.0",
 				"ProductName":      "cs",
-				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%s}",
+				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%s}",
 					"Product", "Cs",
 					"os_type", OsType,
 					"platform", Platform,
@@ -918,6 +919,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 					"master_system_disk_performance_level", MasterSystemDiskPerformanceLevel,
 					"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
 					"is_enterprise_security_group", IsEnterpriseSecurityGroup,
+					"image_id", ImageId,
 					"tags", tags,
 				),
 			}
@@ -935,7 +937,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"Version":          "2015-12-15",
 				"SignatureVersion": "1.0",
 				"ProductName":      "cs",
-				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%s}",
+				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":\"%s\",\"%s\":%s}",
 					"Product", "Cs",
 					"os_type", OsType,
 					"platform", Platform,
@@ -976,6 +978,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 					"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
 					"worker_data_disks", workerdisks,
 					"is_enterprise_security_group", IsEnterpriseSecurityGroup,
+					"image_id", ImageId,
 					"tags", tags,
 				),
 			}
@@ -991,7 +994,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"Version":          "2015-12-15",
 				"SignatureVersion": "1.0",
 				"ProductName":      "cs",
-				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%s}",
+				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":%t,\"%s\":\"%s\",\"%s\":%s}",
 					"Product", "Cs",
 					"os_type", OsType,
 					"platform", Platform,
@@ -1033,6 +1036,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 					"worker_data_disks", workerdisks,
 					"pod_vswitch_ids", podid,
 					"is_enterprise_security_group", IsEnterpriseSecurityGroup,
+					"image_id", ImageId,
 					"tags", tags,
 				),
 			}
