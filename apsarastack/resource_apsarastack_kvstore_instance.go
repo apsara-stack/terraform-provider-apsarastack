@@ -5,6 +5,7 @@ import (
 	"fmt"
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"log"
 	"strings"
 	"time"
 
@@ -244,6 +245,7 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		request["ZoneId"] = Trim(zone.(string))
 	}
 
+	log.Printf("begin describe vswitchs")
 	request["NetworkType"] = strings.ToUpper(string(Classic))
 	if vswitchId, ok := d.GetOk("vswitch_id"); ok && vswitchId.(string) != "" {
 		request["VSwitchId"] = vswitchId.(string)
@@ -253,9 +255,11 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		// check vswitchId in zone
 		object, err := vpcService.DescribeVSwitch(vswitchId.(string))
 		if err != nil {
+			log.Printf("begin describe vswitchs failed")
 			return WrapError(err)
 		}
 
+		log.Printf("begin describe vswitchs success!!")
 		if request["ZoneId"] == "" {
 			request["ZoneId"] = object.ZoneId
 		}
@@ -263,6 +267,7 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		request["VpcId"] = object.VpcId
 	}
 
+	log.Printf("begin create kvstroe instances !!")
 	wait := incrementalWait(3*time.Second, 3*time.Second)
 	err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2015-01-01"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
@@ -300,11 +305,13 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 	//d.SetId(response.InstanceId)
 
 	// wait instance status change from Creating to Normal
+	log.Printf("begin describe kvstroe instances !!")
 	stateConf := BuildStateConfByTimes([]string{"Creating"}, []string{"Normal"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, kvstoreService.RdsKvstoreInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}), 200)
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapError(err)
 	}
 
+	log.Printf("begin update kvstroe instances !!")
 	return resourceApsaraStackKVStoreInstanceUpdate(d, meta)
 }
 
