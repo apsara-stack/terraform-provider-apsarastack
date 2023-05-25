@@ -79,7 +79,7 @@ func TestAccApsaraStackDnsDomain_basic(t *testing.T) {
 
 const resourceApsaraStackDns_Domain = `
 resource "apsarastack_dns_domain" "default" {
-	domain_name = "testdummygtt5."
+	domain_name = "testdummygtt12."
 	remark = "test_dummy_1aa"
 }
 `

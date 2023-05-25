@@ -9,7 +9,6 @@ import (
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -172,7 +171,7 @@ func dataSourceApsaraStackDnsDomainsRead(d *schema.ResourceData, meta interface{
 		if r != nil && !r.MatchString(rg.Name) {
 			continue
 		}
-		id := strconv.Itoa(rg.Id)
+		id := (rg.Id)
 		mapping := map[string]interface{}{
 			"domain_id":   id,
 			"domain_name": rg.Name,
