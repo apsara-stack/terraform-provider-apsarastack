@@ -276,16 +276,17 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 	request.ApiName = "DescribeGlobalZones"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": s.client.SecretKey,
-		"AccessKeyId":     s.client.AccessKey,
-		"Product":         "CloudDns",
-		"RegionId":        s.client.RegionId,
-		"Action":          "DescribeGlobalZones",
-		"Version":         "2021-06-24",
-		"PageNumber":      fmt.Sprint(2),
-		"PageSize":        fmt.Sprint(PageSizeLarge),
-		//"Id":              did[1],
-		"Name": did[0],
+		"AccessKeySecret":   s.client.SecretKey,
+		"AccessKeyId":       s.client.AccessKey,
+		"Product":           "CloudDns",
+		"RegionId":          s.client.RegionId,
+		"Action":            "DescribeGlobalZones",
+		"Version":           "2021-06-24",
+		"PageNumber":        fmt.Sprint(1),
+		"PageSize":          fmt.Sprint(PageSizeLarge),
+		"Name":              did[0],
+		"Forwardedregionid": s.client.RegionId,
+		"SignatureVersion":  "2.1",
 	}
 	resp := &DnsDomains{}
 	raw, err := s.client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {
@@ -310,6 +311,5 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 	if len(resp.Data) < 1 || resp.AsapiSuccess == true {
 		return resp, WrapError(err)
 	}
-
 	return resp, nil
 }

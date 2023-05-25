@@ -9,7 +9,6 @@ import (
 	_ "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
-	"strconv"
 	"strings"
 	_ "time"
 )
@@ -107,6 +106,10 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 	}
 	//err = resource.Retry(5*time.Minute, func() *resource.RetryError {
 	check, err = dnsService.DescribeDnsDomain(DomainName)
+	//if len(check.Data) < 1 || check.AsapiSuccess == true {
+	//	return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", "DescribeDnsDomain not found dns")
+	//}
+
 	//if err != nil {
 	//	return resource.NonRetryableError(err)
 	//}
@@ -135,7 +138,7 @@ func resourceApsaraStackDnsDomainRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	d.Set("domain_name", did[0])
-	d.Set("domain_id", strconv.Itoa(object.Data[0].Id))
+	d.Set("domain_id", (object.Data[0].Id))
 	d.Set("remark", object.Data[0].Remark)
 	return nil
 }
