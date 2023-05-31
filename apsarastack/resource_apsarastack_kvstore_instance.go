@@ -3,6 +3,7 @@ package apsarastack
 import (
 	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"log"
 	"strings"
 	"time"
 
@@ -225,6 +226,8 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 	if zone, ok := d.GetOk("availability_zone"); ok && Trim(zone.(string)) != "" {
 		request.ZoneId = Trim(zone.(string))
 	}
+
+  log.Printf("begin describe vswitchs")
 	request.NetworkType = strings.ToUpper(string(Classic))
 	if vswitchId, ok := d.GetOk("vswitch_id"); ok && vswitchId.(string) != "" {
 		request.VSwitchId = vswitchId.(string)
@@ -234,15 +237,19 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		// check vswitchId in zone
 		object, err := vpcService.DescribeVSwitch(vswitchId.(string))
 		if err != nil {
+			log.Printf("begin describe vswitchs failed")
 			return WrapError(err)
 		}
 
+    log.Printf("begin describe vswitchs success!!")
 		if request.ZoneId == "" {
 			request.ZoneId = object.ZoneId
 		}
 
 		request.VpcId = object.VpcId
 	}
+  
+  log.Printf("begin create kvstroe instances !!")
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.CreateInstance(request)
@@ -392,7 +399,8 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 	//if _, err := stateConf.WaitForState(); err != nil {
 	//	return WrapError(err)
 	//}
-	//
+
+  log.Printf("begin update kvstroe instances !!")
 	return resourceApsaraStackKVStoreInstanceUpdate(d, meta)
 }
 
