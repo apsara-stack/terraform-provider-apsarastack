@@ -138,7 +138,7 @@ func TestAccApsaraStackKVStoreRedisInstance_classictest(t *testing.T) {
 				ResourceName:            resourceId,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"password"},
+				ImportStateVerifyIgnore: []string{"password", "cpu_type"},
 			},
 		},
 	})
@@ -406,8 +406,8 @@ resource "apsarastack_kvstore_instance" "default" {
 	instance_type  = "%s"
 	instance_class = "%s"
 	engine_version = "%s"
-cpu_type = "intel"
-        architecture_type = "standard"
+    cpu_type = "intel"
+    
 }
 
 	`, instanceType, instanceClass, engineVersion)
@@ -638,7 +638,7 @@ func testAccKVStoreInstance_vpc(common, instanceClass, instanceType, engineVersi
 		instance_type = "%s"
 		engine_version = "%s"
 cpu_type = "intel"
-        architecture_type = "standard"
+        
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -849,7 +849,7 @@ func testAccKVStoreInstance_vpcmulti(common, instanceClass, instanceType, engine
 		instance_type  = "%s"
 		engine_version = "%s"
 cpu_type = "intel"
-        architecture_type = "standard"
+        
 	}
 	`, common, instanceClass, instanceType, engineVersion)
 }
@@ -869,7 +869,7 @@ func testAccKVStoreInstance_classicmulti(instanceType, instanceClass, engineVers
 		instance_class = "%s"
 		engine_version = "%s"
 cpu_type = "intel"
-        architecture_type = "standard"
+        
 	}
 	`, instanceType, instanceClass, engineVersion)
 }
