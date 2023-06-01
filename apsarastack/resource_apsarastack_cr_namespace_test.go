@@ -161,7 +161,7 @@ func TestAccApsaraStackCRNamespace_Basic(t *testing.T) {
 	rac := resourceAttrCheckInit(rc, ra)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	rand := acctest.RandIntRange(1000000, 9999999)
-	name := fmt.Sprintf("tf-testacc-cr-ns-%d", rand)
+	name := fmt.Sprintf("testacc%d", rand)
 	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceCRNamespaceConfigDependence)
 
 	resource.Test(t, resource.TestCase{
