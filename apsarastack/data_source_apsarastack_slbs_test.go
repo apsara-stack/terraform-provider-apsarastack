@@ -47,6 +47,10 @@ resource "apsarastack_vswitch" "default" {
 resource "apsarastack_slb" "default" {
   name = "${var.name}"
   vswitch_id = "${apsarastack_vswitch.default.id}"
+ tags = {
+           Created = "TF"
+           For = "Test"
+         }
 }
 data "apsarastack_slbs" "default" {
  ids = ["${apsarastack_slb.default.id}"]
