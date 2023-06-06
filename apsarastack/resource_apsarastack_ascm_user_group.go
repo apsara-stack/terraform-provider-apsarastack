@@ -134,8 +134,8 @@ func resourceApsaraStackAscmUserGroupCreate(d *schema.ResourceData, meta interfa
 	request.Version = "2019-05-10"
 	request.ApiName = "CreateUserGroup"
 	request.PathPattern = "/ascm/auth/user/createUserGroup"
-	request.Domain = client1.Config.ASCMOpenAPIEndpoint
-	//request.Domain = "ascm.inter.env48.shuguang.com"
+	endpoint := client1.Config.ASCMOpenAPIEndpoint
+	request.Domain = endpoint
 	request.Method = "POST"
 	/*设置请求协议,默认http*/
 	//request.Scheme = "https" // https | http
