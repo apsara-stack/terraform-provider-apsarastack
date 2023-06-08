@@ -1,13 +1,12 @@
 package apsarastack
 
 import (
-	"encoding/json"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"regexp"
 	"strings"
 )
 
@@ -184,28 +183,20 @@ func dataSourceApsaraStackSlbsRead(d *schema.ResourceData, meta interface{}) err
 		}
 	}
 
-	var allLoadBalancers []slb.LoadBalancer
+	//var allLoadBalancers []LoadBalancer
+	var filteredLoadBalancersTemp []LoadBalancer
 	request.PageSize = requests.NewInteger(PageSizeLarge)
 	request.PageNumber = requests.NewInteger(1)
 	for {
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.DescribeLoadBalancers(request)
 		})
-		if err != nil {
-			return WrapError(err)
-		}
+		//if err != nil {
+		//	return WrapError(err)
+		//}
 		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 		response, _ := raw.(*slb.DescribeLoadBalancersResponse)
 		if len(response.LoadBalancers.LoadBalancer) < 1 {
-			break
-		}
-		err = json.Unmarshal(response.GetHttpContentBytes(), response)
-		if err != nil {
-			return WrapError(err)
-		}
-		allLoadBalancers = append(allLoadBalancers, response.LoadBalancers.LoadBalancer...)
-
-		if len(response.LoadBalancers.LoadBalancer) < PageSizeLarge {
 			break
 		}
 
@@ -214,36 +205,28 @@ func dataSourceApsaraStackSlbsRead(d *schema.ResourceData, meta interface{}) err
 			return WrapError(err)
 		}
 		request.PageNumber = page
-	}
 
-	var filteredLoadBalancersTemp []slb.LoadBalancer
-
-	nameRegex, ok := d.GetOk("name_regex")
-	if (ok && nameRegex.(string) != "") || (len(idsMap) > 0) {
-		var r *regexp.Regexp
-		if nameRegex != "" {
-			r = regexp.MustCompile(nameRegex.(string))
+		for _, item := range response.LoadBalancers.LoadBalancer {
+			filteredLoadBalancersTemp = append(filteredLoadBalancersTemp,
+				LoadBalancer{
+					LoadBalancerId:   item.LoadBalancerId,
+					RegionId:         item.RegionId,
+					MasterZoneId:     item.MasterZoneId,
+					SlaveZoneId:      item.SlaveZoneId,
+					LoadBalancerName: item.LoadBalancerName,
+					NetworkType:      item.NetworkType,
+					VpcId:            item.VpcId,
+					VSwitchId:        item.VSwitchId,
+					Address:          item.Address,
+					CreateTime:       item.CreateTime,
+				},
+			)
 		}
-		for _, balancer := range allLoadBalancers {
-			if r != nil && !r.MatchString(balancer.LoadBalancerName) {
-				continue
-			}
-			if len(idsMap) > 0 {
-				if _, ok := idsMap[balancer.LoadBalancerId]; !ok {
-					continue
-				}
-			}
-
-			filteredLoadBalancersTemp = append(filteredLoadBalancersTemp, balancer)
-		}
-	} else {
-		filteredLoadBalancersTemp = allLoadBalancers
 	}
-
 	return slbsDescriptionAttributes(d, filteredLoadBalancersTemp, slbService)
 }
 
-func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []slb.LoadBalancer, slbService *SlbService) error {
+func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []LoadBalancer, slbService *SlbService) error {
 	var ids []string
 	var names []string
 	var s []map[string]interface{}
@@ -284,4 +267,48 @@ func slbsDescriptionAttributes(d *schema.ResourceData, loadBalancers []slb.LoadB
 		writeToFile(output.(string), s)
 	}
 	return nil
+}
+
+// DescribeLoadBalancersResponse is the response struct for api DescribeLoadBalancers
+type DescribeLoadBalancersResponse struct {
+	*responses.BaseResponse
+	RequestId     string        `json:"RequestId" xml:"RequestId"`
+	PageNumber    int           `json:"PageNumber" xml:"PageNumber"`
+	PageSize      int           `json:"PageSize" xml:"PageSize"`
+	TotalCount    int           `json:"TotalCount" xml:"TotalCount"`
+	LoadBalancers LoadBalancers `json:"LoadBalancers" xml:"LoadBalancers"`
+}
+type LoadBalancers struct {
+	LoadBalancer []LoadBalancer `json:"LoadBalancer" xml:"LoadBalancer"`
+}
+type LoadBalancer struct {
+	VpcId                        string `json:"VpcId" xml:"VpcId"`
+	CreateTimeStamp              int64  `json:"CreateTimeStamp" xml:"CreateTimeStamp"`
+	LoadBalancerId               string `json:"LoadBalancerId" xml:"LoadBalancerId"`
+	CreateTime                   string `json:"CreateTime" xml:"CreateTime"`
+	PayType                      string `json:"PayType" xml:"PayType"`
+	AddressType                  string `json:"AddressType" xml:"AddressType"`
+	NetworkType                  string `json:"NetworkType" xml:"NetworkType"`
+	ServiceManagedMode           string `json:"ServiceManagedMode" xml:"ServiceManagedMode"`
+	SpecBpsFlag                  bool   `json:"SpecBpsFlag" xml:"SpecBpsFlag"`
+	AddressIPVersion             string `json:"AddressIPVersion" xml:"AddressIPVersion"`
+	LoadBalancerName             string `json:"LoadBalancerName" xml:"LoadBalancerName"`
+	Bandwidth                    int    `json:"Bandwidth" xml:"Bandwidth"`
+	Address                      string `json:"Address" xml:"Address"`
+	SlaveZoneId                  string `json:"SlaveZoneId" xml:"SlaveZoneId"`
+	MasterZoneId                 string `json:"MasterZoneId" xml:"MasterZoneId"`
+	InternetChargeTypeAlias      string `json:"InternetChargeTypeAlias" xml:"InternetChargeTypeAlias"`
+	LoadBalancerSpec             string `json:"LoadBalancerSpec" xml:"LoadBalancerSpec"`
+	SpecType                     string `json:"SpecType" xml:"SpecType"`
+	RegionId                     string `json:"RegionId" xml:"RegionId"`
+	ModificationProtectionReason string `json:"ModificationProtectionReason" xml:"ModificationProtectionReason"`
+	ModificationProtectionStatus string `json:"ModificationProtectionStatus" xml:"ModificationProtectionStatus"`
+	VSwitchId                    string `json:"VSwitchId" xml:"VSwitchId"`
+	LoadBalancerStatus           string `json:"LoadBalancerStatus" xml:"LoadBalancerStatus"`
+	ResourceGroupId              string `json:"ResourceGroupId" xml:"ResourceGroupId"`
+	InternetChargeType           string `json:"InternetChargeType" xml:"InternetChargeType"`
+	BusinessStatus               string `json:"BusinessStatus" xml:"BusinessStatus"`
+	DeleteProtection             string `json:"DeleteProtection" xml:"DeleteProtection"`
+	RegionIdAlias                string `json:"RegionIdAlias" xml:"RegionIdAlias"`
+	Tags                         []Tag  `json:"Tags" xml:"Tags"`
 }
