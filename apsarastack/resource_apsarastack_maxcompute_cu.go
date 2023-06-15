@@ -1,7 +1,6 @@
 package apsarastack
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -122,10 +121,10 @@ func resourceApsaraStackMaxcomputeCuRead(d *schema.ResourceData, meta interface{
 			continue
 		}
 		d.SetId(data["id"].(string))
-		max_cu, err := data["max_cu"].(json.Number).Float64()
-		if err != nil {
-			return WrapError(Error("illegal max_cu value"))
-		}
+		max_cu := data["max_cu"].(float64)
+		//if err != nil {
+		//	return WrapError(Error("illegal max_cu value"))
+		//}
 		d.Set("cu_num", int64(max_cu))
 		d.Set("cluster_name", data["cluster"].(string))
 		break
