@@ -127,13 +127,13 @@ func TestAccApsaraStackEdasK8sCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"cs_cluster_id": "cbd2c8f2c58c24c17b0c7462794a862ea",
+					"cs_cluster_id": "ca22daa783ed644fc913383c02ff40147",
 					"namespace_id":  region,
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
 						//"cluster_name":  name,
-						"cluster_type": "5",
+						"cluster_type":  "5",
 						"cs_cluster_id": CHECKSET,
 					}),
 				),

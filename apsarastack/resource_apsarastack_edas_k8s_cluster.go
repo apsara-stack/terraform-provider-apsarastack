@@ -63,10 +63,17 @@ func resourceApsaraStackEdasK8sClusterCreate(d *schema.ResourceData, meta interf
 
 	request := edas.CreateImportK8sClusterRequest()
 	request.RegionId = client.RegionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ClusterId = d.Get("cs_cluster_id").(string)
 	request.Headers["x-ascm-product-name"] = "Edas"
 	request.Headers["x-acs-organizationid"] = client.Department
 	request.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	if v, ok := d.GetOk("namespace_id"); ok {
 		request.NamespaceId = v.(string)
 	}
@@ -94,6 +101,8 @@ func resourceApsaraStackEdasK8sClusterCreate(d *schema.ResourceData, meta interf
 	req.Headers["x-acs-organizationid"] = client.Department
 	req.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
 	req.RegionId = client.RegionId
+	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	wait := incrementalWait(1*time.Second, 2*time.Second)
 	err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
 		raw, err := edasService.client.WithEdasClient(func(edasClient *edas.Client) (interface{}, error) {
@@ -140,7 +149,7 @@ func resourceApsaraStackEdasK8sClusterRead(d *schema.ResourceData, meta interfac
 	pos := strings.Index(region, ":")
 	// get ":", should intercept the string
 	if pos != -1 {
-		region = region[0 : pos]
+		region = region[0:pos]
 	}
 	d.Set("cluster_name", object.ClusterName)
 	d.Set("cluster_type", object.ClusterType)
@@ -162,10 +171,17 @@ func resourceApsaraStackEdasK8sClusterDelete(d *schema.ResourceData, meta interf
 
 	request := edas.CreateDeleteClusterRequest()
 	request.RegionId = regionId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	request.ClusterId = clusterId
 	request.Headers["x-ascm-product-name"] = "Edas"
 	request.Headers["x-acs-organizationid"] = client.Department
 	request.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	wait := incrementalWait(1*time.Second, 2*time.Second)
 	err := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		raw, err := edasService.client.WithEdasClient(func(edasClient *edas.Client) (interface{}, error) {
@@ -193,9 +209,16 @@ func resourceApsaraStackEdasK8sClusterDelete(d *schema.ResourceData, meta interf
 	reqGet := edas.CreateGetClusterRequest()
 	reqGet.RegionId = regionId
 	reqGet.ClusterId = clusterId
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
 	reqGet.Headers["x-ascm-product-name"] = "Edas"
 	reqGet.Headers["x-acs-organizationid"] = client.Department
 	reqGet.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+
 	err = resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		raw, err := edasService.client.WithEdasClient(func(edasClient *edas.Client) (interface{}, error) {
 			return edasClient.GetCluster(reqGet)

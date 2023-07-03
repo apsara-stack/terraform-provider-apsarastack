@@ -302,6 +302,13 @@ func (e *EdasService) DescribeEdasListCluster(clusterId string) (*edas.Cluster, 
 	request.RegionId = e.client.RegionId
 	request.ResourceGroupId = e.client.ResourceGroup
 	request.LogicalRegionId = e.client.RegionId
+	if strings.ToLower(e.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.Headers = map[string]string{"RegionId": e.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": e.client.SecretKey, "Product": "ecs", "Department": e.client.Department, "ResourceGroup": e.client.ResourceGroup}
 
 	raw, err := e.client.WithEdasClient(func(edasClient *edas.Client) (interface{}, error) {
 		return edasClient.ListCluster(request)
@@ -317,7 +324,7 @@ func (e *EdasService) DescribeEdasListCluster(clusterId string) (*edas.Cluster, 
 		return cluster, WrapError(Error("create cluster failed for " + response.Message))
 	}
 
-	v:= edas.Cluster{}
+	v := edas.Cluster{}
 	for _, onecluster := range response.ClusterList.Cluster {
 		if onecluster.ClusterId == clusterId {
 			if onecluster.CsClusterStatus == "running" {
