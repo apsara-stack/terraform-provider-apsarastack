@@ -71,6 +71,7 @@ func resourceApsaraStackImageImport() *schema.Resource {
 					"Windows Server 2012",
 					"Windows 7",
 					"Customized Linux",
+					"Aliyun",
 					"Others Linux",
 				}, false),
 			},
