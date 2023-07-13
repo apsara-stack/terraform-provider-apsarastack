@@ -370,9 +370,7 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		}
 		return nil
 	})
-
 	d.SetId(fmt.Sprint(response["InstanceId"]))
-
 	log.Printf("begin describe kvstroe instances !!")
 	// wait instance status change from Creating to Normal
 	stateConf := BuildStateConfByTimes([]string{"Creating"}, []string{"Normal"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, kvstoreService.RdsKvstoreInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}), 200)
