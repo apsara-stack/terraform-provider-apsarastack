@@ -358,20 +358,13 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		request["VpcId"] = object.VpcId
 	}
 	log.Printf("begin create kvstroe instances !!")
-	wait := incrementalWait(3*time.Second, 3*time.Second)
-	err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		log.Printf(" really begin create kvstroe instances !!")
-		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2015-01-01"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
-		log.Printf(" create kvstroe instances Finished !!")
-		if err != nil {
-			if NeedRetry(err) {
-				wait()
-				return resource.RetryableError(err)
-			}
-			return resource.NonRetryableError(err)
-		}
-		return nil
-	})
+	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2015-01-01"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+	log.Printf(" create kvstroe instances Finished !!")
+	if err != nil {
+		err = WrapErrorf(err, " create kvstroe instances Failed !!", action, ApsaraStackSdkGoERROR)
+		return err
+	}
+
 	d.SetId(fmt.Sprint(response["InstanceId"]))
 	log.Printf("begin describe kvstroe instances !!")
 	// wait instance status change from Creating to Normal
