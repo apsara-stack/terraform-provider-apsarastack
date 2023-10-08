@@ -172,6 +172,10 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"architecture_type": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 		},
 	}
 }
