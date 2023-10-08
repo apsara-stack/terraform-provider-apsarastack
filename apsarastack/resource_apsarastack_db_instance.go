@@ -3,11 +3,12 @@ package apsarastack
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
@@ -238,11 +239,11 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	}
 	d.Set("encryption", encryption)
 	log.Print("Encryption key input")
-	if EncryptionKey != "" && encryption == true {
+	if EncryptionKey != "" && encryption {
 		log.Print("Encryption key condition passed")
 		req := requests.NewCommonRequest()
 		req.Method = "POST"
-		request.Product = "Rds"
+		req.Product = "Rds"
 		req.Domain = client.Domain
 		req.Version = "2014-08-15"
 		req.Scheme = "http"
@@ -327,12 +328,13 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	ClientToken := fmt.Sprintf("Terraform-ApsaraStack-%d-%s", time.Now().Unix(), uuid)
 	request.QueryParams = map[string]string{
 		"AccessKeySecret":       client.SecretKey,
-		"Product":               "rds",
 		"Department":            client.Department,
-		"ResourceGroup":         client.ResourceGroup,
+		"ResourceGroupId":       client.ResourceGroup,
 		"EngineVersion":         enginever,
 		"Engine":                engine,
-		"Encryption":            strconv.FormatBool(encryption),
+		"Product":               "Rds",
+		"Action":                "CreateDBInstance",
+		"Version":               "2014-08-15",
 		"DBInstanceStorage":     string(DBInstanceStorage),
 		"DBInstanceClass":       DBInstanceClass,
 		"DBInstanceNetType":     DBInstanceNetType,
@@ -367,12 +369,12 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	var resp CreateDBInstanceResponse
 	addDebug(request.GetActionName(), raw, request)
 	response, _ := raw.(*responses.CommonResponse)
+	log.Printf("response for create %v", response)
 	err = json.Unmarshal(response.GetHttpContentBytes(), &resp)
-	log.Printf("response for create %v", &resp)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_db_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
-	log.Printf("response25 %v", response)
+	log.Printf("response25 %v", resp)
 	d.SetId(resp.DBInstanceId)
 	d.Set("connection_string", resp.ConnectionString)
 
@@ -388,8 +390,12 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 		tde_req := rds.CreateModifyDBInstanceTDERequest()
 		tde_req.RegionId = client.RegionId
 		tde_req.Headers = map[string]string{"RegionId": client.RegionId}
-		tde_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		tde_req.DBInstanceId = d.Id()
+		if EncryptionKey != "" {
+			tde_req.EncryptionKey = EncryptionKey
+		}
+		tde_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "RoleARN": arnrole}
+
 		tde_req.TDEStatus = "Enabled"
 		if strings.ToLower(client.Config.Protocol) == "https" {
 			request.Scheme = "https"
