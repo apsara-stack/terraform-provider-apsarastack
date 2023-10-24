@@ -329,7 +329,7 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	request.QueryParams = map[string]string{
 		"AccessKeySecret":       client.SecretKey,
 		"Department":            client.Department,
-		"ResourceGroupId":       client.ResourceGroup,
+		"ResourceGroup":         client.ResourceGroup,
 		"EngineVersion":         enginever,
 		"Engine":                engine,
 		"Product":               "Rds",
