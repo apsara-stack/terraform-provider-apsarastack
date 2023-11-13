@@ -1,9 +1,10 @@
 package apsarastack
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -82,9 +83,10 @@ func resourceApsaraStackSnapshotCreate(d *schema.ResourceData, meta interface{})
 
 	ecsService := EcsService{client}
 
-	stateConf := BuildStateConf([]string{}, []string{string(SnapshotCreatingAccomplished)}, d.Timeout(schema.TimeoutCreate), 2*time.Minute,
-		ecsService.SnapshotStateRefreshFunc(d.Id(), []string{string(SnapshotCreatingFailed)}))
-
+	stateConf := BuildStateConfByTimes([]string{}, []string{string(SnapshotCreatingAccomplished)}, d.Timeout(schema.TimeoutCreate), 1*time.Minute,
+		ecsService.SnapshotStateRefreshFunc(d.Id(), []string{string(SnapshotCreatingFailed)}), 360)
+	// log.Printf("schema.TimeoutCreate: %s", d.Timeout(schema.TimeoutCreate))
+	// log.Printf("stateConf.Timeout: %s", stateConf.Timeout)
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
