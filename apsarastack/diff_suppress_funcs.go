@@ -1,10 +1,11 @@
 package apsarastack
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"log"
 	"strconv"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func vpcTypeResourceDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
@@ -70,6 +71,12 @@ func slbRuleHealthCheckDiffSuppressFunc(k, old, new string, d *schema.ResourceDa
 func slbRuleCookieTimeoutDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 	stickSessionTypeDiff := slbRuleStickySessionTypeDiffSuppressFunc(k, old, new, d)
 	if session_type, ok := d.GetOk("sticky_session_type"); !stickSessionTypeDiff && ok && session_type.(string) == string(InsertStickySessionType) {
+		return false
+	}
+	return true
+}
+func httpsDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if protocol, ok := d.GetOk("protocol"); ok && Protocol(protocol.(string)) == Https {
 		return false
 	}
 	return true

@@ -2,15 +2,16 @@ package apsarastack
 
 import (
 	"fmt"
+	"log"
+	"strings"
+	_ "time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	_ "github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"log"
-	"strings"
-	_ "time"
 )
 
 func resourceApsaraStackDnsDomain() *schema.Resource {
@@ -90,6 +91,8 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 			"Action":          "AddGlobalZone",
 			"Version":         "2021-06-24",
 			"Name":            DomainName,
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
 		}
 		raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
 			return dnsClient.ProcessCommonRequest(request)
@@ -191,6 +194,8 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 		"Name":            did[0],
 		"Id":              did[1],
 		"Remark":          desc,
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
 	}
 	if remarkUpdate {
 
@@ -240,6 +245,8 @@ func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}
 			"Action":          "DeleteGlobalZone",
 			"Version":         "2021-06-24",
 			"Id":              did[1],
+			"Department":      client.Department,
+			"ResourceGroup":   client.ResourceGroup,
 		}
 		_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
 			return csClient.ProcessCommonRequest(request)

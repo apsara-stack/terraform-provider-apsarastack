@@ -3,15 +3,17 @@ package apsarastack
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"reflect"
-	"strings"
-	"time"
 )
 
 type DnsService struct {
@@ -19,7 +21,6 @@ type DnsService struct {
 }
 
 func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err error) {
-	var requestInfo *ecs.Client
 	ZoneId := id
 	request := requests.NewCommonRequest()
 	if s.client.Config.Insecure {
@@ -28,12 +29,14 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
 		"AccessKeySecret": s.client.SecretKey,
+		"Department":      s.client.Department,
 		"Product":         "CloudDns",
 		"Action":          "DescribeGlobalZoneRecords",
 		"Version":         "2021-06-24",
 		"ZoneId":          ZoneId,
-		"PageNumber":      fmt.Sprint(2),
+		"PageNumber":      fmt.Sprint(1),
 		"PageSize":        fmt.Sprint(PageSizeLarge),
+		"ResourceGroup":   s.client.ResourceGroup,
 	}
 	request.Method = "POST"
 	request.Product = "CloudDns"
@@ -58,7 +61,6 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 		return resp, WrapErrorf(err, DefaultErrorMsg, id, "DescribeGlobalZoneRecords", ApsaraStackSdkGoERROR)
 
 	}
-	addDebug("DescribeGlobalZoneRecords", response, requestInfo, request)
 
 	bresponse, _ := raw.(*responses.CommonResponse)
 	//headers := bresponse.GetHttpHeaders()
@@ -67,10 +69,13 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 	//		return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
 	//	}
 	//}
+	addDebug("DescribeGlobalZoneRecords", bresponse, request.QueryParams)
+
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {
 		return resp, WrapError(err)
 	}
+	log.Printf("================ resp: %s\n ", &resp)
 
 	if len(resp.Data) < 1 || resp.AsapiSuccess == true {
 		return resp, WrapError(err)
@@ -287,6 +292,8 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 		"Name":              did[0],
 		"Forwardedregionid": s.client.RegionId,
 		"SignatureVersion":  "2.1",
+		"Department":        s.client.Department,
+		"ResourceGroup":     s.client.ResourceGroup,
 	}
 	resp := &DnsDomains{}
 	raw, err := s.client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {

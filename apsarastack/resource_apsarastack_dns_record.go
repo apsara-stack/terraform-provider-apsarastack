@@ -1,17 +1,20 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
-	"strings"
-	"time"
 )
 
 func resourceApsaraStackDnsRecord() *schema.Resource {
@@ -26,7 +29,7 @@ func resourceApsaraStackDnsRecord() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"zone_id": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Required: true,
 			},
 			"record_id": {
@@ -62,6 +65,11 @@ func resourceApsaraStackDnsRecord() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"line_ids": {
+				Type:     schema.TypeSet,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Optional: true,
+			},
 		},
 	}
 }
@@ -69,54 +77,109 @@ func resourceApsaraStackDnsRecord() *schema.Resource {
 func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	//var requestInfo *ecs.Client
-	request := make(map[string]interface{})
-	ZoneId := d.Get("zone_id").(int)
+	// request := make(map[string]interface{})
+	ZoneId := d.Get("zone_id").(string)
 	LbaStrategy := d.Get("lba_strategy").(string)
 	Type := d.Get("type").(string)
 	Name := d.Get("name").(string)
 	TTL := d.Get("ttl").(int)
+	// var response map[string]interface{}
+
+	// action := "AddGlobalZoneRecord"
+	// request["Product"] = "CloudDns"
+	// request["product"] = "CloudDns"
+	// request["OrganizationId"] = client.Department
+	// request["RegionId"] = client.RegionId
+
+	// request["Type"] = Type
+	// request["Ttl"] = TTL
+	// request["ZoneId"] = ZoneId
+	// request["LbaStrategy"] = LbaStrategy
+	// request["Name"] = Name
+	// conn, err := client.NewDataworkspublicClient()
+	// if err != nil {
+	// 	return WrapError(err)
+	// }
+	// request["ClientToken"] = buildClientToken("AddGlobalZoneRecord")
+	// runtime := util.RuntimeOptions{}
+	// runtime.SetAutoretry(true)
+	// wait := incrementalWait(3*time.Second, 3*time.Second)
+	// err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
+	// 	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2021-06-24"), StringPointer("AK"), nil, request, &runtime)
+	// 	if err != nil {
+	// 		if NeedRetry(err) {
+	// 			wait()
+	// 			return resource.RetryableError(err)
+	// 		}
+	// 		return resource.NonRetryableError(err)
+	// 	}
+	// 	return nil
+	// })
+	request := requests.NewCommonRequest()
+	request.Method = "POST"        // Set request method
+	request.Product = "CloudDns"   // Specify product
+	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
+	request.Version = "2021-06-24" // Specify product version
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	line_ids := expandStringList(d.Get("line_ids").(*schema.Set).List())
+	if len(line_ids) <= 0 {
+		line_ids = []string{"default"}
+	}
+
+	line_ids_json, _ := json.Marshal(line_ids)
+	line_ids_str := string(line_ids_json)
+	request.ApiName = "AddGlobalZoneRecord"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"AccessKeyId":     client.AccessKey,
+		"Product":         "CloudDns",
+		"RegionId":        client.RegionId,
+		"Action":          "AddGlobalZoneRecord",
+		"Version":         "2021-06-24",
+		"Name":            Name,
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+		"Type":            Type,
+		"Ttl":             fmt.Sprintf("%d", TTL),
+		"ZoneId":          ZoneId,
+		"LbaStrategy":     LbaStrategy,
+		"ClientToken":     buildClientToken("AddGlobalZoneRecord"),
+		"LineIds":         line_ids_str,
+	}
 	var rrsets []string
 	if v, ok := d.GetOk("rr_set"); ok {
 		rrsets = expandStringList(v.(*schema.Set).List())
 		for i, key := range rrsets {
-			request[fmt.Sprintf("RDatas.%d.Value", i+1)] = key
+			request.QueryParams[fmt.Sprintf("RDatas.%d.Value", i+1)] = key
 
 		}
 	}
-	var response map[string]interface{}
-
-	action := "AddGlobalZoneRecord"
-	request["Product"] = "CloudDns"
-	request["product"] = "CloudDns"
-	request["OrganizationId"] = client.Department
-	request["RegionId"] = client.RegionId
-
-	request["Type"] = Type
-	request["Ttl"] = TTL
-	request["ZoneId"] = ZoneId
-	request["LbaStrategy"] = LbaStrategy
-	request["Name"] = Name
-	conn, err := client.NewDataworkspublicClient()
-	if err != nil {
-		return WrapError(err)
-	}
-	request["ClientToken"] = buildClientToken("AddGlobalZoneRecord")
-	runtime := util.RuntimeOptions{}
-	runtime.SetAutoretry(true)
-	wait := incrementalWait(3*time.Second, 3*time.Second)
-	err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2021-06-24"), StringPointer("AK"), nil, request, &runtime)
-		if err != nil {
-			if NeedRetry(err) {
-				wait()
-				return resource.RetryableError(err)
-			}
-			return resource.NonRetryableError(err)
-		}
-		return nil
+	raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
+		return dnsClient.ProcessCommonRequest(request)
 	})
+	addDebug(request.GetActionName(), raw, request)
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_record", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
+	bresponse, _ := raw.(*responses.CommonResponse)
+	if bresponse.GetHttpStatus() != 200 {
+		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_record", "AddGlobalZoneRecord", ApsaraStackSdkGoERROR)
+	}
+	addDebug("AddGlobalZoneRecord", raw, request, bresponse.GetHttpContentString())
+	var resp map[string]interface{}
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), &resp)
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_record", "AddGlobalZoneRecord", ApsaraStackSdkGoERROR)
+	}
+	if resp["asapiSuccess"].(bool) == false {
+		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_record", "AddGlobalZoneRecord", ApsaraStackSdkGoERROR)
+	}
 
-	addDebug("AddGlobalZoneRecord", response, request)
 	d.SetId(fmt.Sprint(ZoneId))
 
 	return resourceApsaraStackDnsRecordRead(d, meta)
@@ -149,7 +212,7 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 	client := meta.(*connectivity.ApsaraStackClient)
 	dnsService := DnsService{client}
 	ID := d.Get("record_id").(int)
-	ZoneId := d.Get("zone_id").(int)
+	ZoneId := d.Get("zone_id").(string)
 	Name := d.Get("name").(string)
 	LbaStrategy := d.Get("lba_strategy").(string)
 	check, err := dnsService.DescribeDnsRecord(d.Id())
@@ -300,7 +363,7 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 func resourceApsaraStackDnsRecordDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	ID := d.Get("record_id").(int)
-	ZoneId := d.Get("zone_id").(int)
+	ZoneId := d.Get("zone_id").(string)
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
 	request.Product = "CloudDns"

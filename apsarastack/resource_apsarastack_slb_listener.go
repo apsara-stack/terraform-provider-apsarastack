@@ -270,6 +270,41 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 				Default:          900,
 				DiffSuppressFunc: establishedTimeoutDiffSuppressFunc,
 			},
+			//http & https
+			"idle_timeout": {
+				Type:             schema.TypeInt,
+				ValidateFunc:     validation.IntBetween(1, 60),
+				Optional:         true,
+				Default:          15,
+				DiffSuppressFunc: httpHttpsDiffSuppressFunc,
+			},
+
+			//http & https
+			"request_timeout": {
+				Type:             schema.TypeInt,
+				ValidateFunc:     validation.IntBetween(1, 180),
+				Optional:         true,
+				Default:          60,
+				DiffSuppressFunc: httpHttpsDiffSuppressFunc,
+			},
+
+			//https
+			"enable_http2": {
+				Type:             schema.TypeString,
+				ValidateFunc:     validation.StringInSlice([]string{"on", "off"}, false),
+				Optional:         true,
+				Default:          OnFlag,
+				DiffSuppressFunc: httpsDiffSuppressFunc,
+			},
+
+			//https
+			"tls_cipher_policy": {
+				Type:             schema.TypeString,
+				Default:          "tls_cipher_policy_1_0",
+				ValidateFunc:     validation.StringInSlice([]string{"tls_cipher_policy_1_0", "tls_cipher_policy_1_1", "tls_cipher_policy_1_2", "tls_cipher_policy_1_2_strict"}, false),
+				Optional:         true,
+				DiffSuppressFunc: httpsDiffSuppressFunc,
+			},
 
 			"forward_port": {
 				Type:             schema.TypeInt,
@@ -290,6 +325,11 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
+			},
+			"proxy_protocol_v2_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
