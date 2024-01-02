@@ -2,14 +2,15 @@ package apsarastack
 
 import (
 	"encoding/json"
+	"log"
+	"strings"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"log"
-	"strings"
 )
 
 func resourceApsaraStackRamRole() *schema.Resource {
@@ -48,6 +49,7 @@ func resourceApsaraStackRamRoleCreate(d *schema.ResourceData, meta interface{}) 
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":                 client.RegionId,
+		"AccessKeyId":              client.AccessKey,
 		"AccessKeySecret":          client.SecretKey,
 		"Department":               client.Department,
 		"ResourceGroup":            client.ResourceGroup,

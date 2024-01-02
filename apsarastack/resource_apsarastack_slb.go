@@ -73,7 +73,12 @@ func resourceApsaraStackSlbCreate(d *schema.ResourceData, meta interface{}) erro
 	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "slb",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
+	}
 	request.LoadBalancerName = d.Get("name").(string)
 	request.AddressType = strings.ToLower(string(Intranet))
 	request.ClientToken = buildClientToken(request.GetActionName())
@@ -97,6 +102,7 @@ func resourceApsaraStackSlbCreate(d *schema.ResourceData, meta interface{}) erro
 	invoker := Invoker{}
 	invoker.AddCatcher(Catcher{"OperationFailed.TokenIsProcessing", 10, 5})
 	log.Printf("[DEBUG] slb request %v", request)
+	log.Printf("[DEBUG] slb request.Headers %v", request.Headers)
 	if err := invoker.Run(func() error {
 		resp, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {
 			return slbClient.CreateLoadBalancer(request)
