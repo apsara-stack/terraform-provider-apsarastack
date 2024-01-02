@@ -4,6 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"runtime"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -16,13 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/mitchellh/go-homedir"
-	"io/ioutil"
-	"log"
-	"os"
-	"runtime"
-	"strconv"
-	"strings"
-	"time"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -1152,12 +1153,18 @@ func assumeRoleSchema() *schema.Schema {
 func getAssumeRoleAK(config *connectivity.Config) (string, string, string, error) {
 	request := sts.CreateAssumeRoleRequest()
 	request.RoleArn = config.RamRoleArn
+	if config.RamRoleSessionName == "" {
+		config.RamRoleSessionName = "terraform"
+	}
 	request.RoleSessionName = config.RamRoleSessionName
-	//request.DurationSeconds = requests.NewInteger(sessionExpiration)
+	//request.DurationSeconds = requests.NewInteger(config.RamRoleSessionExpiration)
 	request.Policy = config.RamRolePolicy
 	request.Scheme = "https"
+	request.SetHTTPSInsecure(config.Insecure)
+
 	request.Domain = config.StsEndpoint
-	request.Headers["x-ascm-product-name"] = "sts"
+	request.QueryParams["Region"] = config.RegionId
+	request.Headers["x-ascm-product-name"] = "Sts"
 	request.Headers["x-acs-organizationId"] = config.Department
 
 	var client *sts.Client
@@ -1178,6 +1185,7 @@ func getAssumeRoleAK(config *connectivity.Config) (string, string, string, error
 	client.SetHTTPSInsecure(config.Insecure)
 	if config.Proxy != "" {
 		client.SetHttpProxy(config.Proxy)
+		client.SetHttpsProxy(config.Proxy)
 	}
 	response, err := client.AssumeRole(request)
 	if err != nil {
