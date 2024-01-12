@@ -73,7 +73,7 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 		request.Scheme = "http"
 	} // Set request scheme. Default: http
 	request.ApiName = "DescribeClustersV1"
-	request.Headers = map[string]string{"RegionId": s.client.RegionId, "x-acs-asapi-gateway-version": "3.0"}
+	request.Headers = map[string]string{"RegionId": s.client.RegionId, "x-acs-content-type": "application/json"}
 	if err := invoker.Run(func() error {
 		raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
@@ -166,7 +166,7 @@ func (s *CsService) DescribeClusterNodes(id, nodepoolid string) (pools *NodePool
 		request.Scheme = "http"
 	} // Set request scheme. Default: http
 	request.ApiName = "DescribeClusterNodes"
-	request.Headers = map[string]string{"RegionId": s.client.RegionId, "x-acs-asapi-gateway-version": "3.0"}
+	request.Headers = map[string]string{"RegionId": s.client.RegionId, "x-acs-content-type": "application/json"}
 	var clusternodepools *NodePools
 	if err := invoker.Run(func() error {
 		raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

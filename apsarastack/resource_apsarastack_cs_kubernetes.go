@@ -1059,7 +1059,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		request.Scheme = "http"
 	} // Set request scheme. Default: http
 	request.ApiName = "CreateCluster"
-	request.Headers = map[string]string{"RegionId": client.RegionId, "x-acs-asapi-gateway-version": "3.0"}
+	request.Headers = map[string]string{"RegionId": client.RegionId, "x-acs-content-type": "application/json"}
 
 	var err error
 	err = nil
@@ -1194,7 +1194,7 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 			request.Scheme = "http"
 		} // Set request scheme. Default: http
 		request.ApiName = "ScaleClusterNodePool"
-		request.Headers = map[string]string{"RegionId": client.RegionId, "x-acs-asapi-gateway-version": "3.0"}
+		request.Headers = map[string]string{"RegionId": client.RegionId, "x-acs-content-type": "application/json"}
 		//var err error
 		err = nil
 		if err = invoker.Run(func() error {
@@ -1309,7 +1309,7 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 		request.Scheme = "http"
 	} // Set request scheme. Default: http
 	request.ApiName = "DeleteCluster"
-	request.Headers = map[string]string{"RegionId": client.RegionId, "x-acs-asapi-gateway-version": "3.0"}
+	request.Headers = map[string]string{"RegionId": client.RegionId, "x-acs-content-type": "application/json"}
 	var response interface{}
 	err := resource.Retry(30*time.Minute, func() *resource.RetryError {
 		if err := invoker.Run(func() error {
@@ -1405,10 +1405,10 @@ func updateKubernetesClusterTag(d *schema.ResourceData, meta interface{}) error 
 	} // Set request scheme. Default: http
 	request.ApiName = "ModifyClusterTags"
 	request.Headers = map[string]string{
-		"RegionId":                    client.RegionId,
-		"Authorization":               "AuthorizationString",
-		"Content-Type":                "application/json",
-		"x-acs-asapi-gateway-version": "3.0",
+		"RegionId":           client.RegionId,
+		"Authorization":      "AuthorizationString",
+		"Content-Type":       "application/json",
+		"x-acs-content-type": "application/json",
 	}
 	var err error
 	if err = invoker.Run(func() error {
