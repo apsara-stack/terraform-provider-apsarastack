@@ -220,7 +220,20 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 				Default:          HTTP_2XX,
 				DiffSuppressFunc: httpHttpsTcpDiffSuppressFunc,
 			},
+			//https
+			"ssl_certificate_id": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: sslCertificateIdDiffSuppressFunc,
+				Deprecated:       "Field 'ssl_certificate_id' has been deprecated from 1.59.0 and using 'server_certificate_id' instead.",
+			},
 			"server_certificate_id": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: sslCertificateIdDiffSuppressFunc,
+			},
+			"ca_certificate_id": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				DiffSuppressFunc: sslCertificateIdDiffSuppressFunc,
@@ -270,24 +283,6 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 				Default:          900,
 				DiffSuppressFunc: establishedTimeoutDiffSuppressFunc,
 			},
-			//http & https
-			"idle_timeout": {
-				Type:             schema.TypeInt,
-				ValidateFunc:     validation.IntBetween(1, 60),
-				Optional:         true,
-				Default:          15,
-				DiffSuppressFunc: httpHttpsDiffSuppressFunc,
-			},
-
-			//http & https
-			"request_timeout": {
-				Type:             schema.TypeInt,
-				ValidateFunc:     validation.IntBetween(1, 180),
-				Optional:         true,
-				Default:          60,
-				DiffSuppressFunc: httpHttpsDiffSuppressFunc,
-			},
-
 			//https
 			"enable_http2": {
 				Type:             schema.TypeString,
@@ -305,7 +300,6 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 				Optional:         true,
 				DiffSuppressFunc: httpsDiffSuppressFunc,
 			},
-
 			"forward_port": {
 				Type:             schema.TypeInt,
 				ValidateFunc:     validation.IntBetween(1, 65535),
@@ -325,11 +319,6 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-			},
-			"proxy_protocol_v2_enabled": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Computed: true,
 			},
 		},
 	}
@@ -438,6 +427,7 @@ func resourceApsaraStackSlbListenerCreate(d *schema.ResourceData, meta interface
 }
 
 func resourceApsaraStackSlbListenerRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	slbService := SlbService{client}
 
@@ -562,14 +552,14 @@ func resourceApsaraStackSlbListenerUpdate(d *schema.ResourceData, meta interface
 		update = true
 	}
 
-	d.SetPartial("gzip")
+	//d.SetPartial("gzip")
 	if d.Get("gzip").(bool) {
 		httpArgs.QueryParams["Gzip"] = string(OnFlag)
 	} else {
 		httpArgs.QueryParams["Gzip"] = string(OffFlag)
 	}
 
-	d.SetPartial("x_forwarded_for")
+	//d.SetPartial("x_forwarded_for")
 	if len(d.Get("x_forwarded_for").([]interface{})) > 0 && (d.Get("protocol").(string) == "http" || d.Get("protocol").(string) == "https") {
 		xff := d.Get("x_forwarded_for").([]interface{})[0].(map[string]interface{})
 		if xff["retrive_slb_ip"].(bool) {
@@ -665,13 +655,45 @@ func resourceApsaraStackSlbListenerUpdate(d *schema.ResourceData, meta interface
 	if protocol == Https {
 		scId := d.Get("server_certificate_id").(string)
 		if scId == "" {
+			scId = d.Get("ssl_certificate_id").(string)
+		}
+		if scId == "" {
 			return WrapError(Error("'server_certificate_id': required field is not set when the protocol is 'https'."))
 		}
 
 		httpsArgs.QueryParams["ServerCertificateId"] = scId
+		if d.HasChange("ssl_certificate_id") || d.HasChange("server_certificate_id") {
+			update = true
+		}
 
+		if d.HasChange("enable_http2") {
+			httpsArgs.QueryParams["EnableHttp2"] = d.Get("enable_http2").(string)
+			update = true
+		}
+
+		if d.HasChange("tls_cipher_policy") {
+			// spec changes check, can not be updated when load balancer instance is "Shared-Performance".
+			slbService := SlbService{client}
+			object, err := slbService.DescribeSlb(d.Get("load_balancer_id").(string))
+			if err != nil {
+				return WrapError(err)
+			}
+			spec := object.LoadBalancerSpec
+			if spec == "" {
+				if !d.IsNewResource() || string("tls_cipher_policy_1_0") != d.Get("tls_cipher_policy").(string) {
+					return WrapError(Error("Currently the param \"tls_cipher_policy\" can not be updated when load balancer instance is \"Shared-Performance\"."))
+				}
+			} else {
+				httpsArgs.QueryParams["TLSCipherPolicy"] = d.Get("tls_cipher_policy").(string)
+				update = true
+			}
+		}
+
+		if d.HasChange("ca_certificate_id") {
+			httpsArgs.QueryParams["CACertificateId"] = d.Get("ca_certificate_id").(string)
+			update = true
+		}
 	}
-
 	if update {
 		var request *requests.CommonRequest
 		switch protocol {

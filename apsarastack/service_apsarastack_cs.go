@@ -3,6 +3,10 @@ package apsarastack
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
@@ -10,9 +14,6 @@ import (
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"log"
-	"strings"
-	"time"
 )
 
 type CsService struct {
@@ -72,7 +73,7 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 		request.Scheme = "http"
 	} // Set request scheme. Default: http
 	request.ApiName = "DescribeClustersV1"
-	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.Headers = map[string]string{"RegionId": s.client.RegionId, "x-acs-content-type": "application/json"}
 	if err := invoker.Run(func() error {
 		raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
@@ -165,7 +166,7 @@ func (s *CsService) DescribeClusterNodes(id, nodepoolid string) (pools *NodePool
 		request.Scheme = "http"
 	} // Set request scheme. Default: http
 	request.ApiName = "DescribeClusterNodes"
-	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.Headers = map[string]string{"RegionId": s.client.RegionId, "x-acs-content-type": "application/json"}
 	var clusternodepools *NodePools
 	if err := invoker.Run(func() error {
 		raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -215,7 +216,7 @@ func (s *CsService) DescribeClusterNodePools(id string) (*NodePool, error) {
 		req.Scheme = "http"
 	} // Set request scheme. Default: http
 	req.ApiName = "DescribeClusterNodePools"
-	req.Headers = map[string]string{"RegionId": s.client.RegionId}
+	req.Headers = map[string]string{"RegionId": s.client.RegionId, "x-acs-asapi-gateway-version": "3.0"}
 
 	//if err = invoker.Run(func() error {
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
