@@ -24,6 +24,21 @@ func kmsDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 	}
 	return false
 }
+func ArchitectureTypeDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if strings.ToLower(d.Get("series").(string)) == "enterprise" && new == "rwsplit" {
+		return false
+	} else {
+		return true
+	}
+}
+
+func NodeTypeDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	if strings.ToLower(d.Get("series").(string)) == "enterprise" && new == "readone" {
+		return false
+	} else {
+		return true
+	}
+}
 func slbAclDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
 	if status, ok := d.GetOk("acl_status"); ok && status.(string) == string(OnFlag) {
 		return false

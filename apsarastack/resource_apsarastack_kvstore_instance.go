@@ -72,7 +72,7 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Optional: true,
-				Default:  KVStore2Dot8,
+				Default:  KVStore5Dot0,
 			},
 			"availability_zone": {
 				Type:     schema.TypeString,
@@ -92,6 +92,12 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Optional:         true,
 				Default:          1,
 				DiffSuppressFunc: PostPaidDiffSuppressFunc,
+			},
+			"series": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"community", "enterprise"}, false),
 			},
 			"instance_type": {
 				Type:     schema.TypeString,
@@ -172,9 +178,19 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"node_type": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ValidateFunc:     validation.StringInSlice([]string{"MASTER_SLAVE", "readone"}, false),
+				DiffSuppressFunc: NodeTypeDiffSuppressFunc,
+			},
 			"architecture_type": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ValidateFunc:     validation.StringInSlice([]string{"cluster", "rwsplit", "standard"}, false),
+				DiffSuppressFunc: ArchitectureTypeDiffSuppressFunc,
 			},
 		},
 	}
@@ -303,6 +319,9 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 	if v, ok := d.GetOk("cpu_type"); ok {
 		request["CpuType"] = v.(string)
 	}
+	if v, ok := d.GetOk("node_type"); ok {
+		request["NodeType"] = v.(string)
+	}
 	if v, ok := d.GetOk("architecture_type"); ok {
 		request["ArchitectureType"] = v.(string)
 	}
@@ -368,9 +387,14 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 	log.Printf("begin create kvstroe instances !!")
 	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2015-01-01"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
 	log.Printf(" create kvstroe instances Finished !!")
+	addDebug(action, response, nil, request)
 	if err != nil {
 		err = WrapErrorf(err, " create kvstroe instances Failed !!", action, ApsaraStackSdkGoERROR)
 		return err
+	}
+	if !response["asapiSuccess"].(bool) {
+		err = Error("create kvstroe instances Failed !!")
+		return WrapErrorf(err, " create kvstroe instances Failed !!", action, ApsaraStackSdkGoERROR)
 	}
 
 	d.SetId(fmt.Sprint(response["InstanceId"]))
