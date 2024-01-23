@@ -3,17 +3,16 @@ package apsarastack
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"log"
 	"regexp"
 	"strings"
-	"time"
+
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 
 	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
@@ -48,7 +47,8 @@ func resourceApsaraStackEcsDeploymentSet() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Host", "host"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"Host", "Rack", "Switch"}, false),
+				Default:      "Host",
 			},
 			"on_unable_to_redeploy_failed_instance": {
 				Type:         schema.TypeString,
@@ -59,7 +59,7 @@ func resourceApsaraStackEcsDeploymentSet() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
-				ValidateFunc: validation.StringInSlice([]string{"Availability"}, false),
+				ValidateFunc: validation.StringInSlice([]string{"Availability", "LooseDispersion"}, false),
 			},
 		},
 	}
@@ -88,10 +88,10 @@ func resourceApsaraStackEcsDeploymentSetCreate(d *schema.ResourceData, meta inte
 	//if v, ok := d.GetOk("domain"); ok {
 	//	Domain = fmt.Sprint(v.(string))
 	//}
-	//var Granularity string
-	//if v, ok := d.GetOk("granularity"); ok {
-	//	Granularity = fmt.Sprint(v.(string))
-	//}
+	var Granularity string
+	if v, ok := d.GetOk("granularity"); ok {
+		Granularity = fmt.Sprint(v.(string))
+	}
 	var OnUnableToRedeployFailedInstance string
 	if v, ok := d.GetOk("on_unable_to_redeploy_failed_instance"); ok {
 		OnUnableToRedeployFailedInstance = fmt.Sprint(v.(string))
@@ -131,36 +131,27 @@ func resourceApsaraStackEcsDeploymentSetCreate(d *schema.ResourceData, meta inte
 		"DeploymentSetName":                DeploymentSetName,
 		"Domain":                           "Default",
 		"Description":                      Description,
-		"Granularity":                      "Host",
+		"Granularity":                      Granularity,
 		"OnUnableToRedeployFailedInstance": OnUnableToRedeployFailedInstance,
 		"Strategy":                         Strategy,
 		"ClientToken":                      ClientToken,
 	}
 	runtime := util.RuntimeOptions{}
 	runtime.SetAutoretry(true)
-	wait := incrementalWait(3*time.Second, 3*time.Second)
-	err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		raw, err := client.WithEcsClient(func(EcsClient *ecs.Client) (interface{}, error) {
-			return EcsClient.ProcessCommonRequest(request)
-		})
-		if err != nil {
-			if NeedRetry(err) {
-				wait()
-				return resource.RetryableError(err)
-			}
-			return resource.NonRetryableError(err)
-		}
-		addDebug(action, raw, request)
-		resp := &EcsDeploymentSetCreateResult{}
-		bresponse := raw.(*responses.CommonResponse)
-		err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
-		d.SetId(fmt.Sprint(resp.DeploymentSetId))
-		return nil
+	raw, err := client.WithEcsClient(func(EcsClient *ecs.Client) (interface{}, error) {
+		return EcsClient.ProcessCommonRequest(request)
 	})
-
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ecs_deployment_set", action, ApsaraStackSdkGoERROR)
 	}
+	addDebug(action, raw, request, request.QueryParams)
+	resp := &EcsDeploymentSetCreateResult{}
+	bresponse := raw.(*responses.CommonResponse)
+	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ecs_deployment_set", action, ApsaraStackSdkGoERROR)
+	}
+	d.SetId(fmt.Sprint(resp.DeploymentSetId))
 
 	return resourceApsaraStackEcsDeploymentSetRead(d, meta)
 }
@@ -176,11 +167,11 @@ func resourceApsaraStackEcsDeploymentSetRead(d *schema.ResourceData, meta interf
 		}
 		return WrapError(err)
 	}
-	d.Set("domain", object.DeploymentSets.DeploymentSet[0].Domain)
-	d.Set("granularity", object.DeploymentSets.DeploymentSet[0].Granularity)
-	d.Set("deployment_set_name", object.DeploymentSets.DeploymentSet[0].DeploymentSetName)
-	d.Set("description", object.DeploymentSets.DeploymentSet[0].DeploymentSetDescription)
-	d.Set("strategy", object.DeploymentSets.DeploymentSet[0].DeploymentStrategy)
+	d.Set("domain", convertEcsDeploymentSetDomainResponse(object["Domain"]))
+	d.Set("granularity", convertEcsDeploymentSetGranularityResponse(object["Granularity"]))
+	d.Set("deployment_set_name", object["DeploymentSetName"])
+	d.Set("description", object["DeploymentSetDescription"])
+	d.Set("strategy", object["DeploymentStrategy"])
 	//d.Set("DeploymentSetId", d.Get("DeploymentSetId"))
 
 	return nil
@@ -234,21 +225,10 @@ func resourceApsaraStackEcsDeploymentSetUpdate(d *schema.ResourceData, meta inte
 	}
 	if update {
 
-		wait := incrementalWait(3*time.Second, 3*time.Second)
-		err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-			response, err := client.WithEcsClient(func(EcsClient *ecs.Client) (interface{}, error) {
-				return EcsClient.ProcessCommonRequest(request)
-			})
-			if err != nil {
-				if NeedRetry(err) {
-					wait()
-					return resource.RetryableError(err)
-				}
-				return resource.NonRetryableError(err)
-			}
-			addDebug(action, response, request)
-			return nil
+		response, err := client.WithEcsClient(func(EcsClient *ecs.Client) (interface{}, error) {
+			return EcsClient.ProcessCommonRequest(request)
 		})
+		addDebug(action, response, request)
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), action, ApsaraStackSdkGoERROR)
 		}
@@ -282,21 +262,10 @@ func resourceApsaraStackEcsDeploymentSetDelete(d *schema.ResourceData, meta inte
 		"Version":         "2014-05-26",
 		"DeploymentSetId": DeploymentSetId,
 	}
-	wait := incrementalWait(3*time.Second, 3*time.Second)
-	err := resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
-		response, err := client.WithEcsClient(func(EcsClient *ecs.Client) (interface{}, error) {
-			return EcsClient.ProcessCommonRequest(request)
-		})
-		if err != nil {
-			if NeedRetry(err) {
-				wait()
-				return resource.RetryableError(err)
-			}
-			return resource.NonRetryableError(err)
-		}
-		addDebug(action, response, request)
-		return nil
+	response, err := client.WithEcsClient(func(EcsClient *ecs.Client) (interface{}, error) {
+		return EcsClient.ProcessCommonRequest(request)
 	})
+	addDebug(action, response, request)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), action, ApsaraStackSdkGoERROR)
 	}
@@ -313,6 +282,10 @@ func convertEcsDeploymentSetGranularityResponse(source interface{}) interface{} 
 	switch source {
 	case "host":
 		return "Host"
+	case "rack":
+		return "Rack"
+	case "switch":
+		return "Switch"
 	}
 	return source
 }
