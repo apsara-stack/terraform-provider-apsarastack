@@ -1,16 +1,18 @@
 package apsarastack
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"log"
-	"strings"
-	"time"
 )
 
 func resourceApsaraStackAscmUserRoleBinding() *schema.Resource {
@@ -26,8 +28,9 @@ func resourceApsaraStackAscmUserRoleBinding() *schema.Resource {
 			},
 			"role_ids": {
 				Type:     schema.TypeSet,
+				Computed: true,
 				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeInt},
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 		},
 	}
@@ -38,9 +41,9 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 	var requestInfo *ecs.Client
 	lname := d.Get("login_name").(string)
 	flag := false
-	var roleids []int
+	var roleids []string
 	if v, ok := d.GetOk("role_ids"); ok {
-		roleids = expandIntList(v.(*schema.Set).List())
+		roleids = expandStringList(v.(*schema.Set).List())
 	}
 	log.Printf("roleids is %v", roleids)
 	flag = true
@@ -85,7 +88,6 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 			addDebug("AddRoleToUser", raw, requestInfo, request)
 
 			bresponse, _ := raw.(*responses.CommonResponse)
-
 			if bresponse.GetHttpStatus() != 200 {
 				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_role_binding", "AddRoleToUser", ApsaraStackSdkGoERROR)
 			}
@@ -101,6 +103,7 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 }
 
 func resourceApsaraStackAscmUserRoleBindingRead(d *schema.ResourceData, meta interface{}) error {
+	waitSecondsIfWithTest(1)
 	client := meta.(*connectivity.ApsaraStackClient)
 	ascmService := AscmService{client}
 	object, err := ascmService.DescribeAscmUserRoleBinding(d.Id())
@@ -121,8 +124,62 @@ func resourceApsaraStackAscmUserRoleBindingRead(d *schema.ResourceData, meta int
 }
 
 func resourceApsaraStackAscmUserRoleBindingUpdate(d *schema.ResourceData, meta interface{}) error {
-	return resourceApsaraStackAscmUserRoleBindingCreate(d, meta)
+	var roleIdList []string
 
+	if v, ok := d.GetOk("role_ids"); ok {
+		roleids := expandStringList(v.(*schema.Set).List())
+
+		for _, roleid := range roleids {
+			roleIdList = append(roleIdList, roleid)
+		}
+	}
+	lname := d.Get("login_name").(string)
+	client := meta.(*connectivity.ApsaraStackClient)
+	var requestInfo *ecs.Client
+	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
+
+	request.Headers["x-ascm-product-name"] = "ascm"
+	request.Headers["x-ascm-product-version"] = "2019-05-10"
+
+	QueryParams := map[string]interface{}{
+		"loginName":  lname,
+		"roleIdList": roleIdList,
+	}
+
+	request.Method = "POST"
+	request.Product = "Ascm"
+	request.Version = "2019-05-10"
+	request.ServiceCode = "ascm"
+	request.Domain = client.Domain
+	requeststring, err := json.Marshal(QueryParams)
+
+	if strings.ToLower(client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	request.Headers["Content-Type"] = requests.Json
+	request.SetContent(requeststring)
+	request.PathPattern = "/roa/ascm/auth/user/ResetRolesForUserByLoginName"
+	request.ApiName = "ResetRolesForUserByLoginName"
+	request.RegionId = client.RegionId
+	request.Headers["RegionId"] = client.RegionId
+
+	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+		return ecsClient.ProcessCommonRequest(request)
+	})
+
+	log.Printf("response of raw ResetRolesForUserByLoginName is : %s", raw)
+
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user", "ResetRolesForUserByLoginName", raw)
+	}
+
+	addDebug("ResetRolesForUserByLoginName", raw, requestInfo, request)
+	return resourceApsaraStackAscmUserRoleBindingRead(d, meta)
 }
 
 func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta interface{}) error {

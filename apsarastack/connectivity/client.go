@@ -2,6 +2,8 @@ package connectivity
 
 import (
 	"encoding/json"
+	"log"
+
 	rpc "github.com/alibabacloud-go/tea-rpc/client"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/endpoints"
@@ -25,14 +27,13 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/maxcompute"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ons"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
+	r_kvstore "github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	slsPop "github.com/aliyun/alibaba-cloud-sdk-go/services/sls"
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/aliyun/fc-go-sdk"
-	"log"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/kms"
@@ -40,9 +41,10 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
 	"github.com/denverdino/aliyungo/cdn"
 
+	"sync"
+
 	"github.com/denverdino/aliyungo/cs"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"sync"
 
 	"fmt"
 	"net/http"
@@ -1178,8 +1180,10 @@ func (client *ApsaraStackClient) WithLogClient(do func(*sls.Client) (interface{}
 			os.Setenv("http_proxy", client.Config.Proxy)
 		}
 		client.logconn = &sls.Client{
-			AccessKeyID:     client.Config.OrganizationAccessKey,
-			AccessKeySecret: client.Config.OrganizationSecretKey,
+			// AccessKeyID:     client.Config.OrganizationAccessKey,
+			// AccessKeySecret: client.Config.OrganizationSecretKey,
+			AccessKeyID:     client.Config.AccessKey,
+			AccessKeySecret: client.Config.SecretKey,
 			Endpoint:        client.Config.SLSOpenAPIEndpoint,
 			SecurityToken:   client.Config.SecurityToken,
 			UserAgent:       client.getUserAgent(),

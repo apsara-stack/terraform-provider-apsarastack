@@ -3,16 +3,17 @@ package apsarastack
 import (
 	"encoding/base64"
 	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ess"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
 )
 
 func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
@@ -66,6 +67,14 @@ func resourceApsaraStackEssScalingConfiguration() *schema.Resource {
 				Optional: true,
 			},
 			"security_group_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"deployment_set_id": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"zone_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -686,7 +695,7 @@ func buildApsaraStackEssScalingConfigurationArgs(d *schema.ResourceData, meta in
 	request := ess.CreateCreateScalingConfigurationRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "ZoneId": d.Get("zone_id").(string)}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -705,6 +714,8 @@ func buildApsaraStackEssScalingConfigurationArgs(d *schema.ResourceData, meta in
 	if securityGroupId != "" {
 		request.SecurityGroupId = securityGroupId
 	}
+	request.DeploymentSetId = d.Get("deployment_set_id").(string)
+	request.InstanceName = d.Get("instance_name").(string)
 
 	types := make([]string, 0, int(MaxScalingConfigurationInstanceTypes))
 	instanceType := d.Get("instance_type").(string)
