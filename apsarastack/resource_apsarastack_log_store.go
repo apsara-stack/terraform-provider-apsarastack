@@ -124,7 +124,8 @@ func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{})
 	if v, ok := d.GetOk("encryption"); ok {
 		update = v.(bool)
 	}
-	logstore := &sls.LogStore{
+	var logstore *sls.LogStore
+	logstore = &sls.LogStore{
 		Name:          d.Get("name").(string),
 		TTL:           d.Get("retention_period").(int),
 		ShardCount:    d.Get("shard_count").(int),
@@ -153,7 +154,6 @@ func resourceApsaraStackLogStoreCreate(d *schema.ResourceData, meta interface{})
 				},
 			},
 		}
-
 		err := resource.Retry(3*time.Minute, func() *resource.RetryError {
 
 			raw, err := client.WithLogClient(func(slsClient *sls.Client) (interface{}, error) {
