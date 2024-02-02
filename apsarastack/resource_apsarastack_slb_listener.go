@@ -296,7 +296,7 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 			"tls_cipher_policy": {
 				Type:             schema.TypeString,
 				Default:          "tls_cipher_policy_1_0",
-				ValidateFunc:     validation.StringInSlice([]string{"tls_cipher_policy_1_0", "tls_cipher_policy_1_1", "tls_cipher_policy_1_2", "tls_cipher_policy_1_2_strict"}, false),
+				ValidateFunc:     validation.StringInSlice([]string{"tls_cipher_policy_1_0", "tls_cipher_policy_1_1", "tls_cipher_policy_1_2", "tls_cipher_policy_1_2_strict", "tls_cipher_policy_1_2_without_sha1"}, false),
 				Optional:         true,
 				DiffSuppressFunc: httpsDiffSuppressFunc,
 			},
