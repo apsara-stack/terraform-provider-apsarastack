@@ -4,7 +4,7 @@ layout: "apsarastack"
 page_title: "Apsarastack: apsarastack_resource_group_mult"
 sidebar_current: "docs-apsarastack-resource-resource_group_mult"
 description: |-
-Create a new resource set and also create all subsequent resources under this resource set
+  Create a new resource set and also create all subsequent resources under this resource set
 ---
 
 # apsarastack\ascm_resource_group
