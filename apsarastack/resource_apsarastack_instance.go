@@ -257,6 +257,7 @@ func resourceApsaraStackInstance() *schema.Resource {
 
 			"tags":             tagsSchema(),
 			"system_disk_tags": tagsSchema(),
+			"data_disk_tags":   tagsSchema(),
 		},
 	}
 }
@@ -333,7 +334,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return WrapError(err)
 	}
 	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance.Status)
-	disk, err := ecsService.DescribeInstanceSystemDisk(d.Id(), instance.ResourceGroupId)
+	disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "system")
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -342,11 +343,11 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return WrapError(err)
 	}
 
-	d.Set("system_disk_category", disk.Category)
-	d.Set("system_disk_size", disk.Size)
-	d.Set("system_disk_name", disk.DiskName)
-	d.Set("system_disk_description", disk.Description)
-	d.Set("system_disk_id", disk.DiskId)
+	d.Set("system_disk_category", disks[0].Category)
+	d.Set("system_disk_size", disks[0].Size)
+	d.Set("system_disk_name", disks[0].DiskName)
+	d.Set("system_disk_description", disks[0].Description)
+	d.Set("system_disk_id", disks[0].DiskId)
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("description", instance.Description)
 	d.Set("status", instance.Status)
@@ -479,16 +480,33 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 		oraw, nraw := d.GetChange("system_disk_tags")
 		diskid := d.Get("system_disk_id").(string)
 		if diskid == "" {
-			disk, err := ecsService.DescribeInstanceSystemDisk(d.Id(), client.ResourceGroup)
+			disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "system")
 			if err != nil {
 				return WrapError(err)
 			}
-			diskid = disk.DiskId
+			diskid = disks[0].DiskId
 		}
 		err := updateTags(client, []string{diskid}, "disk", oraw, nraw)
 		if err != nil {
 			return WrapError(err)
 		}
+	}
+
+	if d.HasChange("data_disk_tags") {
+		oraw, nraw := d.GetChange("data_disk_tags")
+		disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "data")
+		if err != nil {
+			return WrapError(err)
+		}
+		diskids := make([]string, 0, len(disks))
+		for _, disk := range disks {
+			diskids = append(diskids, disk.DiskId)
+			err := updateTags(client, diskids, "disk", oraw, nraw)
+			if err != nil {
+				return WrapError(err)
+			}
+		}
+
 	}
 
 	if d.HasChange("security_groups") {
@@ -895,9 +913,9 @@ func modifyInstanceImage(d *schema.ResourceData, meta interface{}, run bool) (bo
 			if errDesc != nil {
 				return update, WrapError(errDesc)
 			}
-			var disk ecs.Disk
+			var disks []ecs.Disk
 			err := resource.Retry(2*time.Minute, func() *resource.RetryError {
-				disk, err = ecsService.DescribeInstanceSystemDisk(d.Id(), instance.ResourceGroupId)
+				disks, err = ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "system")
 				if err != nil {
 					if NotFoundError(err) {
 						return resource.RetryableError(err)
@@ -910,7 +928,7 @@ func modifyInstanceImage(d *schema.ResourceData, meta interface{}, run bool) (bo
 				return update, WrapError(err)
 			}
 
-			if instance.ImageId == d.Get("image_id") && disk.Size == d.Get("system_disk_size").(int) {
+			if instance.ImageId == d.Get("image_id") && disks[0].Size == d.Get("system_disk_size").(int) {
 				break
 			}
 			time.Sleep(DefaultIntervalShort * time.Second)

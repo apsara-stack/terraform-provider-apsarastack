@@ -196,7 +196,7 @@ func (s *EcsService) DescribeInstanceAttribute(id string) (instance ecs.Describe
 	return *response, nil
 }
 
-func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, err error) {
+func (s *EcsService) DescribeInstanceDisksByType(id string, rg string, disk_type string) (disks []ecs.Disk, err error) {
 	request := ecs.CreateDescribeDisksRequest()
 	request.InstanceId = id
 	//request.DiskType = string(DiskTypeSystem)
@@ -229,20 +229,23 @@ func (s *EcsService) DescribeInstanceSystemDisk(id, rg string) (disk ecs.Disk, e
 		return nil
 	})
 	if err != nil {
-		return disk, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
+		return disks, WrapErrorf(err, DefaultErrorMsg, id, request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
 	log.Printf("[ECS Creation]: Getting Disks Query Params : %s ", request.GetQueryParams())
 	log.Printf("[ECS Creation]: Getting Disks response : %s ", response)
 	//log.Printf("[ECS Creation]: Getting Disks Details: %s, Instance ID: %s, Id_to_compare: %s ",response.Disks.Disk[0],response.Disks.Disk[0].InstanceId,id)
 	if len(response.Disks.Disk) < 1 || response.Disks.Disk[0].InstanceId != id {
-		return disk, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
+		return disks, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 	}
 	for _, diskdata := range response.Disks.Disk {
-		if diskdata.InstanceId == id && diskdata.Type == string(DiskTypeSystem) {
-			return diskdata, nil
+		if diskdata.InstanceId == id && diskdata.Type == string(disk_type) {
+			disks = append(disks, diskdata)
 		}
 	}
-	return disk, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
+	if len(disks) > 0 {
+		return disks, nil
+	}
+	return disks, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
 }
 
 // ResourceAvailable check resource available for zone

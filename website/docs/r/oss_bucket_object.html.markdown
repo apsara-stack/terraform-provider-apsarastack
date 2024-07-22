@@ -15,9 +15,35 @@ Provides a resource to put a object(content or file) to a oss bucket.
 
 ### Uploading a file to a bucket
 
+### Adjusting the configuration in provider.tf"
+> Since operations on objects are facilitated by the OSS Data Gateway,
+> it is necessary to configure a separate address for the Data Gateway within the provider configuration in provider.tf.
+
+```
+provider "apsarastack" {
+  #popgw_domain            = "inter.env205.shuguang.com"
+  access_key              = "xxx"
+  ...
+  insecure                = "true"
+  resource_group_set_name = "xxx"
+  ossservice_domain = "<oss data endpoint>"
+}
+```
+
+### Create a new bucket at first
+```
+resource "apsarastack_oss_bucket" "example" {
+  bucket = "your_bucket_name"
+  acl    = "public-read"
+}
+```
+
+### Granting OSS permissions to specified users
+> currently only supported via the ascm.
+
 ```
 resource "apsarastack_oss_bucket_object" "object-source" {
-  bucket = "your-bucket-name"
+  bucket = "${apsarastack_oss_bucket.example.bucket}"
   key    = "new_object_key"
   source = "path/to/file"
 }
@@ -26,11 +52,6 @@ resource "apsarastack_oss_bucket_object" "object-source" {
 ### Uploading a content to a bucket
 
 ```
-resource "apsarastack_oss_bucket" "example" {
-  bucket = "your_bucket_name"
-  acl    = "public-read"
-}
-
 resource "apsarastack_oss_bucket_object" "object-content" {
   bucket  = "${apsarastack_oss_bucket.example.bucket}"
   key     = "new_object_key"

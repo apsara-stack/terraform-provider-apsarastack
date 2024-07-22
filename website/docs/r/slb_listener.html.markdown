@@ -45,7 +45,7 @@ resource "apsarastack_slb_listener" "listener" {
   load_balancer_id          = apsarastack_slb.slb.id
   backend_port              = 80
   frontend_port             = 80
-  protocol                  = "http"
+  protocol                  = "https"
   bandwidth                 = 10
   server_certificate_id     =apsarastack_slb_server_certificate.servercertificate.id
   sticky_session            = "on"
@@ -65,6 +65,10 @@ resource "apsarastack_slb_listener" "listener" {
     retrive_slb_ip = true
     retrive_slb_id = true
   }
+  logs_download_attributes = {
+      log_project = "testtf-project"
+      log_store = "testtf-store"  
+    }
 }
 ```
 
@@ -104,6 +108,9 @@ The following arguments are supported:
 * `forward_port` - (Optional, ForceNew) The port that http redirect to https.
 * `health_check_method` - (Optional, ForceNew, Available in 1.70.0+) The method of health check. Valid values: ["head", "get"].
 * `delete_protection_validation` - (Optional, Available in 1.63.0+) Checking DeleteProtection of SLB instance before deleting. If true, this resource will not be deleted when its SLB instance enabled DeleteProtection. Default to false.
+* `logs_download_attributes` - (Optional) A map for defining sls logs.
+  - `log_project`: (Required) sls-log Server project name.
+  - `log_store`: (Required) sls-log Server log_store name.
 
 -> **NOTE:** Once enable the http redirect to https function, any parameters excepted forward_port,listener_forward,load_balancer_id,frontend_port,protocol will be ignored. More info, please refer to [Redirect http to https](https://apsarastackdocument.oss-cn-hangzhou.aliyuncs.com/01_ApsaraStackEnterprise/V3.11.0-intl-en/Alibaba%20Cloud%20Apsara%20Stack%20Enterprise%202001%2C%20Internal_%20V3.11.0%20Developer%20Guide%20-%20Cloud%20Essentials%20and%20Security%2020200513.pdf?spm=a3c0i.214467.3807842930.7.61e76bdb1JWVyX&file=Alibaba%20Cloud%20Apsara%20Stack%20Enterprise%202001%2C%20Internal_%20V3.11.0%20Developer%20Guide%20-%20Cloud%20Essentials%20and%20Security%2020200513.pdf).
 

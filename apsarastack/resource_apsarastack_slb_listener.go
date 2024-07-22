@@ -320,6 +320,22 @@ func resourceApsaraStackSlbListener() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+			"logs_download_attributes": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"log_project": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"log_store": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -713,6 +729,22 @@ func resourceApsaraStackSlbListenerUpdate(d *schema.ResourceData, meta interface
 			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 		addDebug(request.GetActionName(), raw, request, request.QueryParams)
+	}
+	if protocol == Https && d.HasChange("logs_download_attributes") {
+		slbService := SlbService{client}
+		old, new := d.GetChange("logs_download_attributes")
+		if len(old.(map[string]interface{})) > 0 {
+			err = slbService.DeleteAccessLogsDownloadAttribute(d.Get("load_balancer_id").(string))
+			if err != nil {
+				return WrapError(err)
+			}
+		}
+		if new != "" {
+			err = slbService.SetAccessLogsDownloadAttribute(new.(map[string]interface{}), d.Get("load_balancer_id").(string))
+			if err != nil {
+				return WrapError(err)
+			}
+		}
 	}
 
 	d.Partial(false)
