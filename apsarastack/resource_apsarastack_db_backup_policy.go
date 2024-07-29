@@ -202,6 +202,19 @@ func resourceApsaraStackDBBackupPolicyUpdate(d *schema.ResourceData, meta interf
 		if err := rdsService.WaitForDBInstance(d.Id(), Running, DefaultTimeoutMedium); err != nil {
 			return WrapError(err)
 		}
+		// ModifySQLCollectorPolicy
+		if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
+			if err := rdsService.ModifySQLCollectorPolicy(d); err != nil {
+				if IsExpectedErrors(err, OperationDeniedDBStatus) {
+					return resource.RetryableError(err)
+				}
+				return resource.NonRetryableError(err)
+			}
+			return nil
+		}); err != nil {
+			return WrapError(err)
+		}
+		// ModifyDBBackupPolicy
 		if err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 			if err := rdsService.ModifyDBBackupPolicy(d, updateForData, updateForLog); err != nil {
 				if IsExpectedErrors(err, OperationDeniedDBStatus) {

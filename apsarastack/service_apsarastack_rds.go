@@ -21,16 +21,15 @@ type RdsService struct {
 	client *connectivity.ApsaraStackClient
 }
 
-//
-//       _______________                      _______________                       _______________
-//       |              | ______param______\  |              |  _____request_____\  |              |
-//       |   Business   |                     |    Service   |                      |    SDK/API   |
-//       |              | __________________  |              |  __________________  |              |
-//       |______________| \    (obj, err)     |______________|  \ (status, cont)    |______________|
-//                           |                                    |
-//                           |A. {instance, nil}                  |a. {200, content}
-//                           |B. {nil, error}                     |b. {200, nil}
-//                      					  |c. {4xx, nil}
+//	_______________                      _______________                       _______________
+//	|              | ______param______\  |              |  _____request_____\  |              |
+//	|   Business   |                     |    Service   |                      |    SDK/API   |
+//	|              | __________________  |              |  __________________  |              |
+//	|______________| \    (obj, err)     |______________|  \ (status, cont)    |______________|
+//	                    |                                    |
+//	                    |A. {instance, nil}                  |a. {200, content}
+//	                    |B. {nil, error}                     |b. {200, nil}
+//	               					  |c. {4xx, nil}
 //
 // The API return 200 for resource not found.
 // When getInstance is empty, then throw InstanceNotfound error.
@@ -621,6 +620,34 @@ func (s *RdsService) ReleaseDBPublicConnection(instanceId, connection string) er
 
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 
+	return nil
+}
+
+func (s *RdsService) ModifySQLCollectorPolicy(d *schema.ResourceData) error {
+
+	request := rds.CreateModifySQLCollectorPolicyRequest()
+	request.RegionId = s.client.RegionId
+	request.Headers = map[string]string{"RegionId": s.client.RegionId}
+	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "rds", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.DBInstanceId = d.Id()
+	if strings.ToLower(s.client.Config.Protocol) == "https" {
+		request.Scheme = "https"
+	} else {
+		request.Scheme = "http"
+	}
+	enableBackupLog := ""
+	if v, ok := d.GetOk("backup_log"); ok {
+		enableBackupLog = v.(string)
+		request.SQLCollectorStatus = enableBackupLog
+		raw, err := s.client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
+			return rdsClient.ModifySQLCollectorPolicy(request)
+		})
+		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, d.Id(), request.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+		return nil
+	}
 	return nil
 }
 
