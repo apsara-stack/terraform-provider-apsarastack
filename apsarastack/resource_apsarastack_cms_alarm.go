@@ -319,6 +319,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 		"SilenceTime":                             fmt.Sprint(request.SilenceTime),
 		"SignatureVersion":                        "1.0",
 		"Period":                                  request.Period,
+		"Webhook":                                 d.Get("webhook").(string),
 	}
 
 	raw, err := client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {

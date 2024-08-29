@@ -192,6 +192,22 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				ValidateFunc:     validation.StringInSlice([]string{"cluster", "rwsplit", "standard"}, false),
 				DiffSuppressFunc: ArchitectureTypeDiffSuppressFunc,
 			},
+			"tde_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"encryption_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"encryption_key": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"role_arn": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -406,6 +422,39 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("begin update kvstroe instances !!")
+
+	if tde, ok := d.GetOk("tde_status"); ok && tde.(string) == "Enabled" {
+		client := meta.(*connectivity.ApsaraStackClient)
+		kvstoreService = KvstoreService{client}
+		tde_req := r_kvstore.CreateModifyInstanceTDERequest()
+		tde_req.RegionId = client.RegionId
+		tde_req.Headers = map[string]string{"RegionId": client.RegionId}
+		tde_req.InstanceId = d.Id()
+		tde_req.TDEStatus = tde.(string)
+		tde_req.EncryptionName = d.Get("encryption_name").(string)
+		tde_req.EncryptionKey = d.Get("encryption_key").(string)
+		if role_arn, ok := d.GetOk("role_arn"); ok && role_arn.(string) != "" {
+			tde_req.RoleArn = d.Get("role_arn").(string)
+		} else if client.Config.RamRoleArn != "" {
+			tde_req.RoleArn = d.Get("role_arn").(string)
+		}
+
+		if strings.ToLower(client.Config.Protocol) == "https" {
+			tde_req.Scheme = "https"
+		} else {
+			tde_req.Scheme = "http"
+		}
+
+		tderaw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+			return rkvClient.ModifyInstanceTDE(tde_req)
+		})
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_db_instance", tde_req.GetActionName(), ApsaraStackSdkGoERROR)
+		}
+
+		log.Print("enabled TDE")
+		addDebug(tde_req.GetActionName(), tderaw, tde_req)
+	}
 	return resourceApsaraStackKVStoreInstanceUpdate(d, meta)
 }
 

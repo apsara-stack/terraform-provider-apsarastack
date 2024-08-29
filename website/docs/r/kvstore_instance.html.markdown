@@ -70,6 +70,9 @@ The following arguments are supported:
 * `maintain_start_time` - (Optional) The start time of the operation and maintenance time period of the instance, in the format of HH:mmZ (UTC time).
 * `maintain_end_time` - (Optional) The end time of the operation and maintenance time period of the instance, in the format of HH:mmZ (UTC time).
 * `cpu_type` - (Required) The cpu type of the resource.Valid values: `intel`.
+* `tde_status` - (Optional) Enables the Transparent Data Encryption (TDE) function for an Redis instance. Cannot be closed after enabled. Valid values: `Enabled`. 
+* `encryption_key` - (Optional) Add encryptionkey for the Encryption (TDE) function.
+* `role_arn` - (Optional) Ram RoleArn for the Encryption (TDE) function.
 -> **NOTE:** The start time to the end time must be 1 hour. For example, the MaintainStartTime is 01:00Z, then the MaintainEndTime must be 02:00Z.
 
 ## Attributes Reference
