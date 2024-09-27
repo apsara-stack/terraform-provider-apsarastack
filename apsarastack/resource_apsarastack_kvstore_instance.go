@@ -2,12 +2,10 @@ package apsarastack
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"strings"
 	"time"
 
-	util "github.com/alibabacloud-go/tea-utils/service"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 
 	"github.com/denverdino/aliyungo/common"
@@ -182,7 +180,7 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
-				ValidateFunc:     validation.StringInSlice([]string{"MASTER_SLAVE", "readone"}, false),
+				ValidateFunc:     validation.StringInSlice([]string{"MASTER_SLAVE", "dubbo", "readone"}, false),
 				DiffSuppressFunc: NodeTypeDiffSuppressFunc,
 			},
 			"architecture_type": {
@@ -196,10 +194,10 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"encryption_name": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
+			// "encryption_name": {
+			// 	Type:     schema.TypeString,
+			// 	Optional: true,
+			// },
 			"encryption_key": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -214,229 +212,248 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 
 func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	// vpcService := VpcService{client}
-	// kvstoreService := KvstoreService{client}
-	// request := r_kvstore.CreateCreateInstanceRequest()
-	// request.RegionId = client.RegionId
-	// request.Headers = map[string]string{"RegionId": client.RegionId}
-	// request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	// if v, ok := d.GetOk("instance_name"); ok && v.(string) != "" {
-	// 	request.InstanceName = v.(string)
-	// }
-
-	// if v, ok := d.GetOk("cpu_type"); ok && v.(string) != "" {
-	// 	request.NodeType = v.(string)
-	// }
-	// //if v, ok := d.GetOk("architecture_type"); ok && v.(string) != "" {
-	// //	request.type = v.(string)
-	// //}
-	// if v, ok := d.GetOk("instance_type"); ok && v.(string) != "" {
-	// 	request.InstanceType = v.(string)
-	// }
-	// if v, ok := d.GetOk("engine_version"); ok && v.(string) != "" {
-	// 	request.EngineVersion = v.(string)
-	// }
-	// if v, ok := d.GetOk("instance_class"); ok && v.(string) != "" {
-	// 	request.InstanceClass = v.(string)
-	// }
-	// if v, ok := d.GetOk("instance_charge_type"); ok && v.(string) != "" {
-	// 	request.ChargeType = v.(string)
-	// }
-	// if v, ok := d.GetOk("password"); ok {
-	// 	request.Password = v.(string)
-	// }
-	// if request.Password == "" {
-	// 	if v := d.Get("kms_encrypted_password").(string); v != "" {
-	// 		kmsService := KmsService{client}
-	// 		decryptResp, err := kmsService.Decrypt(v, d.Get("kms_encryption_context").(map[string]interface{}))
-	// 		if err != nil {
-	// 			return WrapError(err)
-	// 		}
-	// 		request.Password = decryptResp.Plaintext
-	// 	}
-	// }
-	// if v, ok := d.GetOk("backup_id"); ok {
-	// 	request.BackupId = v.(string)
-	// }
-	// if request.ChargeType == "PrePaid" {
-	// 	request.Period = strconv.Itoa(d.Get("period").(int))
-	// }
-
-	// if zone, ok := d.GetOk("availability_zone"); ok && Trim(zone.(string)) != "" {
-	// 	request.ZoneId = Trim(zone.(string))
-	// }
-
-	// log.Printf("begin describe vswitchs")
-	// request.NetworkType = strings.ToUpper(string(Classic))
-	// if vswitchId, ok := d.GetOk("vswitch_id"); ok && vswitchId.(string) != "" {
-	// 	request.VSwitchId = vswitchId.(string)
-	// 	request.NetworkType = strings.ToUpper(string(Vpc))
-	// 	request.PrivateIpAddress = Trim(d.Get("private_ip").(string))
-
-	// 	// check vswitchId in zone
-	// 	object, err := vpcService.DescribeVSwitch(vswitchId.(string))
-	// 	if err != nil {
-	// 		log.Printf("begin describe vswitchs failed")
-	// 		return WrapError(err)
-	// 	}
-
-	// 	log.Printf("begin describe vswitchs success!!")
-	// 	if request.ZoneId == "" {
-	// 		request.ZoneId = object.ZoneId
-	// 	}
-
-	// 	request.VpcId = object.VpcId
-	// }
-
-	// log.Printf("begin create kvstroe instances !!")
-	// err := resource.Retry(5*time.Minute, func() *resource.RetryError {
-	// 	raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
-	// 		return rkvClient.CreateInstance(request)
-	// 	})
-	// 	if err != nil {
-	// 		if IsExpectedErrors(err, OperationDeniedDBStatus) {
-	// 			return resource.RetryableError(err)
-	// 		}
-	// 		return resource.NonRetryableError(err)
-	// 	}
-	// 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
-	// 	response, _ := raw.(*r_kvstore.CreateInstanceResponse)
-	// 	d.SetId(response.InstanceId)
-	// 	return nil
-	// })
-
-	// if err != nil {
-	// 	return WrapErrorf(err, DefaultErrorMsg, "apsarastack_kvstore_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
-	// }
-	// // wait instance status change from Creating to Normal
-	// stateConf := BuildStateConfByTimes([]string{"Creating"}, []string{"Normal"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, kvstoreService.RdsKvstoreInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}), 200)
-	// if _, err := stateConf.WaitForState(); err != nil {
-	// 	return WrapError(err)
-	// }
-
 	vpcService := VpcService{client}
 	kvstoreService := KvstoreService{client}
-	var response map[string]interface{}
-	action := "CreateInstance"
-	request := make(map[string]interface{})
-	conn, err := client.NewDataworkspublicClient()
-	if err != nil {
-		return WrapError(err)
+	request := r_kvstore.CreateCreateInstanceRequest()
+	request.RegionId = client.RegionId
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	request.QueryParams = map[string]string{
+		"AccessKeySecret": client.SecretKey,
+		"Product":         "R-kvstore",
+		"Department":      client.Department,
+		"ResourceGroup":   client.ResourceGroup,
 	}
-	request["Product"] = "R-kvstore"
-	request["product"] = "R-kvstore"
-	request["ResourceGroup"] = client.ResourceGroup
-	request["OrganizationId"] = client.Department
-	request["RegionId"] = client.RegionId
-	request["ClientToken"] = buildClientToken("CreateInstance")
-	if v, ok := d.GetOk("instance_name"); ok {
-		request["InstanceName"] = v.(string)
-	}
-	if v, ok := d.GetOk("cpu_type"); ok {
-		request["CpuType"] = v.(string)
-	}
-	if v, ok := d.GetOk("node_type"); ok {
-		request["NodeType"] = v.(string)
-	}
-	if v, ok := d.GetOk("architecture_type"); ok {
-		request["ArchitectureType"] = v.(string)
-	}
-	if v, ok := d.GetOk("instance_type"); ok {
-		request["InstanceType"] = v.(string)
+	if v, ok := d.GetOk("instance_name"); ok && v.(string) != "" {
+		request.InstanceName = v.(string)
 	}
 
-	if v, ok := d.GetOk("engine_version"); ok {
-		request["EngineVersion"] = v.(string)
+	if v, ok := d.GetOk("cpu_type"); ok && v.(string) != "" {
+		request.NodeType = v.(string)
 	}
-
-	if v, ok := d.GetOk("instance_class"); ok {
-		request["InstanceClass"] = v.(string)
+	if v, ok := d.GetOk("architecture_type"); ok && v.(string) != "" {
+		request.QueryParams["ArchitectureType"] = v.(string)
 	}
-
-	if v, ok := d.GetOk("instance_charge_type"); ok {
-		request["ChargeType"] = v.(string)
+	if v, ok := d.GetOk("instance_type"); ok && v.(string) != "" {
+		request.InstanceType = v.(string)
+	}
+	if v, ok := d.GetOk("engine_version"); ok && v.(string) != "" {
+		request.EngineVersion = v.(string)
+	}
+	if v, ok := d.GetOk("instance_class"); ok && v.(string) != "" {
+		request.InstanceClass = v.(string)
+	}
+	if v, ok := d.GetOk("instance_charge_type"); ok && v.(string) != "" {
+		request.ChargeType = v.(string)
 	}
 	if v, ok := d.GetOk("password"); ok {
-		request["Password"] = v.(string)
+		request.Password = v.(string)
 	}
-
-	if request["Password"] == "" {
+	if request.Password == "" {
 		if v := d.Get("kms_encrypted_password").(string); v != "" {
 			kmsService := KmsService{client}
 			decryptResp, err := kmsService.Decrypt(v, d.Get("kms_encryption_context").(map[string]interface{}))
 			if err != nil {
 				return WrapError(err)
 			}
-			request["Password"] = decryptResp.Plaintext
+			request.Password = decryptResp.Plaintext
 		}
 	}
 	if v, ok := d.GetOk("backup_id"); ok {
-		request["BackupId"] = v.(string)
+		request.BackupId = v.(string)
 	}
-
-	if request["ChargeType"] == PrePaid {
-		request["Period"] = strconv.Itoa(d.Get("period").(int))
+	if request.ChargeType == "PrePaid" {
+		request.Period = strconv.Itoa(d.Get("period").(int))
 	}
 
 	if zone, ok := d.GetOk("availability_zone"); ok && Trim(zone.(string)) != "" {
-		request["ZoneId"] = Trim(zone.(string))
+		request.ZoneId = Trim(zone.(string))
 	}
+
 	log.Printf("begin describe vswitchs")
-	request["NetworkType"] = strings.ToUpper(string(Classic))
+	request.NetworkType = strings.ToUpper(string(Classic))
 	if vswitchId, ok := d.GetOk("vswitch_id"); ok && vswitchId.(string) != "" {
-		request["VSwitchId"] = vswitchId.(string)
-		request["NetworkType"] = strings.ToUpper(string(Vpc))
-		request["PrivateIpAddress"] = Trim(d.Get("private_ip").(string))
+		request.VSwitchId = vswitchId.(string)
+		request.NetworkType = strings.ToUpper(string(Vpc))
+		request.PrivateIpAddress = Trim(d.Get("private_ip").(string))
 
 		// check vswitchId in zone
 		object, err := vpcService.DescribeVSwitch(vswitchId.(string))
 		if err != nil {
+			log.Printf("begin describe vswitchs failed")
 			return WrapError(err)
 		}
 
-		if request["ZoneId"] == "" {
-			request["ZoneId"] = object.ZoneId
+		log.Printf("begin describe vswitchs success!!")
+		if request.ZoneId == "" {
+			request.ZoneId = object.ZoneId
 		}
 
-		request["VpcId"] = object.VpcId
-	}
-	log.Printf("begin create kvstroe instances !!")
-	response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2015-01-01"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
-	log.Printf(" create kvstroe instances Finished !!")
-	addDebug(action, response, nil, request)
-	if err != nil {
-		err = WrapErrorf(err, " create kvstroe instances Failed !!", action, ApsaraStackSdkGoERROR)
-		return err
-	}
-	if !response["asapiSuccess"].(bool) {
-		err = Error("create kvstroe instances Failed !!")
-		return WrapErrorf(err, " create kvstroe instances Failed !!", action, ApsaraStackSdkGoERROR)
+		request.VpcId = object.VpcId
 	}
 
-	d.SetId(fmt.Sprint(response["InstanceId"]))
-	log.Printf("begin describe kvstroe instances !!")
+	log.Printf("begin create kvstroe instances !!")
+	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
+		raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
+			return rkvClient.CreateInstance(request)
+		})
+		if err != nil {
+			if IsExpectedErrors(err, OperationDeniedDBStatus) {
+				return resource.RetryableError(err)
+			}
+			return resource.NonRetryableError(err)
+		}
+		addDebug(request.GetActionName(), raw, request.RpcRequest, request)
+		response, _ := raw.(*r_kvstore.CreateInstanceResponse)
+		d.SetId(response.InstanceId)
+		return nil
+	})
+
+	if err != nil {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_kvstore_instance", request.GetActionName(), ApsaraStackSdkGoERROR)
+	}
 	// wait instance status change from Creating to Normal
 	stateConf := BuildStateConfByTimes([]string{"Creating"}, []string{"Normal"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, kvstoreService.RdsKvstoreInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}), 200)
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapError(err)
 	}
 
-	log.Printf("begin update kvstroe instances !!")
+	// vpcService := VpcService{client}
+	// kvstoreService := KvstoreService{client}
+	// var response map[string]interface{}
+	// action := "CreateInstance"
+	// request := make(map[string]interface{})
+	// conn, err := client.NewDataworkspublicClient()
+	// if err != nil {
+	// 	return WrapError(err)
+	// }
+	// request["Product"] = "R-kvstore"
+	// request["product"] = "R-kvstore"
+	// request["ResourceGroup"] = client.ResourceGroup
+	// request["OrganizationId"] = client.Department
+	// request["RegionId"] = client.RegionId
+	// request["ClientToken"] = buildClientToken("CreateInstance")
+	// if v, ok := d.GetOk("instance_name"); ok {
+	// 	request["InstanceName"] = v.(string)
+	// }
+	// if v, ok := d.GetOk("cpu_type"); ok {
+	// 	request["CpuType"] = v.(string)
+	// }
+	// if v, ok := d.GetOk("node_type"); ok {
+	// 	request["NodeType"] = v.(string)
+	// }
+	// if v, ok := d.GetOk("architecture_type"); ok {
+	// 	request["ArchitectureType"] = v.(string)
+	// }
+	// if v, ok := d.GetOk("instance_type"); ok {
+	// 	request["InstanceType"] = v.(string)
+	// }
+
+	// if v, ok := d.GetOk("engine_version"); ok {
+	// 	request["EngineVersion"] = v.(string)
+	// }
+
+	// if v, ok := d.GetOk("instance_class"); ok {
+	// 	request["InstanceClass"] = v.(string)
+	// }
+
+	// if v, ok := d.GetOk("instance_charge_type"); ok {
+	// 	request["ChargeType"] = v.(string)
+	// }
+	// if v, ok := d.GetOk("password"); ok {
+	// 	request["Password"] = v.(string)
+	// }
+
+	// if request["Password"] == "" {
+	// 	if v := d.Get("kms_encrypted_password").(string); v != "" {
+	// 		kmsService := KmsService{client}
+	// 		decryptResp, err := kmsService.Decrypt(v, d.Get("kms_encryption_context").(map[string]interface{}))
+	// 		if err != nil {
+	// 			return WrapError(err)
+	// 		}
+	// 		request["Password"] = decryptResp.Plaintext
+	// 	}
+	// }
+	// if v, ok := d.GetOk("backup_id"); ok {
+	// 	request["BackupId"] = v.(string)
+	// }
+
+	// if request["ChargeType"] == PrePaid {
+	// 	request["Period"] = strconv.Itoa(d.Get("period").(int))
+	// }
+
+	// if zone, ok := d.GetOk("availability_zone"); ok && Trim(zone.(string)) != "" {
+	// 	request["ZoneId"] = Trim(zone.(string))
+	// }
+	// log.Printf("begin describe vswitchs")
+	// request["NetworkType"] = strings.ToUpper(string(Classic))
+	// if vswitchId, ok := d.GetOk("vswitch_id"); ok && vswitchId.(string) != "" {
+	// 	request["VSwitchId"] = vswitchId.(string)
+	// 	request["NetworkType"] = strings.ToUpper(string(Vpc))
+	// 	request["PrivateIpAddress"] = Trim(d.Get("private_ip").(string))
+
+	// 	// check vswitchId in zone
+	// 	object, err := vpcService.DescribeVSwitch(vswitchId.(string))
+	// 	if err != nil {
+	// 		return WrapError(err)
+	// 	}
+
+	// 	if request["ZoneId"] == "" {
+	// 		request["ZoneId"] = object.ZoneId
+	// 	}
+
+	// 	request["VpcId"] = object.VpcId
+	// }
+	// log.Printf("begin create kvstroe instances !!")
+	// response, err = conn.DoRequest(StringPointer(action), nil, StringPointer("POST"), StringPointer("2015-01-01"), StringPointer("AK"), nil, request, &util.RuntimeOptions{})
+	// log.Printf("create kvstroe instances Finished !!")
+	// addDebug(action, response, nil, request)
+	// if err != nil {
+	// 	err = WrapErrorf(err, " create kvstroe instances Failed !!", action, ApsaraStackSdkGoERROR)
+	// 	return err
+	// }
+	// if !response["asapiSuccess"].(bool) {
+	// 	err = Error("create kvstroe instances Failed !!")
+	// 	return WrapErrorf(err, " create kvstroe instances Failed !!", action, ApsaraStackSdkGoERROR)
+	// }
+
+	// d.SetId(fmt.Sprint(response["InstanceId"]))
+	// log.Printf("begin describe kvstroe instances !!")
+	// // wait instance status change from Creating to Normal
+	// stateConf := BuildStateConfByTimes([]string{"Creating"}, []string{"Normal"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, kvstoreService.RdsKvstoreInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}), 200)
+	// if _, err := stateConf.WaitForState(); err != nil {
+	// 	return WrapError(err)
+	// }
+
+	// log.Printf("begin update kvstroe instances !!")
 
 	if tde, ok := d.GetOk("tde_status"); ok && tde.(string) == "Enabled" {
 		client := meta.(*connectivity.ApsaraStackClient)
 		kvstoreService = KvstoreService{client}
 		tde_req := r_kvstore.CreateModifyInstanceTDERequest()
 		tde_req.RegionId = client.RegionId
-		tde_req.Headers = map[string]string{"RegionId": client.RegionId}
+		tde_req.Headers = map[string]string{
+			"RegionId":             client.RegionId,
+			"x-ascm-product-name":  "R-kvstore",
+			"x-acs-organizationId": client.Department,
+		}
 		tde_req.InstanceId = d.Id()
-		tde_req.TDEStatus = tde.(string)
-		tde_req.EncryptionName = d.Get("encryption_name").(string)
+		if tde.(string) != "" {
+			tde_req.TDEStatus = tde.(string)
+		} else {
+			if role_arn, ok := d.GetOk("role_arn"); ok && role_arn.(string) != "" {
+				tde_req.RoleArn = d.Get("role_arn").(string)
+			} else if client.Config.RamRoleArn != "" {
+				tde_req.RoleArn = d.Get("role_arn").(string)
+			}
+		}
+
+		// tde_req.EncryptionName = d.Get("encryption_name").(string)
 		tde_req.EncryptionKey = d.Get("encryption_key").(string)
-		if role_arn, ok := d.GetOk("role_arn"); ok && role_arn.(string) != "" {
-			tde_req.RoleArn = d.Get("role_arn").(string)
-		} else if client.Config.RamRoleArn != "" {
-			tde_req.RoleArn = d.Get("role_arn").(string)
+		tde_req.QueryParams = map[string]string{
+			"AccessKeySecret": client.SecretKey,
+			"Product":         "R-kvstore",
+			"Region":          client.RegionId,
+			"ResourceGroup":   client.ResourceGroup,
 		}
 
 		if strings.ToLower(client.Config.Protocol) == "https" {
@@ -448,12 +465,12 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		tderaw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.ModifyInstanceTDE(tde_req)
 		})
+		addDebug(tde_req.GetActionName(), tderaw, tde_req)
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_db_instance", tde_req.GetActionName(), ApsaraStackSdkGoERROR)
 		}
 
 		log.Print("enabled TDE")
-		addDebug(tde_req.GetActionName(), tderaw, tde_req)
 	}
 	return resourceApsaraStackKVStoreInstanceUpdate(d, meta)
 }
