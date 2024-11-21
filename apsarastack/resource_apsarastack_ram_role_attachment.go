@@ -56,7 +56,7 @@ func resourceApsaraStackInstanceRoleAttachmentCreate(d *schema.ResourceData, met
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
+		
 		"Product":         "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup,
 	}
 	request.InstanceIds = fmt.Sprintf("[\"%s\"]", instanceId)
@@ -125,7 +125,7 @@ func resourceApsaraStackInstanceRoleAttachmentDelete(d *schema.ResourceData, met
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RamRoleName = roleName
 	request.InstanceIds = fmt.Sprintf("[\"%s\"]", instanceIds)
 

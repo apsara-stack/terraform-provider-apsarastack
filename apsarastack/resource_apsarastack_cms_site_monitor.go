@@ -96,7 +96,7 @@ func resourceApsaraStackCmsSiteMonitorCreate(d *schema.ResourceData, meta interf
 	taskName := d.Get("task_name").(string)
 	request := cms.CreateCreateSiteMonitorRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.Address = d.Get("address").(string)
 	request.TaskName = taskName
 	request.TaskType = d.Get("task_type").(string)
@@ -179,7 +179,7 @@ func resourceApsaraStackCmsSiteMonitorUpdate(d *schema.ResourceData, meta interf
 
 	request := cms.CreateModifySiteMonitorRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.TaskId = d.Id()
 	request.Address = d.Get("address").(string)
 	request.Interval = strconv.Itoa(d.Get("interval").(int))
@@ -219,7 +219,7 @@ func resourceApsaraStackCmsSiteMonitorDelete(d *schema.ResourceData, meta interf
 	cmsService := CmsService{client}
 	request := cms.CreateDeleteSiteMonitorsRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	request.TaskIds = d.Id()
 	request.IsDeleteAlarms = "false"

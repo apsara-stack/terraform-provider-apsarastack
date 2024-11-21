@@ -323,7 +323,7 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 		}
 		request.QueryParams = map[string]string{
 
-			"AccessKeySecret":  client.SecretKey,
+			
 			"Product":          "OneRouter",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -800,7 +800,7 @@ func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}
 		}
 		request.QueryParams = map[string]string{
 
-			"AccessKeySecret":  client.SecretKey,
+			
 			"Product":          "OneRouter",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -937,7 +937,7 @@ func resourceApsaraStackOssBucketLoggingCreate(client *connectivity.ApsaraStackC
 			}
 			logrequest.QueryParams = map[string]string{
 
-				"AccessKeySecret":  client.SecretKey,
+				
 				"Product":          "OneRouter",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -1013,7 +1013,7 @@ func resourceApsaraStackOssBucketLoggingCreate(client *connectivity.ApsaraStackC
 					}
 					logrequest.QueryParams = map[string]string{
 
-						"AccessKeySecret":  client.SecretKey,
+						
 						"Product":          "OneRouter",
 						"Department":       client.Department,
 						"ResourceGroup":    client.ResourceGroup,
@@ -1091,7 +1091,7 @@ func resourceApsaraStackOssBucketLoggingCreate(client *connectivity.ApsaraStackC
 				}
 				logrequest.QueryParams = map[string]string{
 
-					"AccessKeySecret":  client.SecretKey,
+					
 					"Product":          "OneRouter",
 					"Department":       client.Department,
 					"ResourceGroup":    client.ResourceGroup,
@@ -1145,7 +1145,7 @@ func resourceApsaraStackOssBucketLoggingDescribe(client *connectivity.ApsaraStac
 	describelogging := Logging{}
 	logdescribe.QueryParams = map[string]string{
 
-		"AccessKeySecret":   client.SecretKey,
+		
 		"Product":           "OneRouter",
 		"Department":        client.Department,
 		"ResourceGroup":     client.ResourceGroup,

@@ -85,7 +85,7 @@ func resourceApsarastackAscmAccessKeyCreate(d *schema.ResourceData, meta interfa
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ascm",
@@ -155,7 +155,7 @@ func resourceApsarastackAscmAccessKeyDelete(d *schema.ResourceData, meta interfa
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "RamDeleteAccessKey",
 			"Version":         "2015-05-01",
@@ -204,7 +204,7 @@ func (s *AscmService) DescribeAscmKeypolicy(id string) (response *AccessKeyInCre
 	}
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
-		"AccessKeySecret": s.client.SecretKey,
+		
 		"Department":      s.client.Department,
 		"ResourceGroup":   s.client.ResourceGroup,
 		"Product":         "ascm",

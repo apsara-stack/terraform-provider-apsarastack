@@ -815,7 +815,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		if pod == 0 {
 			request.QueryParams = map[string]string{
 				"RegionId":         client.RegionId,
-				"AccessKeySecret":  client.SecretKey,
+				
 				"Product":          "Cs",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -872,7 +872,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		} else {
 			request.QueryParams = map[string]string{
 				"RegionId":         client.RegionId,
-				"AccessKeySecret":  client.SecretKey,
+				
 				"Product":          "Cs",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -932,7 +932,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		if pod == 0 {
 			request.QueryParams = map[string]string{
 				"RegionId":         client.RegionId,
-				"AccessKeySecret":  client.SecretKey,
+				
 				"Product":          "Cs",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -990,7 +990,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 		} else {
 			request.QueryParams = map[string]string{
 				"RegionId":         client.RegionId,
-				"AccessKeySecret":  client.SecretKey,
+				
 				"Product":          "Cs",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -1168,7 +1168,7 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
-			"AccessKeySecret":  client.SecretKey,
+			
 			"Product":          "CS",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -1288,7 +1288,7 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 	}
 	request.QueryParams = map[string]string{
 		"RegionId":         client.RegionId,
-		"AccessKeySecret":  client.SecretKey,
+		
 		"Product":          "CS",
 		"Department":       client.Department,
 		"ResourceGroup":    client.ResourceGroup,
@@ -1380,7 +1380,7 @@ func updateKubernetesClusterTag(d *schema.ResourceData, meta interface{}) error 
 	log.Printf("checking tags %v", tags)
 	request.QueryParams = map[string]string{
 		"RegionId":         client.RegionId,
-		"AccessKeySecret":  client.SecretKey,
+		
 		"Product":          "CS",
 		"Department":       client.Department,
 		"ResourceGroup":    client.ResourceGroup,

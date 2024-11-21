@@ -65,7 +65,7 @@ func resourceApsaraStackAscmUserGroupResourceSetBindingCreate(d *schema.Resource
 
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Product":         "Ascm",
 		"Action":          "AddResourceSetToUserGroup",
 		"Version":         "2019-05-10",
@@ -127,7 +127,7 @@ func resourceApsaraStackAscmUserGroupResourceSetBindingDelete(d *schema.Resource
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "RemoveResourceSetFromUserGroup",
 			"Version":         "2019-05-10",

@@ -87,8 +87,8 @@ func resourceApsaraStackCRNamespaceCreate(d *schema.ResourceData, meta interface
 	request.AcceptFormat = "JSON"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret":  client.SecretKey,
-		"AccessKeyId":      client.AccessKey,
+		
+		
 		"Product":          "cr",
 		"Department":       client.Department,
 		"ResourceGroup":    client.ResourceGroup,
@@ -124,8 +124,8 @@ func resourceApsaraStackCRNamespaceCreate(d *schema.ResourceData, meta interface
 		request.Headers = map[string]string{"RegionId": client.RegionId, "x-acs-instanceId": namespaceName, "x-acs-content-type": "application/json;charset=UTF-8", "Content-type": "application/json;charset=UTF-8"}
 		request.SetContentType("application/json")
 		request.QueryParams = map[string]string{
-			"AccessKeySecret":  client.SecretKey,
-			"AccessKeyId":      client.AccessKey,
+			
+			
 			"Product":          "cr",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -180,8 +180,8 @@ func resourceApsaraStackCRNamespaceUpdate(d *schema.ResourceData, meta interface
 		request.Headers = map[string]string{"RegionId": client.RegionId, "x-acs-instanceId": d.Id(), "x-acs-content-type": "application/json;charset=UTF-8", "Content-type": "application/json;charset=UTF-8"}
 		request.SetContentType("application/json")
 		request.QueryParams = map[string]string{
-			"AccessKeySecret":  client.SecretKey,
-			"AccessKeyId":      client.AccessKey,
+			
+			
 			"Product":          "cr",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -243,8 +243,8 @@ func resourceApsaraStackCRNamespaceDelete(d *schema.ResourceData, meta interface
 	request.ApiName = "DeleteNamespace"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "cr",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,

@@ -71,7 +71,7 @@ func resourceApsaraStackEssScalingRuleCreate(d *schema.ResourceData, meta interf
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.CreateScalingRule(request)
@@ -135,7 +135,7 @@ func resourceApsaraStackEssScalingRuleDelete(d *schema.ResourceData, meta interf
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	raw, err := client.WithEssClient(func(essClient *ess.Client) (interface{}, error) {
 		return essClient.DeleteScalingRule(request)
@@ -168,7 +168,7 @@ func resourceApsaraStackEssScalingRuleUpdate(d *schema.ResourceData, meta interf
 	request.ScalingRuleId = d.Id()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if d.HasChange("scaling_rule_name") {
 		request.ScalingRuleName = d.Get("scaling_rule_name").(string)
@@ -203,7 +203,7 @@ func buildApsaraStackEssScalingRuleArgs(d *schema.ResourceData, meta interface{}
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	// common params
 	request.ScalingGroupId = d.Get("scaling_group_id").(string)

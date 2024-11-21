@@ -128,7 +128,7 @@ func dataSourceApsaraStackGpdbInstancesRead(d *schema.ResourceData, meta interfa
 	request.RegionId = client.RegionId
 	request.ApiName = "DescribeDBInstances"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "gpdb", "RegionId": client.RegionId, "Action": "DescribeDBInstances", "Version": "2016-05-03"}
+	request.QueryParams = map[string]string{ "Product": "gpdb", "RegionId": client.RegionId, "Action": "DescribeDBInstances", "Version": "2016-05-03"}
 	response := GpdbInstance{}
 
 	for {

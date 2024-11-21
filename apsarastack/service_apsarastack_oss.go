@@ -29,7 +29,7 @@ func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoRes
 	}
 	request.QueryParams = map[string]string{
 
-		"AccessKeySecret": s.client.SecretKey,
+		
 		"Product":         "OneRouter",
 		//"Department":       s.client.Department,
 		//"ResourceGroup":    s.client.ResourceGroup,

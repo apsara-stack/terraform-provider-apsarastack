@@ -118,8 +118,8 @@ func dataSourceApsaraStackAscmLogonPoliciesRead(d *schema.ResourceData, meta int
 	request.ApiName = "ListLoginPolicies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
-		"AccessKeySecret": client.SecretKey,
+		
+		
 		"Product":         "ascm",
 		"RegionId":        client.RegionId,
 		"Action":          "ListLoginPolicies",

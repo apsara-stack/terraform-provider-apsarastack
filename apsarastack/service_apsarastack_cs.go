@@ -52,7 +52,7 @@ func (s *CsService) DescribeCsKubernetes(id string) (cl *cs.KubernetesClusterDet
 	}
 	request.QueryParams = map[string]string{
 		"RegionId":        s.client.RegionId,
-		"AccessKeySecret": s.client.SecretKey,
+		
 		"Product":         "CS",
 		//"Department":       s.client.Department,
 		//"ResourceGroup":    s.client.ResourceGroup,
@@ -144,7 +144,7 @@ func (s *CsService) DescribeClusterNodes(id, nodepoolid string) (pools *NodePool
 	}
 	request.QueryParams = map[string]string{
 		"RegionId":         s.client.RegionId,
-		"AccessKeySecret":  s.client.SecretKey,
+		
 		"Product":          "CS",
 		"Department":       s.client.Department,
 		"ResourceGroup":    s.client.ResourceGroup,
@@ -195,7 +195,7 @@ func (s *CsService) DescribeClusterNodePools(id string) (*NodePool, error) {
 	}
 	req.QueryParams = map[string]string{
 		"RegionId":         s.client.RegionId,
-		"AccessKeySecret":  s.client.SecretKey,
+		
 		"Product":          "CS",
 		"Department":       s.client.Department,
 		"ResourceGroup":    s.client.ResourceGroup,

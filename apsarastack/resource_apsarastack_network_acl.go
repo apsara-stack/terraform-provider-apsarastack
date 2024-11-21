@@ -168,7 +168,7 @@ func resourceApsaraStackNetworkAclCreate(d *schema.ResourceData, meta interface{
 	request.NetworkAclName = d.Get("network_acl_name").(string)
 	request.VpcId = d.Get("vpc_id").(string)
 	request.ClientToken = buildClientToken("CreateNetworkAcl")
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.Domain = client.Domain
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
@@ -275,7 +275,7 @@ func resourceApsaraStackNetworkAclUpdate(d *schema.ResourceData, meta interface{
 	vpcService := VpcService{client}
 	//获取请求对象
 	request := vpc.CreateModifyNetworkAclAttributesRequest()
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	d.Partial(true)
 
@@ -322,7 +322,7 @@ func resourceApsaraStackNetworkAclUpdate(d *schema.ResourceData, meta interface{
 	updateNetworkAclEntriesRequest := vpc.CreateUpdateNetworkAclEntriesRequest()
 	updateNetworkAclEntriesRequest.NetworkAclId = d.Id()
 	updateNetworkAclEntriesRequest.RegionId = client.RegionId
-	updateNetworkAclEntriesRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	updateNetworkAclEntriesRequest.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	updateNetworkAclEntriesRequest.ClientToken = buildClientToken("UpdateNetworkAclEntries")
 	if d.HasChange("egress_acl_entries") {
 		updateNetworkAclEntriesRequest.UpdateEgressAclEntries = requests.NewBoolean(true)
@@ -402,7 +402,7 @@ func resourceApsaraStackNetworkAclUpdate(d *schema.ResourceData, meta interface{
 			request.NetworkAclId = d.Id()
 			request.RegionId = client.RegionId
 			request.ClientToken = buildClientToken("AssociateNetworkAcl")
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			action := "AssociateNetworkAcl"
 			response := vpc.CreateAssociateNetworkAclResponse()
 			err := resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
@@ -450,7 +450,7 @@ func resourceApsaraStackNetworkAclUpdate(d *schema.ResourceData, meta interface{
 			request.ClientToken = buildClientToken("UnassociateNetworkAcl")
 			request.NetworkAclId = d.Id()
 			action := "UnassociateNetworkAcl"
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			response := vpc.CreateUnassociateNetworkAclResponse()
 			err := resource.Retry(d.Timeout(schema.TimeoutUpdate), func() *resource.RetryError {
 				raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -494,7 +494,7 @@ func resourceApsaraStackNetworkAclDelete(d *schema.ResourceData, meta interface{
 	request.NetworkAclId = d.Id()
 	request.RegionId = client.RegionId
 	request.ClientToken = buildClientToken("DeleteNetworkAcl")
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	runtime := util.RuntimeOptions{}
 	runtime.SetAutoretry(true)

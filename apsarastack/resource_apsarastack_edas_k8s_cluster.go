@@ -72,7 +72,7 @@ func resourceApsaraStackEdasK8sClusterCreate(d *schema.ResourceData, meta interf
 	request.Headers["x-ascm-product-name"] = "Edas"
 	request.Headers["x-acs-organizationid"] = client.Department
 	request.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	if v, ok := d.GetOk("namespace_id"); ok {
 		request.NamespaceId = v.(string)
@@ -101,7 +101,7 @@ func resourceApsaraStackEdasK8sClusterCreate(d *schema.ResourceData, meta interf
 	req.Headers["x-acs-organizationid"] = client.Department
 	req.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
 	req.RegionId = client.RegionId
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	req.QueryParams = map[string]string{"Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	wait := incrementalWait(1*time.Second, 2*time.Second)
 	err = resource.Retry(d.Timeout(schema.TimeoutCreate), func() *resource.RetryError {
@@ -180,7 +180,7 @@ func resourceApsaraStackEdasK8sClusterDelete(d *schema.ResourceData, meta interf
 	request.Headers["x-ascm-product-name"] = "Edas"
 	request.Headers["x-acs-organizationid"] = client.Department
 	request.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	wait := incrementalWait(1*time.Second, 2*time.Second)
 	err := resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
@@ -217,7 +217,7 @@ func resourceApsaraStackEdasK8sClusterDelete(d *schema.ResourceData, meta interf
 	reqGet.Headers["x-ascm-product-name"] = "Edas"
 	reqGet.Headers["x-acs-organizationid"] = client.Department
 	reqGet.Headers["x-acs-content-type"] = "application/x-www-form-urlencoded"
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "edas", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	err = resource.Retry(d.Timeout(schema.TimeoutDelete), func() *resource.RetryError {
 		raw, err := edasService.client.WithEdasClient(func(edasClient *edas.Client) (interface{}, error) {

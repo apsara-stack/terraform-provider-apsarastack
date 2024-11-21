@@ -85,8 +85,8 @@ func dataSourceApsaraStackAscmRamPoliciesForUserRead(d *schema.ResourceData, met
 	request.ApiName = "ListRAMPoliciesForUser"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
-		"AccessKeySecret": client.SecretKey,
+		
+		
 		"Product":         "ascm",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,

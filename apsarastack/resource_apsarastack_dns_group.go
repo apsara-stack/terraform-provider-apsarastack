@@ -29,7 +29,7 @@ func resourceApsaraStackDnsGroupCreate(d *schema.ResourceData, meta interface{})
 	client := meta.(*connectivity.ApsaraStackClient)
 	request := alidns.CreateAddDomainGroupRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams = map[string]string{"Product": "alidns"}
 	request.QueryParams["Department"] = client.Department
 	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RegionId = client.RegionId
@@ -52,7 +52,7 @@ func resourceApsaraStackDnsGroupUpdate(d *schema.ResourceData, meta interface{})
 
 	request := alidns.CreateUpdateDomainGroupRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams = map[string]string{"Product": "alidns"}
 	request.QueryParams["Department"] = client.Department
 	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RegionId = client.RegionId
@@ -92,7 +92,7 @@ func resourceApsaraStackDnsGroupDelete(d *schema.ResourceData, meta interface{})
 
 	request := alidns.CreateDeleteDomainGroupRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "alidns"}
+	request.QueryParams = map[string]string{"Product": "alidns"}
 	request.QueryParams["Department"] = client.Department
 	request.QueryParams["ResourceGroup"] = client.ResourceGroup
 	request.RegionId = client.RegionId

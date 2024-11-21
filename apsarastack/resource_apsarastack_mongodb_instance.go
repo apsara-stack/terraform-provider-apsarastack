@@ -178,7 +178,7 @@ func buildMongoDBCreateRequest(d *schema.ResourceData, meta interface{}) (*dds.C
 	request := dds.CreateCreateDBInstanceRequest()
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.EngineVersion = Trim(d.Get("engine_version").(string))
 	request.Engine = "MongoDB"
 	request.DBInstanceStorage = requests.NewInteger(d.Get("db_instance_storage").(int))
@@ -368,7 +368,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		prePaidRequest.InstanceId = d.Id()
 		prePaidRequest.AutoPay = requests.NewBoolean(true)
 		prePaidRequest.Period = requests.NewInteger(d.Get("period").(int))
-		prePaidRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		prePaidRequest.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		raw, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
 			return client.TransformToPrePaid(prePaidRequest)
 		})
@@ -397,7 +397,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		request := dds.CreateModifyDBInstanceTDERequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.TDEStatus = d.Get("tde_status").(string)
 		raw, err := client.WithDdsClient(func(client *dds.Client) (interface{}, error) {
@@ -414,7 +414,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		request := dds.CreateModifyDBInstanceMaintainTimeRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		request.DBInstanceId = d.Id()
 		request.MaintainStartTime = d.Get("maintain_start_time").(string)
@@ -435,7 +435,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		request := dds.CreateModifySecurityGroupConfigurationRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		request.DBInstanceId = d.Id()
 		request.SecurityGroupId = d.Get("security_group_id").(string)
@@ -463,7 +463,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		request := dds.CreateModifyDBInstanceDescriptionRequest()
 		request.DBInstanceId = d.Id()
 		request.DBInstanceDescription = d.Get("name").(string)
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		raw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
 			return ddsClient.ModifyDBInstanceDescription(request)
@@ -516,7 +516,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		request.DBInstanceId = d.Id()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		request.SSLAction = d.Get("ssl_action").(string)
 
@@ -541,7 +541,7 @@ func resourceApsaraStackMongoDBInstanceUpdate(d *schema.ResourceData, meta inter
 		request.DBInstanceClass = d.Get("db_instance_class").(string)
 		request.DBInstanceStorage = strconv.Itoa(d.Get("db_instance_storage").(int))
 		request.ReplicationFactor = strconv.Itoa(d.Get("replication_factor").(int))
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		// wait instance status is running before modifying
 		stateConf := BuildStateConf([]string{"DBInstanceClassChanging", "DBInstanceNetTypeChanging"}, []string{"Running"}, d.Timeout(schema.TimeoutUpdate), 1*time.Minute, ddsService.RdsMongodbDBInstanceStateRefreshFunc(d.Id(), []string{"Deleting"}))
@@ -581,7 +581,7 @@ func resourceApsaraStackMongoDBInstanceDelete(d *schema.ResourceData, meta inter
 
 	request := dds.CreateDeleteDBInstanceRequest()
 	request.DBInstanceId = d.Id()
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	err := resource.Retry(10*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {

@@ -52,7 +52,7 @@ func resourceApsaraStackRamPolicyRoleAttachmentCreate(d *schema.ResourceData, me
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ram",
@@ -115,7 +115,7 @@ func resourceApsaraStackRamPolicyRoleAttachmentDelete(d *schema.ResourceData, me
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ram",

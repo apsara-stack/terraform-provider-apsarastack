@@ -69,8 +69,8 @@ func dataSourceApsaraStackEcsInstanceFamiliesRead(d *schema.ResourceData, meta i
 	request.ApiName = "DescribeInstanceTypeFamilies"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
-		"AccessKeySecret": client.SecretKey,
+		
+		
 		"Product":         "ascm",
 		"RegionId":        client.RegionId,
 		"Department":      client.Department,

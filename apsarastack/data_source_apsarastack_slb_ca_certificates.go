@@ -81,7 +81,7 @@ func dataSourceApsaraStackSlbCACertificatesRead(d *schema.ResourceData, meta int
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
 	idsMap := make(map[string]string)
 	if v, ok := d.GetOk("ids"); ok {

@@ -64,7 +64,7 @@ func resourceApsaraStackSlbDomainExtensionCreate(d *schema.ResourceData, meta in
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 	request.ListenerPort = requests.NewInteger(d.Get("frontend_port").(int))
 	request.Domain = d.Get("domain").(string)
@@ -120,7 +120,7 @@ func resourceApsaraStackSlbDomainExtensionUpdate(d *schema.ResourceData, meta in
 	if d.HasChange("server_certificate_id") {
 		request := slb.CreateSetDomainExtensionAttributeRequest()
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DomainExtensionId = d.Id()
 		if strings.ToLower(client.Config.Protocol) == "https" {
 			request.Scheme = "https"
@@ -176,7 +176,7 @@ func resourceApsaraStackSlbDomainExtensionDelete(d *schema.ResourceData, meta in
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
 		raw, err := client.WithSlbClient(func(slbClient *slb.Client) (interface{}, error) {

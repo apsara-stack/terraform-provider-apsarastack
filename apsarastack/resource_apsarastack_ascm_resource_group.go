@@ -58,7 +58,7 @@ func resourceApsaraStackAscmResourceGroupCreate(d *schema.ResourceData, meta int
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":            client.RegionId,
-			"AccessKeySecret":     client.SecretKey,
+			
 			"Product":             "Ascm",
 			"Action":              "CreateResourceGroup",
 			"Version":             "2019-05-10",
@@ -153,7 +153,7 @@ func resourceApsaraStackAscmResourceGroupUpdate(d *schema.ResourceData, meta int
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":          client.RegionId,
-		"AccessKeySecret":   client.SecretKey,
+		
 		"Department":        client.Department,
 		"ResourceGroup":     client.ResourceGroup,
 		"Product":           "ascm",
@@ -247,7 +247,7 @@ func resourceApsaraStackAscmResourceGroupDelete(d *schema.ResourceData, meta int
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":          client.RegionId,
-			"AccessKeySecret":   client.SecretKey,
+			
 			"Product":           "ascm",
 			"Action":            "RemoveResourceGroup",
 			"Version":           "2019-05-10",

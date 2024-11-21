@@ -87,7 +87,7 @@ func dataSourceApsarastackCmsAlarmContactsRead(d *schema.ResourceData, meta inte
 	request.RegionId = client.RegionId
 	request.ApiName = "ListCmsContacts"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListCmsContacts", "Version": string(connectivity.ApiVersion20190510)}
+	request.QueryParams = map[string]string{ "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Product": "ascm", "RegionId": client.RegionId, "Action": "ListCmsContacts", "Version": string(connectivity.ApiVersion20190510)}
 	response := CmsContact{}
 
 	for {

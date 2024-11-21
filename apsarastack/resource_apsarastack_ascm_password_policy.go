@@ -88,7 +88,7 @@ func resourceApsaraStackAscmPasswordPolicyCreate(d *schema.ResourceData, meta in
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
 		"RegionId":              client.RegionId,
-		"AccessKeySecret":       client.SecretKey,
+		
 		"Department":            client.Department,
 		"ResourceGroup":         client.ResourceGroup,
 		"Product":               "ascm",
@@ -167,7 +167,7 @@ func resourceApsaraStackAscmPasswordPolicyDelete(d *schema.ResourceData, meta in
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "ResetPasswordPolicy",
 			"Version":         "2019-05-10",

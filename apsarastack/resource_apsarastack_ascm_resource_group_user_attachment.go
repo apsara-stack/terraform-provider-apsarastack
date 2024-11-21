@@ -87,7 +87,7 @@ func resourceApsaraStackAscmResourceGroupUserAttachmentCreate(d *schema.Resource
 
 	request.QueryParams = map[string]string{
 		"RegionId":          client.RegionId,
-		"AccessKeySecret":   client.SecretKey,
+		
 		"Product":           "Ascm",
 		"Action":            "BindAscmUserAndResourceGroup",
 		"Version":           "2019-05-10",
@@ -157,7 +157,7 @@ func resourceApsaraStackAscmResourceGroupUserAttachmentDelete(d *schema.Resource
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "UnbindAscmUserAndResourceGroup",
 			"Version":         "2019-05-10",

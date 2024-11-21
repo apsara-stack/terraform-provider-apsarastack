@@ -211,7 +211,7 @@ func resourceApsaraStackSlbRuleCreate(d *schema.ResourceData, meta interface{}) 
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = slb_id
 	request.ListenerPort = requests.NewInteger(port)
 	request.RuleList = rule
@@ -291,7 +291,7 @@ func resourceApsaraStackSlbRuleUpdate(d *schema.ResourceData, meta interface{}) 
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RuleId = d.Id()
 	if listenerSync, ok := d.GetOk("listener_sync"); ok && listenerSync == string(OffFlag) {
 		if stickySession := d.Get("sticky_session"); stickySession == string(OnFlag) {
@@ -397,7 +397,7 @@ func resourceApsaraStackSlbRuleDelete(d *schema.ResourceData, meta interface{}) 
 	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RuleIds = fmt.Sprintf("['%s']", d.Id())
 
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {

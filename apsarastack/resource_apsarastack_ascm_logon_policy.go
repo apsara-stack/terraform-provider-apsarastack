@@ -95,7 +95,7 @@ func resourceApsaraStackLogonPolicyCreate(d *schema.ResourceData, meta interface
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":               client.RegionId,
-			"AccessKeySecret":        client.SecretKey,
+			
 			"Product":                "ascm",
 			"Department":             client.Department,
 			"ResourceGroup":          client.ResourceGroup,
@@ -187,7 +187,7 @@ func resourceApsaraStackLogonPolicyUpdate(d *schema.ResourceData, meta interface
 
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Product":         "ascm",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
@@ -274,7 +274,7 @@ func resourceApsaraStackLogonPolicyDelete(d *schema.ResourceData, meta interface
 		request.RegionId = client.RegionId
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
-			"AccessKeySecret":  client.SecretKey,
+			
 			"Product":          "ascm",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,

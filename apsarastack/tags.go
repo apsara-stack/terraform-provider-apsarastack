@@ -78,7 +78,7 @@ func setVolumeTags(client *connectivity.ApsaraStackClient, resourceType TagResou
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.InstanceId = d.Id()
 		var response *ecs.DescribeDisksResponse
 		wait := incrementalWait(1*time.Second, 1*time.Second)
@@ -145,7 +145,7 @@ func updateTags(client *connectivity.ApsaraStackClient, ids []string, resourceTy
 		}
 		request.ResourceId = &ids
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		var tagsKey []string
 		for _, t := range remove {
@@ -185,7 +185,7 @@ func updateTags(client *connectivity.ApsaraStackClient, ids []string, resourceTy
 		request.ResourceType = string(resourceType)
 		request.ResourceId = &ids
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		var tags []ecs.TagResourcesTag
 		for _, t := range create {

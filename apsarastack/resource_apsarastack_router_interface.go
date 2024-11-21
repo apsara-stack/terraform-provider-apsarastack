@@ -111,7 +111,7 @@ func resourceApsaraStackRouterInterfaceCreate(d *schema.ResourceData, meta inter
 	vpcService := VpcService{client}
 	request, err := buildApsaraStackRouterInterfaceCreateArgs(d, meta)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -154,7 +154,7 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if attributeUpdate {
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.ModifyRouterInterfaceAttribute(request)
@@ -176,7 +176,7 @@ func resourceApsaraStackRouterInterfaceUpdate(d *schema.ResourceData, meta inter
 		}
 
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.RouterInterfaceId = d.Id()
 		request.Spec = d.Get("specification").(string)
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
@@ -245,7 +245,7 @@ func resourceApsaraStackRouterInterfaceDelete(d *schema.ResourceData, meta inter
 	} else {
 		request.Scheme = "http"
 	}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterInterfaceId = d.Id()
 	request.ClientToken = buildClientToken(request.GetActionName())
 	err := resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -289,7 +289,7 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 	} else {
 		request.Scheme = "http"
 	}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterType = d.Get("router_type").(string)
 	request.RouterId = d.Get("router_id").(string)
 	request.Role = d.Get("role").(string)
@@ -315,7 +315,7 @@ func buildApsaraStackRouterInterfaceCreateArgs(d *schema.ResourceData, meta inte
 			describeVirtualBorderRoutersRequest.Scheme = "http"
 		}
 		describeVirtualBorderRoutersRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		describeVirtualBorderRoutersRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		describeVirtualBorderRoutersRequest.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		values := []string{request.RouterId}
 		filters := []vpc.DescribeVirtualBorderRoutersFilter{{
@@ -367,7 +367,7 @@ func buildApsaraStackRouterInterfaceModifyAttrArgs(d *schema.ResourceData, meta 
 	} else {
 		request.Scheme = "http"
 	}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RouterInterfaceId = d.Id()
 
 	attributeUpdate := false

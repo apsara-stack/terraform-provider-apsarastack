@@ -102,8 +102,8 @@ func dataSourceApsaraStackAscmRamServiceRolesRead(d *schema.ResourceData, meta i
 	request.ApiName = "ListRAMServiceRoles"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
-		"AccessKeySecret": client.SecretKey,
+		
+		
 		"Product":         "ascm",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,

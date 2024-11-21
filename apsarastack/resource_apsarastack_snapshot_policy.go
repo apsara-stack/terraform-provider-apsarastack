@@ -74,7 +74,7 @@ func resourceApsaraStackSnapshotPolicyCreate(d *schema.ResourceData, meta interf
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AutoSnapshotPolicyName = d.Get("name").(string)
 	request.RepeatWeekdays = convertListToJsonString(d.Get("repeat_weekdays").(*schema.Set).List())
 	request.RetentionDays = requests.NewInteger(d.Get("retention_days").(int))
@@ -97,7 +97,7 @@ func resourceApsaraStackSnapshotPolicyCreate(d *schema.ResourceData, meta interf
 	if d.Get("enable_automated_snapshot_policy").(bool) {
 		req := ecs.CreateApplyAutoSnapshotPolicyRequest()
 		req.Headers = map[string]string{"RegionId": client.RegionId}
-		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		req.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		req.Domain = client.Domain
 		req.DiskIds = convertListToJsonString(d.Get("disk_ids").(*schema.Set).List())
 		req.AutoSnapshotPolicyId = d.Id()
@@ -146,7 +146,7 @@ func resourceApsaraStackSnapshotPolicyUpdate(d *schema.ResourceData, meta interf
 	request := ecs.CreateModifyAutoSnapshotPolicyExRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.AutoSnapshotPolicyId = d.Id()
 	if d.HasChange("name") {
 		request.AutoSnapshotPolicyName = d.Get("name").(string)
@@ -188,7 +188,7 @@ func resourceApsaraStackSnapshotPolicyDelete(d *schema.ResourceData, meta interf
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DiskIds = convertListToJsonString(d.Get("disk_ids").(*schema.Set).List())
 	err := resource.Retry(DefaultTimeout*time.Second, func() *resource.RetryError {
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {

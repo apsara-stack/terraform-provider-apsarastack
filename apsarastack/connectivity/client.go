@@ -620,13 +620,13 @@ func (client *ApsaraStackClient) NewCommonRequest(product, serviceCode, schema s
 	request.Product = product
 
 	if strings.ToUpper(product) == "SLB" {
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
+		request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
 	}
 	if strings.ToUpper(product) == "ECS" {
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
+		request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
 	}
 	if strings.ToUpper(product) == "ASCM" {
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ascm", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
+		request.QueryParams = map[string]string{"Product": "ascm", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Version": string(apiVersion)}
 	}
 
 	request.AppendUserAgent(Terraform, TerraformVersion)

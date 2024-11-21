@@ -56,7 +56,7 @@ func resourceApsaraStackSnapshotCreate(d *schema.ResourceData, meta interface{})
 	request := ecs.CreateCreateSnapshotRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DiskId = d.Get("disk_id").(string)
 	request.ClientToken = buildClientToken(request.GetActionName())
 	if strings.ToLower(client.Config.Protocol) == "https" {
@@ -136,7 +136,7 @@ func resourceApsaraStackSnapshotDelete(d *schema.ResourceData, meta interface{})
 	request := ecs.CreateDeleteSnapshotRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SnapshotId = d.Id()
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"

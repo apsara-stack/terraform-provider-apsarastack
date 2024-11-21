@@ -58,7 +58,7 @@ func dataSourceApsaraStackEssNotificationsRead(d *schema.ResourceData, meta inte
 	request := ess.CreateDescribeNotificationConfigurationsRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"

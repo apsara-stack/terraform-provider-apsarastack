@@ -82,7 +82,7 @@ func resourceApsarastackEssAttachmentUpdate(d *schema.ResourceData, meta interfa
 				request.Scheme = "http"
 			}
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 			arrayString := convertArrayInterfaceToArrayString(d.Get("instance_ids").(*schema.Set).List())
 			request.InstanceId = &arrayString
@@ -234,7 +234,7 @@ func resourceApsarastackEssAttachmentDelete(d *schema.ResourceData, meta interfa
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		request.ScalingGroupId = d.Id()
 

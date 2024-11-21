@@ -51,7 +51,7 @@ func resourceApsaraStackEssNotificationCreate(d *schema.ResourceData, meta inter
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	request.ScalingGroupId = d.Get("scaling_group_id").(string)
 	request.NotificationArn = d.Get("notification_arn").(string)
@@ -106,7 +106,7 @@ func resourceApsaraStackEssNotificationUpdate(d *schema.ResourceData, meta inter
 	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	parts := strings.SplitN(d.Id(), ":", 2)
 	request.ScalingGroupId = parts[0]
@@ -145,7 +145,7 @@ func resourceApsaraStackEssNotificationDelete(d *schema.ResourceData, meta inter
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	parts := strings.SplitN(d.Id(), ":", 2)
 

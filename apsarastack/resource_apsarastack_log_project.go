@@ -54,8 +54,8 @@ func resourceApsaraStackLogProjectCreate(d *schema.ResourceData, meta interface{
 	request.ApiName = "CreateProject"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "SLS",
 		"RegionId":        client.RegionId,
 		"Department":      client.Department,
@@ -113,8 +113,8 @@ func resourceApsaraStackLogProjectUpdate(d *schema.ResourceData, meta interface{
 		request.ApiName = "UpdateProject"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
-			"AccessKeySecret": client.SecretKey,
-			"AccessKeyId":     client.AccessKey,
+			
+			
 			"Product":         "SLS",
 			"RegionId":        client.RegionId,
 			"Department":      client.Department,
@@ -156,8 +156,8 @@ func resourceApsaraStackLogProjectDelete(d *schema.ResourceData, meta interface{
 	request.ApiName = "DeleteProject"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "SLS",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,

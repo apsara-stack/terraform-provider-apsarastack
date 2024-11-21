@@ -55,7 +55,7 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 			}
 			request.QueryParams = map[string]string{
 				"RegionId":        client.RegionId,
-				"AccessKeySecret": client.SecretKey,
+				
 				"Product":         "Ascm",
 				"Action":          "AddRoleToUser",
 				"Version":         "2019-05-10",
@@ -218,7 +218,7 @@ func resourceApsaraStackAscmUserRoleBindingDelete(d *schema.ResourceData, meta i
 			}
 			request.QueryParams = map[string]string{
 				"RegionId":        client.RegionId,
-				"AccessKeySecret": client.SecretKey,
+				
 				"Product":         "ascm",
 				"Action":          "RemoveRoleFromUser",
 				"Version":         "2019-05-10",

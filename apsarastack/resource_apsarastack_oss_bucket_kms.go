@@ -90,7 +90,7 @@ func resourceApsaraStackOssBucketKmsCreate(d *schema.ResourceData, meta interfac
 			request.SetHTTPSInsecure(client.Config.Insecure)
 		}
 		request.QueryParams = map[string]string{
-			"AccessKeySecret":  client.SecretKey,
+			
 			"Product":          "OneRouter",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -164,7 +164,7 @@ func resourceApsaraStackOssBucketKmsRead(d *schema.ResourceData, meta interface{
 			request.SetHTTPSInsecure(client.Config.Insecure)
 		}
 		request.QueryParams = map[string]string{
-			"AccessKeySecret":  client.SecretKey,
+			
 			"Product":          "OneRouter",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -238,7 +238,7 @@ func resourceApsaraStackOssBucketKmsDelete(d *schema.ResourceData, meta interfac
 		}
 		request.QueryParams = map[string]string{
 
-			"AccessKeySecret":  client.SecretKey,
+			
 			"Product":          "OneRouter",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,

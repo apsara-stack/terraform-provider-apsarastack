@@ -209,7 +209,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		//if instanceChargeType == string(PostPaid) {
 		//	request.InstanceChargeType = string(Postpaid)
 		//} else {
@@ -249,7 +249,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 	//	request := polardb.CreateDescribeRegionsRequest()
 	//	request.RegionId = client.RegionId
 	//	request.Headers = map[string]string{"RegionId": client.RegionId}
-	//	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//	request.QueryParams = map[string]string{"Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	//	request.Domain=client.Domain
 	//	raw, err := client.WithPolarDBClient(func(polarDBClient *polardb.Client) (interface{}, error) {
 	//		return polarDBClient.DescribeRegions(request)
@@ -276,7 +276,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 		request := r_kvstore.CreateDescribeZonesRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "R-kvstore", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		//request.InstanceChargeType = instanceChargeType
 		raw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.DescribeZones(request)
@@ -314,7 +314,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 		request := dds.CreateDescribeRegionsRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "Dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "Dds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		raw, err := client.WithDdsClient(func(ddsClient *dds.Client) (interface{}, error) {
 			return ddsClient.DescribeRegions(request)
@@ -466,7 +466,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		//if ipVersion, ok := d.GetOk("available_slb_address_ip_version"); ok {
 		//	request.AddressIPVersion = ipVersion.(string)
 		//}
@@ -504,7 +504,7 @@ func dataSourceApsaraStackZonesRead(d *schema.ResourceData, meta interface{}) er
 		req.Scheme = "http"
 	}
 	req.Headers = map[string]string{"RegionId": client.RegionId}
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	req.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.RegionId = client.RegionId
 	req.InstanceChargeType = instanceChargeType
 	if v, ok := d.GetOk("spot_strategy"); ok && v.(string) != "" {

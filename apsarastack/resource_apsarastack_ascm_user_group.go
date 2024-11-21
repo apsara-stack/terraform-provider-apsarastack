@@ -229,7 +229,7 @@ func resourceApsaraStackAscmUserGroupDelete(d *schema.ResourceData, meta interfa
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "DeleteUserGroup",
 			"Version":         "2019-05-10",

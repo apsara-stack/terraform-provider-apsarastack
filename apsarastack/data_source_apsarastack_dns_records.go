@@ -106,8 +106,8 @@ func dataSourceApsaraStackDnsRecordsRead(d *schema.ResourceData, meta interface{
 	request.ApiName = "DescribeGlobalZoneRecords"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"RegionId":        client.RegionId,
 		"Product":         "CloudDns",
 		"Action":          "DescribeGlobalZoneRecords",

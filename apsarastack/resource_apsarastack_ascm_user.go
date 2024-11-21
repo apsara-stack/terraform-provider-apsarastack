@@ -110,7 +110,7 @@ func resourceApsaraStackAscmUserCreate(d *schema.ResourceData, meta interface{})
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":         client.RegionId,
-			"AccessKeySecret":  client.SecretKey,
+			
 			"Product":          "Ascm",
 			"Action":           "AddUser",
 			"Version":          "2019-05-10",
@@ -197,7 +197,7 @@ func resourceApsaraStackAscmUserUpdate(d *schema.ResourceData, meta interface{})
 
 	request.QueryParams = map[string]string{
 		"RegionId":         client.RegionId,
-		"AccessKeySecret":  client.SecretKey,
+		
 		"Product":          "ascm",
 		"Department":       client.Department,
 		"ResourceGroup":    client.ResourceGroup,
@@ -310,7 +310,7 @@ func resourceApsaraStackAscmUserDelete(d *schema.ResourceData, meta interface{})
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "RemoveUserByLoginName",
 			"Version":         "2019-05-10",
