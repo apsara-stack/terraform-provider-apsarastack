@@ -781,7 +781,7 @@ func (client *ApsaraStackClient) GetCallerInfo() (*responses.BaseResponse, error
 	}
 	ascmClient, err := sdk.NewClientWithAccessKey(client.Config.RegionId, client.Config.AccessKey, client.Config.SecretKey)
 	if err != nil {
-		return nil, fmt.Errorf("unable to initialize the ascm client: %#v", err)
+		return nil, fmt.Errorf("unable to initialize the ascm client.1: %#v", err)
 	}
 
 	ascmClient.AppendUserAgent(Terraform, TerraformVersion)
@@ -847,7 +847,7 @@ func (client *ApsaraStackClient) GetCallerIdentity() (string, error) {
 	}
 	ascmClient, err := sdk.NewClientWithAccessKey(client.Config.RegionId, client.Config.AccessKey, client.Config.SecretKey)
 	if err != nil {
-		return "", fmt.Errorf("unable to initialize the ascm client: %#v", err)
+		return "", fmt.Errorf("unable to initialize the ascm client.2: %#v", err)
 	}
 
 	ascmClient.AppendUserAgent(Terraform, TerraformVersion)
