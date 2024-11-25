@@ -79,7 +79,7 @@ func resourceApsaraStackAscmUserRoleBindingCreate(d *schema.ResourceData, meta i
 			raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 				return ecsClient.ProcessCommonRequest(request)
 			})
-			log.Printf("response of raw AddRoleToUser Role(%d) is : %s", roleids[i], raw)
+			log.Printf("response of raw AddRoleToUser Role(%v) is : %s", roleids[i], raw)
 
 			if err != nil {
 				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm_user_role_binding", "AddRoleToUser", raw)
