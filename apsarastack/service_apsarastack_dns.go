@@ -75,7 +75,7 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 	if err != nil {
 		return resp, WrapError(err)
 	}
-	log.Printf("================ resp: %s\n ", &resp)
+	log.Printf("================ resp: %v\n ", &resp)
 
 	if len(resp.Data) < 1 || resp.AsapiSuccess == true {
 		return resp, WrapError(err)
