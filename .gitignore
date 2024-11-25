@@ -37,3 +37,6 @@ website/vendor
 !command/test-fixtures/**/.terraform/
 /.terraform.lock.hcl
 /main.tf
+/.project
+/.vscode
+/terraform-provider-apsarastack
