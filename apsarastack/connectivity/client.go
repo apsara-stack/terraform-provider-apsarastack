@@ -810,7 +810,6 @@ func (client *ApsaraStackClient) GetCallerInfo() (*responses.BaseResponse, error
 	request.Version = "2019-05-10" // Specify product version
 	request.ApiName = "GetUserInfo"
 	request.QueryParams = map[string]string{
-		"AccessKeySecret":  client.Config.SecretKey,
 		"Product":          "ascm",
 		"Department":       client.Config.Department,
 		"ResourceGroup":    client.Config.ResourceGroup,
@@ -876,7 +875,6 @@ func (client *ApsaraStackClient) GetCallerIdentity() (string, error) {
 	request.Version = "2019-05-10" // Specify product version
 	request.ApiName = "GetUserInfo"
 	request.QueryParams = map[string]string{
-		"AccessKeySecret":  client.Config.SecretKey,
 		"Product":          "ascm",
 		"Department":       client.Config.Department,
 		"ResourceGroup":    client.Config.ResourceGroup,
