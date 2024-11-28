@@ -212,6 +212,7 @@ func resourceKVstoreAccountConfigDependenceV4(name string) string {
 		instance_name  = "${var.name}"
 		instance_charge_type = "PostPaid"
 		engine_version = "4.0"
+		cpu_type = "intel"
 	}
 	`, name)
 }
