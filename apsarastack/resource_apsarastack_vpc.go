@@ -124,7 +124,7 @@ func resourceApsaraStackVpcCreate(d *schema.ResourceData, meta interface{}) erro
 		}
 		assorequest.RegionId = string(client.Region)
 		assorequest.Headers = map[string]string{"RegionId": client.RegionId}
-		assorequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		assorequest.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 			return vpcClient.AssociateVpcCidrBlock(assorequest)
 		})
@@ -166,7 +166,7 @@ func resourceApsaraStackVpcRead(d *schema.ResourceData, meta interface{}) error 
 	request := vpc.CreateDescribeRouteTablesRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -235,7 +235,7 @@ func resourceApsaraStackVpcUpdate(d *schema.ResourceData, meta interface{}) erro
 	request := vpc.CreateModifyVpcAttributeRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -275,7 +275,7 @@ func resourceApsaraStackVpcUpdate(d *schema.ResourceData, meta interface{}) erro
 			}
 			assorequest.RegionId = string(client.Region)
 			assorequest.Headers = map[string]string{"RegionId": client.RegionId}
-			assorequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			assorequest.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			raw, err := client.WithVpcClient(func(vpcClient *vpc.Client) (interface{}, error) {
 				return vpcClient.AssociateVpcCidrBlock(assorequest)
 			})
@@ -309,7 +309,7 @@ func resourceApsaraStackVpcDelete(d *schema.ResourceData, meta interface{}) erro
 	request := vpc.CreateDeleteVpcRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -344,7 +344,7 @@ func buildApsaraStackVpcArgs(d *schema.ResourceData, meta interface{}) *vpc.Crea
 	request := vpc.CreateCreateVpcRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {

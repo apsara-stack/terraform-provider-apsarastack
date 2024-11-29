@@ -63,7 +63,7 @@ func resourceApsaraStackOnsGroupCreate(d *schema.ResourceData, meta interface{})
 
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "Ons-inner",
@@ -168,7 +168,7 @@ func resourceApsaraStackOnsGroupDelete(d *schema.ResourceData, meta interface{})
 		request := requests.NewCommonRequest()
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ons-inner",

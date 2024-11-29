@@ -143,7 +143,7 @@ func dataSourceApsaraStackSlbsRead(d *schema.ResourceData, meta interface{}) err
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	//request.ResourceGroupId = d.Get("resource_group_id").(string)
 	if v, ok := d.GetOk("master_availability_zone"); ok && v.(string) != "" {
 		request.MasterZoneId = v.(string)

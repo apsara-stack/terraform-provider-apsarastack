@@ -109,8 +109,8 @@ func dataSourceApsaraStackAscmUserGroupsRead(d *schema.ResourceData, meta interf
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	response := UserGroup{}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
-		"AccessKeySecret": client.SecretKey,
+		
+		
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ascm",

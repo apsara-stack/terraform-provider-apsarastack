@@ -101,7 +101,10 @@ The following arguments are supported:
 * `health_check_method` - (Optional) HealthCheckMethod used for health check.`http` and `https` support regions ap-northeast-1, ap-southeast-1, ap-southeast-2, ap-southeast-3, us-east-1, us-west-1, eu-central-1, ap-south-1, me-east-1, cn-huhehaote, cn-zhangjiakou, ap-southeast-5, cn-shenzhen, cn-hongkong, cn-qingdao, cn-chengdu, eu-west-1, cn-hangzhou", cn-beijing, cn-shanghai.This function does not support the TCP protocol .
 * `server_certificate_id` - (Required) SLB Server certificate ID. It is required when `protocol` is `https`.
 * `gzip` - (Optional) Whether to enable "Gzip Compression". If enabled, files of specific file types will be compressed, otherwise, no files will be compressed. Default to true.
-* `x_forwarded_for` - (Optional) Whether to set additional HTTP Header field "X-Forwarded-For" (documented below).
+* `x_forwarded_for` - (Optional) Whether to set additional HTTP Header field "X-Forwarded-For" (documented below).The x_forwarded_for mapping supports the following:
+  * `retrive_slb_ip` - (Optional) Whether to use the XForwardedFor_SLBIP header to obtain the public IP address of the SLB instance. Default to false.
+  * `retrive_slb_id` - (Optional) Whether to use the XForwardedFor header to obtain the ID of the SLB instance. Default to false.
+  * `retrive_slb_proto` - (Optional) Whether to use the XForwardedFor_proto header to obtain the protocol used by the listener. Default to false.
 * `established_timeout` - (Optional) Timeout of tcp listener established connection idle timeout. Valid value range: [10-900] in seconds. Default to 900.
 * `server_group_id` - (Optional) the id of server group to be apply on the listener, is the id of resource `apsarastack_slb_server_group`.
 * `listener_forward` - (Optional, ForceNew) Whether to enable http redirect to https, Valid values are `on` and `off`. Default to `off`.
@@ -109,19 +112,11 @@ The following arguments are supported:
 * `health_check_method` - (Optional, ForceNew, Available in 1.70.0+) The method of health check. Valid values: ["head", "get"].
 * `delete_protection_validation` - (Optional, Available in 1.63.0+) Checking DeleteProtection of SLB instance before deleting. If true, this resource will not be deleted when its SLB instance enabled DeleteProtection. Default to false.
 * `logs_download_attributes` - (Optional) A map for defining sls logs.
-  - `log_project`: (Required) sls-log Server project name.
-  - `log_store`: (Required) sls-log Server log_store name.
+  * `log_project`: (Required) sls-log Server project name.
+  * `log_store`: (Required) sls-log Server log_store name.
 
 -> **NOTE:** Once enable the http redirect to https function, any parameters excepted forward_port,listener_forward,load_balancer_id,frontend_port,protocol will be ignored. More info, please refer to [Redirect http to https](https://apsarastackdocument.oss-cn-hangzhou.aliyuncs.com/01_ApsaraStackEnterprise/V3.11.0-intl-en/Alibaba%20Cloud%20Apsara%20Stack%20Enterprise%202001%2C%20Internal_%20V3.11.0%20Developer%20Guide%20-%20Cloud%20Essentials%20and%20Security%2020200513.pdf?spm=a3c0i.214467.3807842930.7.61e76bdb1JWVyX&file=Alibaba%20Cloud%20Apsara%20Stack%20Enterprise%202001%2C%20Internal_%20V3.11.0%20Developer%20Guide%20-%20Cloud%20Essentials%20and%20Security%2020200513.pdf).
 
-
-### Block x_forwarded_for
-
-The x_forwarded_for mapping supports the following:
-
-* `retrive_slb_ip` - (Optional) Whether to use the XForwardedFor_SLBIP header to obtain the public IP address of the SLB instance. Default to false.
-* `retrive_slb_id` - (Optional) Whether to use the XForwardedFor header to obtain the ID of the SLB instance. Default to false.
-* `retrive_slb_proto` - (Optional) Whether to use the XForwardedFor_proto header to obtain the protocol used by the listener. Default to false.
 
 ## Listener fields and protocol mapping
 

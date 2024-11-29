@@ -256,8 +256,8 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 			req.Scheme = "http"
 		}
 		req.QueryParams = map[string]string{
-			"AccessKeySecret": client.SecretKey,
-			"AccessKeyId":     client.AccessKey,
+			
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Rds",
@@ -327,7 +327,7 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 	}
 	ClientToken := fmt.Sprintf("Terraform-ApsaraStack-%d-%s", time.Now().Unix(), uuid)
 	request.QueryParams = map[string]string{
-		"AccessKeySecret":       client.SecretKey,
+		
 		"Department":            client.Department,
 		"ResourceGroup":         client.ResourceGroup,
 		"EngineVersion":         enginever,
@@ -394,7 +394,7 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 		if EncryptionKey != "" {
 			tde_req.EncryptionKey = EncryptionKey
 		}
-		tde_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "RoleARN": arnrole}
+		tde_req.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "RoleARN": arnrole}
 
 		tde_req.TDEStatus = "Enabled"
 		if strings.ToLower(client.Config.Protocol) == "https" {
@@ -420,7 +420,7 @@ func resourceApsaraStackDBInstanceCreate(d *schema.ResourceData, meta interface{
 		ssl_req := rds.CreateModifyDBInstanceSSLRequest()
 		ssl_req.RegionId = client.RegionId
 		ssl_req.Headers = map[string]string{"RegionId": client.RegionId}
-		ssl_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
+		ssl_req.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
 		ssl_req.DBInstanceId = d.Id()
 		ssl_req.SSLEnabled = "1"
 		ssl_req.ConnectionString = d.Get("connection_string").(string)
@@ -471,7 +471,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		}
 		prePaidRequest.RegionId = client.RegionId
 		prePaidRequest.Headers = map[string]string{"RegionId": client.RegionId}
-		prePaidRequest.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		prePaidRequest.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		prePaidRequest.DBInstanceId = d.Id()
 		prePaidRequest.PayType = string(payType)
 		prePaidRequest.AutoPay = "true"
@@ -508,7 +508,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		}
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		auto_renew := d.Get("auto_renew").(bool)
 		if auto_renew {
 			request.AutoRenew = "True"
@@ -539,7 +539,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.Period = strconv.Itoa(period)
 
@@ -561,7 +561,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.MaintainTime = d.Get("maintain_time").(string)
 		request.ClientToken = buildClientToken(request.GetActionName())
@@ -585,7 +585,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 	//		request.Scheme = "http"
 	//	}
 	//	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-	//	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	//	request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	//	request.DBInstanceId = d.Id()
 	//	raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 	//		return rdsClient.MigrateSecurityIPMode(request)
@@ -611,7 +611,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 		request.DBInstanceDescription = d.Get("instance_name").(string)
 
@@ -649,7 +649,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
 	request.PayType = d.Get("instance_charge_type").(string)
 
@@ -700,7 +700,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		tde_req := rds.CreateModifyDBInstanceTDERequest()
 		tde_req.RegionId = client.RegionId
 		tde_req.Headers = map[string]string{"RegionId": client.RegionId}
-		tde_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		tde_req.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		tde_req.DBInstanceId = d.Id()
 		tde_req.TDEStatus = "Enabled"
 
@@ -728,7 +728,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 			ssl_req := rds.CreateModifyDBInstanceSSLRequest()
 			ssl_req.RegionId = client.RegionId
 			ssl_req.Headers = map[string]string{"RegionId": client.RegionId}
-			ssl_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
+			ssl_req.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
 			ssl_req.DBInstanceId = d.Id()
 			ssl_req.SSLEnabled = "1"
 			ssl_req.ConnectionString = d.Get("connection_string").(string)
@@ -752,7 +752,7 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 			ssl_req := rds.CreateModifyDBInstanceSSLRequest()
 			ssl_req.RegionId = client.RegionId
 			ssl_req.Headers = map[string]string{"RegionId": client.RegionId}
-			ssl_req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
+			ssl_req.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup, "Forwardedregionid": client.RegionId}
 			ssl_req.DBInstanceId = d.Id()
 			ssl_req.SSLEnabled = "0"
 			ssl_req.ConnectionString = d.Get("connection_string").(string)
@@ -838,7 +838,7 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = d.Id()
 
 		raw, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
@@ -887,7 +887,7 @@ func resourceApsaraStackDBInstanceDelete(d *schema.ResourceData, meta interface{
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": string(client.RegionId)}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = d.Id()
 
 	err = resource.Retry(10*time.Minute, func() *resource.RetryError {

@@ -149,6 +149,7 @@ func resourceDBReadWriteSplittingConfigDependence(prefix string) string {
 		instance_name = "${var.name}"
 		vswitch_id = "${apsarastack_vswitch.default.id}"
 		security_ips = ["10.168.1.12", "100.69.7.112"]
+		storage_type = "local_ssd"
 	}
 
 	resource "apsarastack_db_readonly_instance" "default" {

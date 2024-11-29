@@ -59,8 +59,8 @@ func resourceApsaraStackKvstoreConnectionCreate(d *schema.ResourceData, meta int
 		"RegionId": client.RegionId,
 	}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "R-kvstore",
 		"RegionId":        client.RegionId,
 		"Department":      client.Department,
@@ -122,8 +122,8 @@ func resourceApsaraStackKvstoreConnectionUpdate(d *schema.ResourceData, meta int
 		"RegionId": client.RegionId,
 	}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "R-kvstore",
 		"RegionId":        client.RegionId,
 		"Department":      client.Department,
@@ -159,8 +159,8 @@ func resourceApsaraStackKvstoreConnectionDelete(d *schema.ResourceData, meta int
 		"RegionId": client.RegionId,
 	}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "R-kvstore",
 		"RegionId":        client.RegionId,
 		"Department":      client.Department,

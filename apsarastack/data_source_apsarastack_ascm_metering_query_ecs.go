@@ -170,10 +170,10 @@ func dataSourceApsarastackAscmMeteringQueryEcsRead(d *schema.ResourceData, meta 
 	request.ApiName = "MeteringWebQuery"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
+		
 		"Product":         "ascm",
 		"ProductName":     "ascm",
-		"AccessKeySecret": client.SecretKey,
+		
 		"Department":      client.Department,
 		"resourceGroupId": client.ResourceGroup,
 		"RegionId":        client.RegionId,

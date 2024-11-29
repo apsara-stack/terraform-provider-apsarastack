@@ -2,8 +2,9 @@ package apsarastack
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
@@ -212,17 +213,18 @@ func resourceDBReadonlyInstanceConfigDependence(name string) string {
 	variable "name" {
 		default = "%s"
 	}
-resource "apsarastack_db_instance" "default" {
-		engine = "MySQL"
-		engine_version = "5.6"
-		instance_type = "rds.mysql.s2.large"
-		instance_storage = "30"
-		instance_charge_type = "Postpaid"
-		instance_name = "${var.name}"
-		storage_type = "local_ssd"
-		vswitch_id = "${apsarastack_vswitch.default.id}"
-		security_ips = ["10.168.1.12", "100.69.7.112"]
-	}
+
+	resource "apsarastack_db_instance" "default" {
+			engine = "MySQL"
+			engine_version = "5.6"
+			instance_type = "rds.mysql.s2.large"
+			instance_storage = "30"
+			instance_charge_type = "Postpaid"
+			instance_name = "${var.name}"
+			storage_type = "local_ssd"
+			vswitch_id = "${apsarastack_vswitch.default.id}"
+			security_ips = ["10.168.1.12", "100.69.7.112"]
+		}
 	
 `, RdsCommonTestCase, name)
 }

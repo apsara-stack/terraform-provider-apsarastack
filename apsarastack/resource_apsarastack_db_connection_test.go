@@ -88,6 +88,7 @@ func resourceDBConnectionConfigDependence(name string) string {
 	  instance_name        = "${var.name}"
 	  vswitch_id           = "${apsarastack_vswitch.default.id}"
 	  monitoring_period    = "60"
+	  storage_type = "local_ssd"
 	}
 	`, RdsCommonTestCase, name)
 }

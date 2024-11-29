@@ -123,7 +123,7 @@ func resourceApsaraStackEssAlarmCreate(d *schema.ResourceData, meta interface{})
 	request.RegionId = client.RegionId
 	request.Domain = client.Domain
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "Ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "Ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -204,7 +204,7 @@ func resourceApsaraStackEssAlarmUpdate(d *schema.ResourceData, meta interface{})
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.Domain = client.Domain
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "Ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "Ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -302,7 +302,7 @@ func resourceApsaraStackEssAlarmDelete(d *schema.ResourceData, meta interface{})
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.Domain = client.Domain
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "Ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "Ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -425,7 +425,7 @@ func enableordisableAlarm(check bool, id string, meta interface{}) error {
 	request.Domain = client.Domain
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
+		
 		"Product":         "Ess",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,

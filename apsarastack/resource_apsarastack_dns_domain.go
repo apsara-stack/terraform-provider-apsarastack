@@ -84,8 +84,8 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 		request.ApiName = "AddGlobalZone"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
-			"AccessKeySecret": client.SecretKey,
-			"AccessKeyId":     client.AccessKey,
+			
+			
 			"Product":         "CloudDns",
 			"RegionId":        client.RegionId,
 			"Action":          "AddGlobalZone",
@@ -185,8 +185,8 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 	request.RegionId = client.RegionId
 
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "CloudDns",
 		"RegionId":        client.RegionId,
 		"Action":          "UpdateGlobalZoneRemark",
@@ -238,8 +238,8 @@ func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}
 		request.ApiName = "DeleteGlobalZone"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
-			"AccessKeySecret": client.SecretKey,
-			"AccessKeyId":     client.AccessKey,
+			
+			
 			"Product":         "CloudDns",
 			"RegionId":        client.RegionId,
 			"Action":          "DeleteGlobalZone",

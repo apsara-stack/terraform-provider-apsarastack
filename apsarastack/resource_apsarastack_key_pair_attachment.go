@@ -82,7 +82,7 @@ func resourceApsaraStackKeyPairAttachmentCreate(d *schema.ResourceData, meta int
 		} else {
 			request.Scheme = "http"
 		}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.ForceStop = requests.NewBoolean(true)
 		for _, id := range newIds {
 			request.InstanceId = id
@@ -147,7 +147,7 @@ func resourceApsaraStackKeyPairAttachmentDelete(d *schema.ResourceData, meta int
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.KeyPairName = keyName
 
 	return resource.Retry(5*time.Minute, func() *resource.RetryError {

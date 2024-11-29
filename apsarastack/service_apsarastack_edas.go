@@ -308,7 +308,7 @@ func (e *EdasService) DescribeEdasListCluster(clusterId string) (*edas.Cluster, 
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": e.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": e.client.SecretKey, "Product": "ecs", "Department": e.client.Department, "ResourceGroup": e.client.ResourceGroup}
+	request.QueryParams = map[string]string{ "Product": "ecs", "Department": e.client.Department, "ResourceGroup": e.client.ResourceGroup}
 
 	raw, err := e.client.WithEdasClient(func(edasClient *edas.Client) (interface{}, error) {
 		return edasClient.ListCluster(request)

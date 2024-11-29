@@ -95,8 +95,8 @@ func dataSourceApsarastackCmsMetricMetalistRead(d *schema.ResourceData, meta int
 	request.ApiName = "DescribeMetricMetaList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
-		"AccessKeySecret": client.SecretKey,
+		
+		
 		"Product":         "Cms",
 		"RegionId":        client.RegionId,
 		"Action":          "DescribeMetricMetaList",

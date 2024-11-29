@@ -121,7 +121,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request := requests.NewCommonRequest()
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -180,7 +180,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -233,7 +233,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -287,7 +287,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -342,7 +342,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -398,7 +398,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -456,7 +456,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -513,7 +513,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -569,7 +569,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -622,7 +622,7 @@ func resourceApsaraStackAscmQuotaCreate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -706,7 +706,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -784,7 +784,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -839,7 +839,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -940,7 +940,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -1010,7 +1010,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -1065,7 +1065,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -1142,7 +1142,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -1209,7 +1209,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -1287,7 +1287,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -1343,7 +1343,7 @@ func resourceApsaraStackAscmQuotaUpdate(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"regionName":      client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
 			"Product":         "Ascm",
@@ -1492,7 +1492,7 @@ func resourceApsaraStackAscmQuotaDelete(d *schema.ResourceData, meta interface{}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
 			"RegionName ":     client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "DeleteQuota",
 			"Version":         "2019-05-10",

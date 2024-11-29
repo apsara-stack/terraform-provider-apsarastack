@@ -79,7 +79,7 @@ func resourceApsaraStackDBConnectionCreate(d *schema.ResourceData, meta interfac
 	}
 
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = instanceId
 	request.ConnectionStringPrefix = prefix
 	request.Port = d.Get("port").(string)
@@ -170,7 +170,7 @@ func resourceApsaraStackDBConnectionUpdate(d *schema.ResourceData, meta interfac
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = parts[0]
 		object, err := rdsService.DescribeDBConnection(d.Id())
 		if err != nil {
@@ -221,7 +221,7 @@ func resourceApsaraStackDBConnectionDelete(d *schema.ResourceData, meta interfac
 	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	request.DBInstanceId = split[0]
 

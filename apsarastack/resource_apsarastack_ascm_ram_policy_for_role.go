@@ -42,7 +42,7 @@ func resourceApsaraStackAscmRamPolicyForRoleCreate(d *schema.ResourceData, meta 
 	}
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Product":         "Ascm",
 		"Action":          "AddRAMPolicyToRole",
 		"Version":         "2019-05-10",
@@ -130,7 +130,7 @@ func resourceApsaraStackAscmRamPolicyForRoleDelete(d *schema.ResourceData, meta 
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "RemoveRAMPolicyFromRole",
 			"Version":         "2019-05-10",

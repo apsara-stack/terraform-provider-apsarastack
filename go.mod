@@ -14,7 +14,6 @@ require (
 	github.com/aliyun/credentials-go v1.2.3 // indirect
 	github.com/aliyun/fc-go-sdk v0.0.0-20200619091938-0882be48e49f
 	github.com/denverdino/aliyungo v0.0.0-20200831100606-661b4d73f397
-	github.com/go-yaml/yaml v2.1.0+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/hashicorp/go-uuid v1.0.1
 	github.com/hashicorp/terraform v0.13.5
@@ -23,4 +22,5 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/shopspring/decimal v1.3.1 // indirect
+	gopkg.in/yaml.v2 v2.2.8
 )

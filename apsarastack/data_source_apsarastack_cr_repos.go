@@ -115,8 +115,8 @@ func dataSourceApsaraStackCRReposRead(d *schema.ResourceData, meta interface{}) 
 	request.ApiName = "GetRepoList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "cr",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,

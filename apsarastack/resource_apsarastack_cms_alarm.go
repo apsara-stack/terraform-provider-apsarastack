@@ -203,7 +203,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 	request.MetricName = d.Get("metric").(string)
 	request.Period = strconv.Itoa(d.Get("period").(int))
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.ContactGroups = strings.Join(expandStringList(d.Get("contact_groups").([]interface{})), ",")
 	if v, ok := d.GetOk("escalations_critical"); ok && len(v.([]interface{})) != 0 {
 		for _, val := range v.([]interface{}) {
@@ -288,7 +288,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 
 	nrequest.Headers = map[string]string{"RegionId": client.RegionId}
 	nrequest.QueryParams = map[string]string{
-		"AccessKeySecret":                client.SecretKey,
+		
 		"Product":                        "cms",
 		"Department":                     client.Department,
 		"ResourceGroup":                  client.ResourceGroup,
@@ -347,7 +347,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 		request := cms.CreateEnableMetricRulesRequest()
 		request.RuleId = &[]string{d.Id()}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		wait := incrementalWait(1*time.Second, 2*time.Second)
 		err = resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -371,7 +371,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 		request := cms.CreateDisableMetricRulesRequest()
 		request.RuleId = &[]string{d.Id()}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		wait := incrementalWait(1*time.Second, 2*time.Second)
 		err = resource.Retry(5*time.Minute, func() *resource.RetryError {
@@ -498,7 +498,7 @@ func resourceApsaraStackCmsAlarmDelete(d *schema.ResourceData, meta interface{})
 	}
 	request := cms.CreateDeleteMetricRulesRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "cms", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 	request.Id = &[]string{parts[0]}
 

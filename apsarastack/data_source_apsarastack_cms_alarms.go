@@ -197,8 +197,8 @@ func dataSourceApsarastackCmsAlarmsRead(d *schema.ResourceData, meta interface{}
 	request.ApiName = "DescribeMetricRuleList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
-		"AccessKeySecret": client.SecretKey,
+		
+		
 		"Product":         "Cms",
 		"RegionId":        client.RegionId,
 		"Action":          "DescribeMetricRuleList",

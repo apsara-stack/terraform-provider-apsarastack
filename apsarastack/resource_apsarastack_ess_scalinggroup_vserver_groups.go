@@ -251,7 +251,7 @@ func attachVserverGroups(d *schema.ResourceData, client *connectivity.ApsaraStac
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.ScalingGroupId = d.Id()
 		request.ForceAttach = requests.NewBoolean(force)
 		request.VServerGroup = &attachScalingGroupVserverGroups
@@ -294,7 +294,7 @@ func detachVserverGroups(d *schema.ResourceData, client *connectivity.ApsaraStac
 			request.Scheme = "http"
 		}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "ess", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 
 		request.ScalingGroupId = d.Id()
 		request.ForceDetach = requests.NewBoolean(force)

@@ -8,7 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/denverdino/aliyungo/cs"
-	"github.com/go-yaml/yaml"
+	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -321,7 +321,7 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 	request.ServiceCode = "cs"
 	request.ApiName = "DescribeClustersV1"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeyId": client.AccessKey, "AccessKeySecret": client.SecretKey, "Product": "Cs", "RegionId": client.RegionId, "Action": "DescribeClustersV1", "Version": cs.CSAPIVersion, "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{ "Product": "Cs", "RegionId": client.RegionId, "Action": "DescribeClustersV1", "Version": cs.CSAPIVersion, "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = client.RegionId
 	Cresponse := ClustersV1{}
 	Clusterresponse := ClustersV1{}
@@ -438,8 +438,8 @@ func dataSourceApsaraStackCSKubernetesClustersRead(d *schema.ResourceData, meta 
 			request.RegionId = client.RegionId
 			log.Printf("ClusterIds: %v k202", k)
 			request.QueryParams = map[string]string{
-				"AccessKeyId":      client.AccessKey,
-				"AccessKeySecret":  client.SecretKey,
+				
+				
 				"Product":          "Cs",
 				"RegionId":         client.RegionId,
 				"Action":           "DescribeClustersV1",

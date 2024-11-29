@@ -50,6 +50,7 @@ resource "apsarastack_db_instance" "default" {
   enable_ssl=false
   zone_id_slave1="${data.apsarastack_zones.default.zones.0.id}"
   zone_id="${data.apsarastack_zones.default.zones.0.id}"
+  storage_type = "local_ssd"
 }
 ```
 

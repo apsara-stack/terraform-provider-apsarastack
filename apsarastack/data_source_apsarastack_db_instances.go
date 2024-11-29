@@ -198,7 +198,7 @@ func dataSourceApsaraStackDBInstancesRead(d *schema.ResourceData, meta interface
 	}
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.Engine = d.Get("engine").(string)
 	request.DBInstanceStatus = d.Get("status").(string)
 	request.DBInstanceType = d.Get("db_type").(string)

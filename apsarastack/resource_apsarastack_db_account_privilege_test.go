@@ -112,6 +112,7 @@ resource "apsarastack_db_instance" "default" {
 	    instance_storage     = "30"
 		vswitch_id = "${apsarastack_vswitch.default.id}"
 	    instance_name = "${var.name}"
+		storage_type = "local_ssd"
 	}
 
 
@@ -121,6 +122,7 @@ resource "apsarastack_db_instance" "default" {
 	  instance_id = "${apsarastack_db_instance.default.id}"
 	  name = "tfaccountpri_${count.index}"
 	  description = "from terraform"
+	  character_set = "utf8mb4"
 	}
 
 	resource "apsarastack_db_account" "default" {

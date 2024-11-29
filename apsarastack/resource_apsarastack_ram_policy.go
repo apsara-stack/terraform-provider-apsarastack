@@ -57,7 +57,7 @@ func resourceApsaraStackRamPolicyCreate(d *schema.ResourceData, meta interface{}
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ram",
@@ -113,7 +113,7 @@ func resourceApsaraStackRamPolicyDelete(d *schema.ResourceData, meta interface{}
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
 		"Product":         "ram",

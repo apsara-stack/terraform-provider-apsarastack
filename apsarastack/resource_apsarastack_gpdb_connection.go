@@ -72,7 +72,7 @@ func resourceApsaraStackGpdbConnectionCreate(d *schema.ResourceData, meta interf
 	request := gpdb.CreateAllocateInstancePublicConnectionRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = instanceId
 	request.ConnectionStringPrefix = prefix
 	request.Port = d.Get("port").(string)
@@ -151,7 +151,7 @@ func resourceApsaraStackGpdbConnectionUpdate(d *schema.ResourceData, meta interf
 		request := gpdb.CreateModifyDBInstanceConnectionStringRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		request.DBInstanceId = parts[0]
 		object, err := gpdbService.DescribeGpdbConnection(d.Id())
 		if err != nil {
@@ -196,7 +196,7 @@ func resourceApsaraStackGpdbConnectionDelete(d *schema.ResourceData, meta interf
 
 	request := gpdb.CreateReleaseInstancePublicConnectionRequest()
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "gpdb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 
 	gpdbService := GpdbService{client}

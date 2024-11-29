@@ -39,7 +39,7 @@ func testSweepDBInstances(region string) error {
 	req := rds.CreateDescribeDBInstancesRequest()
 	req.RegionId = client.RegionId
 	req.Headers = map[string]string{"RegionId": client.RegionId}
-	req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	req.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	req.PageSize = requests.NewInteger(PageSizeLarge)
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		req.Scheme = "https"
@@ -106,7 +106,7 @@ func testSweepDBInstances(region string) error {
 			}
 			request.DBInstanceId = id
 			request.Headers = map[string]string{"RegionId": client.RegionId}
-			request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+			request.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 			if _, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 				return rdsClient.ReleaseReadWriteSplittingConnection(request)
 			}); err != nil {
@@ -123,7 +123,7 @@ func testSweepDBInstances(region string) error {
 			req.Scheme = "http"
 		}
 		req.Headers = map[string]string{"RegionId": client.RegionId}
-		req.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		req.QueryParams = map[string]string{"Product": "rds", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		_, err := client.WithRdsClient(func(rdsClient *rds.Client) (interface{}, error) {
 			return rdsClient.DeleteDBInstance(req)
 		})
@@ -173,6 +173,7 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 					"instance_storage": "30",
 					"instance_name":    "${var.name}",
 					"vswitch_id":       "${apsarastack_vswitch.default.id}",
+					"storage_type":     "local_ssd",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -180,6 +181,7 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 						"engine_version":   "5.6",
 						"instance_type":    CHECKSET,
 						"instance_storage": CHECKSET,
+						"storage_type":     "local_ssd",
 					}),
 				),
 			},
@@ -272,6 +274,7 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 					"instance_storage":     "30",
 					"instance_name":        "tf-testAccDBInstanceConfig",
 					"instance_charge_type": "Postpaid",
+					"storage_type":         "local_ssd",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -283,6 +286,7 @@ func TestAccApsaraStackDBInstanceMysql(t *testing.T) {
 						"zone_id":           CHECKSET,
 						"connection_string": CHECKSET,
 						"port":              CHECKSET,
+						"storage_type":      "local_ssd",
 					}),
 				),
 			},
@@ -351,6 +355,7 @@ func TestAccApsaraStackDBInstanceMultiInstance(t *testing.T) {
 					"instance_storage": "30",
 					"instance_name":    "${var.name}",
 					"vswitch_id":       "${apsarastack_vswitch.default.id}",
+					"storage_type":     "local_ssd",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
@@ -391,6 +396,7 @@ func TestAccApsaraStackDBInstanceMultiAZ(t *testing.T) {
 					"zone_id":          "${data.apsarastack_zones.default.zones[0].id}",
 					"instance_name":    "${var.name}",
 					"vswitch_id":       "${apsarastack_vswitch.default.id}",
+					"storage_type":     "local_ssd",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -452,6 +458,7 @@ func TestAccApsaraStackDBInstanceClassic(t *testing.T) {
 					"instance_storage": "30",
 					"zone_id":          "${data.apsarastack_zones.default.zones[0].id}",
 					"instance_name":    "${var.name}",
+					"storage_type":     "local_ssd",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
@@ -511,4 +518,5 @@ var instanceBasicMap = map[string]string{
 	"zone_id":           CHECKSET,
 	"connection_string": CHECKSET,
 	"port":              CHECKSET,
+	"storage_type":      "local_ssd",
 }

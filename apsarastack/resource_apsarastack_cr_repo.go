@@ -95,8 +95,8 @@ func resourceApsaraStackCRRepoCreate(d *schema.ResourceData, meta interface{}) e
 	request.ApiName = "CreateRepo"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "cr",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,
@@ -153,8 +153,8 @@ func resourceApsaraStackCRRepoUpdate(d *schema.ResourceData, meta interface{}) e
 		request.ApiName = "UpdateRepo"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
-			"AccessKeySecret": client.SecretKey,
-			"AccessKeyId":     client.AccessKey,
+			
+			
 			"Product":         "cr",
 			"Department":      client.Department,
 			"ResourceGroup":   client.ResourceGroup,
@@ -228,8 +228,8 @@ func resourceApsaraStackCRRepoDelete(d *schema.ResourceData, meta interface{}) e
 	request.ApiName = "DeleteRepo"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeySecret": client.SecretKey,
-		"AccessKeyId":     client.AccessKey,
+		
+		
 		"Product":         "cr",
 		"Department":      client.Department,
 		"ResourceGroup":   client.ResourceGroup,

@@ -109,8 +109,8 @@ func dataSourceApsaraStackAscmOrganizationsRead(d *schema.ResourceData, meta int
 	request.ApiName = "GetOrganizationList"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		"AccessKeyId":     client.AccessKey,
-		"AccessKeySecret": client.SecretKey,
+		
+		
 		"Product":         "ascm",
 		"RegionId":        client.RegionId,
 		"Action":          "GetOrganizationList",

@@ -193,7 +193,7 @@ func testAccPreCheckWithNoDefaultVpc(t *testing.T) {
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.RegionId = string(client.Region)
 	request.PageSize = requests.NewInteger(PageSizeSmall)
 	request.PageNumber = requests.NewInteger(1)
@@ -231,7 +231,7 @@ func testAccPreCheckWithNoDefaultVswitch(t *testing.T) {
 	request.RegionId = string(client.Region)
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "vpc", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.PageSize = requests.NewInteger(PageSizeSmall)
 	request.PageNumber = requests.NewInteger(1)
 	request.IsDefault = requests.NewBoolean(true)

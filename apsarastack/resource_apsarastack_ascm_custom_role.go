@@ -82,7 +82,7 @@ func resourceApsaraStackAscmRoleCreate(d *schema.ResourceData, meta interface{})
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":               client.RegionId,
-			"AccessKeySecret":        client.SecretKey,
+			
 			"Product":                "ascm",
 			"Action":                 "CreateRole",
 			"Version":                "2019-05-10",
@@ -188,7 +188,7 @@ func resourceApsaraStackAscmRoleDelete(d *schema.ResourceData, meta interface{})
 		}
 		request.QueryParams = map[string]string{
 			"RegionId":        client.RegionId,
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			"Action":          "RemoveRole",
 			"Version":         "2019-05-10",

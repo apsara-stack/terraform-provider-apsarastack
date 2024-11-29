@@ -259,7 +259,7 @@ func dataSourceApsaraStackOssBucketsRead(d *schema.ResourceData, meta interface{
 		}
 		request.QueryParams = map[string]string{
 
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "OneRouter",
 			//"Department":       client.Department,
 			//"ResourceGroup":    client.ResourceGroup,

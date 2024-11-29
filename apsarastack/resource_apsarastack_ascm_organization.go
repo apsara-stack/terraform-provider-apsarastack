@@ -77,7 +77,7 @@ func resourceApsaraStackAscmOrganizationCreate(d *schema.ResourceData, meta inte
 		request.ApiName = "CreateOrganization"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
-			"AccessKeySecret": client.SecretKey,
+			
 			"Product":         "ascm",
 			//"Department":      client.Department,
 			//"ResourceGroup":   client.ResourceGroup,
@@ -152,7 +152,7 @@ func resourceApsaraStackAscmOrganizationUpdate(d *schema.ResourceData, meta inte
 	request := requests.NewCommonRequest()
 	request.QueryParams = map[string]string{
 		"RegionId":        client.RegionId,
-		"AccessKeySecret": client.SecretKey,
+		
 		//"Department":      client.Department,
 		//"ResourceGroup":   client.ResourceGroup,
 		"Product": "Ascm",
@@ -239,7 +239,7 @@ func resourceApsaraStackAscmOrganizationDelete(d *schema.ResourceData, meta inte
 			}
 			request.QueryParams = map[string]string{
 				"RegionId":        client.RegionId,
-				"AccessKeySecret": client.SecretKey,
+				
 				//"Department":      client.Department,
 				//"ResourceGroup":   client.ResourceGroup,
 				"Product":     "ascm",

@@ -22,7 +22,7 @@ func (s *GpdbService) DescribeGpdbInstance(id string) (instanceAttribute gpdb.DB
 	request := gpdb.CreateDescribeDBInstanceAttributeRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{ "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	raw, err := s.client.WithGpdbClient(func(client *gpdb.Client) (interface{}, error) {
 		return client.DescribeDBInstanceAttribute(request)
@@ -51,7 +51,7 @@ func (s *GpdbService) DescribeGpdbSecurityIps(id string) (ips []string, err erro
 	request := gpdb.CreateDescribeDBInstanceIPArrayListRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{ "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 
 	raw, err := s.client.WithGpdbClient(func(client *gpdb.Client) (interface{}, error) {
@@ -93,7 +93,7 @@ func (s *GpdbService) ModifyGpdbSecurityIps(id, ips string) error {
 	request := gpdb.CreateModifySecurityIpsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{ "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = id
 	request.SecurityIPList = ips
 	raw, err := s.client.WithGpdbClient(func(client *gpdb.Client) (interface{}, error) {
@@ -119,7 +119,7 @@ func (s *GpdbService) DescribeGpdbConnection(id string) (*gpdb.DBInstanceNetInfo
 	request := gpdb.CreateDescribeDBInstanceNetInfoRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+	request.QueryParams = map[string]string{ "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.DBInstanceId = parts[0]
 	raw, err := s.client.WithGpdbClient(func(gpdbClient *gpdb.Client) (interface{}, error) {
 		return gpdbClient.DescribeDBInstanceNetInfo(request)
@@ -202,7 +202,7 @@ func (s *GpdbService) setInstanceTags(d *schema.ResourceData) error {
 		request.TagKey = &tagKey
 		request.RegionId = s.client.RegionId
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+		request.QueryParams = map[string]string{ "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		raw, err := s.client.WithGpdbClient(func(client *gpdb.Client) (interface{}, error) {
 			return client.UntagResources(request)
 		})
@@ -219,7 +219,7 @@ func (s *GpdbService) setInstanceTags(d *schema.ResourceData) error {
 		request.ResourceType = string(TagResourceInstance)
 		request.RegionId = s.client.RegionId
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": s.client.SecretKey, "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
+		request.QueryParams = map[string]string{ "Product": "gpdb", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 		raw, err := s.client.WithGpdbClient(func(client *gpdb.Client) (interface{}, error) {
 			return client.TagResources(request)
 		})

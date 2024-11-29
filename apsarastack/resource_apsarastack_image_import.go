@@ -140,7 +140,7 @@ func resourceApsaraStackImageImportCreate(d *schema.ResourceData, meta interface
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.Architecture = d.Get("architecture").(string)
 	request.Description = d.Get("description").(string)
 	request.ImageName = d.Get("image_name").(string)

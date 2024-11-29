@@ -91,7 +91,7 @@ func dataSourceApsaraStackSlbRulesRead(d *schema.ResourceData, meta interface{})
 	} else {
 		request.Scheme = "http"
 	}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "slb", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.LoadBalancerId = d.Get("load_balancer_id").(string)
 	request.ListenerPort = requests.NewInteger(d.Get("frontend_port").(int))
 

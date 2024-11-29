@@ -39,3 +39,4 @@ website/vendor
 /main.tf
 /.project
 /.vscode
+/terraform-provider-apsarastack

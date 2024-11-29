@@ -58,7 +58,7 @@ func resourceApsaraStackSecurityGroupCreate(d *schema.ResourceData, meta interfa
 	request := ecs.CreateCreateSecurityGroupRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -114,7 +114,7 @@ func resourceApsaraStackSecurityGroupRead(d *schema.ResourceData, meta interface
 		request.Scheme = "http"
 	}
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SecurityGroupId = d.Id()
 
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -152,7 +152,7 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 		request := ecs.CreateModifySecurityGroupPolicyRequest()
 		request.RegionId = client.RegionId
 		request.Headers = map[string]string{"RegionId": client.RegionId}
-		request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+		request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 		if strings.ToLower(client.Config.Protocol) == "https" {
 			request.Scheme = "https"
 		} else {
@@ -181,7 +181,7 @@ func resourceApsaraStackSecurityGroupUpdate(d *schema.ResourceData, meta interfa
 	request := ecs.CreateModifySecurityGroupAttributeRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
 	} else {
@@ -220,7 +220,7 @@ func resourceApsaraStackSecurityGroupDelete(d *schema.ResourceData, meta interfa
 	request := ecs.CreateDeleteSecurityGroupRequest()
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
-	request.QueryParams = map[string]string{"AccessKeySecret": client.SecretKey, "Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
+	request.QueryParams = map[string]string{"Product": "ecs", "Department": client.Department, "ResourceGroup": client.ResourceGroup}
 	request.SecurityGroupId = d.Id()
 	if strings.ToLower(client.Config.Protocol) == "https" {
 		request.Scheme = "https"
