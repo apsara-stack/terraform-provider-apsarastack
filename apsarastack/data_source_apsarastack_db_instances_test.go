@@ -1,8 +1,9 @@
 package apsarastack
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccApsaraStackDBInstancesDataSource(t *testing.T) {
@@ -58,6 +59,7 @@ resource "apsarastack_db_instance" "default" {
   monitoring_period    = "60"
   vswitch_id = "${apsarastack_vswitch.default.id}"
   zone_id =  data.apsarastack_db_zones.default.zones[0].id
+  storage_type = "local_ssd"
 }
 data "apsarastack_db_instances" "default" {
   name_regex = "${apsarastack_db_instance.default.instance_name}"

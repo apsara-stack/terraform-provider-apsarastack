@@ -45,6 +45,7 @@ resource "apsarastack_db_instance" "default" {
   instance_storage     = "20"
   instance_name        = var.name
   vswitch_id           = apsarastack_vswitch.default.id
+  storage_type = "local_ssd"
 }
 
 resource "apsarastack_db_connection" "connection" {

@@ -41,8 +41,9 @@ func TestAccApsaraStackDBDatabaseUpdate(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"instance_id": "${apsarastack_db_instance.instance.id}",
-					"name":        "tftestdatabase",
+					"instance_id":   "${apsarastack_db_instance.instance.id}",
+					"name":          "tftestdatabase",
+					"character_set": "utf8",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(nil),
@@ -80,7 +81,8 @@ func resourceDBDatabaseConfigDependence(name string) string {
 
 
 	resource "apsarastack_db_instance" "instance" {
-	     engine               = "MySQL"
+		storage_type = "local_ssd"
+	    engine               = "MySQL"
         engine_version       = "5.6"
         instance_type        = "rds.mysql.s2.large"
 	    instance_storage     = "30"

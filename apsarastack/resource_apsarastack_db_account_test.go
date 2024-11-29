@@ -110,6 +110,7 @@ func resourceDBAccountConfigDependence(name string) string {
 	    instance_storage     = "30"
 		vswitch_id = "${apsarastack_vswitch.default.id}"
 	    instance_name = "${var.name}"
+		storage_type = "local_ssd"
 	}
 	`, RdsCommonTestCase, name)
 }

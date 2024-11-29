@@ -62,7 +62,6 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"instance_id":                 "${apsarastack_db_instance.default.id}",
-					"enable_backup_log":           "true",
 					"local_log_retention_hours":   "18",
 					"high_space_usage_protection": "Enable",
 				}),
@@ -183,21 +182,10 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"enable_backup_log": "false",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"enable_backup_log": "false",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
 					"instance_id":                     "${apsarastack_db_instance.default.id}",
 					"preferred_backup_period":         []string{"Tuesday", "Monday", "Wednesday"},
 					"preferred_backup_time":           "13:00Z-14:00Z",
-					"backup_retention_period":         "900",
-					"enable_backup_log":               "true",
+					"backup_retention_period":         "700",
 					"log_backup_retention_period":     "7",
 					"local_log_retention_hours":       "48",
 					"high_space_usage_protection":     "Enable",
@@ -209,8 +197,7 @@ func TestAccApsaraStackDBBackupPolicy_mysql(t *testing.T) {
 					testAccCheck(map[string]string{
 						"preferred_backup_period.#":       "3",
 						"preferred_backup_time":           "13:00Z-14:00Z",
-						"backup_retention_period":         "900",
-						"enable_backup_log":               "true",
+						"backup_retention_period":         "700",
 						"log_backup_retention_period":     "7",
 						"local_log_retention_hours":       "48",
 						"high_space_usage_protection":     "Enable",
@@ -232,17 +219,6 @@ data "apsarastack_zones" "default" {
   available_resource_creation = "Rds"
 }
 
-	data "apsarastack_db_instance_engines" "default" {
-  		instance_charge_type = "PostPaid"
-  		engine               = "MySQL"
-  		engine_version       = "5.6"
-	}
-
-	data "apsarastack_db_instance_classes" "default" {
- 	 	engine = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-		engine_version = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-	}
-
 resource "apsarastack_vpc" "default" {
   name       = "${var.name}"
   cidr_block = "172.16.0.0/16"
@@ -250,16 +226,17 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.sub_zone_ids.0}"
+  availability_zone = "cn-wulan-env212-amtest212001-a"
   name              = "${var.name}"
 }
 resource "apsarastack_db_instance" "default" {
+	storage_type = "local_ssd"
   	vswitch_id       = "${apsarastack_vswitch.default.id}"
   	instance_name    = "${var.name}"
-  	engine 			 = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-	engine_version   = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-	instance_type    = "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}"
-  	instance_storage = "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}"
+    engine           = "MySQL"
+    engine_version   = "5.7"
+    instance_type    = "rds.mysql.t1.small"
+    instance_storage = "5"
 }`, name)
 }
 
@@ -286,7 +263,6 @@ func TestAccApsaraStackDBBackupPolicy_pgdb(t *testing.T) {
 			{
 				Config: testAccConfig(map[string]interface{}{
 					"instance_id":                 "${apsarastack_db_instance.default.id}",
-					"enable_backup_log":           "true",
 					"local_log_retention_hours":   "1",
 					"high_space_usage_protection": "Enable",
 				}),
@@ -383,20 +359,9 @@ func TestAccApsaraStackDBBackupPolicy_pgdb(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"enable_backup_log": "false",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"enable_backup_log": "false",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
 					"preferred_backup_period":     []string{"Tuesday", "Wednesday", "Monday"},
 					"preferred_backup_time":       "10:00Z-11:00Z",
 					"backup_retention_period":     "20",
-					"enable_backup_log":           "true",
 					"log_backup_retention_period": "15",
 					"local_log_retention_hours":   "48",
 					"high_space_usage_protection": "Enable",
@@ -406,7 +371,6 @@ func TestAccApsaraStackDBBackupPolicy_pgdb(t *testing.T) {
 						"preferred_backup_period.#":   "3",
 						"preferred_backup_time":       "10:00Z-11:00Z",
 						"backup_retention_period":     "20",
-						"enable_backup_log":           "true",
 						"log_backup_retention_period": "15",
 						"local_log_retention_hours":   "48",
 						"high_space_usage_protection": "Enable",
@@ -421,19 +385,6 @@ func resourceDBBackupPolicyPostgreSQLConfigDependence(name string) string {
 variable "name" {
   default = "%s"
 }
-
-data "apsarastack_db_instance_engines" "default" {
-	engine               = "PostgreSQL"
-	engine_version       = "10.0"
-	instance_charge_type = "PostPaid"
-}
-
-data "apsarastack_db_instance_classes" "default" {
-	engine               = "PostgreSQL"
-	engine_version       = "10.0"
-	instance_charge_type = "PostPaid"
-}
-
 resource "apsarastack_vpc" "default" {
   name       = "${var.name}"
   cidr_block = "172.16.0.0/16"
@@ -441,17 +392,17 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.id}"
-  name              = "${var.name}"
+  availability_zone = "cn-wulan-env212-amtest212001-a"
+  name              = "${var.name}"	
 }
 resource "apsarastack_db_instance" "default" {
+	storage_type = "local_ssd"
   	vswitch_id       = "${apsarastack_vswitch.default.id}"
   	instance_name    = "${var.name}"
-  	engine 			 = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-	engine_version   = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-	instance_type    = "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}"
-  	instance_storage = "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}"
-	zone_id          = "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.id}"
+  	engine 			 = "MySQL"
+	engine_version   = "5.7"
+	instance_type    = "rds.mysql.t1.small"
+  	instance_storage = "5"
 }`, name)
 }
 
@@ -565,15 +516,6 @@ variable "name" {
   default = "%s"
 }
 
-data "apsarastack_db_instance_engines" "default" {
-	engine               = "SQLServer"
-	engine_version       = "2012"
-}
-
-data "apsarastack_db_instance_classes" "default" {
-	engine = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-	engine_version = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-}
 resource "apsarastack_vpc" "default" {
   name       = "${var.name}"
   cidr_block = "172.16.0.0/16"
@@ -581,16 +523,17 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.sub_zone_ids.0}"
+  availability_zone = "cn-wulan-env212-amtest212001-a"
   name              = "${var.name}"
 }
 resource "apsarastack_db_instance" "default" {
+	storage_type = "local_ssd"
   	vswitch_id       = "${apsarastack_vswitch.default.id}"
   	instance_name    = "${var.name}"
-  	engine 			 = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-	engine_version   = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-	instance_type    = "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}"
-  	instance_storage = "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}"
+	engine           = "MySQL"
+	engine_version   = "5.7"
+	instance_type    = "rds.mysql.t1.small"
+	instance_storage = "5"
 }`, name)
 }
 
@@ -714,20 +657,9 @@ func TestAccApsaraStackDBBackupPolicy_PPAS(t *testing.T) {
 			},
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"enable_backup_log": "false",
-				}),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheck(map[string]string{
-						"enable_backup_log": "false",
-					}),
-				),
-			},
-			{
-				Config: testAccConfig(map[string]interface{}{
 					"preferred_backup_period":     []string{"Wednesday", "Monday", "Tuesday"},
 					"preferred_backup_time":       "10:00Z-11:00Z",
 					"backup_retention_period":     "20",
-					"enable_backup_log":           "true",
 					"log_backup_retention_period": "15",
 					"local_log_retention_hours":   "48",
 					"high_space_usage_protection": "Enable",
@@ -737,7 +669,6 @@ func TestAccApsaraStackDBBackupPolicy_PPAS(t *testing.T) {
 						"preferred_backup_period.#":   "3",
 						"preferred_backup_time":       "10:00Z-11:00Z",
 						"backup_retention_period":     "20",
-						"enable_backup_log":           "true",
 						"log_backup_retention_period": "15",
 						"local_log_retention_hours":   "48",
 						"high_space_usage_protection": "Enable",
@@ -755,36 +686,27 @@ variable "name" {
 data "apsarastack_zones" "default" {
   available_resource_creation = "Rds"
 }
-data "apsarastack_db_instance_engines" "default" {
-	engine               = "PPAS"
-	engine_version       = "10.0"
-    instance_charge_type = "PostPaid"
-    multi_zone           = true
-}
-
-data "apsarastack_db_instance_classes" "default" {
-	engine               = "PPAS"
-	engine_version       = "10.0"
-    instance_charge_type = "PostPaid"
-    multi_zone           = true
-}
 resource "apsarastack_vpc" "default" {
   name       = "${var.name}"
   cidr_block = "172.16.0.0/16"
+  description = "vpc_test"
 }
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.sub_zone_ids.0}"
+  availability_zone = "cn-wulan-env212-amtest212001-a"
   name              = "${var.name}"
+  description = "vswitch_test"
 }
 resource "apsarastack_db_instance" "default" {
+	storage_type = "local_ssd"
   	vswitch_id       = "${apsarastack_vswitch.default.id}"
   	instance_name    = "${var.name}"
-  	engine 			 = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine}"
-	engine_version   = "${data.apsarastack_db_instance_engines.default.instance_engines.0.engine_version}"
-	instance_type    = "${data.apsarastack_db_instance_classes.default.instance_classes.0.instance_class}"
-  	instance_storage = "${data.apsarastack_db_instance_classes.default.instance_classes.0.storage_range.min}"
-	zone_id          = "${data.apsarastack_db_instance_classes.default.instance_classes.0.zone_ids.0.id}"
+    engine           = "MySQL"
+    engine_version   = "5.7"
+    instance_type    = "rds.mysql.t1.small"
+    instance_storage = "5"
+	instance_charge_type = "Postpaid"
+	force_restart    = "true"
 }`, name)
 }
