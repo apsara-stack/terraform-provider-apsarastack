@@ -41,11 +41,11 @@ func TestAccApsaraStackImageCopyBasic(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"provider":         "apsarastack.sh",
-					"source_image_id":  "${apsarastack_image.default.id}",
-					"source_region_id": "cn-hangzhou",
-					"description":      fmt.Sprintf("tf-testAccEcsImageConfigBasic%ddescription", rand),
-					"image_name":       name,
+					"source_image_id": "${apsarastack_image.default.id}",
+					"description":     fmt.Sprintf("tf-testAccEcsImageConfigBasic%ddescription", rand),
+					"image_name":      name,
+					"kms_key_id":      "3852c3cd-3ace-468d-8b9b-c301c33a32b2",
+					"encrypted":       "true",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckImageExistsWithProviders(resourceId, &v, &providers),
@@ -89,6 +89,49 @@ func TestAccApsaraStackImageCopyBasic(t *testing.T) {
 						"description": fmt.Sprintf("tf-testAccEcsImageConfigBasic%ddescription", rand),
 						"image_name":  name,
 					}),
+				),
+			},
+		},
+	})
+}
+
+func TestAccApsaraStackImageCopyEncrypted(t *testing.T) {
+	var v ecs.Image
+
+	resourceId := "apsarastack_image_copy.default"
+	// multi provideris
+	var providers []*schema.Provider
+	providerFactories := map[string]terraform.ResourceProviderFactory{
+		"apsarastack": func() (terraform.ResourceProvider, error) {
+			p := Provider()
+			providers = append(providers, p.(*schema.Provider))
+			return p, nil
+		},
+	}
+	ra := resourceAttrInit(resourceId, testAccCopyImageCheckMap)
+	rand := acctest.RandIntRange(1000, 9999)
+	testAccCheck := ra.resourceAttrMapUpdateSet()
+	name := fmt.Sprintf("tf-testAccEcsCopyImageConfigBasic%d", rand)
+	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceImageCopyBasicConfigDependence)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		IDRefreshName:     resourceId,
+		ProviderFactories: providerFactories,
+		CheckDestroy:      testAccCheckImageDestroyWithProviders(&providers),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccConfig(map[string]interface{}{
+					"source_image_id": "${apsarastack_image.default.id}",
+					"description":     fmt.Sprintf("tf-testAccEcsImageConfigBasic%ddescription", rand),
+					"image_name":      name,
+					"kms_key_id":      "3852c3cd-3ace-468d-8b9b-c301c33a32b2",
+					"encrypted":       "true",
+				}),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckImageExistsWithProviders(resourceId, &v, &providers),
+					testAccCheck(nil),
 				),
 			},
 		},

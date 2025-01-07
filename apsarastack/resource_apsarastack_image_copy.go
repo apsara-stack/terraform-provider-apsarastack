@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -50,6 +51,16 @@ func resourceApsaraStackImageCopy() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"encrypted": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -70,6 +81,12 @@ func resourceApsaraStackImageCopyCreate(d *schema.ResourceData, meta interface{}
 	request.DestinationRegionId = d.Get("destination_region_id").(string)
 	request.DestinationImageName = d.Get("image_name").(string)
 	request.DestinationDescription = d.Get("description").(string)
+	if v, ok := d.GetOk("kms_key_id"); ok && v != "" {
+		request.KMSKeyId = v.(string)
+	}
+	if v, ok := d.GetOk("encrypted"); ok {
+		request.Encrypted = requests.NewBoolean(v.(bool))
+	}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 
 		return ecsClient.CopyImage(request)

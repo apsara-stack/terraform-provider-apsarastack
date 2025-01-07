@@ -194,21 +194,17 @@ func resourceApsaraStackKVStoreInstance() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			// "encryption_name": {
-			// 	Type:     schema.TypeString,
-			// 	Optional: true,
-			// },
 			"encryption_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:          schema.TypeString,
+				Optional:      true,
 				Deprecated:    "TDE does not support the simultaneous use of `encryption_key` and `role_arn`.",
 				ConflictsWith: []string{"role_arn"},
 			},
 			"role_arn": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Type:          schema.TypeString,
+				Optional:      true,
 				Deprecated:    "TDE does not support the simultaneous use of `encryption_key` and `role_arn`.",
-				ConflictsWith: []string{"role_arn"},
+				ConflictsWith: []string{"encryption_key"},
 			},
 		},
 	}
@@ -222,10 +218,10 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 	request.RegionId = client.RegionId
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		
-		"Product":         "R-kvstore",
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
+
+		"Product":       "R-kvstore",
+		"Department":    client.Department,
+		"ResourceGroup": client.ResourceGroup,
 	}
 	if v, ok := d.GetOk("instance_name"); ok && v.(string) != "" {
 		request.InstanceName = v.(string)
@@ -345,10 +341,10 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		}
 		tde_req.EncryptionKey = d.Get("encryption_key").(string)
 		tde_req.QueryParams = map[string]string{
-			
-			"Product":         "R-kvstore",
-			"Region":          client.RegionId,
-			"ResourceGroup":   client.ResourceGroup,
+
+			"Product":       "R-kvstore",
+			"Region":        client.RegionId,
+			"ResourceGroup": client.ResourceGroup,
 		}
 
 		if strings.ToLower(client.Config.Protocol) == "https" {
@@ -356,7 +352,6 @@ func resourceApsaraStackKVStoreInstanceCreate(d *schema.ResourceData, meta inter
 		} else {
 			tde_req.Scheme = "http"
 		}
-
 		tderaw, err := client.WithRkvClient(func(rkvClient *r_kvstore.Client) (interface{}, error) {
 			return rkvClient.ModifyInstanceTDE(tde_req)
 		})

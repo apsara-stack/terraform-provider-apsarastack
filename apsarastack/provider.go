@@ -87,8 +87,7 @@ func Provider() terraform.ResourceProvider {
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
-				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", nil),
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", os.Getenv("APSARASTACK_INSECURE")),
 				Description: descriptions["insecure"],
 			},
 			"assume_role": assumeRoleSchema(),
@@ -100,8 +99,8 @@ func Provider() terraform.ResourceProvider {
 			"protocol": {
 				Type:         schema.TypeString,
 				Optional:     true,
-				Default:      "HTTP",
 				Description:  descriptions["protocol"],
+				DefaultFunc:  schema.EnvDefaultFunc("APSARASTACK_PROTOCOL", os.Getenv("APSARASTACK_PROTOCOL")),
 				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
 			},
 			"client_read_timeout": {
@@ -174,7 +173,7 @@ func Provider() terraform.ResourceProvider {
 			"proxy": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_PROXY", nil),
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_PROXY", os.Getenv("APSARASTACK_PROXY")),
 				Description: descriptions["proxy"],
 			},
 			"domain": {
@@ -1235,6 +1234,10 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 	} else {
 		log.Printf("PROTOCOL SET TO HTTP")
 		request.Scheme = "http"
+	}
+	if config.Proxy != "" {
+		ascmClient.SetHttpProxy(config.Proxy)
+		ascmClient.SetHttpsProxy(config.Proxy)
 	}
 	if config.Insecure {
 		ascmClient.SetHTTPSInsecure(config.Insecure)
