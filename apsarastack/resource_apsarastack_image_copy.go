@@ -81,6 +81,7 @@ func resourceApsaraStackImageCopyCreate(d *schema.ResourceData, meta interface{}
 	request.DestinationRegionId = d.Get("destination_region_id").(string)
 	request.DestinationImageName = d.Get("image_name").(string)
 	request.DestinationDescription = d.Get("description").(string)
+	request.ResourceGroupId = client.Config.ResourceGroupId
 	if v, ok := d.GetOk("kms_key_id"); ok && v != "" {
 		request.KMSKeyId = v.(string)
 	}

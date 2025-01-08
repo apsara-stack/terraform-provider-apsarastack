@@ -30,6 +30,7 @@ type Config struct {
 	RegionId                 string
 	Department               string
 	ResourceGroup            string
+	ResourceGroupId            string
 	SecurityToken            string
 	OtsInstanceName          string
 	AccountId                string

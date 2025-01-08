@@ -654,12 +654,13 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
-		dept, rg, err := getResourceCredentials(config)
+		dept, rg, rgid err := getResourceCredentials(config)
 		if err != nil {
 			return nil, err
 		}
 		config.Department = dept
 		config.ResourceGroup = rg
+		config.ResourceGroupId = rgid
 	}
 
 	if config.RamRoleArn != "" {
@@ -1269,9 +1270,10 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		return "", "", err
 	}
 	var deptId int   // Organization ID
-	var resGrpId int //ID of resource set
+	var resGrp int   // resource set 
+	var resGrpId string   // resource set 
 	deptId = 0
-	resGrpId = 0
+	resGrp = 0
 	if len(response.Data) == 0 || response.Code != "200" {
 		if len(response.Data) == 0 {
 			return "", "", fmt.Errorf("resource group ID and organization not found for resource set %s", config.ResourceSetName)
@@ -1281,16 +1283,17 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		for _, j := range response.Data {
 			if j.ResourceGroupName == config.ResourceSetName {
 				deptId = j.OrganizationID
-				resGrpId = j.ID
+				resGrp = j.ID
+				resGrpId = j.RsID
 				break
 			}
 		}
 	}
 
 	//log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID))
-	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(deptId), fmt.Sprint(resGrpId))
+	log.Printf("[INFO] Get Resource Group Details Succssfull for Resource set: %s : Department: %s, ResourceGroup: %s, ResourceGroupId: %s", config.ResourceSetName, fmt.Sprint(deptId), fmt.Sprint(resGrp), resGrpId)
 	//return fmt.Sprint(response.Data[0].OrganizationID), fmt.Sprint(response.Data[0].ID), err
-	return fmt.Sprint(deptId), fmt.Sprint(resGrpId), err
+	return fmt.Sprint(deptId), fmt.Sprint(resGrp), resGrpId, err
 }
 
 func waitSecondsIfWithTest(second int) {
