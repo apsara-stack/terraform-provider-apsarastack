@@ -476,39 +476,6 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 		}
 	}
 
-	if d.HasChange("system_disk_tags") {
-		oraw, nraw := d.GetChange("system_disk_tags")
-		diskid := d.Get("system_disk_id").(string)
-		if diskid == "" {
-			disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "system")
-			if err != nil {
-				return WrapError(err)
-			}
-			diskid = disks[0].DiskId
-		}
-		err := updateTags(client, []string{diskid}, "disk", oraw, nraw)
-		if err != nil {
-			return WrapError(err)
-		}
-	}
-
-	if d.HasChange("data_disk_tags") {
-		oraw, nraw := d.GetChange("data_disk_tags")
-		disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "data")
-		if err != nil {
-			return WrapError(err)
-		}
-		diskids := make([]string, 0, len(disks))
-		for _, disk := range disks {
-			diskids = append(diskids, disk.DiskId)
-			err := updateTags(client, diskids, "disk", oraw, nraw)
-			if err != nil {
-				return WrapError(err)
-			}
-		}
-
-	}
-
 	if d.HasChange("security_groups") {
 		if !d.IsNewResource() || d.Get("vswitch_id").(string) == "" {
 			o, n := d.GetChange("security_groups")
@@ -647,6 +614,35 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 
 	if err := modifyInstanceNetworkSpec(d, meta); err != nil {
 		return WrapError(err)
+	}
+
+	if d.HasChange("system_disk_tags") || d.HasChange("system_disk_id") {
+		oraw, nraw := d.GetChange("system_disk_tags")
+		disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "system")
+		if err != nil {
+			return WrapError(err)
+		}
+		err = updateTags(client, []string{disks[0].DiskId}, "disk", oraw, nraw)
+		if err != nil {
+			return WrapError(err)
+		}
+	}
+
+	if d.HasChange("data_disk_tags") {
+		oraw, nraw := d.GetChange("data_disk_tags")
+		disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "data")
+		if err != nil {
+			return WrapError(err)
+		}
+		diskids := make([]string, 0, len(disks))
+		for _, disk := range disks {
+			diskids = append(diskids, disk.DiskId)
+			err := updateTags(client, diskids, "disk", oraw, nraw)
+			if err != nil {
+				return WrapError(err)
+			}
+		}
+
 	}
 
 	d.Partial(false)

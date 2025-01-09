@@ -125,7 +125,7 @@ func TestAccApsaraStackImageCopyEncrypted(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"source_image_id":       "m-ob601gxfrigmmit3bwu3",
+					"source_image_id":       "m-ob601gxfrigomleqg2dj",
 					"description":           fmt.Sprintf("tf-testAccEcsImageConfigBasic%ddescription", rand),
 					"destination_region_id": region,
 					"image_name":            name,

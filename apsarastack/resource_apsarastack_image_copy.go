@@ -100,7 +100,8 @@ func resourceApsaraStackImageCopyCreate(d *schema.ResourceData, meta interface{}
 	response, _ := raw.(*ecs.CopyImageResponse)
 	d.SetId(response.ImageId)
 	log.Printf("[DEBUG] state %#v", d.Id())
-	stateConf := BuildStateConf([]string{"Creating"}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, ecsService.ImageStateRefreshFuncforcopy(d.Id(), d.Get("destination_region_id").(string), []string{"CreateFailed", "UnAvailable"}))
+	stateConf := BuildStateConf([]string{"Creating"}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 30*time.Minute, ecsService.ImageStateRefreshFuncforcopy(d.Id(), d.Get("destination_region_id").(string), []string{"CreateFailed", "UnAvailable"}))
+	stateConf.NotFoundChecks = 100
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
@@ -142,7 +143,7 @@ func resourceApsaraStackImageCopyDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), ApsaraStackSdkGoERROR)
 	}
-	stateConf := BuildStateConf([]string{"Available", "CreateFailed"}, []string{"Deprecated", "UnAvailable"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, ecsService.ImageStateRefreshFuncforcopy(d.Id(), d.Get("destination_region_id").(string), []string{"CreateFailed", "UnAvailable"}))
+	stateConf := BuildStateConf([]string{"Available", "CreateFailed"}, []string{"Deprecated", "UnAvailable"}, d.Timeout(schema.TimeoutCreate), 5*time.Minute, ecsService.ImageStateRefreshFuncforcopy(d.Id(), d.Get("destination_region_id").(string), []string{"CreateFailed", "UnAvailable"}))
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}

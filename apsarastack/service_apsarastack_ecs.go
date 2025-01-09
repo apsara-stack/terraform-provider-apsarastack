@@ -719,6 +719,8 @@ func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	request.QueryParams = map[string]string{"Product": "ecs", "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	request.ImageId = id
 	request.ImageOwnerAlias = "self"
+	request.PageSize = requests.NewInteger(100)
+	request.PageNumber = requests.NewInteger(1)
 	request.Status = fmt.Sprintf("%s,%s,%s,%s,%s", "Creating", "Waiting", "Available", "UnAvailable", "CreateFailed")
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 		return ecsClient.DescribeImages(request)
@@ -1063,8 +1065,10 @@ func (s *EcsService) DescribeImage(id, region string) (image ecs.Image, err erro
 		request.Scheme = "http"
 	}
 	request.ImageId = id
-	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{"Product": "ecs"}
+	request.Headers = map[string]string{"RegionId": region}
+	request.QueryParams = map[string]string{"Product": "Ecs"}
+	request.PageSize = requests.NewInteger(100)
+	request.PageNumber = requests.NewInteger(1)
 	request.ImageOwnerAlias = "self"
 	request.Status = fmt.Sprintf("%s,%s,%s,%s,%s", "Creating", "Waiting", "Available", "UnAvailable", "CreateFailed")
 	raw, err := s.client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
@@ -1074,12 +1078,12 @@ func (s *EcsService) DescribeImage(id, region string) (image ecs.Image, err erro
 	if err != nil {
 		return
 	}
-	addDebug(request.GetActionName(), raw, request, request.RpcRequest)
+	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	resp, _ := raw.(*ecs.DescribeImagesResponse)
 	if resp == nil || len(resp.Images.Image) < 1 {
 		return image, GetNotFoundErrorFromString(GetNotFoundMessage("Image", id))
 	}
-	return resp.Images.Image[0], nil
+	return image, nil
 }
 
 func (s *EcsService) ImageStateRefreshFuncforcopy(id string, region string, failStates []string) resource.StateRefreshFunc {

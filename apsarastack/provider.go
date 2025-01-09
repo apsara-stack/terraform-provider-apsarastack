@@ -654,7 +654,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 	config.ResourceSetName = d.Get("resource_group_set_name").(string)
 	if config.Department == "" || config.ResourceGroup == "" {
-		dept, rg, rgid err := getResourceCredentials(config)
+		dept, rg, rgid, err := getResourceCredentials(config)
 		if err != nil {
 			return nil, err
 		}
@@ -1195,17 +1195,17 @@ func getAssumeRoleAK(config *connectivity.Config) (string, string, string, error
 	return response.Credentials.AccessKeyId, response.Credentials.AccessKeySecret, response.Credentials.SecurityToken, nil
 }
 
-func getResourceCredentials(config *connectivity.Config) (string, string, error) {
+func getResourceCredentials(config *connectivity.Config) (string, string, string, error) {
 	endpoint := config.AscmEndpoint
 	if endpoint == "" {
-		return "", "", fmt.Errorf("unable to initialize the ascm client: endpoint or domain is not provided for ascm service")
+		return "", "", "", fmt.Errorf("unable to initialize the ascm client: endpoint or domain is not provided for ascm service")
 	}
 	if endpoint != "" {
 		endpoints.AddEndpointMapping(config.RegionId, string(connectivity.ASCMCode), endpoint)
 	}
 	ascmClient, err := sdk.NewClientWithAccessKey(config.RegionId, config.AccessKey, config.SecretKey)
 	if err != nil {
-		return "", "", fmt.Errorf("unable to initialize the ascm client: %#v", err)
+		return "", "", "", fmt.Errorf("unable to initialize the ascm client: %#v", err)
 	}
 
 	ascmClient.AppendUserAgent(connectivity.Terraform, connectivity.TerraformVersion)
@@ -1217,7 +1217,7 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 		ascmClient.SetHttpProxy(config.Proxy)
 	}
 	if config.ResourceSetName == "" {
-		return "", "", fmt.Errorf("errror while fetching resource group details, resource group set name can not be empty")
+		return "", "", "", fmt.Errorf("errror while fetching resource group details, resource group set name can not be empty")
 	}
 	request := requests.NewCommonRequest()
 	if config.Insecure {
@@ -1262,23 +1262,23 @@ func getResourceCredentials(config *connectivity.Config) (string, string, error)
 	request.TransToAcsRequest()
 	err = ascmClient.DoAction(request, &resp)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	response := &ResourceGroup{}
 	err = json.Unmarshal(resp.GetHttpContentBytes(), response)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
-	var deptId int   // Organization ID
-	var resGrp int   // resource set 
-	var resGrpId string   // resource set 
+	var deptId int      // Organization ID
+	var resGrp int      // resource set
+	var resGrpId string // resource set
 	deptId = 0
 	resGrp = 0
 	if len(response.Data) == 0 || response.Code != "200" {
 		if len(response.Data) == 0 {
-			return "", "", fmt.Errorf("resource group ID and organization not found for resource set %s", config.ResourceSetName)
+			return "", "", "", fmt.Errorf("resource group ID and organization not found for resource set %s", config.ResourceSetName)
 		}
-		return "", "", fmt.Errorf("unable to initialize the ascm client: department or resource_group is not provided")
+		return "", "", "", fmt.Errorf("unable to initialize the ascm client: department or resource_group is not provided")
 	} else {
 		for _, j := range response.Data {
 			if j.ResourceGroupName == config.ResourceSetName {
