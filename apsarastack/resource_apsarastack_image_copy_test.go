@@ -257,11 +257,6 @@ resource "apsarastack_instance" "default" {
   vswitch_id           = "${apsarastack_vswitch.default.id}"
   availability_zone    =  "cn-wulan-env212-amtest212001-a"
   is_outdated          = false
-  lifecycle {
-    ignore_changes = [
-      instance_type
-    ]
-  }
 }
 
 
