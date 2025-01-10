@@ -190,7 +190,6 @@ func TestAccApsaraStackInstanceBasic(t *testing.T) {
 					"availability_zone":             "${data.apsarastack_zones.default.zones[0].id}",
 					"system_disk_category":          "cloud_efficiency",
 					"instance_name":                 "${var.name}",
-					"key_name":                      "${apsarastack_key_pair.default.key_name}",
 					"user_data":                     "I_am_user_data",
 					"security_enhancement_strategy": "Active",
 					"vswitch_id":                    "${apsarastack_vswitch.default.id}",
@@ -246,7 +245,6 @@ func TestAccApsaraStackInstanceVpc(t *testing.T) {
 					"availability_zone":             "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
 					"system_disk_category":          "cloud_efficiency",
 					"instance_name":                 "${var.name}",
-					"key_name":                      "${apsarastack_key_pair.default.key_name}",
 					"security_enhancement_strategy": "Active",
 					"user_data":                     "I_am_user_data",
 
@@ -420,7 +418,6 @@ func TestAccApsaraStackInstanceDataDisks(t *testing.T) {
 					"availability_zone":             "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
 					"system_disk_category":          "cloud_efficiency",
 					"instance_name":                 "${var.name}",
-					"key_name":                      "${apsarastack_key_pair.default.key_name}",
 					"security_enhancement_strategy": "Active",
 					"user_data":                     "I_am_user_data",
 
@@ -553,7 +550,6 @@ func TestAccApsaraStackInstanceMulti(t *testing.T) {
 					"availability_zone":             "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
 					"system_disk_category":          "cloud_efficiency",
 					"instance_name":                 "${var.name}",
-					"key_name":                      "${apsarastack_key_pair.default.key_name}",
 					"security_enhancement_strategy": "Active",
 					"user_data":                     "I_am_user_data",
 
@@ -579,8 +575,8 @@ func TestAccApsaraStackInstanceMulti(t *testing.T) {
 func TestAccApsaraStackInstanceImageUpdate(t *testing.T) {
 	var v ecs.Instance
 
-	resourceId := "apsarastack_instance.default.2"
-	ra := resourceAttrInit(resourceId, testAccInstanceCheckMap)
+	resourceId := "apsarastack_instance.default"
+	ra := resourceAttrInit(resourceId, map[string]string{})
 	serviceFunc := func() interface{} {
 		return &EcsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
 	}
@@ -590,7 +586,7 @@ func TestAccApsaraStackInstanceImageUpdate(t *testing.T) {
 	rand := acctest.RandIntRange(1000, 9999)
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 	name := fmt.Sprintf("tf-testAcc%sEcsInstanceConfigMulti%d", defaultRegionToTest, rand)
-	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceInstanceVpcConfigDependence)
+	testAccConfig := resourceTestAccConfigFunc(resourceId, name, resourceInstanceImageUpdateConfigDependence)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -604,12 +600,11 @@ func TestAccApsaraStackInstanceImageUpdate(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"image_id":                      "${data.apsarastack_images.default.images.0.id}",
 					"security_groups":               []string{"${apsarastack_security_group.default.0.id}"},
-					"instance_type":                 "${data.apsarastack_instance_types.default.instance_types.0.id}",
-					"availability_zone":             "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}",
+					"instance_type":                 "ecs.n4.large",
+					"availability_zone":             "cn-wulan-env205-amtest205001-a",
 					"system_disk_category":          "cloud_ssd",
 					"system_disk_size":              "40",
 					"instance_name":                 "${var.name}",
-					"key_name":                      "${apsarastack_key_pair.default.key_name}",
 					"security_enhancement_strategy": "Active",
 					"user_data":                     "I_am_user_data",
 					"vswitch_id":                    "${apsarastack_vswitch.default.id}",
@@ -634,7 +629,6 @@ func TestAccApsaraStackInstanceImageUpdate(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"image_id":             "${data.apsarastack_images.default.images.1.id}",
 						"system_disk_tags.%":   "2",
 						"system_disk_tags.foo": "foo",
 						"system_disk_tags.Bar": "Bar",
@@ -656,21 +650,25 @@ data "apsarastack_images" "default" {
   name_regex  = "^ubuntu*"
   owners      = "system"
 }
+
 resource "apsarastack_vpc" "default" {
   name       = "${var.name}"
   cidr_block = "172.16.0.0/16"
 }
+
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
   availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
   name              = "${var.name}"
 }
+
 resource "apsarastack_security_group" "default" {
   count = "2"
   name   = "${var.name}"
   vpc_id = "${apsarastack_vpc.default.id}"
 }
+
 resource "apsarastack_security_group_rule" "default" {
    count = 2
    type = "ingress"
@@ -687,11 +685,40 @@ variable "name" {
 	default = "%s"
 }
 
-resource "apsarastack_key_pair" "default" {
-	key_name = "${var.name}"
+`, name)
 }
 
-`, name)
+func resourceInstanceImageUpdateConfigDependence(name string) string {
+	return fmt.Sprintf(`
+	
+	data "apsarastack_images" "default" {
+	  name_regex  = "^ubuntu*"
+	  owners      = "system"
+	}
+
+	resource "apsarastack_vpc" "default" {
+	  name       = "${var.name}"
+	  cidr_block = "172.16.0.0/16"
+	}
+	
+	resource "apsarastack_vswitch" "default" {
+	  vpc_id            = "${apsarastack_vpc.default.id}"
+	  cidr_block        = "172.16.0.0/24"
+	  availability_zone = "cn-wulan-env205-amtest205001-a"
+	  name              = "${var.name}"
+	}
+	
+	resource "apsarastack_security_group" "default" {
+	  count = "2"
+	  name   = "${var.name}"
+	  vpc_id = "${apsarastack_vpc.default.id}"
+	}
+
+	variable "name" {
+		default = "%s"
+	}
+	
+	`, name)
 }
 
 func resourceInstancePrePaidConfigDependence(name string) string {
@@ -734,10 +761,6 @@ resource "apsarastack_security_group_rule" "default" {
 variable "name" {
 	default = "%s"
 }
-resource "apsarastack_key_pair" "default" {
-	key_name = "${var.name}"
-}
-
 `, name)
 }
 
@@ -781,10 +804,6 @@ resource "apsarastack_security_group_rule" "default" {
 
 variable "name" {
 	default = "%s"
-}
-
-resource "apsarastack_key_pair" "default" {
-	key_name = "${var.name}"
 }
 
 `, name)

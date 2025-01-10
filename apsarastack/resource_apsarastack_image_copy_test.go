@@ -125,11 +125,11 @@ func TestAccApsaraStackImageCopyEncrypted(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"source_image_id":       "m-ob601gxfrigomleqg2dj",
+					"source_image_id":       "m-gj001q4w0gr14n74athd",
 					"description":           fmt.Sprintf("tf-testAccEcsImageConfigBasic%ddescription", rand),
 					"destination_region_id": region,
 					"image_name":            name,
-					"kms_key_id":            "3852c3cd-3ace-468d-8b9b-c301c33a32b2",
+					"kms_key_id":            "2208243d-faff-484a-be0b-94ae65d9963e",
 					"encrypted":             "true",
 				}),
 				Check: resource.ComposeTestCheckFunc(
