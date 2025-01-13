@@ -336,7 +336,12 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 		"OpenApiAction":    "GetBucketSync",
 		"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
 	}
-
+	request.Method = "POST"        // Set request method
+	request.Product = "OneRouter"  // Specify product
+	request.Version = "2018-12-12" // Specify product version
+	request.ServiceCode = "OneRouter"
+	request.ApiName = "DoOpenApi"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
 	raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 		return ossClient.ProcessCommonRequest(request)
 	})
@@ -380,7 +385,12 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 		"OpenApiAction":    "GetBucketAcl",
 		"Params":           fmt.Sprintf("{\"BucketName\":\"%s\", \"acl\":\"acl\"}", bucketName),
 	}
-
+	request.Method = "POST"        // Set request method
+	request.Product = "OneRouter"  // Specify product
+	request.Version = "2018-12-12" // Specify product version
+	request.ServiceCode = "OneRouter"
+	request.ApiName = "DoOpenApi"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
 	raw, err = client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 		return ossClient.ProcessCommonRequest(request)
 	})
@@ -416,7 +426,12 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 		"OpenApiAction":    "GetBucketStorageCapacity",
 		"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
 	}
-
+	request.Method = "POST"        // Set request method
+	request.Product = "OneRouter"  // Specify product
+	request.Version = "2018-12-12" // Specify product version
+	request.ServiceCode = "OneRouter"
+	request.ApiName = "DoOpenApi"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
 	raw, err = client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 		return ossClient.ProcessCommonRequest(request)
 	})
@@ -456,7 +471,12 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 		"ProductName":      "oss",
 		"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
 	}
-
+	request.Method = "POST"        // Set request method
+	request.Product = "OneRouter"  // Specify product
+	request.Version = "2018-12-12" // Specify product version
+	request.ServiceCode = "OneRouter"
+	request.ApiName = "DoOpenApi"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
 	raw, err = client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 		return ossClient.ProcessCommonRequest(request)
 	})
@@ -510,7 +530,12 @@ func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}
 			request.QueryParams["OpenApiAction"] = "DeleteBucketSync"
 		}
 		request.QueryParams["Params"] = fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName)
-
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
 		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 			return ossClient.ProcessCommonRequest(request)
 		})
@@ -546,7 +571,12 @@ func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}
 			"Params":           fmt.Sprintf("{\"BucketName\":\"%s\", \"StorageCapacity\":%d}", bucketName, storageCapacity),
 			"Content":          fmt.Sprintf("<BucketUserQos><StorageCapacity>%d</StorageCapacity></BucketUserQos>", storageCapacity),
 		}
-
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
 		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 			return ossClient.ProcessCommonRequest(request)
 		})
@@ -581,7 +611,12 @@ func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}
 			"ProductName":      "oss",
 			"Params":           fmt.Sprintf("{\"BucketName\":\"%s\", \"x-oss-acl\":\"%s\"}", bucketName, acl),
 		}
-
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
 		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 			return ossClient.ProcessCommonRequest(request)
 		})
@@ -616,7 +651,12 @@ func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}
 				"ProductName":      "oss",
 				"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
 			}
-
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
 			raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 				return ossClient.ProcessCommonRequest(request)
 			})
@@ -655,7 +695,12 @@ func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}
 			} else {
 				request.QueryParams["Content"] = fmt.Sprintf("<ServerSideEncryptionRule><ApplyServerSideEncryptionByDefault><SSEAlgorithm>%s</SSEAlgorithm></ApplyServerSideEncryptionByDefault></ServerSideEncryptionRule>", sse_algorithm)
 			}
-
+			request.Method = "POST"        // Set request method
+			request.Product = "OneRouter"  // Specify product
+			request.Version = "2018-12-12" // Specify product version
+			request.ServiceCode = "OneRouter"
+			request.ApiName = "DoOpenApi"
+			request.Headers = map[string]string{"RegionId": client.RegionId}
 			raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
 				return ossClient.ProcessCommonRequest(request)
 			})
