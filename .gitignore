@@ -40,3 +40,6 @@ website/vendor
 /.project
 /.vscode
 /terraform-provider-apsarastack
+
+
+/vendor
