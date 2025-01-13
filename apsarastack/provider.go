@@ -87,7 +87,7 @@ func Provider() terraform.ResourceProvider {
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", os.Getenv("APSARASTACK_INSECURE")),
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", false),
 				Description: descriptions["insecure"],
 			},
 			"assume_role": assumeRoleSchema(),
@@ -100,7 +100,7 @@ func Provider() terraform.ResourceProvider {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Description:  descriptions["protocol"],
-				DefaultFunc:  schema.EnvDefaultFunc("APSARASTACK_PROTOCOL", os.Getenv("APSARASTACK_PROTOCOL")),
+				DefaultFunc:  schema.EnvDefaultFunc("APSARASTACK_PROTOCOL", "HTTP"),
 				ValidateFunc: validation.StringInSlice([]string{"HTTP", "HTTPS"}, false),
 			},
 			"client_read_timeout": {
