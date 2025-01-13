@@ -173,7 +173,7 @@ func Provider() terraform.ResourceProvider {
 			"proxy": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_PROXY", os.Getenv("APSARASTACK_PROXY")),
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_PROXY", nil),
 				Description: descriptions["proxy"],
 			},
 			"domain": {
@@ -393,6 +393,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kms_ciphertext":                       resourceApsaraStackKmsCiphertext(),
 			"apsarastack_kms_key":                              resourceApsaraStackKmsKey(),
 			"apsarastack_kms_secret":                           resourceApsaraStackKmsSecret(),
+			"apsarastack_log_alert":                            resourceApsaraStackLogAlert(),
 			"apsarastack_log_project":                          resourceApsaraStackLogProject(),
 			"apsarastack_log_store":                            resourceApsaraStackLogStore(),
 			"apsarastack_log_store_index":                      resourceApsaraStackLogStoreIndex(),
