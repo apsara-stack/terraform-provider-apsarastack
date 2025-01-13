@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
-	"log"
-	"strings"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
@@ -29,7 +31,6 @@ func resourceApsaraStackOssBucket() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
 		},
-
 		Schema: map[string]*schema.Schema{
 			"bucket": {
 				Type:         schema.TypeString,
@@ -38,67 +39,12 @@ func resourceApsaraStackOssBucket() *schema.Resource {
 				ValidateFunc: validation.StringLenBetween(3, 63),
 				Default:      resource.PrefixedUniqueId("tf-oss-bucket-"),
 			},
-
 			"acl": {
 				Type:         schema.TypeString,
 				Default:      oss.ACLPrivate,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"private", "public-read", "public-read-write"}, false),
 			},
-
-			"cors_rule": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"allowed_headers": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"allowed_methods": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"allowed_origins": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"expose_headers": {
-							Type:     schema.TypeList,
-							Optional: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-						"max_age_seconds": {
-							Type:     schema.TypeInt,
-							Optional: true,
-						},
-					},
-				},
-				MaxItems: 10,
-			},
-
-			"website": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"index_document": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-
-						"error_document": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-					},
-				},
-				MaxItems: 1,
-			},
-
 			"logging": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -115,101 +61,16 @@ func resourceApsaraStackOssBucket() *schema.Resource {
 					},
 				},
 				MaxItems: 1,
-			},
-
-			"referer_config": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"allow_empty": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Computed: true,
-						},
-						"referers": {
-							Type:     schema.TypeList,
-							Required: true,
-							Elem:     &schema.Schema{Type: schema.TypeString},
-						},
-					},
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					if k == "logging.#" && old == "1" && new == "0" {
+						loggings := d.Get("logging").([]interface{})
+						logging := loggings[0].(map[string]interface{})
+						if logging["target_bucket"] == "" && logging["target_prefix"] == "" {
+							return true
+						}
+					}
+					return false
 				},
-				MaxItems: 1,
-			},
-
-			"lifecycle_rule": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:         schema.TypeString,
-							Optional:     true,
-							Computed:     true,
-							ValidateFunc: validation.StringLenBetween(0, 255),
-						},
-						"prefix": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"enabled": {
-							Type:     schema.TypeBool,
-							Required: true,
-						},
-						"expiration": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Set:      expirationHash,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"date": {
-										Type:         schema.TypeString,
-										Optional:     true,
-										ValidateFunc: validateOssBucketDateTimestamp,
-									},
-									"days": {
-										Type:     schema.TypeInt,
-										Optional: true,
-									},
-								},
-							},
-						},
-						//"transitions": {
-						//	Type:     schema.TypeSet,
-						//	Optional: true,
-						//	Set:      transitionsHash,
-						//	Elem: &schema.Resource{
-						//		Schema: map[string]*schema.Schema{
-						//			"created_before_date": {
-						//				Type:         schema.TypeString,
-						//				Optional:     true,
-						//				ValidateFunc: validateOssBucketDateTimestamp,
-						//			},
-						//			"days": {
-						//				Type:     schema.TypeInt,
-						//				Optional: true,
-						//			},
-						//			"storage_class": {
-						//				Type:     schema.TypeString,
-						//				Default:  oss.StorageStandard,
-						//				Optional: true,
-						//				ValidateFunc: validation.StringInSlice([]string{
-						//					string(oss.StorageStandard),
-						//					string(oss.StorageIA),
-						//					string(oss.StorageArchive),
-						//				}, false),
-						//			},
-						//		},
-						//	},
-						//},
-					},
-				},
-				MaxItems: 1000,
-			},
-
-			"policy": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"creation_date": {
 				Type:     schema.TypeString,
@@ -237,59 +98,30 @@ func resourceApsaraStackOssBucket() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"sse_algorithm": {
-				Type:     schema.TypeString,
-				Default:  "",
-				Optional: true,
-				ForceNew: true,
-			},
-			"server_side_encryption_rule": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"sse_algorithm": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								ServerSideEncryptionAes256,
-								ServerSideEncryptionKMS,
-							}, false),
-						},
-					},
-				},
-				MaxItems: 1,
-			},
-
-			"tags": tagsSchema(),
-
-			"force_destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  false,
-			},
-
-			"versioning": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"status": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"Enabled",
-								"Suspended",
-							}, false),
-						},
-					},
-				},
-				MaxItems: 1,
-			},
 			"vpclist": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"bucket_sync": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
+			"storage_capacity": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  -1,
+			},
+			"sse_algorithm": {
+				Type:         schema.TypeString,
+				Default:      "",
+				Optional:     true,
+				ValidateFunc: validation.StringInSlice([]string{"", "AES256", "SM4", "KMS"}, false),
+			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
@@ -314,7 +146,6 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 		acl = "private"
 	}
 
-	sse_algo := d.Get("storage_class")
 	// If not present, Create Bucket
 	if det.BucketInfo.Name == "" {
 		request := requests.NewCommonRequest()
@@ -322,8 +153,6 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 			request.SetHTTPSInsecure(client.Config.Insecure)
 		}
 		request.QueryParams = map[string]string{
-
-			
 			"Product":          "OneRouter",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -334,9 +163,25 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 			"SignatureVersion": "1.0",
 			"OpenApiAction":    "PutBucket",
 			"ProductName":      "oss",
-			"Params":           fmt.Sprintf("{\"%s\":%s,\"%s\":%s,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\"}", "Department", client.Department, "ResourceGroup", client.ResourceGroup, "RegionId", client.RegionId, "asVersion", "enterprise", "asArchitechture", "x86", "haApsaraStack", "true", "Language", "en", "BucketName", bucketName, "StorageClass", storageClass, "x-oss-acl", acl, "SSEAlgorithm", sse_algo), //,"x-one-console-endpoint","http://oss-cn-neimeng-env30-d01-a.intra.env30.shuguang.com"),
-
 		}
+		queryParams := map[string]interface{}{
+			"Department":          client.Department,
+			"ResourceGroup":       client.ResourceGroup,
+			"RegionId":            client.RegionId,
+			"asVersion":           "enterprise",
+			"asArchitechture":     "x86",
+			"haAlibabacloudStack": "true",
+			"Language":            "en",
+			"BucketName":          bucketName,
+			"StorageClass":        storageClass,
+			"x-oss-acl":           acl,
+		}
+		if querybytes, err := json.Marshal(queryParams); err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "json Marshal", "CreateBucket", ApsaraStackOssGoSdk)
+		} else {
+			request.QueryParams["Params"] = string(querybytes)
+		}
+
 		request.Method = "POST"        // Set request method
 		request.Product = "OneRouter"  // Specify product
 		request.Version = "2018-12-12" // Specify product version
@@ -350,7 +195,6 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 
 		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
-
 			return ossClient.ProcessCommonRequest(request)
 		})
 		log.Printf("Response of Create Bucket: %s", raw)
@@ -422,7 +266,7 @@ func resourceApsaraStackOssBucketCreate(d *schema.ResourceData, meta interface{}
 	//if vpc_err != nil {
 	//	return WrapError(vpc_err)
 	//}
-	return resourceApsaraStackOssBucketRead(d, meta)
+	return resourceApsaraStackOssBucketUpdate(d, meta)
 }
 
 func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) error {
@@ -430,10 +274,6 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 	client := meta.(*connectivity.ApsaraStackClient)
 	ossService := OssService{client}
 	object, err := ossService.DescribeOssBucket(d.Id())
-	acl := d.Get("acl").(string)
-	if acl == "" {
-		acl = "private"
-	}
 	if err != nil {
 		if NotFoundError(err) {
 			d.SetId("")
@@ -447,295 +287,435 @@ func resourceApsaraStackOssBucketRead(d *schema.ResourceData, meta interface{}) 
 	if object.BucketInfo.Name == "" {
 		log.Print("read: BucketInfo fail!!!!!!")
 	}
-	d.Set("acl", acl)
 	d.Set("creation_date", object.BucketInfo.CreationDate.Format("2006-01-02"))
 	d.Set("extranet_endpoint", object.BucketInfo.ExtranetEndpoint)
 	d.Set("intranet_endpoint", object.BucketInfo.IntranetEndpoint)
 	d.Set("location", object.BucketInfo.Location)
 	d.Set("owner", object.BucketInfo.Owner.ID)
 	d.Set("storage_class", object.BucketInfo.StorageClass)
+
 	var list []map[string]interface{}
 	desclog := logging.Data.BucketLoggingStatus.LoggingEnabled
 	list = append(list, map[string]interface{}{"target_bucket": desclog.TargetBucket, "target_prefix": desclog.TargetPrefix})
-	//d.Set("logging",list)
-	//if err = d.Set("logging", list); err != nil {
-	//	return WrapError(err)
-	//}
-	//bvclient := meta.(*connectivity.ApsaraStackClient)
-	//bvserver := BucketVpcService{bvclient}
-	//vpclist, binderr := bvserver.BucketVpcList(d.Get("bucket").(string))
-	//if binderr != nil {
-	//	return WrapError(binderr)
-	//}
-	//var vlist []string
-	//if len(vpclist.VpcList) > 0 {
-	//	for _, v := range vpclist.VpcList {
-	//		vpc := v.(map[string]interface{})
-	//		vlist = append(vlist, vpc["vpcId"].(string))
-	//	}
-	//}
-	//d.Set("vpclist", vlist)
-	//request := map[string]string{"bucketName": d.Id()}
-	//var requestInfo *oss.Client
-	//
-	//raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-	//	return ossClient.GetBucketLogging(d.Id())
-	//})
-	//if err != nil {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketLogging", ApsaraStackOssGoSdk)
-	//}
-	//
-	//addDebug("GetBucketLogging", raw, requestInfo, request)
-	//logging, _ := raw.(oss.GetBucketLoggingResult)
 
-	//if &logging != nil {
-	//	enable := logging.LoggingEnabled
-	//	if &enable != nil {
-	//		lgs := make([]map[string]interface{}, 0)
-	//		tb := logging.LoggingEnabled.TargetBucket
-	//		tp := logging.LoggingEnabled.TargetPrefix
-	//		if tb != "" || tp != "" {
-	//			lgs = append(lgs, map[string]interface{}{
-	//				"target_bucket": tb,
-	//				"target_prefix": tp,
-	//			})
-	//		}
-	//		if err := d.Set("logging", lgs); err != nil {
-	//			return WrapError(err)
-	//		}
-	//	}
-	//}
+	if err = d.Set("logging", list); err != nil {
+		return WrapError(err)
+	}
+	bvclient := meta.(*connectivity.ApsaraStackClient)
+	bvserver := BucketVpcService{bvclient}
+	vpclist, binderr := bvserver.BucketVpcList(d.Get("bucket").(string))
+	if binderr != nil {
+		return WrapError(binderr)
+	}
+	var vlist []string
+	if len(vpclist.VpcList) > 0 {
+		for _, v := range vpclist.VpcList {
+			vpc := v.(map[string]interface{})
+			vlist = append(vlist, vpc["vpcId"].(string))
+		}
+	}
+	d.Set("vpclist", vlist)
 
-	//if &object.BucketInfo.SseRule != nil {
-	//	if len(object.BucketInfo.SseRule.SSEAlgorithm) > 0 && object.BucketInfo.SseRule.SSEAlgorithm != "None" {
-	//		rule := make(map[string]interface{})
-	//		rule["sse_algorithm"] = object.BucketInfo.SseRule.SSEAlgorithm
-	//		data := make([]map[string]interface{}, 0)
-	//		data = append(data, rule)
-	//		d.Set("server_side_encryption_rule", data)
-	//	}
-	//}
-	//
-	//if object.BucketInfo.Versioning != "" {
-	//	data := map[string]interface{}{
-	//		"status": object.BucketInfo.Versioning,
-	//	}
-	//	versioning := make([]map[string]interface{}, 0)
-	//	versioning = append(versioning, data)
-	//	d.Set("versioning", versioning)
-	//}
-	//request := map[string]string{"bucketName": d.Id(), "Department": client.Department, "ResourceGroup": client.ResourceGroup}
-	//var requestInfo *oss.Client
-	//
-	//// Read the CORS
-	//raw, err := client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-	//	requestInfo = ossClient
-	//	return ossClient.GetBucketCORS(request["bucketName"])
-	//})
-	//if err != nil && !IsExpectedErrors(err, []string{"NoSuchCORSConfiguration"}) {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketCORS", ApsaraStackOssGoSdk)
-	//}
-	//addDebug("GetBucketCORS", raw, requestInfo, request)
-	//cors, _ := raw.(oss.GetBucketCORSResult)
-	//rules := make([]map[string]interface{}, 0, len(cors.CORSRules))
-	//for _, r := range cors.CORSRules {
-	//	rule := make(map[string]interface{})
-	//	rule["allowed_headers"] = r.AllowedHeader
-	//	rule["allowed_methods"] = r.AllowedMethod
-	//	rule["allowed_origins"] = r.AllowedOrigin
-	//	rule["expose_headers"] = r.ExposeHeader
-	//	rule["max_age_seconds"] = r.MaxAgeSeconds
-	//
-	//	rules = append(rules, rule)
-	//}
-	//if err := d.Set("cors_rule", rules); err != nil {
-	//	return WrapError(err)
-	//}
-	//
-	//// Read the website configuration
-	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-	//	return ossClient.GetBucketWebsite(d.Id())
-	//})
-	//if err != nil && !IsExpectedErrors(err, []string{"NoSuchWebsiteConfiguration"}) {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketWebsite", ApsaraStackOssGoSdk)
-	//}
-	//addDebug("GetBucketWebsite", raw, requestInfo, request)
-	//ws, _ := raw.(oss.GetBucketWebsiteResult)
-	//websites := make([]map[string]interface{}, 0)
-	//if err == nil && &ws != nil {
-	//	w := make(map[string]interface{})
-	//
-	//	if v := &ws.IndexDocument; v != nil {
-	//		w["index_document"] = v.Suffix
-	//	}
-	//
-	//	if v := &ws.ErrorDocument; v != nil {
-	//		w["error_document"] = v.Key
-	//	}
-	//	websites = append(websites, w)
-	//}
-	//if err := d.Set("website", websites); err != nil {
-	//	return WrapError(err)
-	//}
-	//
-	//// Read the logging configuration
-	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-	//	return ossClient.GetBucketLogging(d.Id())
-	//})
-	//if err != nil {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketLogging", ApsaraStackOssGoSdk)
-	//}
-	//addDebug("GetBucketLogging", raw, requestInfo, request)
-	//logging, _ := raw.(oss.GetBucketLoggingResult)
-	//
-	//if &logging != nil {
-	//	enable := logging.LoggingEnabled
-	//	if &enable != nil {
-	//		lgs := make([]map[string]interface{}, 0)
-	//		tb := logging.LoggingEnabled.TargetBucket
-	//		tp := logging.LoggingEnabled.TargetPrefix
-	//		if tb != "" || tp != "" {
-	//			lgs = append(lgs, map[string]interface{}{
-	//				"target_bucket": tb,
-	//				"target_prefix": tp,
-	//			})
-	//		}
-	//		if err := d.Set("logging", lgs); err != nil {
-	//			return WrapError(err)
-	//		}
-	//	}
-	//}
-	//
-	//// Read the bucket referer
-	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-	//	return ossClient.GetBucketReferer(d.Id())
-	//})
-	//if err != nil {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketReferer", ApsaraStackOssGoSdk)
-	//}
-	//addDebug("GetBucketReferer", raw, requestInfo, request)
-	//referers := make([]map[string]interface{}, 0)
-	//referer, _ := raw.(oss.GetBucketRefererResult)
-	//if len(referer.RefererList) > 0 {
-	//	referers = append(referers, map[string]interface{}{
-	//		"allow_empty": referer.AllowEmptyReferer,
-	//		"referers":    referer.RefererList,
-	//	})
-	//	if err := d.Set("referer_config", referers); err != nil {
-	//		return WrapError(err)
-	//	}
-	//}
-	//
-	//// Read the lifecycle rule configuration
-	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-	//	return ossClient.GetBucketLifecycle(d.Id())
-	//})
-	//if err != nil && !ossNotFoundError(err) {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketLifecycle", ApsaraStackOssGoSdk)
-	//}
-	//addDebug("GetBucketLifecycle", raw, requestInfo, request)
-	//lrules := make([]map[string]interface{}, 0)
-	//lifecycle, _ := raw.(oss.GetBucketLifecycleResult)
-	//for _, lifecycleRule := range lifecycle.Rules {
-	//	rule := make(map[string]interface{})
-	//	rule["id"] = lifecycleRule.ID
-	//	rule["prefix"] = lifecycleRule.Prefix
-	//	if LifecycleRuleStatus(lifecycleRule.Status) == ExpirationStatusEnabled {
-	//		rule["enabled"] = true
-	//	} else {
-	//		rule["enabled"] = false
-	//	}
-	//	// expiration
-	//	if lifecycleRule.Expiration != nil {
-	//		e := make(map[string]interface{})
-	//		if lifecycleRule.Expiration.Date != "" {
-	//			t, err := time.Parse("2006-01-02T15:04:05.000Z", lifecycleRule.Expiration.Date)
-	//			if err != nil {
-	//				return WrapError(err)
-	//			}
-	//			e["date"] = t.Format("2006-01-02")
-	//		}
-	//		e["days"] = int(lifecycleRule.Expiration.Days)
-	//		rule["expiration"] = schema.NewSet(expirationHash, []interface{}{e})
-	//	}
-	//	// transitions
-	//	//if len(lifecycleRule.Transitions) != 0 {
-	//	//	var eSli []interface{}
-	//	//	for _, transition := range lifecycleRule.Transitions {
-	//	//		e := make(map[string]interface{})
-	//	//		if transition.CreatedBeforeDate != "" {
-	//	//			t, err := time.Parse("2006-01-02T15:04:05.000Z", transition.CreatedBeforeDate)
-	//	//			if err != nil {
-	//	//				return WrapError(err)
-	//	//			}
-	//	//			e["created_before_date"] = t.Format("2006-01-02")
-	//	//		}
-	//	//		e["days"] = transition.Days
-	//	//		e["storage_class"] = string(transition.StorageClass)
-	//	//		eSli = append(eSli, e)
-	//	//	}
-	//	//	rule["transitions"] = schema.NewSet(transitionsHash, eSli)
-	//	//}
-	//
-	//	lrules = append(lrules, rule)
-	//}
-	//
-	//if err := d.Set("lifecycle_rule", lrules); err != nil {
-	//	return WrapError(err)
-	//}
-	//
-	//// Read Policy
-	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-	//	params := map[string]interface{}{}
-	//	params["policy"] = nil
-	//	return ossClient.Conn.Do("GET", d.Id(), "", params, nil, nil, 0, nil)
-	//})
-	//
-	//if err != nil && !ossNotFoundError(err) {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetPolicyByConn", ApsaraStackOssGoSdk)
-	//}
-	//addDebug("GetPolicyByConn", raw, requestInfo, request)
-	//policy := ""
-	//if err == nil {
-	//	rawResp := raw.(*oss.Response)
-	//	defer rawResp.Body.Close()
-	//	rawData, err := ioutil.ReadAll(rawResp.Body)
-	//	if err != nil {
-	//		return WrapError(err)
-	//	}
-	//	policy = string(rawData)
-	//}
-	//
-	//if err := d.Set("policy", policy); err != nil {
-	//	return WrapError(err)
-	//}
-	//
-	//// Read tags
-	//raw, err = client.WithOssClient(func(ossClient *oss.Client) (interface{}, error) {
-	//	return ossClient.GetBucketTagging(d.Id())
-	//})
-	//
-	//if err != nil {
-	//	return WrapErrorf(err, DefaultErrorMsg, d.Id(), "GetBucketTagging", ApsaraStackOssGoSdk)
-	//}
-	//addDebug("GetBucketTagging", raw, requestInfo, request)
-	//tagging, _ := raw.(oss.GetBucketTaggingResult)
-	//tagsMap := make(map[string]string)
-	//if len(tagging.Tags) > 0 {
-	//	for _, t := range tagging.Tags {
-	//		tagsMap[t.Key] = t.Value
-	//	}
-	//}
-	//if err := d.Set("tags", tagsMap); err != nil {
-	//	return WrapError(err)
-	//}
+	bucketName := d.Get("bucket").(string)
+
+	// 获取同城容灾信息
+	request := requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"Product":          "OneRouter",
+		"Department":       client.Department,
+		"ResourceGroup":    client.ResourceGroup,
+		"RegionId":         client.RegionId,
+		"Action":           "DoOpenApi",
+		"AccountInfo":      "123456",
+		"Version":          "2018-12-12",
+		"SignatureVersion": "1.0",
+		"ProductName":      "oss",
+		"OpenApiAction":    "GetBucketSync",
+		"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
+	}
+	request.Method = "POST"        // Set request method
+	request.Product = "OneRouter"  // Specify product
+	request.Version = "2018-12-12" // Specify product version
+	request.ServiceCode = "OneRouter"
+	request.ApiName = "DoOpenApi"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+		return ossClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if ossNotFoundError(err) {
+			return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+		}
+		return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+	}
+	bresponse, _ := raw.(*responses.CommonResponse)
+	if bresponse.GetHttpStatus() != 200 {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+	}
+	bucketSync := BucketSyncResponse{}
+	json.Unmarshal([]byte(bresponse.GetHttpContentString()), &bucketSync)
+	d.Set("bucket_sync", true)
+	for _, rule := range bucketSync.Data.ReplicationConfiguration.Rule {
+		if rule.Status == "closing" {
+			// 容灾关系是成对出现的
+			d.Set("bucket_sync", false)
+			break
+		}
+	}
+
+	// 获取acl信息
+
+	request = requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"Product":          "OneRouter",
+		"Department":       client.Department,
+		"ResourceGroup":    client.ResourceGroup,
+		"RegionId":         client.RegionId,
+		"Action":           "DoOpenApi",
+		"AccountInfo":      "123456",
+		"Version":          "2018-12-12",
+		"SignatureVersion": "1.0",
+		"ProductName":      "oss",
+		"OpenApiAction":    "GetBucketAcl",
+		"Params":           fmt.Sprintf("{\"BucketName\":\"%s\", \"acl\":\"acl\"}", bucketName),
+	}
+	request.Method = "POST"        // Set request method
+	request.Product = "OneRouter"  // Specify product
+	request.Version = "2018-12-12" // Specify product version
+	request.ServiceCode = "OneRouter"
+	request.ApiName = "DoOpenApi"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	raw, err = client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+		return ossClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if ossNotFoundError(err) {
+			return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+		}
+		return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+	}
+	bresponse, _ = raw.(*responses.CommonResponse)
+	if bresponse.GetHttpStatus() != 200 {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+	}
+	bucketAcl := BucketAclResponse{}
+	json.Unmarshal([]byte(bresponse.GetHttpContentString()), &bucketAcl)
+	d.Set("acl", bucketAcl.Data.AccessControlPolicy.AccessControlList.Grant)
+
+	// 获取容量限制信息
+	request = requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"Product":          "OneRouter",
+		"Department":       client.Department,
+		"ResourceGroup":    client.ResourceGroup,
+		"RegionId":         client.RegionId,
+		"Action":           "DoOpenApi",
+		"AccountInfo":      "123456",
+		"Version":          "2018-12-12",
+		"SignatureVersion": "1.0",
+		"ProductName":      "oss",
+		"OpenApiAction":    "GetBucketStorageCapacity",
+		"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
+	}
+	request.Method = "POST"        // Set request method
+	request.Product = "OneRouter"  // Specify product
+	request.Version = "2018-12-12" // Specify product version
+	request.ServiceCode = "OneRouter"
+	request.ApiName = "DoOpenApi"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	raw, err = client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+		return ossClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if ossNotFoundError(err) {
+			return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+		}
+		return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+	}
+	bresponse, _ = raw.(*responses.CommonResponse)
+	if bresponse.GetHttpStatus() != 200 {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+	}
+	storageCapacity := BucketStorageCapacityResponse{}
+	json.Unmarshal([]byte(bresponse.GetHttpContentString()), &storageCapacity)
+	if v, err := strconv.Atoi(storageCapacity.Data.BucketUserQos.StorageCapacity); err == nil {
+		d.Set("storage_capacity", v)
+	} else {
+		return WrapErrorf(err, "Get storage capacity failed")
+	}
+
+	// 获取加密信息
+	request = requests.NewCommonRequest()
+	if client.Config.Insecure {
+		request.SetHTTPSInsecure(client.Config.Insecure)
+	}
+	request.QueryParams = map[string]string{
+		"Product":          "OneRouter",
+		"Department":       client.Department,
+		"ResourceGroup":    client.ResourceGroup,
+		"RegionId":         client.RegionId,
+		"Action":           "DoOpenApi",
+		"AccountInfo":      "123456",
+		"Version":          "2018-12-12",
+		"SignatureVersion": "1.0",
+		"OpenApiAction":    "GetBucketEncryption",
+		"ProductName":      "oss",
+		"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
+	}
+	request.Method = "POST"        // Set request method
+	request.Product = "OneRouter"  // Specify product
+	request.Version = "2018-12-12" // Specify product version
+	request.ServiceCode = "OneRouter"
+	request.ApiName = "DoOpenApi"
+	request.Headers = map[string]string{"RegionId": client.RegionId}
+	raw, err = client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+		return ossClient.ProcessCommonRequest(request)
+	})
+	if err != nil {
+		if ossNotFoundError(err) {
+			return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+		}
+		return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+	}
+	bresponse, _ = raw.(*responses.CommonResponse)
+	if bresponse.GetHttpStatus() != 200 {
+		return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+	}
+	storageEncryption := BucketEncryptionResponse{}
+	json.Unmarshal([]byte(bresponse.GetHttpContentString()), &storageEncryption)
+	if storageEncryption.Code == "NoSuchServerSideEncryptionRule" {
+		d.Set("sse_algorithm", "")
+	} else {
+		d.Set("sse_algorithm", storageEncryption.Data.ServerSideEncryptionRule.ApplyServerSideEncryptionByDefault.SSEAlgorithm)
+		if storageEncryption.Data.ServerSideEncryptionRule.ApplyServerSideEncryptionByDefault.SSEAlgorithm == "KMS" {
+			d.Set("kms_key_id", storageEncryption.Data.ServerSideEncryptionRule.ApplyServerSideEncryptionByDefault.KMSMasterKeyID)
+		}
+	}
 
 	return nil
 }
 
 func resourceApsaraStackOssBucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
+	bucketName := d.Get("bucket").(string)
 
+	if (d.IsNewResource() && !d.Get("bucket_sync").(bool)) || (!d.IsNewResource() && d.HasChange("bucket_sync")) {
+		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
+		request.QueryParams = map[string]string{
+			"Product":          "OneRouter",
+			"Department":       client.Department,
+			"ResourceGroup":    client.ResourceGroup,
+			"RegionId":         client.RegionId,
+			"Action":           "DoOpenApi",
+			"AccountInfo":      "123456",
+			"Version":          "2018-12-12",
+			"SignatureVersion": "1.0",
+			"ProductName":      "oss",
+		}
+		if v := d.Get("bucket_sync").(bool); v {
+			request.QueryParams["OpenApiAction"] = "PutBucketSync"
+		} else {
+			request.QueryParams["OpenApiAction"] = "DeleteBucketSync"
+		}
+		request.QueryParams["Params"] = fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName)
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+			return ossClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			if ossNotFoundError(err) {
+				return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+			}
+			return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+		}
+		bresponse, _ := raw.(*responses.CommonResponse)
+		if bresponse.GetHttpStatus() != 200 {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+		}
+	}
+
+	if (d.IsNewResource() && d.Get("storage_capacity").(int) != -1) || (!d.IsNewResource() && d.HasChange("storage_capacity")) {
+		storageCapacity := d.Get("storage_capacity").(int)
+		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
+		request.QueryParams = map[string]string{
+			"Product":          "OneRouter",
+			"Department":       client.Department,
+			"ResourceGroup":    client.ResourceGroup,
+			"RegionId":         client.RegionId,
+			"Action":           "DoOpenApi",
+			"AccountInfo":      "123456",
+			"Version":          "2018-12-12",
+			"SignatureVersion": "1.0",
+			"OpenApiAction":    "SetBucketStorageCapacity",
+			"ProductName":      "oss",
+			"Params":           fmt.Sprintf("{\"BucketName\":\"%s\", \"StorageCapacity\":%d}", bucketName, storageCapacity),
+			"Content":          fmt.Sprintf("<BucketUserQos><StorageCapacity>%d</StorageCapacity></BucketUserQos>", storageCapacity),
+		}
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+			return ossClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			if ossNotFoundError(err) {
+				return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+			}
+			return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+		}
+		bresponse, _ := raw.(*responses.CommonResponse)
+		if bresponse.GetHttpStatus() != 200 {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+		}
+	}
+
+	if d.HasChange("acl") {
+		acl := d.Get("acl").(string)
+		request := requests.NewCommonRequest()
+		if client.Config.Insecure {
+			request.SetHTTPSInsecure(client.Config.Insecure)
+		}
+		request.QueryParams = map[string]string{
+			"Product":          "OneRouter",
+			"Department":       client.Department,
+			"ResourceGroup":    client.ResourceGroup,
+			"RegionId":         client.RegionId,
+			"Action":           "DoOpenApi",
+			"AccountInfo":      "123456",
+			"Version":          "2018-12-12",
+			"SignatureVersion": "1.0",
+			"OpenApiAction":    "PutBucketACL",
+			"ProductName":      "oss",
+			"Params":           fmt.Sprintf("{\"BucketName\":\"%s\", \"x-oss-acl\":\"%s\"}", bucketName, acl),
+		}
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+			return ossClient.ProcessCommonRequest(request)
+		})
+		if err != nil {
+			if ossNotFoundError(err) {
+				return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+			}
+			return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+		}
+		bresponse, _ := raw.(*responses.CommonResponse)
+		if bresponse.GetHttpStatus() != 200 {
+			return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+		}
+	}
+
+	if d.HasChanges("sse_algorithm", "kms_key_id") {
+		if d.Get("sse_algorithm").(string) == "" {
+			request := requests.NewCommonRequest()
+			if client.Config.Insecure {
+				request.SetHTTPSInsecure(client.Config.Insecure)
+			}
+			request.QueryParams = map[string]string{
+				"Product":          "OneRouter",
+				"Department":       client.Department,
+				"ResourceGroup":    client.ResourceGroup,
+				"RegionId":         client.RegionId,
+				"Action":           "DoOpenApi",
+				"AccountInfo":      "123456",
+				"Version":          "2018-12-12",
+				"SignatureVersion": "1.0",
+				"OpenApiAction":    "DeleteBucketEncryption",
+				"ProductName":      "oss",
+				"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
+			}
+		request.Method = "POST"        // Set request method
+		request.Product = "OneRouter"  // Specify product
+		request.Version = "2018-12-12" // Specify product version
+		request.ServiceCode = "OneRouter"
+		request.ApiName = "DoOpenApi"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+			raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+				return ossClient.ProcessCommonRequest(request)
+			})
+			if err != nil {
+				if ossNotFoundError(err) {
+					return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+				}
+				return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+			}
+			bresponse, _ := raw.(*responses.CommonResponse)
+			if bresponse.GetHttpStatus() != 200 {
+				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+			}
+		} else {
+			sse_algorithm := d.Get("sse_algorithm").(string)
+			kms_key_id := d.Get("kms_key_id").(string)
+			request := requests.NewCommonRequest()
+			if client.Config.Insecure {
+				request.SetHTTPSInsecure(client.Config.Insecure)
+			}
+			request.QueryParams = map[string]string{
+				"Product":          "OneRouter",
+				"Department":       client.Department,
+				"ResourceGroup":    client.ResourceGroup,
+				"RegionId":         client.RegionId,
+				"Action":           "DoOpenApi",
+				"AccountInfo":      "123456",
+				"Version":          "2018-12-12",
+				"SignatureVersion": "1.0",
+				"OpenApiAction":    "PutBucketEncryption",
+				"ProductName":      "oss",
+				"Params":           fmt.Sprintf("{\"BucketName\":\"%s\"}", bucketName),
+			}
+			if sse_algorithm == "KMS" {
+				request.QueryParams["Content"] = fmt.Sprintf("<ServerSideEncryptionRule><ApplyServerSideEncryptionByDefault><SSEAlgorithm>KMS</SSEAlgorithm><KMSMasterKeyID>%s</KMSMasterKeyID></ApplyServerSideEncryptionByDefault></ServerSideEncryptionRule>", kms_key_id)
+			} else {
+				request.QueryParams["Content"] = fmt.Sprintf("<ServerSideEncryptionRule><ApplyServerSideEncryptionByDefault><SSEAlgorithm>%s</SSEAlgorithm></ApplyServerSideEncryptionByDefault></ServerSideEncryptionRule>", sse_algorithm)
+			}
+			request.Method = "POST"        // Set request method
+			request.Product = "OneRouter"  // Specify product
+			request.Version = "2018-12-12" // Specify product version
+			request.ServiceCode = "OneRouter"
+			request.ApiName = "DoOpenApi"
+			request.Headers = map[string]string{"RegionId": client.RegionId}
+			raw, err := client.WithEcsClient(func(ossClient *ecs.Client) (interface{}, error) {
+				return ossClient.ProcessCommonRequest(request)
+			})
+			if err != nil {
+				if ossNotFoundError(err) {
+					return WrapErrorf(err, NotFoundMsg, ApsaraStackOssGoSdk)
+				}
+				return WrapErrorf(err, DefaultErrorMsg, bucketName, "CreateBucketInfo", ApsaraStackOssGoSdk)
+			}
+			bresponse, _ := raw.(*responses.CommonResponse)
+			if bresponse.GetHttpStatus() != 200 {
+				return WrapErrorf(err, DefaultErrorMsg, "apsarastack_oss_bucket", "GetBucketSync", ApsaraStackOssGoSdk)
+			}
+		}
+	}
 	d.Partial(true)
 	if d.HasChange("logging") {
 		//if err := resourceApsaraStackOssBucketLoggingUpdate(client, d); err != nil {
@@ -800,7 +780,6 @@ func resourceApsaraStackOssBucketDelete(d *schema.ResourceData, meta interface{}
 		}
 		request.QueryParams = map[string]string{
 
-			
 			"Product":          "OneRouter",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -937,7 +916,6 @@ func resourceApsaraStackOssBucketLoggingCreate(client *connectivity.ApsaraStackC
 			}
 			logrequest.QueryParams = map[string]string{
 
-				
 				"Product":          "OneRouter",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -1013,7 +991,6 @@ func resourceApsaraStackOssBucketLoggingCreate(client *connectivity.ApsaraStackC
 					}
 					logrequest.QueryParams = map[string]string{
 
-						
 						"Product":          "OneRouter",
 						"Department":       client.Department,
 						"ResourceGroup":    client.ResourceGroup,
@@ -1091,7 +1068,6 @@ func resourceApsaraStackOssBucketLoggingCreate(client *connectivity.ApsaraStackC
 				}
 				logrequest.QueryParams = map[string]string{
 
-					
 					"Product":          "OneRouter",
 					"Department":       client.Department,
 					"ResourceGroup":    client.ResourceGroup,
@@ -1145,7 +1121,6 @@ func resourceApsaraStackOssBucketLoggingDescribe(client *connectivity.ApsaraStac
 	describelogging := Logging{}
 	logdescribe.QueryParams = map[string]string{
 
-		
 		"Product":           "OneRouter",
 		"Department":        client.Department,
 		"ResourceGroup":     client.ResourceGroup,

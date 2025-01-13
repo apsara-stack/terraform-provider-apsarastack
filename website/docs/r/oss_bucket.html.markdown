@@ -34,6 +34,12 @@ The following arguments are supported:
 * `logging` - (Optional) The logging object supports the following:
     - `target_bucket` - (Required) The name of the bucket that will receive the log objects.
     - `target_prefix` - (Optional) To specify a key prefix for log objects. 
+* `storage_class` - (Optional, ForceNew) Object storage type. Possible values: `Standard`, `IA` and `Archive`.
+* `vpclist` - (Optional) List of accessible VPCs
+* `storage_capacity` - (Optional) Sets a capacity limit on the bucket. If the capacity limit is reached, write operations. unit GB
+* `sse_algorithm` - (Optional) Encrypts files uploaded to OSS. It Can be "", "AES256", "SM4", and "KMS". Defaults to "private".
+* `kms_key_id` - (Optional) Required when sse_algorithm is KMS.
+
 
 ## Attributes Reference
 
