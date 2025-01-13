@@ -22,7 +22,6 @@ func TestAccApsaraStackLogAlert_basic(t *testing.T) {
 	testAccCheck := rac.resourceAttrMapUpdateSet()
 
 	rand := acctest.RandIntRange(1000000, 9999999)
-	rand = 16732
 	name := fmt.Sprintf("tf-testacclogalert-%d", rand)
 	displayname := fmt.Sprintf("alert_displayname-%d", rand)
 	content := "aliyun sls alert test"
