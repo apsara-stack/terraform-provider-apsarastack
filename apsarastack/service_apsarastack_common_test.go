@@ -1271,3 +1271,13 @@ resource "apsarastack_slb_master_slave_server_group" "default" {
   }
 }
 `
+
+const KeyCommonTestCase = `
+
+resource "apsarastack_kms_key" "key" {
+  description             = "Hello KMS"
+  pending_window_in_days  = "7"
+  key_state               = "Enabled"
+}
+
+`
