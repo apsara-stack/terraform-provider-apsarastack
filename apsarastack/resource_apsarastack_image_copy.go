@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/apsara-stack/terraform-provider-apsarastack/apsarastack/connectivity"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -21,8 +22,8 @@ func resourceApsaraStackImageCopy() *schema.Resource {
 		},
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(10 * time.Minute),
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(60 * time.Minute),
 		},
 		Schema: map[string]*schema.Schema{
 			"source_image_id": {
@@ -50,6 +51,16 @@ func resourceApsaraStackImageCopy() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"kms_key_id": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+			},
+			"encrypted": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -70,6 +81,13 @@ func resourceApsaraStackImageCopyCreate(d *schema.ResourceData, meta interface{}
 	request.DestinationRegionId = d.Get("destination_region_id").(string)
 	request.DestinationImageName = d.Get("image_name").(string)
 	request.DestinationDescription = d.Get("description").(string)
+	request.ResourceGroupId = client.Config.ResourceGroupId
+	if v, ok := d.GetOk("kms_key_id"); ok && v != "" {
+		request.KMSKeyId = v.(string)
+	}
+	if v, ok := d.GetOk("encrypted"); ok {
+		request.Encrypted = requests.NewBoolean(v.(bool))
+	}
 	raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 
 		return ecsClient.CopyImage(request)
@@ -82,7 +100,8 @@ func resourceApsaraStackImageCopyCreate(d *schema.ResourceData, meta interface{}
 	response, _ := raw.(*ecs.CopyImageResponse)
 	d.SetId(response.ImageId)
 	log.Printf("[DEBUG] state %#v", d.Id())
-	stateConf := BuildStateConf([]string{"Creating"}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, ecsService.ImageStateRefreshFuncforcopy(d.Id(), d.Get("destination_region_id").(string), []string{"CreateFailed", "UnAvailable"}))
+	stateConf := BuildStateConf([]string{"Creating"}, []string{"Available"}, d.Timeout(schema.TimeoutCreate), 20*time.Minute, ecsService.ImageStateRefreshFuncforcopy(d.Id(), d.Get("destination_region_id").(string), []string{"CreateFailed", "UnAvailable"}))
+	stateConf.NotFoundChecks = 1000
 	if _, err := stateConf.WaitForState(); err != nil {
 		return WrapErrorf(err, IdMsg, d.Id())
 	}
@@ -124,9 +143,9 @@ func resourceApsaraStackImageCopyDelete(d *schema.ResourceData, meta interface{}
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, d.Id(), ApsaraStackSdkGoERROR)
 	}
-	stateConf := BuildStateConf([]string{"Available", "CreateFailed"}, []string{"Deprecated", "UnAvailable"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, ecsService.ImageStateRefreshFuncforcopy(d.Id(), d.Get("destination_region_id").(string), []string{"CreateFailed", "UnAvailable"}))
-	if _, err := stateConf.WaitForState(); err != nil {
-		return WrapErrorf(err, IdMsg, d.Id())
-	}
-	return resourceApsaraStackImageCopyRead(d, meta)
+	// stateConf := BuildStateConf([]string{"Available", "CreateFailed"}, []string{"Deprecated", "UnAvailable"}, d.Timeout(schema.TimeoutCreate), 1*time.Minute, ecsService.ImageStateRefreshFuncforcopy(d.Id(), d.Get("destination_region_id").(string), []string{"CreateFailed", "UnAvailable"}))
+	// if _, err := stateConf.WaitForState(); err != nil {
+	// 	return WrapErrorf(err, IdMsg, d.Id())
+	// }
+	return nil
 }

@@ -144,38 +144,6 @@ func TestAccApsaraStackKVStoreRedisInstance_classictest(t *testing.T) {
 	})
 }
 
-//func TestAccApsaraStackKVStoreMemcacheInstance_classictest(t *testing.T) {
-//	var instance *r_kvstore.DBInstanceAttribute
-//	resourceId := "apsarastack_kvstore_instance.default"
-//	ra := resourceAttrInit(resourceId, KVStoreInstanceCheckMap)
-//	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
-//		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
-//	}, "DescribeKVstoreInstance")
-//	rac := resourceAttrCheckInit(rc, ra)
-//	testAccCheck := rac.resourceAttrMapUpdateSet()
-//
-//	resource.Test(t, resource.TestCase{
-//		PreCheck: func() {
-//			testAccPreCheck(t)
-//		},
-//
-//		// module name
-//		IDRefreshName: resourceId,
-//
-//		Providers:    testAccProviders,
-//		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
-//		Steps: []resource.TestStep{
-//			{
-//				Config: testAccKVStoreInstance_classic(string(KVStoreMemcache), memcacheInstanceClassForTest, string(KVStore2Dot8)),
-//				Check: resource.ComposeTestCheckFunc(
-//					testAccCheck(nil),
-//				),
-//			},
-//
-//		},
-//	})
-//}
-
 func TestAccApsaraStackKVStoreRedisInstance_vpctest(t *testing.T) {
 	var instance *r_kvstore.DBInstanceAttribute
 	resourceId := "apsarastack_kvstore_instance.default"
@@ -359,6 +327,37 @@ func TestAccApsaraStackKVStoreRedisInstance_classicmulti(t *testing.T) {
 	})
 }
 
+func TestAccApsaraStackKVStoreRedisInstance_Tde(t *testing.T) {
+	var instance *r_kvstore.DBInstanceAttribute
+	resourceId := "apsarastack_kvstore_instance.default"
+	ra := resourceAttrInit(resourceId, KVStoreInstanceCheckMap)
+	rc := resourceCheckInitWithDescribeMethod(resourceId, &instance, func() interface{} {
+		return &KvstoreService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
+	}, "DescribeKVstoreInstance")
+	rac := resourceAttrCheckInit(rc, ra)
+	testAccCheck := rac.resourceAttrMapUpdateSet()
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: resourceId,
+
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckKVStoreInstanceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccKVStoreInstanceTde_classic(string(KVStoreRedis), string(KVStore5Dot0)),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(nil),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckKVStoreInstanceDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*connectivity.ApsaraStackClient)
 	kvstoreService := KvstoreService{client}
@@ -411,6 +410,45 @@ resource "apsarastack_kvstore_instance" "default" {
 }
 
 	`, instanceType, instanceClass, engineVersion)
+}
+
+func testAccKVStoreInstanceTde_classic(instanceClass, engineVersion string) string {
+	return fmt.Sprintf(`
+	
+variable "name" {
+    default = "tf-testAccCheckApsaraStackRKVInstancesDataSource4"
+}
+data "apsarastack_zones"  "default" {
+}
+resource "apsarastack_vpc" "default" {
+	name       = var.name
+	cidr_block = "172.16.0.0/16"
+}
+resource "apsarastack_vswitch" "default" {
+	vpc_id            = apsarastack_vpc.default.id
+	cidr_block        = "172.16.0.0/24"
+	availability_zone = data.apsarastack_zones.default.zones[0].id
+	name              = var.name
+}
+
+resource "apsarastack_kvstore_instance" "default" {
+	instance_name  = var.name
+	vswitch_id     = apsarastack_vswitch.default.id
+	private_ip     = "172.16.0.10"
+	security_ips   = ["10.0.0.1"]
+	instance_type  = "%s"
+	instance_class = "redis.amber.logic.sharding.1g.2db.0rodb.6proxy.multithread"
+	engine_version = "%s"
+    cpu_type = "intel"
+    architecture_type = "cluster"
+
+	tde_status = "Enabled"
+	encryption_key = "2208243d-faff-484a-be0b-94ae65d9963e"
+	# role_arn  = "acs:ram::1825827169542994:role/ascm-role-283-1-5003"
+	
+}
+
+	`, instanceClass, engineVersion)
 }
 
 var KVStoreInstanceCheckMap = map[string]string{

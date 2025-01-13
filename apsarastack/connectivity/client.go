@@ -302,6 +302,7 @@ func (client *ApsaraStackClient) WithRkvClient(do func(*r_kvstore.Client) (inter
 		rkvconn.SetHTTPSInsecure(client.Config.Insecure)
 		if client.Config.Proxy != "" {
 			rkvconn.SetHttpProxy(client.Config.Proxy)
+			rkvconn.SetHttpsProxy(client.Config.Proxy)
 		}
 		client.rkvconn = rkvconn
 	}

@@ -362,7 +362,7 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 				Computed: true,
 			},
 			"security_group_id": {
-				Type:          schema.TypeBool,
+				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{"is_enterprise_security_group"},
@@ -619,7 +619,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	wsysdiskcat := d.Get("worker_disk_category").(string)
 	delete_pro := d.Get("delete_protection").(bool)
 	KubernetesVersion := d.Get("version").(string)
-	IsEnterpriseSecurityGroup := d.Get("is_enterprise_security_group").(bool)
 	addons := make([]cs.Addon, 0)
 	type WorkerData struct {
 		Size                 int
@@ -716,14 +715,14 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	WorkerSystemDiskPerformanceLevel := d.Get("worker_system_disk_performance_level").(string)
 	CloudMonitorFlags := d.Get("cloud_monitor_flags").(bool)
 	var secgroup string
-	var SecurityGroup bool
-	if _, ok := d.GetOk("is_enterprise_security_group"); ok {
-		secgroup = "is_enterprise_security_group"
-		SecurityGroup = d.Get("is_enterprise_security_group").(bool)
-
-	} else if _, ok := d.GetOk("security_group_id"); ok {
+	var SecurityGroup string
+	if _, ok := d.GetOk("security_group_id"); ok {
 		secgroup = "security_group_id"
-		SecurityGroup = d.Get("security_group_id").(bool)
+		SecurityGroup = fmt.Sprintf("\"%s\"", d.Get("security_group_id").(string))
+	} else {
+		secgroup = "is_enterprise_security_group"
+		is_enterprise_security_group := d.Get("is_enterprise_security_group").(bool)
+		SecurityGroup = fmt.Sprintf("%t", is_enterprise_security_group)
 	}
 
 	request := requests.NewCommonRequest()
@@ -814,8 +813,8 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	if attachinst == 1 {
 		if pod == 0 {
 			request.QueryParams = map[string]string{
-				"RegionId":         client.RegionId,
-				
+				"RegionId": client.RegionId,
+
 				"Product":          "Cs",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -824,7 +823,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"Version":          "2015-12-15",
 				"SignatureVersion": "1.0",
 				"ProductName":      "cs",
-				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%s}",
+				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%s,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%s}",
 					"resource_group_id", client.ResourceGroup,
 					"Product", "Cs",
 					"os_type", OsType,
@@ -864,15 +863,14 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 					"cloud_monitor_flags", CloudMonitorFlags,
 					"master_system_disk_performance_level", MasterSystemDiskPerformanceLevel,
 					"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
-					"is_enterprise_security_group", IsEnterpriseSecurityGroup,
 					"image_id", ImageId,
 					"tags", tags,
 				),
 			}
 		} else {
 			request.QueryParams = map[string]string{
-				"RegionId":         client.RegionId,
-				
+				"RegionId": client.RegionId,
+
 				"Product":          "Cs",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -881,7 +879,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"Version":          "2015-12-15",
 				"SignatureVersion": "1.0",
 				"ProductName":      "cs",
-				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":\"%s\",\"%s\":%s}",
+				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%s,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%s}",
 					"resource_group_id", client.ResourceGroup,
 					"Product", "Cs",
 					"os_type", OsType,
@@ -922,7 +920,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 					"cloud_monitor_flags", CloudMonitorFlags,
 					"master_system_disk_performance_level", MasterSystemDiskPerformanceLevel,
 					"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
-					"is_enterprise_security_group", IsEnterpriseSecurityGroup,
 					"image_id", ImageId,
 					"tags", tags,
 				),
@@ -931,8 +928,8 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	} else {
 		if pod == 0 {
 			request.QueryParams = map[string]string{
-				"RegionId":         client.RegionId,
-				
+				"RegionId": client.RegionId,
+
 				"Product":          "Cs",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -941,7 +938,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"Version":          "2015-12-15",
 				"SignatureVersion": "1.0",
 				"ProductName":      "cs",
-				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":%t,\"%s\":\"%s\",\"%s\":%s}",
+				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%s,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":%s}",
 					"resource_group_id", client.ResourceGroup,
 					"Product", "Cs",
 					"os_type", OsType,
@@ -982,15 +979,14 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 					"master_system_disk_performance_level", MasterSystemDiskPerformanceLevel,
 					"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
 					"worker_data_disks", workerdisks,
-					"is_enterprise_security_group", IsEnterpriseSecurityGroup,
 					"image_id", ImageId,
 					"tags", tags,
 				),
 			}
 		} else {
 			request.QueryParams = map[string]string{
-				"RegionId":         client.RegionId,
-				
+				"RegionId": client.RegionId,
+
 				"Product":          "Cs",
 				"Department":       client.Department,
 				"ResourceGroup":    client.ResourceGroup,
@@ -999,7 +995,7 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 				"Version":          "2015-12-15",
 				"SignatureVersion": "1.0",
 				"ProductName":      "cs",
-				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":%t,\"%s\":\"%s\",\"%s\":%s}",
+				"X-acs-body": fmt.Sprintf("{\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%d,\"%s\":%d,\"%s\":%t,\"%s\":%t,\"%s\":%t,\"%s\":\"%s\",\"%s\":%d,\"%s\":\"%s\",\"%s\":%d,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":{%s},\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":%s,\"%s\":%t,\"%s\":\"%s\",\"%s\":\"%s\",\"%s\":[%s],\"%s\":[\"%s\"],\"%s\":\"%s\",\"%s\":%s}",
 					"resource_group_id", client.ResourceGroup,
 					"Product", "Cs",
 					"os_type", OsType,
@@ -1041,7 +1037,6 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 					"worker_system_disk_performance_level", WorkerSystemDiskPerformanceLevel,
 					"worker_data_disks", workerdisks,
 					"pod_vswitch_ids", podid,
-					"is_enterprise_security_group", IsEnterpriseSecurityGroup,
 					"image_id", ImageId,
 					"tags", tags,
 				),
@@ -1167,8 +1162,8 @@ func resourceApsaraStackCSKubernetesUpdate(d *schema.ResourceData, meta interfac
 			request.SetHTTPSInsecure(client.Config.Insecure)
 		}
 		request.QueryParams = map[string]string{
-			"RegionId":         client.RegionId,
-			
+			"RegionId": client.RegionId,
+
 			"Product":          "CS",
 			"Department":       client.Department,
 			"ResourceGroup":    client.ResourceGroup,
@@ -1249,7 +1244,7 @@ func resourceApsaraStackCSKubernetesRead(d *schema.ResourceData, meta interface{
 	d.Set("version", object.CurrentVersion)
 	d.Set("delete_protection", object.DeletionProtection)
 	d.Set("version", object.InitVersion)
-	//d.Set("security_group_id", object.SecurityGroupId)
+	d.Set("security_group_id", object.SecurityGroupId)
 	var smaster, sworker []map[string]interface{}
 	//var MasterNodes, WorkerNodes map[string]interface{}
 	for _, k := range clusternode.Nodes {
@@ -1287,8 +1282,8 @@ func resourceApsaraStackCSKubernetesDelete(d *schema.ResourceData, meta interfac
 		request.SetHTTPSInsecure(client.Config.Insecure)
 	}
 	request.QueryParams = map[string]string{
-		"RegionId":         client.RegionId,
-		
+		"RegionId": client.RegionId,
+
 		"Product":          "CS",
 		"Department":       client.Department,
 		"ResourceGroup":    client.ResourceGroup,
@@ -1379,8 +1374,8 @@ func updateKubernetesClusterTag(d *schema.ResourceData, meta interface{}) error 
 	tags = string(tagsBytes)
 	log.Printf("checking tags %v", tags)
 	request.QueryParams = map[string]string{
-		"RegionId":         client.RegionId,
-		
+		"RegionId": client.RegionId,
+
 		"Product":          "CS",
 		"Department":       client.Department,
 		"ResourceGroup":    client.ResourceGroup,
