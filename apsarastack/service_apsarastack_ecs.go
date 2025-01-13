@@ -733,7 +733,7 @@ func (s *EcsService) DescribeImageById(id string) (image ecs.Image, err error) {
 	if resp == nil || len(resp.Images.Image) < 1 {
 		return image, GetNotFoundErrorFromString(GetNotFoundMessage("Image", id))
 	}
-
+	log.Printf(" ==================image :%v", resp.Images.Image[0])
 	return resp.Images.Image[0], nil
 }
 
@@ -1083,6 +1083,7 @@ func (s *EcsService) DescribeImage(id, region string) (image ecs.Image, err erro
 	if resp == nil || len(resp.Images.Image) < 1 {
 		return image, GetNotFoundErrorFromString(GetNotFoundMessage("Image", id))
 	}
+	image = resp.Images.Image[0]
 	return image, nil
 }
 
@@ -1398,6 +1399,7 @@ func (s *EcsService) ImageStateRefreshFunc(id string, failStates []string) resou
 				return object, object.Status, WrapError(Error(FailedToReachTargetStatus, object.Status))
 			}
 		}
+		log.Printf("ImageStateRefreshFunc ============================= %s", object.Status)
 		return object, object.Status, nil
 	}
 }

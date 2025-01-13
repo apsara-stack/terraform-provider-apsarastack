@@ -97,7 +97,6 @@ func TestAccApsaraStackImageCopyBasic(t *testing.T) {
 }
 
 func TestAccApsaraStackImageCopyEncrypted(t *testing.T) {
-	// var v ecs.Image
 
 	resourceId := "apsarastack_image_copy.default"
 	// multi provideris
@@ -125,16 +124,18 @@ func TestAccApsaraStackImageCopyEncrypted(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"source_image_id":       "m-gj001q4w0gr14n74athd",
+					"source_image_id":       "m-ob6014mhpuyko0jkpvs6",
 					"description":           fmt.Sprintf("tf-testAccEcsImageConfigBasic%ddescription", rand),
 					"destination_region_id": region,
 					"image_name":            name,
-					"kms_key_id":            "2208243d-faff-484a-be0b-94ae65d9963e",
+					"kms_key_id":            "3852c3cd-3ace-468d-8b9b-c301c33a32b2",
 					"encrypted":             "true",
 				}),
 				Check: resource.ComposeTestCheckFunc(
-					// testAccCheckImageExistsWithProviders(resourceId, &v, &providers),
-					testAccCheck(nil),
+					testAccCheck(map[string]string{
+						"description": fmt.Sprintf("tf-testAccEcsImageConfigBasic%ddescription", rand),
+						"image_name":  name,
+					}),
 				),
 			},
 		},

@@ -600,8 +600,8 @@ func TestAccApsaraStackInstanceImageUpdate(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"image_id":                      "${data.apsarastack_images.default.images.0.id}",
 					"security_groups":               []string{"${apsarastack_security_group.default.0.id}"},
-					"instance_type":                 "ecs.n4.large",
-					"availability_zone":             "cn-wulan-env205-amtest205001-a",
+					"instance_type":                 "ecs.se1.large",
+					"availability_zone":             "${data.apsarastack_zones.default.zones.0.id}",
 					"system_disk_category":          "cloud_ssd",
 					"system_disk_size":              "40",
 					"instance_name":                 "${var.name}",
@@ -651,6 +651,10 @@ data "apsarastack_images" "default" {
   owners      = "system"
 }
 
+data "apsarastack_zones" "default" {
+  available_resource_creation = "VSwitch"
+}
+
 resource "apsarastack_vpc" "default" {
   name       = "${var.name}"
   cidr_block = "172.16.0.0/16"
@@ -659,7 +663,7 @@ resource "apsarastack_vpc" "default" {
 resource "apsarastack_vswitch" "default" {
   vpc_id            = "${apsarastack_vpc.default.id}"
   cidr_block        = "172.16.0.0/24"
-  availability_zone = "${data.apsarastack_instance_types.default.instance_types.0.availability_zones.0}"
+  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   name              = "${var.name}"
 }
 
@@ -700,11 +704,16 @@ func resourceInstanceImageUpdateConfigDependence(name string) string {
 	  name       = "${var.name}"
 	  cidr_block = "172.16.0.0/16"
 	}
+
+	data "apsarastack_zones" "default" {
+		available_resource_creation = "VSwitch"
+	}
+
 	
 	resource "apsarastack_vswitch" "default" {
 	  vpc_id            = "${apsarastack_vpc.default.id}"
 	  cidr_block        = "172.16.0.0/24"
-	  availability_zone = "cn-wulan-env205-amtest205001-a"
+	  availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
 	  name              = "${var.name}"
 	}
 	
