@@ -339,7 +339,7 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return WrapError(err)
 	}
 	datadisks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "data")
-	if err!= nil {
+	if err != nil {
 		return WrapError(err)
 	}
 	for _, disk := range datadisks {
@@ -619,31 +619,33 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 		return WrapError(err)
 	}
 
-	if d.HasChange("system_disk_tags") || d.HasChange("system_disk_id") {
-		oraw, nraw := d.GetChange("system_disk_tags")
+	if system_disk_tags, ok := d.GetOk("system_disk_tags"); ok {
 		disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "system")
 		if err != nil {
 			return WrapError(err)
 		}
-		err = updateTags(client, []string{disks[0].DiskId}, "disk", oraw, nraw)
+		oraw := make(map[string]interface{})
+		sysdisk_tags := Ecs_merge_tags(d, system_disk_tags.(map[string]interface{}))
+		err = updateTags(client, []string{disks[0].DiskId}, "disk", oraw, sysdisk_tags)
 		if err != nil {
 			return WrapError(err)
 		}
 	}
 
-	if d.HasChange("data_disk_tags") {
-		oraw, nraw := d.GetChange("data_disk_tags")
+	if data_disk_tags, ok := d.GetOk("data_disk_tags"); ok {
 		disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "data")
 		if err != nil {
 			return WrapError(err)
 		}
+		oraw := make(map[string]interface{})
 		diskids := make([]string, 0, len(disks))
+		datadisk_tags := Ecs_merge_tags(d, data_disk_tags.(map[string]interface{}))
 		for _, disk := range disks {
 			diskids = append(diskids, disk.DiskId)
-			err := updateTags(client, diskids, "disk", oraw, nraw)
-			if err != nil {
-				return WrapError(err)
-			}
+		}
+		err = updateTags(client, diskids, "disk", oraw, datadisk_tags)
+		if err != nil {
+			return WrapError(err)
 		}
 
 	}
@@ -1298,4 +1300,19 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	return nil
+}
+
+func Ecs_merge_tags(d *schema.ResourceData, disktags map[string]interface{}) map[string]interface{} {
+	if intance_tags, ok := d.GetOk("tags"); ok && len(intance_tags.(map[string]interface{})) > 0 {
+		mergedMap := make(map[string]interface{})
+		for k, v := range intance_tags.(map[string]interface{}) {
+			mergedMap[k] = v
+		}
+		for k, v := range disktags {
+			mergedMap[k] = v
+		}
+		return mergedMap
+	}
+
+	return disktags
 }

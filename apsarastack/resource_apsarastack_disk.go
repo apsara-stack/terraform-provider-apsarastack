@@ -223,6 +223,11 @@ func resourceApsaraStackDiskRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("enable_automated_snapshot_policy", object.EnableAutomatedSnapshotPolicy)
 	d.Set("auto_snapshot_policy_id", object.AutoSnapshotPolicyId)
 	d.Set("tags", ecsService.tagsToMap(object.Tags.Tag))
+	// for _, t := range object.Tags.Tag {
+	// 	if t.TagKey == "acs:ecs:encryptAlgorithm" {
+	// 		d.Set("encrypt_algorithm", t.TagValue)
+	// 	}
+	// }
 
 	return nil
 }
