@@ -165,7 +165,9 @@ func resourceApsaraStackDiskCreate(d *schema.ResourceData, meta interface{}) err
 				return WrapError(errors.New("KmsKeyId can not be empty if encrypted is set to \"true\""))
 			}
 			// 默认AES256不用传参，
-			request.EncryptAlgorithm = d.Get("encrypt_algorithm").(string)
+			if v, ok := d.GetOk("encrypt_algorithm"); ok && v.(string) == "sm4-128" {
+				request.EncryptAlgorithm = d.Get("encrypt_algorithm").(string)
+			}
 		}
 	}
 	if v, ok := d.GetOk("tags"); ok && len(v.(map[string]interface{})) > 0 {
