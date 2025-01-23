@@ -334,20 +334,23 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 		return WrapError(err)
 	}
 	log.Printf("[ECS Creation]: Getting Instance Details Successfully: %s", instance.Status)
-	disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "system")
+	system_disks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "system")
 	if err != nil {
-		if NotFoundError(err) {
-			d.SetId("")
-			return nil
-		}
 		return WrapError(err)
 	}
-
-	d.Set("system_disk_category", disks[0].Category)
-	d.Set("system_disk_size", disks[0].Size)
-	d.Set("system_disk_name", disks[0].DiskName)
-	d.Set("system_disk_description", disks[0].Description)
-	d.Set("system_disk_id", disks[0].DiskId)
+	datadisks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "data")
+	if err!= nil {
+		return WrapError(err)
+	}
+	for _, disk := range datadisks {
+		d.Set("system_disk_tags", ecsService.tagsToMap(disk.Tags.Tag))
+	}
+	d.Set("system_disk_category", system_disks[0].Category)
+	d.Set("system_disk_size", system_disks[0].Size)
+	d.Set("system_disk_name", system_disks[0].DiskName)
+	d.Set("system_disk_description", system_disks[0].Description)
+	d.Set("system_disk_id", system_disks[0].DiskId)
+	d.Set("system_disk_tags", ecsService.tagsToMap(system_disks[0].Tags.Tag))
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("description", instance.Description)
 	d.Set("status", instance.Status)

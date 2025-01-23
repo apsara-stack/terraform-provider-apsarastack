@@ -266,7 +266,40 @@ func TestAccApsaraStackDisk_multi(t *testing.T) {
 			},
 		},
 	})
+}
 
+func TestAccApsaraStackDisk_Encrypted(t *testing.T) {
+	var v ecs.Disk
+	resourceId := "apsarastack_disk.default"
+	serverFunc := func() interface{} {
+		return &EcsService{testAccProvider.Meta().(*connectivity.ApsaraStackClient)}
+	}
+	rc := resourceCheckInit(resourceId, &v, serverFunc)
+	ra := resourceAttrInit(resourceId, testAccCheckResourceDiskBasicMap)
+	rac := resourceAttrCheckInit(rc, ra)
+	testAccCheck := rac.resourceAttrMapUpdateSet()
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+
+		// module name
+		IDRefreshName: "apsarastack_disk.default",
+
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckDiskDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiskConfig_encrypted(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheck(map[string]string{
+						"name":      "testAccDiskConfig_encrypted",
+						"encrypted": "true",
+					}),
+				),
+			},
+		},
+	})
 }
 
 func testAccDiskConfig_basic() string {
@@ -278,6 +311,29 @@ data "apsarastack_zones" "default" {
 resource "apsarastack_disk" "default" {
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "50"
+}
+`)
+}
+
+func testAccDiskConfig_encrypted() string {
+	return fmt.Sprintf(`
+data "apsarastack_zones" "default" {
+	available_resource_creation= "VSwitch"
+}
+
+resource "apsarastack_kms_key" "default" {
+    description = "test_create_disk"
+    pending_window_in_days = 7
+}
+
+resource "apsarastack_disk" "default" {
+    name = "testAccDiskConfig_encrypted"
+	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+  	size = "50"
+	category = "cloud_pperf"
+	encrypted = true
+	kms_key_id = "${apsarastack_kms_key.default.id}"
+	encrypt_algorithm = "sm4-128"
 }
 `)
 }

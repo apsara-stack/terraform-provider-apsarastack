@@ -71,7 +71,13 @@ func resourceApsaraStackDisk() *schema.Resource {
 				ForceNew:      true,
 				ConflictsWith: []string{"snapshot_id"},
 			},
-
+			"encrypt_algorithm": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.StringInSlice([]string{"sm4-128", "aes-256"}, false),
+				Default:      "aes-256",
+			},
 			"delete_auto_snapshot": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -158,6 +164,8 @@ func resourceApsaraStackDiskCreate(d *schema.ResourceData, meta interface{}) err
 			if request.KMSKeyId == "" {
 				return WrapError(errors.New("KmsKeyId can not be empty if encrypted is set to \"true\""))
 			}
+			// 默认AES256不用传参，
+			request.EncryptAlgorithm = d.Get("encrypt_algorithm").(string)
 		}
 	}
 	if v, ok := d.GetOk("tags"); ok && len(v.(map[string]interface{})) > 0 {
