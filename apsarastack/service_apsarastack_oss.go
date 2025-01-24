@@ -19,6 +19,69 @@ type OssService struct {
 	client *connectivity.ApsaraStackClient
 }
 
+type BucketSyncResponse struct {
+	RequestID string `json:"requestId"`
+	Code      string `json:"code"`
+	Data      struct {
+		ReplicationConfiguration struct {
+			Rule []struct {
+				Status                      string            `json:"Status"`
+				Destination                 map[string]string `json:"Destination"`
+				Action                      string            `json:"Action"`
+				ID                          string            `json:"ID"`
+				HistoricalObjectReplication string            `json:"HistoricalObjectReplication"`
+			} `json:"Rule"`
+		} `json:"ReplicationConfiguration"`
+	} `json:"data"`
+	Cost            int    `json:"cost"`
+	APICost         int    `json:"apiCost"`
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AscmCode        bool   `json:"ascmCode"`
+	SuccessResponse bool   `json:"successResponse"`
+}
+type BucketAclResponse struct {
+	RequestID string `json:"requestId"`
+	Code      string `json:"code"`
+	Data      struct {
+		AccessControlPolicy struct {
+			AccessControlList struct {
+				Grant string `json:"Grant"`
+			} `json:"AccessControlList"`
+			Owner struct {
+				DisplayName string `json:"DisplayName"`
+				ID          string `json:"ID"`
+			} `json:"Owner"`
+		} `json:"AccessControlPolicy"`
+	} `json:"data"`
+	Cost            int    `json:"cost"`
+	APICost         int    `json:"apiCost"`
+	EagleEyeTraceID string `json:"eagleEyeTraceId"`
+	AscmCode        bool   `json:"ascmCode"`
+	SuccessResponse bool   `json:"successResponse"`
+}
+
+type BucketStorageCapacityResponse struct {
+	RequestID string `json:"requestId"`
+	Data      struct {
+		BucketUserQos struct {
+			StorageCapacity string `json:"StorageCapacity"`
+		} `json:"BucketUserQos"`
+	} `json:"data"`
+}
+
+type BucketEncryptionResponse struct {
+	RequestID string `json:"requestId"`
+	Code      string `json:"code"`
+	Data      struct {
+		ServerSideEncryptionRule struct {
+			ApplyServerSideEncryptionByDefault struct {
+				SSEAlgorithm   string `json:"SSEAlgorithm"`
+				KMSMasterKeyID string `json:"KMSMasterKeyID"`
+			} `json:"ApplyServerSideEncryptionByDefault"`
+		} `json:"ServerSideEncryptionRule"`
+	} `json:"data"`
+}
+
 func (s *OssService) DescribeOssBucket(id string) (response oss.GetBucketInfoResult, err error) {
 	//request := map[string]string{"bucketName": id, "Department": s.client.Department, "ResourceGroup": s.client.ResourceGroup}
 	var requestInfo *oss.Client

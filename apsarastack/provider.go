@@ -87,7 +87,7 @@ func Provider() terraform.ResourceProvider {
 			"insecure": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", true),
+				DefaultFunc: schema.EnvDefaultFunc("APSARASTACK_INSECURE", false),
 				Description: descriptions["insecure"],
 			},
 			"assume_role": assumeRoleSchema(),
@@ -393,6 +393,7 @@ func Provider() terraform.ResourceProvider {
 			"apsarastack_kms_ciphertext":                       resourceApsaraStackKmsCiphertext(),
 			"apsarastack_kms_key":                              resourceApsaraStackKmsKey(),
 			"apsarastack_kms_secret":                           resourceApsaraStackKmsSecret(),
+			"apsarastack_log_alert":                            resourceApsaraStackLogAlert(),
 			"apsarastack_log_project":                          resourceApsaraStackLogProject(),
 			"apsarastack_log_store":                            resourceApsaraStackLogStore(),
 			"apsarastack_log_store_index":                      resourceApsaraStackLogStoreIndex(),
