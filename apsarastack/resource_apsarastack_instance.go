@@ -1316,7 +1316,7 @@ func ecsMergeTags(d *schema.ResourceData, disktags map[string]interface{}) map[s
 
 func getOnlySystemTags(d *schema.ResourceData, tags []ecs.Tag) []ecs.Tag {
 	var only_system_tags []ecs.Tag
-	old_s_tags := d.Get("system_tags").(map[string]interface{})
+	old_s_tags := d.Get("system_disk_tags").(map[string]interface{})
 	ecs_tags := d.Get("tags").(map[string]interface{})
 	only_ecs_tags := make([]string, 0)
 	// 获取只属于ecs的tags 的key列表

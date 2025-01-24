@@ -65,14 +65,14 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 					"name":                  "${var.name}",
 					"version":               "1.20.11-aliyun.1",
 					"os_type":               "linux",
-					"platform":              "CentOS",
+					"platform":              "AliyunLinux",
 					"timeout_mins":          "60",
 					"vpc_id":                "${apsarastack_vpc.default.id}",
 					"image_id":              "${data.apsarastack_images.default.images.0.id}",
 					"master_count":          "3",
 					"master_disk_category":  "cloud_efficiency",
 					"master_disk_size":      "40",
-					"master_instance_types": []string{"${data.apsarastack_instance_types.default.instance_types.0.id}", "${data.apsarastack_instance_types.default.instance_types.0.id}", "${data.apsarastack_instance_types.default.instance_types.0.id}"},
+					"master_instance_types": []string{"ecs.se1ne.large", "ecs.se1ne.large", "ecs.se1ne.large"},
 					"master_vswitch_ids":    []string{"${apsarastack_vswitch.default.id},${apsarastack_vswitch.default.id},${apsarastack_vswitch.default.id}"},
 
 					"num_of_nodes":         "1",
@@ -84,7 +84,7 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 							"version": "19.03.15",
 						},
 					},
-					"worker_instance_types": []string{"${data.apsarastack_instance_types.default.instance_types.0.id}"},
+					"worker_instance_types": []string{"ecs.se1ne.large"},
 					"worker_vswitch_ids":    []string{"${apsarastack_vswitch.default.id}"},
 					"security_group_id":     "${apsarastack_security_group.default.id}",
 					"password":              "Alibaba@1688",
@@ -98,7 +98,8 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"name": name,
+						"name":              name,
+						"security_group_id": CHECKSET,
 					}),
 				),
 			},
@@ -120,10 +121,10 @@ data "apsarastack_zones" default {
   available_resource_creation = "VSwitch"
 }
 
-data "apsarastack_instance_types" "default" {
-	cpu_core_count    = 1
-	memory_size       = 1
-}
+// data "apsarastack_instance_types" "default" {
+// 	cpu_core_count    = 1
+// 	memory_size       = 1
+// }
 
 data "apsarastack_images" "default" {
 	name_regex  = "^ubuntu*"

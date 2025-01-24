@@ -600,7 +600,7 @@ func TestAccApsaraStackInstanceImageUpdate(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"image_id":             "${data.apsarastack_images.default.images.0.id}",
 					"security_groups":      []string{"${apsarastack_security_group.default.id}"},
-					"instance_type":        "${data.apsarastack_instance_types.default.instance_types.0.id}",
+					"instance_type":        "ecs.n4.small",
 					"availability_zone":    "${data.apsarastack_zones.default.zones.0.id}",
 					"system_disk_category": "cloud_efficiency",
 					"system_disk_size":     "20",
@@ -711,10 +711,10 @@ func resourceInstanceImageUpdateConfigDependence(name string) string {
 		available_resource_creation = "VSwitch"
 	}
 
-	data "apsarastack_instance_types" "default" {
-	  cpu_core_count    = 1
-	  memory_size       = 1
-	}
+	// data "apsarastack_instance_types" "default" {
+	//   cpu_core_count    = 1
+	//   memory_size       = 1
+	// }
 
 	
 	resource "apsarastack_vswitch" "default" {
