@@ -242,10 +242,7 @@ func (s *EcsService) DescribeInstanceDisksByType(id string, rg string, disk_type
 			disks = append(disks, diskdata)
 		}
 	}
-	if len(disks) > 0 {
-		return disks, nil
-	}
-	return disks, WrapErrorf(Error(GetNotFoundMessage("Instance", id)), NotFoundMsg, ProviderERROR, response.RequestId)
+	return disks, nil
 }
 
 // ResourceAvailable check resource available for zone

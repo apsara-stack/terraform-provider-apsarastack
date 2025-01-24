@@ -598,19 +598,21 @@ func TestAccApsaraStackInstanceImageUpdate(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccConfig(map[string]interface{}{
-					"image_id":                      "${data.apsarastack_images.default.images.0.id}",
-					"security_groups":               []string{"${apsarastack_security_group.default.0.id}"},
-					"instance_type":                 "ecs.se1.large",
-					"availability_zone":             "${data.apsarastack_zones.default.zones.0.id}",
-					"system_disk_category":          "cloud_ssd",
-					"system_disk_size":              "40",
-					"instance_name":                 "${var.name}",
-					"security_enhancement_strategy": "Active",
-					"user_data":                     "I_am_user_data",
-					"vswitch_id":                    "${apsarastack_vswitch.default.id}",
+					"image_id":             "${data.apsarastack_images.default.images.0.id}",
+					"security_groups":      []string{"${apsarastack_security_group.default.id}"},
+					"instance_type":        "${data.apsarastack_instance_types.default.instance_types.0.id}",
+					"availability_zone":    "${data.apsarastack_zones.default.zones.0.id}",
+					"system_disk_category": "cloud_efficiency",
+					"system_disk_size":     "20",
+					"instance_name":        "${var.name}",
+					"vswitch_id":           "${apsarastack_vswitch.default.id}",
 					"tags": map[string]string{
 						"foo": "foo",
 						"Bar": "Bar",
+					},
+					"system_disk_tags": map[string]string{
+						"sys_foo": "sys_foo",
+						"sys_Bar": "sys_Bar",
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -623,15 +625,15 @@ func TestAccApsaraStackInstanceImageUpdate(t *testing.T) {
 				Config: testAccConfig(map[string]interface{}{
 					"image_id": "${data.apsarastack_images.default.images.1.id}",
 					"system_disk_tags": map[string]string{
-						"foo": "foo",
-						"Bar": "Bar",
+						"sys_foo": "sys_foo",
+						"sys_Bar": "sys_Bar",
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
-						"system_disk_tags.%":   "2",
-						"system_disk_tags.foo": "foo",
-						"system_disk_tags.Bar": "Bar",
+						"system_disk_tags.%":       "2",
+						"system_disk_tags.sys_foo": "sys_foo",
+						"system_disk_tags.sys_Bar": "sys_Bar",
 					}),
 				),
 			},
@@ -709,6 +711,11 @@ func resourceInstanceImageUpdateConfigDependence(name string) string {
 		available_resource_creation = "VSwitch"
 	}
 
+	data "apsarastack_instance_types" "default" {
+	  cpu_core_count    = 1
+	  memory_size       = 1
+	}
+
 	
 	resource "apsarastack_vswitch" "default" {
 	  vpc_id            = "${apsarastack_vpc.default.id}"
@@ -718,7 +725,6 @@ func resourceInstanceImageUpdateConfigDependence(name string) string {
 	}
 	
 	resource "apsarastack_security_group" "default" {
-	  count = "2"
 	  name   = "${var.name}"
 	  vpc_id = "${apsarastack_vpc.default.id}"
 	}

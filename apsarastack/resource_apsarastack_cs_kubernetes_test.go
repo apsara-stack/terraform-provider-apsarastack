@@ -68,15 +68,15 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 					"platform":              "CentOS",
 					"timeout_mins":          "60",
 					"vpc_id":                "${apsarastack_vpc.default.id}",
-					"image_id":              "centos_7_9_x64_20G_alibase_20220322.vhd",
+					"image_id":              "${data.apsarastack_images.default.images.0.id}",
 					"master_count":          "3",
-					"master_disk_category":  "cloud_ssd",
+					"master_disk_category":  "cloud_efficiency",
 					"master_disk_size":      "40",
-					"master_instance_types": []string{"ecs.se1.large", "ecs.se1.large", "ecs.se1.large"},
+					"master_instance_types": []string{"${data.apsarastack_instance_types.default.instance_types.0.id}", "${data.apsarastack_instance_types.default.instance_types.0.id}", "${data.apsarastack_instance_types.default.instance_types.0.id}"},
 					"master_vswitch_ids":    []string{"${apsarastack_vswitch.default.id},${apsarastack_vswitch.default.id},${apsarastack_vswitch.default.id}"},
 
 					"num_of_nodes":         "1",
-					"worker_disk_category": "cloud_ssd",
+					"worker_disk_category": "cloud_efficiency",
 					"worker_disk_size":     "40",
 					"runtime": []map[string]interface{}{
 						{
@@ -84,7 +84,7 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 							"version": "19.03.15",
 						},
 					},
-					"worker_instance_types": []string{"ecs.se1.large"},
+					"worker_instance_types": []string{"${data.apsarastack_instance_types.default.instance_types.0.id}"},
 					"worker_vswitch_ids":    []string{"${apsarastack_vswitch.default.id}"},
 					"security_group_id":     "${apsarastack_security_group.default.id}",
 					"password":              "Alibaba@1688",
@@ -118,6 +118,16 @@ variable "name" {
 }
 data "apsarastack_zones" default {
   available_resource_creation = "VSwitch"
+}
+
+data "apsarastack_instance_types" "default" {
+	cpu_core_count    = 1
+	memory_size       = 1
+}
+
+data "apsarastack_images" "default" {
+	name_regex  = "^ubuntu*"
+	owners      = "system"
 }
 
 resource "apsarastack_vpc" "default" {

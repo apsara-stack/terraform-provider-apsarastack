@@ -338,19 +338,14 @@ func resourceApsaraStackInstanceRead(d *schema.ResourceData, meta interface{}) e
 	if err != nil {
 		return WrapError(err)
 	}
-	datadisks, err := ecsService.DescribeInstanceDisksByType(d.Id(), client.ResourceGroup, "data")
-	if err != nil {
-		return WrapError(err)
-	}
-	for _, disk := range datadisks {
-		d.Set("system_disk_tags", ecsService.tagsToMap(disk.Tags.Tag))
-	}
+	system_disk_tags := getOnlySystemTags(d, system_disks[0].Tags.Tag)
+
 	d.Set("system_disk_category", system_disks[0].Category)
 	d.Set("system_disk_size", system_disks[0].Size)
 	d.Set("system_disk_name", system_disks[0].DiskName)
 	d.Set("system_disk_description", system_disks[0].Description)
 	d.Set("system_disk_id", system_disks[0].DiskId)
-	d.Set("system_disk_tags", ecsService.tagsToMap(system_disks[0].Tags.Tag))
+	d.Set("system_disk_tags", ecsService.tagsToMap(system_disk_tags))
 	d.Set("instance_name", instance.InstanceName)
 	d.Set("description", instance.Description)
 	d.Set("status", instance.Status)
@@ -625,7 +620,7 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 			return WrapError(err)
 		}
 		oraw := make(map[string]interface{})
-		sysdisk_tags := Ecs_merge_tags(d, system_disk_tags.(map[string]interface{}))
+		sysdisk_tags := ecsMergeTags(d, system_disk_tags.(map[string]interface{}))
 		err = updateTags(client, []string{disks[0].DiskId}, "disk", oraw, sysdisk_tags)
 		if err != nil {
 			return WrapError(err)
@@ -637,15 +632,17 @@ func resourceApsaraStackInstanceUpdate(d *schema.ResourceData, meta interface{})
 		if err != nil {
 			return WrapError(err)
 		}
-		oraw := make(map[string]interface{})
-		diskids := make([]string, 0, len(disks))
-		datadisk_tags := Ecs_merge_tags(d, data_disk_tags.(map[string]interface{}))
-		for _, disk := range disks {
-			diskids = append(diskids, disk.DiskId)
-		}
-		err = updateTags(client, diskids, "disk", oraw, datadisk_tags)
-		if err != nil {
-			return WrapError(err)
+		if len(disks) > 0 {
+			oraw := make(map[string]interface{})
+			diskids := make([]string, 0, len(disks))
+			datadisk_tags := ecsMergeTags(d, data_disk_tags.(map[string]interface{}))
+			for _, disk := range disks {
+				diskids = append(diskids, disk.DiskId)
+			}
+			err = updateTags(client, diskids, "disk", oraw, datadisk_tags)
+			if err != nil {
+				return WrapError(err)
+			}
 		}
 
 	}
@@ -1302,7 +1299,7 @@ func modifyInstanceNetworkSpec(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func Ecs_merge_tags(d *schema.ResourceData, disktags map[string]interface{}) map[string]interface{} {
+func ecsMergeTags(d *schema.ResourceData, disktags map[string]interface{}) map[string]interface{} {
 	if intance_tags, ok := d.GetOk("tags"); ok && len(intance_tags.(map[string]interface{})) > 0 {
 		mergedMap := make(map[string]interface{})
 		for k, v := range intance_tags.(map[string]interface{}) {
@@ -1315,4 +1312,31 @@ func Ecs_merge_tags(d *schema.ResourceData, disktags map[string]interface{}) map
 	}
 
 	return disktags
+}
+
+func getOnlySystemTags(d *schema.ResourceData, tags []ecs.Tag) []ecs.Tag {
+	var only_system_tags []ecs.Tag
+	old_s_tags := d.Get("system_tags").(map[string]interface{})
+	ecs_tags := d.Get("tags").(map[string]interface{})
+	only_ecs_tags := make([]string, 0)
+	// 获取只属于ecs的tags 的key列表
+	for k, _ := range ecs_tags {
+		if _, ok := old_s_tags[k]; !ok {
+			only_ecs_tags = append(only_ecs_tags, k)
+		}
+	}
+	// 剔除只属于ecs的tags
+	for _, tag := range tags {
+		in_only_ecs_tags := false
+		for _, only_ecs_tag := range only_ecs_tags {
+			if tag.TagKey == only_ecs_tag {
+				in_only_ecs_tags = true
+				break
+			}
+		}
+		if !in_only_ecs_tags {
+			only_system_tags = append(only_system_tags, tag)
+		}
+	}
+	return only_system_tags
 }

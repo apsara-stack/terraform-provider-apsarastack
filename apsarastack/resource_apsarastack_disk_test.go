@@ -321,18 +321,14 @@ data "apsarastack_zones" "default" {
 	available_resource_creation= "VSwitch"
 }
 
-resource "apsarastack_kms_key" "default" {
-    description = "test_create_disk"
-    pending_window_in_days = 7
-}
 
 resource "apsarastack_disk" "default" {
     name = "testAccDiskConfig_encrypted"
 	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
   	size = "50"
-	category = "cloud_pperf"
+	category = "cloud_efficiency"
 	encrypted = true
-	kms_key_id = "${apsarastack_kms_key.default.id}"
+	kms_key_id = "3852c3cd-3ace-468d-8b9b-c301c33a32b2"
 	encrypt_algorithm = "sm4-128"
 }
 `)
