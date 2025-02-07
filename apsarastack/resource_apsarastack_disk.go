@@ -142,10 +142,12 @@ func resourceApsaraStackDiskCreate(d *schema.ResourceData, meta interface{}) err
 		request.DiskCategory = v.(string)
 	}
 
-	request.Size = requests.NewInteger(d.Get("size").(int))
-
 	if v, ok := d.GetOk("snapshot_id"); ok && v.(string) != "" {
 		request.SnapshotId = v.(string)
+	}
+
+	if v, ok := d.GetOk("size"); ok {
+		request.Size = requests.NewInteger(v.(int))
 	}
 
 	if v, ok := d.GetOk("name"); ok && v.(string) != "" {
@@ -164,10 +166,7 @@ func resourceApsaraStackDiskCreate(d *schema.ResourceData, meta interface{}) err
 			if request.KMSKeyId == "" {
 				return WrapError(errors.New("KmsKeyId can not be empty if encrypted is set to \"true\""))
 			}
-			// 默认AES256不用传参，
-			if v, ok := d.GetOk("encrypt_algorithm"); ok && v.(string) == "sm4-128" {
-				request.EncryptAlgorithm = d.Get("encrypt_algorithm").(string)
-			}
+			request.EncryptAlgorithm = d.Get("encrypt_algorithm").(string)
 		}
 	}
 	if v, ok := d.GetOk("tags"); ok && len(v.(map[string]interface{})) > 0 {
