@@ -596,18 +596,18 @@ func resourceApsaraStackCSKubernetes() *schema.Resource {
 			},
 			"tags": tagsSchema(),
 		},
-		CustomizeDiff: schema.CustomizeDiffFunc(func(diff *schema.ResourceDiff, v interface{}) error {
-			is_enterprise_sg := diff.Get("is_enterprise_security_group").(bool)
-			security_group_id := diff.Get("security_group_id").(string)
+		// CustomizeDiff: schema.CustomizeDiffFunc(func(diff *schema.ResourceDiff, v interface{}) error {
+		// 	is_enterprise_sg := diff.Get("is_enterprise_security_group").(bool)
+		// 	security_group_id := diff.Get("security_group_id").(string)
 
-			if is_enterprise_sg && security_group_id != "" {
-				return fmt.Errorf("security_group_id must be `` or nil when is_enterprise_security_group is `true`")
-			}
-			if !is_enterprise_sg && security_group_id == "" {
-				return fmt.Errorf("security_group_id must be set when is_enterprise_security_group is `false` or not set")
-			}
-			return nil
-		}),
+		// 	if is_enterprise_sg && security_group_id != "" {
+		// 		return fmt.Errorf("security_group_id must be `` or nil when is_enterprise_security_group is `true`")
+		// 	}
+		// 	if !is_enterprise_sg && security_group_id == "" {
+		// 		return fmt.Errorf("security_group_id must be set when is_enterprise_security_group is `false` or not set")
+		// 	}
+		// 	return nil
+		// }),
 	}
 }
 
@@ -728,12 +728,19 @@ func resourceApsaraStackCSKubernetesCreate(d *schema.ResourceData, meta interfac
 	var secgroup string
 	var SecurityGroup string
 	if v, ok := d.GetOk("is_enterprise_security_group"); ok && v.(bool) {
+		if v, ok := d.GetOk("security_group_id"); ok && v.(string) != "" {
+			return fmt.Errorf("security_group_id must be `` or nil when is_enterprise_security_group is `true`")
+		}
 		secgroup = "is_enterprise_security_group"
 		is_enterprise_security_group := v.(bool)
 		SecurityGroup = fmt.Sprintf("%t", is_enterprise_security_group)
 	} else {
-		secgroup = "security_group_id"
-		SecurityGroup = fmt.Sprintf("\"%s\"", d.Get("security_group_id").(string))
+		if v, ok := d.GetOk("security_group_id"); ok && v.(string) != "" {
+			secgroup = "security_group_id"
+			SecurityGroup = fmt.Sprintf("\"%s\"", d.Get("security_group_id").(string))
+		} else {
+			return fmt.Errorf("security_group_id must be set when is_enterprise_security_group is `false` or not set")
+		}
 	}
 
 	request := requests.NewCommonRequest()

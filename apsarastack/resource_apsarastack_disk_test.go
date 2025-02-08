@@ -329,7 +329,6 @@ resource "apsarastack_disk" "default" {
 	category = "cloud_efficiency"
 	encrypted = true
 	kms_key_id = "3852c3cd-3ace-468d-8b9b-c301c33a32b2"
-	encrypt_algorithm = "sm4-128"
 }
 `)
 }
