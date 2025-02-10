@@ -49,10 +49,13 @@ func resourceApsaraStackLogAlert() *schema.Resource {
 				Required: true,
 			},
 			"mute_until": {
-				Type:         schema.TypeInt,
+				Type:         schema.TypeFloat,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
-				Default:      time.Now().Unix(),
+				// DefaultFunc: func() (interface{}, error) {
+				// 	return time.Now().Unix(), nil
+				// },
 			},
 			"throttling": {
 				Type:     schema.TypeString,
@@ -212,7 +215,7 @@ func resourceApsaraStackLogAlertRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("alert_description", object.Description)
 	d.Set("condition", object.Configuration.Condition)
 	d.Set("dashboard", object.Configuration.Dashboard)
-	d.Set("mute_until", object.Configuration.MuteUntil)
+	d.Set("mute_until", float64(object.Configuration.MuteUntil))
 	d.Set("throttling", object.Configuration.Throttling)
 	d.Set("notify_threshold", object.Configuration.NotifyThreshold)
 	d.Set("schedule_interval", object.Schedule.Interval)
@@ -399,12 +402,18 @@ func createAlertConfig(d *schema.ResourceData, project, dashboard string, client
 
 		}
 	}
+	var mute_until int64
+	if v, ok := d.GetOk("mute_until"); ok {
+		mute_until = int64(v.(float64))
+	} else {
+		mute_until = time.Now().Unix()
+	}
 
 	config := &sls.AlertConfiguration{
 		Condition:        d.Get("condition").(string),
 		Dashboard:        d.Get("dashboard").(string),
 		QueryList:        queryList,
-		MuteUntil:        int64(d.Get("mute_until").(int)),
+		MuteUntil:        mute_until,
 		NotificationList: noti,
 		Throttling:       d.Get("throttling").(string),
 		NotifyThreshold:  int32(d.Get("notify_threshold").(int)),
