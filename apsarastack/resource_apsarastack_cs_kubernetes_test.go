@@ -68,11 +68,10 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 					"platform":              "AliyunLinux",
 					"timeout_mins":          "60",
 					"vpc_id":                "${apsarastack_vpc.default.id}",
-					"image_id":              "${data.apsarastack_images.default.images.0.id}",
 					"master_count":          "3",
 					"master_disk_category":  "cloud_efficiency",
 					"master_disk_size":      "40",
-					"master_instance_types": []string{"ecs.se1ne.large", "ecs.se1ne.large", "ecs.se1ne.large"},
+					"master_instance_types": []string{"ecs.s6-hg-k-c1m1.large", "ecs.s6-hg-k-c1m1.large", "ecs.s6-hg-k-c1m1.large"},
 					"master_vswitch_ids":    []string{"${apsarastack_vswitch.default.id},${apsarastack_vswitch.default.id},${apsarastack_vswitch.default.id}"},
 
 					"num_of_nodes":         "1",
@@ -84,17 +83,18 @@ func TestAccApsaraStackCsK8s_Basic(t *testing.T) {
 							"version": "19.03.15",
 						},
 					},
-					"worker_instance_types": []string{"ecs.se1ne.large"},
-					"worker_vswitch_ids":    []string{"${apsarastack_vswitch.default.id}"},
-					"security_group_id":     "${apsarastack_security_group.default.id}",
-					"password":              "Alibaba@1688",
-					"delete_protection":     "false",
-					"pod_cidr":              "172.20.0.0/16",
-					"service_cidr":          "172.21.0.0/20",
-					"node_cidr_mask":        "24",
-					"new_nat_gateway":       "true",
-					"slb_internet_enabled":  "true",
-					"proxy_mode":            "ipvs",
+					"worker_instance_types":        []string{"ecs.s6-hg-k-c1m1.large"},
+					"worker_vswitch_ids":           []string{"${apsarastack_vswitch.default.id}"},
+					"security_group_id":            "${apsarastack_security_group.default.id}",
+					"is_enterprise_security_group": "true",
+					"password":                     "Alibaba@1688",
+					"delete_protection":            "false",
+					"pod_cidr":                     "172.20.0.0/16",
+					"service_cidr":                 "172.21.0.0/20",
+					"node_cidr_mask":               "24",
+					"new_nat_gateway":              "true",
+					"slb_internet_enabled":         "true",
+					"proxy_mode":                   "ipvs",
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheck(map[string]string{
@@ -126,27 +126,22 @@ data "apsarastack_zones" default {
 // 	memory_size       = 1
 // }
 
-data "apsarastack_images" "default" {
-	name_regex  = "^ubuntu*"
-	owners      = "system"
-}
-
 resource "apsarastack_vpc" "default" {
-cidr_block = "172.16.0.0/16"
-name = "${var.name}"
+	cidr_block = "172.16.0.0/16"
+	name = "${var.name}"
 }
 
 resource "apsarastack_vswitch" "default" {
-vpc_id            = "${apsarastack_vpc.default.id}"
-cidr_block        = "172.16.0.0/24"
-availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
-name              = "${var.name}"
+	vpc_id            = "${apsarastack_vpc.default.id}"
+	cidr_block        = "172.16.0.0/24"
+	availability_zone = "${data.apsarastack_zones.default.zones.0.id}"
+	name              = "${var.name}"
 }
 
 resource "apsarastack_security_group" "default" {
 	name   = "${var.name}"
 	vpc_id = "${apsarastack_vpc.default.id}"
-  }
+}
 
   
 variable "cluster_addons" {
