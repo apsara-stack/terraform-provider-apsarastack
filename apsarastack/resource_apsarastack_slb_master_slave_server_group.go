@@ -120,7 +120,10 @@ func resourceApsaraStackSlbMasterSlaveServerGroupRead(d *schema.ResourceData, me
 	}
 
 	d.Set("name", object.MasterSlaveServerGroupName)
-	d.Set("load_balancer_id", object.LoadBalancerId)
+	if object.LoadBalancerId != "" {
+		// 在专有云的实际环境中可能不会返回相关值导致每次apply都会去销毁资源后重建
+		d.Set("load_balancer_id", object.LoadBalancerId)
+	}
 
 	servers := make([]map[string]interface{}, 0)
 

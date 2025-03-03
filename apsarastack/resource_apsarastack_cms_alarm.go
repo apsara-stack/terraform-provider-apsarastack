@@ -45,10 +45,30 @@ func resourceApsaraStackCmsAlarm() *schema.Resource {
 				ForceNew: true,
 			},
 			"dimensions": {
-				Type:     schema.TypeMap,
-				Required: true,
+				Type:          schema.TypeMap,
+				Optional:      true,
+				ForceNew:      true,
+				Elem:          schema.TypeString,
+				Deprecated:    "Field 'dimensions' is deprecated and will be removed in a future release. Please use new field 'resources' instead.",
+				ConflictsWith: []string{"resources"},
+			},
+			"resources": {
+				Type:     schema.TypeList,
+				Optional: true,
 				ForceNew: true,
-				Elem:     schema.TypeString,
+				Elem: &schema.Schema{
+					Type: schema.TypeMap,
+					Elem: &schema.Schema{
+						Type: schema.TypeString,
+					},
+					ValidateFunc: func(i interface{}, k string) ([]string, []error) {
+						m := i.(map[string]interface{})
+						if len(m) > 1 {
+							return nil, []error{fmt.Errorf("too large map")}
+						}
+						return nil, nil
+					},
+				},
 			},
 			"period": {
 				Type:     schema.TypeInt,
@@ -263,6 +283,14 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 			}
 
 		}
+	} else if resources, ok := d.GetOk("resources"); ok {
+		for _, item := range resources.([]interface{}) {
+			for k, v := range item.(map[string]interface{}) {
+				dimList = append(dimList, map[string]string{k: Trim(v.(string))})
+			}
+		}
+	} else {
+		return fmt.Errorf("dimensions and resources can not be empty at the same time")
 	}
 	if len(dimList) > 0 {
 		if bytes, err := json.Marshal(dimList); err != nil {
@@ -288,7 +316,7 @@ func resourceApsaraStackCmsAlarmCreate(d *schema.ResourceData, meta interface{})
 
 	nrequest.Headers = map[string]string{"RegionId": client.RegionId}
 	nrequest.QueryParams = map[string]string{
-		
+
 		"Product":                        "cms",
 		"Department":                     client.Department,
 		"ResourceGroup":                  client.ResourceGroup,
@@ -473,13 +501,13 @@ func resourceApsaraStackCmsAlarmRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("enabled", alarm.EnableState)
 	d.Set("contact_groups", strings.Split(alarm.ContactGroups, ","))
 
-	var dims []string
-	if alarm.Dimensions != "" {
-		if err := json.Unmarshal([]byte(alarm.Dimensions), &dims); err != nil {
-			return fmt.Errorf("Unmarshaling Dimensions got an error: %#v.", err)
-		}
-	}
-	d.Set("dimensions", dims)
+	// var dims []string
+	// if alarm.Dimensions != "" {
+	// 	if err := json.Unmarshal([]byte(alarm.Dimensions), &dims); err != nil {
+	// 		return fmt.Errorf("Unmarshaling Dimensions got an error: %#v.", err)
+	// 	}
+	// }
+	// d.Set("dimensions", dims)
 
 	return nil
 }

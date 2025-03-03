@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	util "github.com/alibabacloud-go/tea-utils/service"
@@ -120,11 +119,7 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	request.Product = "CloudDns"   // Specify product
 	request.Domain = client.Domain // Location Service will not be enabled if the host is specified. For example, service with a Certification type-Bearer Token should be specified
 	request.Version = "2021-06-24" // Specify product version
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
+	request.Scheme = "HTTP"        // CloudDns不支持HTTPS
 	line_ids := expandStringList(d.Get("line_ids").(*schema.Set).List())
 	if len(line_ids) <= 0 {
 		line_ids = []string{"default"}
@@ -135,21 +130,20 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	request.ApiName = "AddGlobalZoneRecord"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		
-		
-		"Product":         "CloudDns",
-		"RegionId":        client.RegionId,
-		"Action":          "AddGlobalZoneRecord",
-		"Version":         "2021-06-24",
-		"Name":            Name,
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
-		"Type":            Type,
-		"Ttl":             fmt.Sprintf("%d", TTL),
-		"ZoneId":          ZoneId,
-		"LbaStrategy":     LbaStrategy,
-		"ClientToken":     buildClientToken("AddGlobalZoneRecord"),
-		"LineIds":         line_ids_str,
+
+		"Product":       "CloudDns",
+		"RegionId":      client.RegionId,
+		"Action":        "AddGlobalZoneRecord",
+		"Version":       "2021-06-24",
+		"Name":          Name,
+		"Department":    client.Department,
+		"ResourceGroup": client.ResourceGroup,
+		"Type":          Type,
+		"Ttl":           fmt.Sprintf("%d", TTL),
+		"ZoneId":        ZoneId,
+		"LbaStrategy":   LbaStrategy,
+		"ClientToken":   buildClientToken("AddGlobalZoneRecord"),
+		"LineIds":       line_ids_str,
 	}
 	var rrsets []string
 	if v, ok := d.GetOk("rr_set"); ok {
@@ -179,10 +173,14 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	if resp["asapiSuccess"].(bool) == false {
 		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_record", "AddGlobalZoneRecord", ApsaraStackSdkGoERROR)
 	}
+	if recordId, ok := resp["Id"]; !ok {
+		return fmt.Errorf("AddGlobalZoneRecord response does not contain record id")
+	} else {
+		d.Set("record_id", recordId.(string))
+		d.SetId(fmt.Sprintf("%s:%s", ZoneId, recordId))
+	}
 
-	d.SetId(fmt.Sprint(ZoneId))
-
-	return resourceApsaraStackDnsRecordRead(d, meta)
+	return resourceApsaraStackDnsRecordUpdate(d, meta)
 }
 
 func resourceApsaraStackDnsRecordRead(d *schema.ResourceData, meta interface{}) error {
@@ -198,6 +196,11 @@ func resourceApsaraStackDnsRecordRead(d *schema.ResourceData, meta interface{}) 
 		}
 		return WrapError(err)
 	}
+	// 强制重新设置id，为了实现后续主键的迁移
+	if d.Get("record_id").(string) == "" {
+		d.SetId(fmt.Sprintf("%s:%s", object.Data[0].ZoneId, d.Get("record_id").(string)))
+	}
+	d.SetId(fmt.Sprintf("%s:%s", object.Data[0].ZoneId, object.Data[0].Id))
 	d.Set("ttl", object.Data[0].TTL)
 	d.Set("record_id", object.Data[0].Id)
 	d.Set("name", object.Data[0].Name)
@@ -233,24 +236,19 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 		request.Product = "CloudDns"
 		request.Domain = client.Domain
 		request.Version = "2021-06-24"
-		if strings.ToLower(client.Config.Protocol) == "https" {
-			request.Scheme = "https"
-		} else {
-			request.Scheme = "http"
-		}
+		request.Scheme = "HTTP" // CloudDns不支持HTTPS
 		request.ApiName = "UpdateGlobalZoneRecordRemark"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId
 
 		request.QueryParams = map[string]string{
-			
-			
-			"Product":         "CloudDns",
-			"RegionId":        client.RegionId,
-			"Action":          "UpdateGlobalZoneRecordRemark",
-			"Version":         "2021-06-24",
-			"Id":              fmt.Sprint(ID),
-			"Remark":          desc,
+
+			"Product":  "CloudDns",
+			"RegionId": client.RegionId,
+			"Action":   "UpdateGlobalZoneRecordRemark",
+			"Version":  "2021-06-24",
+			"Id":       fmt.Sprint(ID),
+			"Remark":   desc,
 		}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
@@ -310,7 +308,7 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 		attributeUpdate = true
 	}
 
-	if attributeUpdate {
+	if !d.IsNewResource() && attributeUpdate {
 		request := make(map[string]interface{})
 		var rrsets []string
 		if v, ok := d.GetOk("rr_set"); ok {
@@ -369,22 +367,17 @@ func resourceApsaraStackDnsRecordDelete(d *schema.ResourceData, meta interface{}
 	request.Product = "CloudDns"
 	request.Domain = client.Domain
 	request.Version = "2021-06-24"
-	if strings.ToLower(client.Config.Protocol) == "https" {
-		request.Scheme = "https"
-	} else {
-		request.Scheme = "http"
-	}
+	request.Scheme = "HTTP" // CloudDns不支持HTTPS
 	request.ApiName = "DeleteGlobalZoneRecord"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-		
-		
-		"Product":         "CloudDns",
-		"RegionId":        client.RegionId,
-		"Action":          "DeleteGlobalZoneRecord",
-		"Version":         "2021-06-24",
-		"Id":              fmt.Sprint(ID),
-		"ZoneId":          fmt.Sprint(ZoneId),
+
+		"Product":  "CloudDns",
+		"RegionId": client.RegionId,
+		"Action":   "DeleteGlobalZoneRecord",
+		"Version":  "2021-06-24",
+		"Id":       fmt.Sprint(ID),
+		"ZoneId":   fmt.Sprint(ZoneId),
 	}
 	raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
 		return dnsClient.ProcessCommonRequest(request)

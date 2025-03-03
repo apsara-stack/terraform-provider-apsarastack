@@ -27,6 +27,7 @@ func resourceApsaraStackSlbServerGroup() *schema.Resource {
 			"load_balancer_id": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 
 			"name": {
@@ -100,7 +101,7 @@ func resourceApsaraStackSlbServerGroupCreate(d *schema.ResourceData, meta interf
 	addDebug(request.GetActionName(), raw, request.RpcRequest, request)
 	response, _ := raw.(*slb.CreateVServerGroupResponse)
 	d.SetId(response.VServerGroupId)
-	d.Set("load_balancer_id", d.Get("load_balancer_id").(string))
+	// d.Set("load_balancer_id", d.Get("load_balancer_id").(string))
 	return resourceApsaraStackSlbServerGroupUpdate(d, meta)
 }
 
@@ -118,7 +119,9 @@ func resourceApsaraStackSlbServerGroupRead(d *schema.ResourceData, meta interfac
 	}
 
 	d.Set("name", object.VServerGroupName)
-	d.Set("load_balancer_id", object.LoadBalancerId)
+	if object.LoadBalancerId != "" {
+		d.Set("load_balancer_id", object.LoadBalancerId)
+	}
 
 	servers := make([]map[string]interface{}, 0)
 	portAndWeight := make(map[string][]string)

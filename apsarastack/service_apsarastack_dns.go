@@ -21,22 +21,29 @@ type DnsService struct {
 }
 
 func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err error) {
-	ZoneId := id
+	var zoneId, recordId string
+	if v := strings.SplitN(id, ":", 2); len(v) > 1 {
+		zoneId = v[0]
+		recordId = v[1]
+	} else {
+		zoneId = v[0]
+		recordId = ""
+	}
 	request := requests.NewCommonRequest()
 	if s.client.Config.Insecure {
 		request.SetHTTPSInsecure(s.client.Config.Insecure)
 	}
 	request.QueryParams = map[string]string{
-		"RegionId":        s.client.RegionId,
-		
-		"Department":      s.client.Department,
-		"Product":         "CloudDns",
-		"Action":          "DescribeGlobalZoneRecords",
-		"Version":         "2021-06-24",
-		"ZoneId":          ZoneId,
-		"PageNumber":      fmt.Sprint(1),
-		"PageSize":        fmt.Sprint(PageSizeLarge),
-		"ResourceGroup":   s.client.ResourceGroup,
+		"RegionId": s.client.RegionId,
+
+		"Department":    s.client.Department,
+		"Product":       "CloudDns",
+		"Action":        "DescribeGlobalZoneRecords",
+		"Version":       "2021-06-24",
+		"ZoneId":        zoneId,
+		"PageNumber":    fmt.Sprint(1),
+		"PageSize":      fmt.Sprint(PageSizeLarge),
+		"ResourceGroup": s.client.ResourceGroup,
 	}
 	request.Method = "POST"
 	request.Product = "CloudDns"
@@ -79,6 +86,21 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 
 	if len(resp.Data) < 1 || resp.AsapiSuccess == true {
 		return resp, WrapError(err)
+	} else if recordId == "" && len(resp.Data) > 1 {
+		return resp, WrapErrorf(err, "record id is Empty, and mutple records found")
+	}
+
+	filtered := resp.Data[:0] // 复用底层数组
+	for _, data := range resp.Data {
+		if data.Id == recordId {
+			filtered = append(filtered, data)
+			break
+		}
+	}
+	resp.Data = filtered
+
+	if len(resp.Data) < 1 {
+		return resp, fmt.Errorf("not found dnsrecord")
 	}
 
 	return resp, nil
@@ -88,7 +110,7 @@ func (s *DnsService) DescribeDnsGroup(id string) (alidns.DomainGroup, error) {
 	var group alidns.DomainGroup
 	request := alidns.CreateDescribeDomainGroupsRequest()
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{ "Product": "alidns"}
+	request.QueryParams = map[string]string{"Product": "alidns"}
 	request.QueryParams["Department"] = s.client.Department
 	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 	request.RegionId = s.client.RegionId
@@ -126,7 +148,7 @@ func (s *DnsService) ListTagResources(id string) (object alidns.ListTagResources
 	request := alidns.CreateListTagResourcesRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{ "Product": "alidns"}
+	request.QueryParams = map[string]string{"Product": "alidns"}
 	request.QueryParams["Department"] = s.client.Department
 	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
@@ -148,7 +170,7 @@ func (s *DnsService) DescribeDnsDomainAttachment(id string) (object alidns.Descr
 	request := alidns.CreateDescribeInstanceDomainsRequest()
 	request.RegionId = s.client.RegionId
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
-	request.QueryParams = map[string]string{ "Product": "alidns"}
+	request.QueryParams = map[string]string{"Product": "alidns"}
 	request.QueryParams["Department"] = s.client.Department
 	request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
@@ -226,7 +248,7 @@ func (s *DnsService) SetResourceTags(d *schema.ResourceData, resourceType string
 		request := alidns.CreateUntagResourcesRequest()
 		request.RegionId = s.client.RegionId
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
-		request.QueryParams = map[string]string{ "Product": "alidns"}
+		request.QueryParams = map[string]string{"Product": "alidns"}
 		request.QueryParams["Department"] = s.client.Department
 		request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
@@ -245,7 +267,7 @@ func (s *DnsService) SetResourceTags(d *schema.ResourceData, resourceType string
 		request := alidns.CreateTagResourcesRequest()
 		request.RegionId = s.client.RegionId
 		request.Headers = map[string]string{"RegionId": s.client.RegionId}
-		request.QueryParams = map[string]string{ "Product": "alidns"}
+		request.QueryParams = map[string]string{"Product": "alidns"}
 		request.QueryParams["Department"] = s.client.Department
 		request.QueryParams["ResourceGroup"] = s.client.ResourceGroup
 
@@ -281,8 +303,7 @@ func (s *DnsService) DescribeDnsDomain(id string) (response *DnsDomains, err err
 	request.ApiName = "DescribeGlobalZones"
 	request.Headers = map[string]string{"RegionId": s.client.RegionId}
 	request.QueryParams = map[string]string{
-		
-		
+
 		"Product":           "CloudDns",
 		"RegionId":          s.client.RegionId,
 		"Action":            "DescribeGlobalZones",
