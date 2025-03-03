@@ -34,8 +34,7 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 		request.SetHTTPSInsecure(s.client.Config.Insecure)
 	}
 	request.QueryParams = map[string]string{
-		"RegionId": s.client.RegionId,
-
+		"RegionId":      s.client.RegionId,
 		"Department":    s.client.Department,
 		"Product":       "CloudDns",
 		"Action":        "DescribeGlobalZoneRecords",
@@ -61,6 +60,7 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 	raw, err := s.client.WithEcsClient(func(cmsClient *ecs.Client) (interface{}, error) {
 		return cmsClient.ProcessCommonRequest(request)
 	})
+	addDebug("DescribeGlobalZoneRecords", raw, request, request.QueryParams)
 	if err != nil {
 		if IsExpectedErrors(err, []string{"ErrorRecordNotFound"}) {
 			return resp, WrapErrorf(err, NotFoundMsg, ApsaraStackSdkGoERROR)
@@ -76,7 +76,6 @@ func (s *DnsService) DescribeDnsRecord(id string) (response *DnsRecord, err erro
 	//		return resp, WrapErrorf(err, DefaultErrorMsg, "apsarastack_ascm", "API Action", headers["X-Acs-Response-Errorhint"][0])
 	//	}
 	//}
-	addDebug("DescribeGlobalZoneRecords", bresponse, request.QueryParams)
 
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), resp)
 	if err != nil {

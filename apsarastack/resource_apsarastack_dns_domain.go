@@ -84,15 +84,14 @@ func resourceApsaraStackDnsDomainCreate(d *schema.ResourceData, meta interface{}
 		request.ApiName = "AddGlobalZone"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
-			
-			
-			"Product":         "CloudDns",
-			"RegionId":        client.RegionId,
-			"Action":          "AddGlobalZone",
-			"Version":         "2021-06-24",
-			"Name":            DomainName,
-			"Department":      client.Department,
-			"ResourceGroup":   client.ResourceGroup,
+
+			"Product":       "CloudDns",
+			"RegionId":      client.RegionId,
+			"Action":        "AddGlobalZone",
+			"Version":       "2021-06-24",
+			"Name":          DomainName,
+			"Department":    client.Department,
+			"ResourceGroup": client.ResourceGroup,
 		}
 		raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
 			return dnsClient.ProcessCommonRequest(request)
@@ -163,13 +162,35 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 			desc = v.(string)
 		}
 		check.Data[0].Remark = desc
-		remarkUpdate = true
+		request := requests.NewCommonRequest()
+		request.Method = "POST"
+		request.Product = "CloudDns"
+		request.Domain = client.Domain
+		request.Version = "2021-06-24"
+		request.Scheme = "http"
+		request.ApiName = "UpdateGlobalZoneRecordRemark"
+		request.Headers = map[string]string{"RegionId": client.RegionId}
+		request.RegionId = client.RegionId
+
+		request.QueryParams["Id"] = did[1]
+		request.QueryParams["Remark"] = desc
+		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
+			return ecsClient.ProcessCommonRequest(request)
+		})
+		addDebug(request.GetActionName(), raw, request)
+		log.Printf(" response of raw UpdateGlobalZoneRecordRemark : %s", raw)
+
+		if err != nil {
+			return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", "UpdateGlobalZoneRecordRemark", raw)
+		}
+		addDebug(request.GetActionName(), raw, request)
 	} else {
 		if v, ok := d.GetOk("remark"); ok {
 			desc = v.(string)
 		}
 		check.Data[0].Remark = desc
 	}
+
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
 	request.Product = "CloudDns"
@@ -185,17 +206,16 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 	request.RegionId = client.RegionId
 
 	request.QueryParams = map[string]string{
-		
-		
-		"Product":         "CloudDns",
-		"RegionId":        client.RegionId,
-		"Action":          "UpdateGlobalZoneRemark",
-		"Version":         "2021-06-24",
-		"Name":            did[0],
-		"Id":              did[1],
-		"Remark":          desc,
-		"Department":      client.Department,
-		"ResourceGroup":   client.ResourceGroup,
+
+		"Product":       "CloudDns",
+		"RegionId":      client.RegionId,
+		"Action":        "UpdateGlobalZoneRemark",
+		"Version":       "2021-06-24",
+		"Name":          did[0],
+		"Id":            did[1],
+		"Remark":        desc,
+		"Department":    client.Department,
+		"ResourceGroup": client.ResourceGroup,
 	}
 	if remarkUpdate {
 
@@ -238,15 +258,14 @@ func resourceApsaraStackDnsDomainDelete(d *schema.ResourceData, meta interface{}
 		request.ApiName = "DeleteGlobalZone"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.QueryParams = map[string]string{
-			
-			
-			"Product":         "CloudDns",
-			"RegionId":        client.RegionId,
-			"Action":          "DeleteGlobalZone",
-			"Version":         "2021-06-24",
-			"Id":              did[1],
-			"Department":      client.Department,
-			"ResourceGroup":   client.ResourceGroup,
+
+			"Product":       "CloudDns",
+			"RegionId":      client.RegionId,
+			"Action":        "DeleteGlobalZone",
+			"Version":       "2021-06-24",
+			"Id":            did[1],
+			"Department":    client.Department,
+			"ResourceGroup": client.ResourceGroup,
 		}
 		_, err := client.WithEcsClient(func(csClient *ecs.Client) (interface{}, error) {
 			return csClient.ProcessCommonRequest(request)

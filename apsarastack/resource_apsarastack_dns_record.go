@@ -130,7 +130,6 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	request.ApiName = "AddGlobalZoneRecord"
 	request.Headers = map[string]string{"RegionId": client.RegionId}
 	request.QueryParams = map[string]string{
-
 		"Product":       "CloudDns",
 		"RegionId":      client.RegionId,
 		"Action":        "AddGlobalZoneRecord",
@@ -144,6 +143,7 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 		"LbaStrategy":   LbaStrategy,
 		"ClientToken":   buildClientToken("AddGlobalZoneRecord"),
 		"LineIds":       line_ids_str,
+		"Remark":        d.Get("remark").(string),
 	}
 	var rrsets []string
 	if v, ok := d.GetOk("rr_set"); ok {
@@ -176,7 +176,7 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	if recordId, ok := resp["Id"]; !ok {
 		return fmt.Errorf("AddGlobalZoneRecord response does not contain record id")
 	} else {
-		d.Set("record_id", recordId.(string))
+		d.Set("record_id", recordId)
 		d.SetId(fmt.Sprintf("%s:%s", ZoneId, recordId))
 	}
 
@@ -214,7 +214,7 @@ func resourceApsaraStackDnsRecordRead(d *schema.ResourceData, meta interface{}) 
 func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
 	dnsService := DnsService{client}
-	ID := d.Get("record_id").(int)
+	ID := d.Get("record_id").(string)
 	ZoneId := d.Get("zone_id").(string)
 	Name := d.Get("name").(string)
 	LbaStrategy := d.Get("lba_strategy").(string)
@@ -360,7 +360,7 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 
 func resourceApsaraStackDnsRecordDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*connectivity.ApsaraStackClient)
-	ID := d.Get("record_id").(int)
+	ID := d.Get("record_id").(string)
 	ZoneId := d.Get("zone_id").(string)
 	request := requests.NewCommonRequest()
 	request.Method = "POST"
