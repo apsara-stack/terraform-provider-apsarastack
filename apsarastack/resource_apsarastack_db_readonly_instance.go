@@ -80,9 +80,9 @@ func resourceApsaraStackDBReadonlyInstance() *schema.Resource {
 
 			"storage_type": {
 				Type:         schema.TypeString,
-				ForceNew:     true,
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"local_ssd", "cloud_ssd", "cloud_pperf", "cloud_sperf"}, false),
+				Deprecated:    "Field 'storage_type' is deprecated and will be removed in a future release. Please use new field 'db_instance_storage_type' instead.",
 			},
 
 			"monitoring_period": {
