@@ -1246,7 +1246,6 @@ func getResourceCredentials(config *connectivity.Config) (string, string, string
 	}
 	request.ApiName = "ListResourceGroup"
 	request.QueryParams = map[string]string{
-		"AccessKeySecret":   config.SecretKey,
 		"Product":           "ascm",
 		"Department":        config.Department,
 		"ResourceGroup":     config.ResourceGroup,

@@ -32,7 +32,7 @@ func resourceApsaraStackDnsRecord() *schema.Resource {
 				Required: true,
 			},
 			"record_id": {
-				Type:     schema.TypeInt,
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 			"name": {
