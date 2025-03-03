@@ -493,8 +493,6 @@ func resourceApsaraStackDBInstanceUpdate(d *schema.ResourceData, meta interface{
 		if _, err := stateConf.WaitForState(); err != nil {
 			return WrapErrorf(err, IdMsg, d.Id())
 		}
-		d.SetPartial("instance_charge_type")
-		d.SetPartial("period")
 
 	}
 
@@ -818,7 +816,10 @@ func resourceApsaraStackDBInstanceRead(d *schema.ResourceData, meta interface{})
 	d.Set("port", instance.Port)
 	d.Set("instance_storage", instance.DBInstanceStorage)
 	d.Set("zone_id", instance.ZoneId)
-	d.Set("instance_charge_type", instance.PayType)
+	if instance.PayType != "" {
+		// 专有支侧不支持这个参数
+		d.Set("instance_charge_type", instance.PayType)
+	}
 	d.Set("period", d.Get("period"))
 	d.Set("vswitch_id", instance.VSwitchId)
 	d.Set("connection_string", instance.ConnectionString)
