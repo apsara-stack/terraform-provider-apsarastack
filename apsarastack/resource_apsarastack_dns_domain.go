@@ -171,19 +171,26 @@ func resourceApsaraStackDnsDomainUpdate(d *schema.ResourceData, meta interface{}
 		request.ApiName = "UpdateGlobalZoneRecordRemark"
 		request.Headers = map[string]string{"RegionId": client.RegionId}
 		request.RegionId = client.RegionId
-
-		request.QueryParams["Id"] = did[1]
-		request.QueryParams["Remark"] = desc
+		request.QueryParams = map[string]string{
+			"Product":       "CloudDns",
+			"RegionId":      client.RegionId,
+			"Action":        "UpdateGlobalZoneRecordRemark",
+			"Version":       "2021-06-24",
+			"Name":          did[0],
+			"Id":            did[1],
+			"Remark":        desc,
+			"Department":    client.Department,
+			"ResourceGroup": client.ResourceGroup,
+		}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
 		})
-		addDebug(request.GetActionName(), raw, request)
+		addDebug(request.GetActionName(), raw, request, request.QueryParams)
 		log.Printf(" response of raw UpdateGlobalZoneRecordRemark : %s", raw)
 
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_domain", "UpdateGlobalZoneRecordRemark", raw)
 		}
-		addDebug(request.GetActionName(), raw, request)
 	} else {
 		if v, ok := d.GetOk("remark"); ok {
 			desc = v.(string)

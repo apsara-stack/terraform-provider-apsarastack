@@ -156,7 +156,7 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	raw, err := client.WithEcsClient(func(dnsClient *ecs.Client) (interface{}, error) {
 		return dnsClient.ProcessCommonRequest(request)
 	})
-	addDebug(request.GetActionName(), raw, request)
+	addDebug(request.GetActionName(), raw, request, request.QueryParams)
 	if err != nil {
 		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_record", request.GetActionName(), ApsaraStackSdkGoERROR)
 	}
@@ -164,7 +164,7 @@ func resourceApsaraStackDnsRecordCreate(d *schema.ResourceData, meta interface{}
 	if bresponse.GetHttpStatus() != 200 {
 		return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_record", "AddGlobalZoneRecord", ApsaraStackSdkGoERROR)
 	}
-	addDebug("AddGlobalZoneRecord", raw, request, bresponse.GetHttpContentString())
+	addDebug("AddGlobalZoneRecord", raw, request, request.QueryParams)
 	var resp map[string]interface{}
 	err = json.Unmarshal(bresponse.GetHttpContentBytes(), &resp)
 	if err != nil {
@@ -242,13 +242,15 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 		request.RegionId = client.RegionId
 
 		request.QueryParams = map[string]string{
-
-			"Product":  "CloudDns",
-			"RegionId": client.RegionId,
-			"Action":   "UpdateGlobalZoneRecordRemark",
-			"Version":  "2021-06-24",
-			"Id":       fmt.Sprint(ID),
-			"Remark":   desc,
+			"Product":       "CloudDns",
+			"RegionId":      client.RegionId,
+			"Action":        "UpdateGlobalZoneRecordRemark",
+			"Version":       "2021-06-24",
+			"Name":          Name,
+			"Id":            ID,
+			"Remark":        desc,
+			"Department":    client.Department,
+			"ResourceGroup": client.ResourceGroup,
 		}
 		raw, err := client.WithEcsClient(func(ecsClient *ecs.Client) (interface{}, error) {
 			return ecsClient.ProcessCommonRequest(request)
@@ -258,7 +260,7 @@ func resourceApsaraStackDnsRecordUpdate(d *schema.ResourceData, meta interface{}
 		if err != nil {
 			return WrapErrorf(err, DefaultErrorMsg, "ApsaraStack_dns_record", "UpdateGlobalZoneRecordRemark", raw)
 		}
-		addDebug(request.GetActionName(), raw, request)
+		addDebug(request.GetActionName(), raw, request, request.QueryParams)
 	} else {
 		if v, ok := d.GetOk("remark"); ok {
 			desc = v.(string)
