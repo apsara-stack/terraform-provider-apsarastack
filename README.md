@@ -1,7 +1,7 @@
 Terraform Provider For ApsaraStack Cloud
 ==================
 
-
+> **important** : This repository has been archived, Please use ![aliyun/alibabacloudstack](https://github.com/aliyun/terraform-provider-alibabacloudstack) as a replacement!
 
 - Website: https://www.terraform.io
 - [![Gitter chat](https://badges.gitter.im/hashicorp-terraform/Lobby.png)](https://gitter.im/hashicorp-terraform/Lobby)
